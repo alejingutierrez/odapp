@@ -22,8 +22,11 @@
     "rootDir": "./",
     "baseUrl": ".",
     "paths": {
+      "@oda/shared": ["packages/shared/src/index.ts"],
       "@oda/shared/*": ["packages/shared/src/*"],
+      "@oda/types": ["packages/types/src/index.ts"],
       "@oda/types/*": ["packages/types/src/*"],
+      "@oda/utils": ["packages/utils/src/index.ts"],
       "@oda/utils/*": ["packages/utils/src/*"]
     },
     "incremental": true,

@@ -12,7 +12,7 @@
     "test:coverage": "vitest --coverage",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts --fix",
-    "type-check": "tsc --noEmit",
+    "type-check": "pnpm db:generate && tsc --noEmit",
     "clean": "rm -rf dist",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

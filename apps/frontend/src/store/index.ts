@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, combineReducers, Middleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import {
   persistStore,
@@ -11,7 +11,6 @@ import {
   REGISTER,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
-import { combineReducers } from '@reduxjs/toolkit'
 
 // Import API and slices
 import { baseApi } from './api/baseApi'
@@ -46,11 +45,11 @@ const uiPersistConfig = {
 const rootReducer = combineReducers({
   // API slice
   [baseApi.reducerPath]: baseApi.reducer,
-  
+
   // Persisted slices
   auth: persistReducer(authPersistConfig, authReducer),
   ui: persistReducer(uiPersistConfig, uiReducer),
-  
+
   // Non-persisted slices (will be rehydrated from API)
   products: productsReducer,
   inventory: inventoryReducer,
@@ -61,7 +60,7 @@ const rootReducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 // Custom middleware for session management
-const sessionMiddleware = (store: any) => (next: any) => (action: any) => {
+const sessionMiddleware: Middleware = (store) => (next) => (action) => {
   // Check for session expiry on each action
   if (action.type !== 'auth/updateLastActivity') {
     const state = store.getState()
@@ -69,29 +68,30 @@ const sessionMiddleware = (store: any) => (next: any) => (action: any) => {
       const now = Date.now()
       const sessionExpiry = state.auth.sessionExpiry
       const lastActivity = state.auth.lastActivity
-      
+
       // Auto-logout if session expired
       if (sessionExpiry && now > sessionExpiry) {
         store.dispatch({ type: 'auth/logout' })
         return next(action)
       }
-      
+
       // Update last activity if user is active
-      if (now - lastActivity > 60000) { // Update every minute
+      if (now - lastActivity > 60000) {
+        // Update every minute
         store.dispatch({ type: 'auth/updateLastActivity' })
       }
     }
   }
-  
+
   return next(action)
 }
 
 // Custom middleware for error handling
-const errorMiddleware = (store: any) => (next: any) => (action: any) => {
+const errorMiddleware: Middleware = (store) => (next) => (action) => {
   // Handle RTK Query errors globally
   if (action.type?.endsWith('/rejected') && action.payload?.status) {
     const { status, data } = action.payload
-    
+
     // Handle authentication errors
     if (status === 401) {
       store.dispatch({ type: 'auth/clearCredentials' })
@@ -104,7 +104,7 @@ const errorMiddleware = (store: any) => (next: any) => (action: any) => {
         },
       })
     }
-    
+
     // Handle server errors
     if (status >= 500) {
       store.dispatch({
@@ -112,11 +112,12 @@ const errorMiddleware = (store: any) => (next: any) => (action: any) => {
         payload: {
           type: 'error',
           title: 'Server Error',
-          message: data?.message || 'An unexpected error occurred. Please try again.',
+          message:
+            data?.message || 'An unexpected error occurred. Please try again.',
         },
       })
     }
-    
+
     // Handle network errors
     if (status === 'FETCH_ERROR') {
       store.dispatch({
@@ -124,12 +125,13 @@ const errorMiddleware = (store: any) => (next: any) => (action: any) => {
         payload: {
           type: 'error',
           title: 'Network Error',
-          message: 'Unable to connect to the server. Please check your connection.',
+          message:
+            'Unable to connect to the server. Please check your connection.',
         },
       })
     }
   }
-  
+
   return next(action)
 }
 
@@ -149,7 +151,11 @@ export const store = configureStore({
           'persist/PERSIST',
         ],
         ignoredActionsPaths: ['meta.arg', 'payload.timestamp'],
-        ignoredPaths: ['items.dates', 'auth.sessionExpiry', 'auth.lastActivity'],
+        ignoredPaths: [
+          'items.dates',
+          'auth.sessionExpiry',
+          'auth.lastActivity',
+        ],
       },
       immutableCheck: {
         ignoredPaths: ['auth.user', 'products.items', 'inventory.items'],
@@ -165,11 +171,23 @@ export const store = configureStore({
   },
 })
 
-// Setup RTK Query listeners
-setupListeners(store.dispatch)
+// Setup RTK Query listeners (skip in test environment)
+if (process.env.NODE_ENV !== 'test') {
+  setupListeners(store.dispatch)
+}
 
-// Create persistor
-export const persistor = persistStore(store)
+// Create persistor (skip for test environment to avoid open handles)
+export const persistor =
+  process.env.NODE_ENV === 'test'
+    ? {
+        persist: () => {},
+        purge: async () => {},
+        flush: async () => {},
+        pause: () => {},
+        resume: () => {},
+        subscribe: () => () => {},
+      }
+    : persistStore(store)
 
 // Types
 export type RootState = ReturnType<typeof store.getState>

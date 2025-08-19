@@ -62,7 +62,7 @@ router.get('/',
   authorize(['products:read']),
   async (req, res, next) => {
     try {
-      const query = req.query as z.infer<typeof productQuerySchema>
+        const query = req.query as z.infer<typeof productQuerySchema>
       
       logger.info('Fetching products', { query, userId: req.user?.id })
       
@@ -346,8 +346,8 @@ router.get('/:id/variants',
     }
   }
 )
-/
-/ GET /products/analytics/overview - Get product analytics overview
+
+// GET /products/analytics/overview - Get product analytics overview
 router.get('/analytics/overview',
   authorize(['products:read', 'analytics:read']),
   async (req, res, next) => {

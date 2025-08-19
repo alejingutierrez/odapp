@@ -4,7 +4,7 @@ import { logger } from './logger';
 import { WebhookEvent, ShopifyProduct, ShopifyOrder, ShopifyCustomer } from '../types/shopify';
 
 export class WebhookProcessor {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private _prisma: PrismaClient) {}
 
   async process(event: WebhookEvent): Promise<void> {
     logger.info(`Processing webhook: ${event.topic}`, {
@@ -105,7 +105,7 @@ export class WebhookProcessor {
     
     try {
       // Find existing product
-      const existingProduct = await this.prisma.product.findFirst({
+      const existingProduct = await this._prisma.product.findFirst({
         where: { shopifyId: shopifyProduct.id.toString() },
         include: { variants: true, images: true },
       });
@@ -129,13 +129,13 @@ export class WebhookProcessor {
     const shopifyProduct: ShopifyProduct = event.payload;
     
     try {
-      const existingProduct = await this.prisma.product.findFirst({
+      const existingProduct = await this._prisma.product.findFirst({
         where: { shopifyId: shopifyProduct.id.toString() },
       });
 
       if (existingProduct) {
         // Soft delete or mark as archived
-        await this.prisma.product.update({
+        await this._prisma.product.update({
           where: { id: existingProduct.id },
           data: {
             status: 'archived',
@@ -157,7 +157,7 @@ export class WebhookProcessor {
     
     try {
       // Find existing order
-      const existingOrder = await this.prisma.order.findFirst({
+      const existingOrder = await this._prisma.order.findFirst({
         where: { shopifyId: shopifyOrder.id.toString() },
       });
 
@@ -180,13 +180,13 @@ export class WebhookProcessor {
     const shopifyOrder: ShopifyOrder = event.payload;
     
     try {
-      const existingOrder = await this.prisma.order.findFirst({
+      const existingOrder = await this._prisma.order.findFirst({
         where: { shopifyId: shopifyOrder.id.toString() },
       });
 
       if (existingOrder) {
         // Mark order as cancelled
-        await this.prisma.order.update({
+        await this._prisma.order.update({
           where: { id: existingOrder.id },
           data: {
             status: 'cancelled',
@@ -208,7 +208,7 @@ export class WebhookProcessor {
     
     try {
       // Find existing customer
-      const existingCustomer = await this.prisma.customer.findFirst({
+      const existingCustomer = await this._prisma.customer.findFirst({
         where: {
           OR: [
             { shopifyId: shopifyCustomer.id.toString() },
@@ -236,13 +236,13 @@ export class WebhookProcessor {
     const shopifyCustomer: ShopifyCustomer = event.payload;
     
     try {
-      const existingCustomer = await this.prisma.customer.findFirst({
+      const existingCustomer = await this._prisma.customer.findFirst({
         where: { shopifyId: shopifyCustomer.id.toString() },
       });
 
       if (existingCustomer) {
         // Soft delete customer (GDPR compliance)
-        await this.prisma.customer.update({
+        await this._prisma.customer.update({
           where: { id: existingCustomer.id },
           data: {
             status: 'deleted',
@@ -269,14 +269,14 @@ export class WebhookProcessor {
     
     try {
       // Find the variant by inventory item ID
-      const variant = await this.prisma.productVariant.findFirst({
+      const variant = await this._prisma.productVariant.findFirst({
         where: { shopifyInventoryItemId: inventoryLevel.inventory_item_id.toString() },
         include: { product: true },
       });
 
       if (variant) {
         // Update inventory
-        await this.prisma.inventory.upsert({
+        await this._prisma.inventory.upsert({
           where: { productVariantId: variant.id },
           update: {
             quantity: inventoryLevel.available,
@@ -303,7 +303,7 @@ export class WebhookProcessor {
   private async handleAppUninstallWebhook(event: WebhookEvent): Promise<void> {
     try {
       // Mark all sync statuses as disconnected
-      await this.prisma.syncStatus.updateMany({
+      await this._prisma.syncStatus.updateMany({
         where: { status: { in: ['pending', 'running'] } },
         data: { status: 'failed', completedAt: new Date() },
       });
@@ -319,7 +319,7 @@ export class WebhookProcessor {
   }
 
   private async createProductFromWebhook(shopifyProduct: ShopifyProduct): Promise<void> {
-    await this.prisma.product.create({
+    await this._prisma.product.create({
       data: {
         title: shopifyProduct.title,
         description: shopifyProduct.body_html,
@@ -358,7 +358,7 @@ export class WebhookProcessor {
   }
 
   private async updateProductFromWebhook(productId: string, shopifyProduct: ShopifyProduct): Promise<void> {
-    await this.prisma.product.update({
+    await this._prisma.product.update({
       where: { id: productId },
       data: {
         title: shopifyProduct.title,
@@ -378,7 +378,7 @@ export class WebhookProcessor {
     // Find or create customer first
     let customer = null;
     if (shopifyOrder.customer) {
-      customer = await this.prisma.customer.findFirst({
+      customer = await this._prisma.customer.findFirst({
         where: { shopifyId: shopifyOrder.customer.id.toString() },
       });
 
@@ -387,7 +387,7 @@ export class WebhookProcessor {
       }
     }
 
-    await this.prisma.order.create({
+    await this._prisma.order.create({
       data: {
         orderNumber: shopifyOrder.order_number.toString(),
         email: shopifyOrder.email,
@@ -418,7 +418,7 @@ export class WebhookProcessor {
   }
 
   private async updateOrderFromWebhook(orderId: string, shopifyOrder: ShopifyOrder): Promise<void> {
-    await this.prisma.order.update({
+    await this._prisma.order.update({
       where: { id: orderId },
       data: {
         financialStatus: shopifyOrder.financial_status,
@@ -429,8 +429,8 @@ export class WebhookProcessor {
     });
   }
 
-  private async createCustomerFromWebhook(shopifyCustomer: ShopifyCustomer): Promise<any> {
-    return await this.prisma.customer.create({
+  private async createCustomerFromWebhook(shopifyCustomer: ShopifyCustomer): Promise<unknown> {
+    return await this._prisma.customer.create({
       data: {
         firstName: shopifyCustomer.first_name,
         lastName: shopifyCustomer.last_name,
@@ -448,7 +448,7 @@ export class WebhookProcessor {
   }
 
   private async updateCustomerFromWebhook(customerId: string, shopifyCustomer: ShopifyCustomer): Promise<void> {
-    await this.prisma.customer.update({
+    await this._prisma.customer.update({
       where: { id: customerId },
       data: {
         firstName: shopifyCustomer.first_name,
@@ -467,7 +467,7 @@ export class WebhookProcessor {
 
   private async logWebhookEvent(event: WebhookEvent, status: 'processed' | 'failed', error?: Error): Promise<void> {
     try {
-      await this.prisma.webhookLog.create({
+      await this._prisma.webhookLog.create({
         data: {
           topic: event.topic,
           shopDomain: event.shop_domain,

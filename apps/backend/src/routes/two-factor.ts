@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator'
 import { TwoFactorService } from '../lib/two-factor'
 import { EmailService } from '../lib/email'
 import { authenticate, requireTwoFactor } from '../middleware/auth'
-import { prisma } from '../lib/prisma'
+// import { prisma } from '../lib/prisma'
 import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
 
 const router = Router()

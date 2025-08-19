@@ -2,16 +2,16 @@ import { logger } from './logger';
 import { RetryConfig, RetryAttempt } from '../types/shopify';
 
 export class RetryManager {
-  constructor(private config: RetryConfig) {}
+  constructor(private _config: RetryConfig) {}
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
     let lastError: Error;
     
-    for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= this._config.maxRetries; attempt++) {
       try {
         if (attempt > 0) {
           const delay = this.calculateDelay(attempt);
-          logger.info(`Retry attempt ${attempt}/${this.config.maxRetries} after ${delay}ms delay`);
+          logger.info(`Retry attempt ${attempt}/${this._config.maxRetries} after ${delay}ms delay`);
           await this.sleep(delay);
         }
 
@@ -34,18 +34,18 @@ export class RetryManager {
       }
     }
 
-    logger.error(`Operation failed after ${this.config.maxRetries} retries: ${lastError!.message}`);
+    logger.error(`Operation failed after ${this._config.maxRetries} retries: ${lastError!.message}`);
     throw lastError!;
   }
 
   private calculateDelay(attempt: number): number {
-    const exponentialDelay = this.config.baseDelay * Math.pow(this.config.backoffFactor, attempt - 1);
+    const exponentialDelay = this._config.baseDelay * Math.pow(this._config.backoffFactor, attempt - 1);
     const jitteredDelay = exponentialDelay * (0.5 + Math.random() * 0.5); // Add jitter
-    return Math.min(jitteredDelay, this.config.maxDelay);
+    return Math.min(jitteredDelay, this._config.maxDelay);
   }
 
   private shouldRetry(error: Error, attempt: number): boolean {
-    if (attempt >= this.config.maxRetries) {
+    if (attempt >= this._config.maxRetries) {
       return false;
     }
 

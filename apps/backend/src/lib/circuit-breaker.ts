@@ -7,6 +7,7 @@ export class CircuitBreaker {
   private lastFailureTime?: Date;
   private nextAttemptTime?: Date;
 
+  // eslint-disable-next-line no-unused-vars
   constructor(private config: CircuitBreakerConfig) {}
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {

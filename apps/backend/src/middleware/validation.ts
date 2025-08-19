@@ -5,8 +5,9 @@ import { ApiError } from '../lib/errors.js'
 // Create a simple logger fallback for tests
 const createLogger = () => {
   try {
-    const { logger } = require('../lib/logger.js')
-    return logger
+    // Use dynamic import but handle it synchronously for now
+    const loggerModule = require('../lib/logger.js')
+    return loggerModule.logger || loggerModule.default
   } catch {
     return {
       warn: console.warn,
@@ -54,7 +55,7 @@ export const validate = (schema: {
           field: err.path.join('.'),
           message: err.message,
           code: err.code,
-          received: err.received,
+          received: (err as any).received || undefined,
         }))
 
         logger.warn('Validation error', {
@@ -114,7 +115,7 @@ export const xssProtection = () => {
 
       // Sanitize query parameters
       if (req.query) {
-        req.query = sanitizeObject(req.query)
+        req.query = sanitizeObject(req.query) as typeof req.query
       }
 
       next()
@@ -200,7 +201,7 @@ const sanitizeInput = (input: string): string => {
 }
 
 // Recursively sanitize object
-const sanitizeObject = (obj: any): any => {
+const sanitizeObject = (obj: unknown): unknown => {
   if (typeof obj === 'string') {
     return sanitizeInput(obj)
   }
@@ -210,7 +211,7 @@ const sanitizeObject = (obj: any): any => {
   }
 
   if (obj && typeof obj === 'object') {
-    const sanitized: any = {}
+    const sanitized: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(obj)) {
       sanitized[key] = sanitizeObject(value)
     }
@@ -229,7 +230,7 @@ export const validateRateLimit = (options: {
   const requests = new Map<string, { count: number; resetTime: number }>()
 
   return (req: Request, res: Response, next: NextFunction) => {
-    const key = options.keyGenerator ? options.keyGenerator(req) : req.ip
+    const key = options.keyGenerator ? options.keyGenerator(req) : (req.ip || 'unknown')
     const now = Date.now()
     const windowStart = now - options.windowMs
 
@@ -258,7 +259,7 @@ export const validateRateLimit = (options: {
 
     // Increment request count
     requestData.count++
-    requests.set(key, requestData)
+    requests.set(key || 'unknown', requestData)
 
     // Set rate limit headers
     res.set({
@@ -276,23 +277,23 @@ export const validateIf = (
   condition: (req: Request) => boolean,
   schema: ZodSchema
 ) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    if (condition(req)) {
-      return validate({ body: schema })(req, res, next)
+  return async (_req: Request, _res: Response, _next: NextFunction) => {
+    if (condition(_req)) {
+      return validate({ body: schema })(_req, _res, _next)
     }
-    next()
+    _next()
   }
 }
 
 // Validation error formatter
-export const formatValidationError = (error: ZodError) => {
+export const formatValidationError = (_error: ZodError) => {
   return {
     message: 'Validation failed',
-    errors: error.errors.map(err => ({
+    errors: _error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
       code: err.code,
-      received: err.received,
+      received: (err as any).received || undefined,
     })),
   }
 }
@@ -329,7 +330,7 @@ export const commonValidationSchemas = {
 
   search: z.object({
     q: z.string().min(1).optional(),
-    filters: z.record(z.any()).optional(),
+    filters: z.record(z.unknown()).optional(),
   }),
 
   dateRange: z.object({

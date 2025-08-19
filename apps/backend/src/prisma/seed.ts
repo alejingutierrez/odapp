@@ -36,7 +36,7 @@ async function main() {
     },
   })
 
-  const managerRole = await prisma.role.upsert({
+  const _managerRole = await prisma.role.upsert({
     where: { name: 'manager' },
     update: {},
     create: {
@@ -56,7 +56,7 @@ async function main() {
     },
   })
 
-  const employeeRole = await prisma.role.upsert({
+  const _employeeRole = await prisma.role.upsert({
     where: { name: 'employee' },
     update: {},
     create: {
@@ -126,7 +126,7 @@ async function main() {
     },
   })
 
-  const retailStore = await prisma.location.upsert({
+  const _retailStore = await prisma.location.upsert({
     where: { code: 'STORE-01' },
     update: {},
     create: {
@@ -185,7 +185,7 @@ async function main() {
     },
   })
 
-  const womenBottoms = await prisma.category.upsert({
+  const _womenBottoms = await prisma.category.upsert({
     where: { slug: 'women-bottoms' },
     update: {},
     create: {
@@ -198,7 +198,7 @@ async function main() {
     },
   })
 
-  const menTops = await prisma.category.upsert({
+  const _menTops = await prisma.category.upsert({
     where: { slug: 'men-tops' },
     update: {},
     create: {
@@ -225,7 +225,7 @@ async function main() {
     },
   })
 
-  const summerCollection = await prisma.collection.upsert({
+  const _summerCollection = await prisma.collection.upsert({
     where: { slug: 'summer-2024' },
     update: {},
     create: {
@@ -380,7 +380,7 @@ async function main() {
 
   // Create customer segments
   console.log('Creating customer segments...')
-  const vipSegment = await prisma.customerSegment.upsert({
+  const _vipSegment = await prisma.customerSegment.upsert({
     where: { name: 'VIP Customers' },
     update: {},
     create: {
@@ -395,7 +395,7 @@ async function main() {
     },
   })
 
-  const frequentBuyersSegment = await prisma.customerSegment.upsert({
+  const _frequentBuyersSegment = await prisma.customerSegment.upsert({
     where: { name: 'Frequent Buyers' },
     update: {},
     create: {

@@ -4,13 +4,13 @@ import { logger } from './logger';
 import { SyncStatus } from '../types/shopify';
 
 export class SyncStatusManager {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private _prisma: PrismaClient) {}
 
   async startSync(entityType: string, direction: 'push' | 'pull'): Promise<string> {
     const syncId = uuidv4();
     
     try {
-      await this.prisma.syncStatus.create({
+      await this._prisma.syncStatus.create({
         data: {
           id: syncId,
           entityType,
@@ -34,7 +34,7 @@ export class SyncStatusManager {
 
   async completeSync(syncId: string, results: { successful: number; failed: number; total: number }): Promise<void> {
     try {
-      await this.prisma.syncStatus.update({
+      await this._prisma.syncStatus.update({
         where: { id: syncId },
         data: {
           status: 'completed',
@@ -54,7 +54,7 @@ export class SyncStatusManager {
 
   async failSync(syncId: string, error: Error): Promise<void> {
     try {
-      await this.prisma.syncStatus.update({
+      await this._prisma.syncStatus.update({
         where: { id: syncId },
         data: {
           status: 'failed',
@@ -75,7 +75,7 @@ export class SyncStatusManager {
     progress: { successful: number; failed: number; total: number; errors?: string[] }
   ): Promise<void> {
     try {
-      await this.prisma.syncStatus.update({
+      await this._prisma.syncStatus.update({
         where: { id: syncId },
         data: {
           successful: progress.successful,
@@ -91,7 +91,7 @@ export class SyncStatusManager {
 
   async getSyncStatus(syncId: string): Promise<SyncStatus | null> {
     try {
-      const status = await this.prisma.syncStatus.findUnique({
+      const status = await this._prisma.syncStatus.findUnique({
         where: { id: syncId },
       });
 
@@ -104,7 +104,7 @@ export class SyncStatusManager {
 
   async getAllSyncStatuses(): Promise<SyncStatus[]> {
     try {
-      const statuses = await this.prisma.syncStatus.findMany({
+      const statuses = await this._prisma.syncStatus.findMany({
         orderBy: { startedAt: 'desc' },
         take: 100, // Limit to recent syncs
       });
@@ -118,7 +118,7 @@ export class SyncStatusManager {
 
   async getSyncHistory(entityType?: string): Promise<SyncStatus[]> {
     try {
-      const statuses = await this.prisma.syncStatus.findMany({
+      const statuses = await this._prisma.syncStatus.findMany({
         where: entityType ? { entityType } : undefined,
         orderBy: { startedAt: 'desc' },
         take: 50,
@@ -133,7 +133,7 @@ export class SyncStatusManager {
 
   async getLastSyncTime(entityType: string): Promise<Date | undefined> {
     try {
-      const lastSync = await this.prisma.syncStatus.findFirst({
+      const lastSync = await this._prisma.syncStatus.findFirst({
         where: {
           entityType,
           status: 'completed',
@@ -150,7 +150,7 @@ export class SyncStatusManager {
 
   async getActiveSyncs(): Promise<SyncStatus[]> {
     try {
-      const activeSyncs = await this.prisma.syncStatus.findMany({
+      const activeSyncs = await this._prisma.syncStatus.findMany({
         where: {
           status: { in: ['pending', 'running'] },
         },
@@ -169,7 +169,7 @@ export class SyncStatusManager {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-      const result = await this.prisma.syncStatus.deleteMany({
+      const result = await this._prisma.syncStatus.deleteMany({
         where: {
           startedAt: {
             lt: cutoffDate,
@@ -197,7 +197,7 @@ export class SyncStatusManager {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const syncs = await this.prisma.syncStatus.findMany({
+      const syncs = await this._prisma.syncStatus.findMany({
         where: {
           ...(entityType && { entityType }),
           startedAt: { gte: startDate },

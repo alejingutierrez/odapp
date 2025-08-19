@@ -83,11 +83,11 @@ export const loggerStream = {
 }
 
 // Helper functions for structured logging
-export const logWithContext = (level: string, message: string, context?: Record<string, any>) => {
+export const logWithContext = (level: string, message: string, context?: Record<string, unknown>) => {
   logger.log(level, message, context)
 }
 
-export const logError = (error: Error, context?: Record<string, any>) => {
+export const logError = (error: Error, context?: Record<string, unknown>) => {
   logger.error(error.message, {
     error: {
       name: error.name,
@@ -98,7 +98,7 @@ export const logError = (error: Error, context?: Record<string, any>) => {
   })
 }
 
-export const logRequest = (req: any, res: any, responseTime?: number) => {
+export const logRequest = (req: Record<string, unknown>, res: Record<string, unknown>, responseTime?: number) => {
   logger.http('HTTP Request', {
     method: req.method,
     url: req.url,
@@ -110,7 +110,7 @@ export const logRequest = (req: any, res: any, responseTime?: number) => {
   })
 }
 
-export const logDatabaseQuery = (query: string, duration: number, context?: Record<string, any>) => {
+export const logDatabaseQuery = (query: string, duration: number, context?: Record<string, unknown>) => {
   logger.debug('Database Query', {
     query,
     duration: `${duration}ms`,
@@ -124,7 +124,7 @@ export const logExternalApiCall = (
   url: string,
   statusCode: number,
   duration: number,
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 ) => {
   logger.info('External API Call', {
     service,
@@ -136,7 +136,7 @@ export const logExternalApiCall = (
   })
 }
 
-export const logBusinessEvent = (event: string, context?: Record<string, any>) => {
+export const logBusinessEvent = (event: string, context?: Record<string, unknown>) => {
   logger.info('Business Event', {
     event,
     ...context,

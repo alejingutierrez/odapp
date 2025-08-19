@@ -17,7 +17,7 @@ export interface HealthCheck {
   status: 'pass' | 'warn' | 'fail'
   duration: number
   message?: string
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 export interface DatabaseMetrics {
@@ -237,7 +237,7 @@ export class DatabaseHealthChecker {
       await prisma.systemHealth.create({
         data: {
           service: 'database',
-          status: result.status.toUpperCase() as any,
+          status: result.status.toUpperCase() as 'HEALTHY' | 'DEGRADED' | 'UNHEALTHY',
           message: `Overall: ${result.status}`,
           metadata: {
             checks: result.checks,

@@ -5,12 +5,12 @@ export interface AuditLogEntry {
   action: string
   entity: string
   entityId: string
-  oldValues?: any
-  newValues?: any
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
   userId?: string
   ipAddress?: string
   userAgent?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface AuditQuery {
@@ -25,17 +25,17 @@ export interface AuditQuery {
 }
 
 export class AuditService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private _prisma: PrismaClient) {}
 
   async log(entry: AuditLogEntry): Promise<void> {
     try {
-      await this.prisma.auditLog.create({
+      await this._prisma.auditLog.create({
         data: {
           action: entry.action,
           entity: entry.entity,
           entityId: entry.entityId,
-          oldValues: entry.oldValues ? JSON.stringify(entry.oldValues) : null,
-          newValues: entry.newValues ? JSON.stringify(entry.newValues) : null,
+          oldValues: entry.oldValues ? JSON.stringify(entry.oldValues) : undefined,
+          newValues: entry.newValues ? JSON.stringify(entry.newValues) : undefined,
           userId: entry.userId,
           ipAddress: entry.ipAddress,
           userAgent: entry.userAgent,
@@ -66,7 +66,7 @@ export class AuditService {
       limit = 50
     } = query
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
 
     if (entity) where.entity = entity
     if (entityId) where.entityId = entityId
@@ -75,12 +75,12 @@ export class AuditService {
 
     if (startDate || endDate) {
       where.createdAt = {}
-      if (startDate) where.createdAt.gte = startDate
-      if (endDate) where.createdAt.lte = endDate
+      if (startDate) (where.createdAt as Record<string, unknown>).gte = startDate
+      if (endDate) (where.createdAt as Record<string, unknown>).lte = endDate
     }
 
     const [logs, total] = await Promise.all([
-      this.prisma.auditLog.findMany({
+      this._prisma.auditLog.findMany({
         where,
         include: {
           user: {
@@ -96,14 +96,14 @@ export class AuditService {
         skip: (page - 1) * limit,
         take: limit
       }),
-      this.prisma.auditLog.count({ where })
+      this._prisma.auditLog.count({ where })
     ])
 
     return {
       logs: logs.map(log => ({
         ...log,
-        oldValues: log.oldValues ? JSON.parse(log.oldValues) : null,
-        newValues: log.newValues ? JSON.parse(log.newValues) : null
+        oldValues: log.oldValues ? JSON.parse(log.oldValues as string) : null,
+        newValues: log.newValues ? JSON.parse(log.newValues as string) : null
       })),
       total,
       page,

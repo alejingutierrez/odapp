@@ -269,7 +269,7 @@ export class AnalyticsService {
           deletedAt: null,
           ...(filters.categoryId && { categoryId: filters.categoryId }),
           ...(filters.brand && { brand: { contains: filters.brand, mode: 'insensitive' } }),
-          ...(filters.status && { status: filters.status as any })
+          ...(filters.status && { status: filters.status as unknown })
         },
         include: {
           category: true,
@@ -740,7 +740,7 @@ export class AnalyticsService {
       }
     }
 
-    const filter: any = {}
+    const filter: Record<string, unknown> = {}
     if (startDate) filter.gte = startDate
     if (endDate) filter.lte = endDate
 
@@ -748,10 +748,10 @@ export class AnalyticsService {
   }
 
   private generateSalesTrend(
-    orders: any[],
+    orders: Record<string, unknown>[],
     period: 'day' | 'week' | 'month' | 'year',
-    startDate?: Date,
-    endDate?: Date
+    _startDate?: Date,
+    _endDate?: Date
   ) {
     const trend: { date: string; revenue: number; orders: number }[] = []
     
@@ -766,11 +766,12 @@ export class AnalyticsService {
         case 'day':
           key = date.toISOString().split('T')[0]
           break
-        case 'week':
+        case 'week': {
           const weekStart = new Date(date)
           weekStart.setDate(date.getDate() - date.getDay())
           key = weekStart.toISOString().split('T')[0]
           break
+        }
         case 'month':
           key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
           break

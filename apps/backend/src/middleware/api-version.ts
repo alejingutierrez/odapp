@@ -88,7 +88,7 @@ export const apiVersion = (req: Request, res: Response, next: NextFunction): voi
 /**
  * Version-specific route handler
  */
-export const versionHandler = (handlers: Partial<Record<ApiVersion, any>>) => {
+export const versionHandler = (handlers: Partial<Record<ApiVersion, (req: Request, res: Response, next: NextFunction) => unknown>>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const handler = handlers[req.apiVersion as ApiVersion]
     

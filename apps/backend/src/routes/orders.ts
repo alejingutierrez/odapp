@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { OrderService, CreateOrderRequest, UpdateOrderRequest, ProcessPaymentRequest, CreateFulfillmentRequest, CreateReturnRequest, OrderFilters } from '../services/order.service';
-import { sendSuccess, sendError, sendNotFound, sendCreated, sendPaginated } from '../lib/api-response.js';
+// import { sendSuccess, sendError, sendNotFound, sendCreated, sendPaginated } from '../lib/api-response.js';
 import type { ApiResponse } from '../lib/api-response.js';
 import { logger } from '../lib/logger';
 import { z } from 'zod';
@@ -10,7 +10,7 @@ const router = Router();
 const orderService = new OrderService();
 
 // Validation schemas
-const createOrderSchema = z.object({
+const _createOrderSchema = z.object({
   customerId: z.string().optional(),
   guestEmail: z.string().email().optional(),
   guestPhone: z.string().optional(),
@@ -54,7 +54,7 @@ const createOrderSchema = z.object({
   message: "Each item must have either productId or variantId"
 });
 
-const updateOrderSchema = z.object({
+const _updateOrderSchema = z.object({
   status: z.nativeEnum(OrderStatus).optional(),
   financialStatus: z.nativeEnum(FinancialStatus).optional(),
   fulfillmentStatus: z.nativeEnum(FulfillmentStatus).optional(),

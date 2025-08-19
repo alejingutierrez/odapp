@@ -2,19 +2,19 @@ import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
 import { AppError, ValidationError, DatabaseError, InternalServerError, NotFoundError, AuthenticationError } from '../lib/errors'
-import logger, { logError } from '../lib/logger'
+import { logError } from '../lib/logger'
 import { env } from '../config/env'
 
 /**
  * Standard API response format
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: {
     code: string
     message: string
-    details?: any
+    details?: unknown
     timestamp: string
     requestId?: string
   }
@@ -25,7 +25,7 @@ export interface ApiResponse<T = any> {
       total: number
       totalPages: number
     }
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -181,7 +181,7 @@ export const errorHandler = (
   error: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   const normalizedError = normalizeError(error)
   const requestId = req.headers['x-request-id'] as string
@@ -215,7 +215,7 @@ export const errorHandler = (
  * Async error wrapper for route handlers
  */
 export const asyncHandler = (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next)
@@ -234,9 +234,9 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
  * Validation middleware using Zod schemas
  */
 export const validate = (schema: {
-  body?: any
-  query?: any
-  params?: any
+  body?: { parse: (data: unknown) => unknown }
+  query?: { parse: (data: unknown) => unknown }
+  params?: { parse: (data: unknown) => unknown }
 }) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {

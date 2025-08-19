@@ -3,12 +3,12 @@ import logger from '../logger.js'
 
 export interface CacheAsideOptions<T> extends CacheOptions {
   loader: () => Promise<T>
-  keyGenerator?: (params: any) => string
+  keyGenerator?: (_params: Record<string, unknown>) => string
 }
 
 export interface WriteThroughOptions<T> extends CacheOptions {
-  writer: (data: T) => Promise<T>
-  keyGenerator?: (params: any) => string
+  writer: (_data: T) => Promise<T>
+  keyGenerator?: (_params: Record<string, unknown>) => string
 }
 
 /**
@@ -143,7 +143,7 @@ export class WriteThroughPattern {
  * Cache is updated immediately, data store is updated asynchronously
  */
 export class WriteBehindPattern {
-  private static writeQueue: Map<string, { data: any; timestamp: number }> = new Map()
+  private static writeQueue: Map<string, { data: unknown; timestamp: number }> = new Map()
   private static flushInterval: NodeJS.Timeout | null = null
   private static flushIntervalMs = 5000 // 5 seconds
 
@@ -179,7 +179,7 @@ export class WriteBehindPattern {
   static async write<T>(
     key: string,
     data: T,
-    writer: (data: T) => Promise<T>,
+    _writer: (_data: T) => Promise<T>,
     options: CacheOptions = {}
   ): Promise<T> {
     try {
@@ -313,7 +313,7 @@ export class RefreshAheadPattern {
    * Shutdown refresh-ahead pattern
    */
   static shutdown(): void {
-    for (const [key, task] of this.refreshTasks.entries()) {
+    for (const [, task] of this.refreshTasks.entries()) {
       clearTimeout(task)
     }
     this.refreshTasks.clear()

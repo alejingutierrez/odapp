@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
-import logger, { loggerStream, logRequest } from '../lib/logger'
+import logger, { loggerStream } from '../lib/logger'
 import { env } from '../config/env'
 
 // Extend Request interface to include requestId and startTime
@@ -58,7 +58,7 @@ morgan.token('bodySize', (req: Request) => {
 /**
  * Skip logging for health check endpoints in production
  */
-const skipHealthChecks = (req: Request, res: Response) => {
+const skipHealthChecks = (req: Request, _res: Response) => {
   if (env.NODE_ENV === 'production') {
     return req.url === '/health' || req.url === '/api/health'
   }
@@ -118,7 +118,7 @@ export const detailedLogger = (req: Request, res: Response, next: NextFunction):
 
   // Capture original res.json to log response
   const originalJson = res.json
-  res.json = function(body: any) {
+  res.json = function(body: unknown) {
     // Log response details
     logger.debug('Outgoing Response', {
       requestId: req.requestId,

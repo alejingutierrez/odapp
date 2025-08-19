@@ -8,7 +8,7 @@ import {
 } from '../types/shopify';
 
 export class ConflictResolver {
-  async detectProductConflict(localProduct: any, shopifyProduct: ShopifyProduct): Promise<ProductConflict | null> {
+  async detectProductConflict(localProduct: Record<string, unknown>, shopifyProduct: ShopifyProduct): Promise<ProductConflict | null> {
     const conflictFields: string[] = [];
     
     // Check for data conflicts
@@ -29,14 +29,14 @@ export class ConflictResolver {
     }
     
     // Check variant conflicts
-    const localVariants = localProduct.variants || [];
+    const localVariants = (localProduct.variants as unknown[]) || [];
     const shopifyVariants = shopifyProduct.variants || [];
     
     if (localVariants.length !== shopifyVariants.length) {
       conflictFields.push('variants');
     } else {
       for (let i = 0; i < localVariants.length; i++) {
-        const localVariant = localVariants[i];
+        const localVariant = localVariants[i] as Record<string, unknown>;
         const shopifyVariant = shopifyVariants[i];
         
         if (localVariant.price !== parseFloat(shopifyVariant.price)) {
@@ -50,7 +50,7 @@ export class ConflictResolver {
     }
     
     // Check timestamp conflicts
-    const localUpdated = new Date(localProduct.updatedAt);
+    const localUpdated = new Date(localProduct.updatedAt as string);
     const shopifyUpdated = new Date(shopifyProduct.updated_at);
     
     let conflictType: 'data' | 'timestamp' | 'version' = 'data';
@@ -126,7 +126,7 @@ export class ConflictResolver {
     };
   }
 
-  async detectCustomerConflict(localCustomer: any, shopifyCustomer: ShopifyCustomer): Promise<CustomerConflict | null> {
+  async detectCustomerConflict(localCustomer: Record<string, unknown>, shopifyCustomer: ShopifyCustomer): Promise<CustomerConflict | null> {
     const conflictFields: string[] = [];
     
     // Check for data conflicts
@@ -215,7 +215,7 @@ export class ConflictResolver {
     );
   }
 
-  private async mergeProductData(localProduct: any, shopifyProduct: ShopifyProduct, conflictFields: string[]): Promise<any> {
+  private async mergeProductData(localProduct: Record<string, unknown>, shopifyProduct: ShopifyProduct, conflictFields: string[]): Promise<Record<string, unknown>> {
     const merged = { ...localProduct };
     
     // Merge non-conflicting fields from Shopify
@@ -243,7 +243,7 @@ export class ConflictResolver {
     return !conflictFields.some(field => nonMergeableFields.includes(field));
   }
 
-  private async mergeCustomerData(localCustomer: any, shopifyCustomer: ShopifyCustomer, conflictFields: string[]): Promise<any> {
+  private async mergeCustomerData(localCustomer: Record<string, unknown>, shopifyCustomer: ShopifyCustomer, conflictFields: string[]): Promise<Record<string, unknown>> {
     const merged = { ...localCustomer };
     
     // Prefer Shopify data for most fields
@@ -264,7 +264,7 @@ export class ConflictResolver {
     return merged;
   }
 
-  private async deduplicateCustomers(localCustomer: any, shopifyCustomer: ShopifyCustomer): Promise<any> {
+  private async deduplicateCustomers(localCustomer: Record<string, unknown>, shopifyCustomer: ShopifyCustomer): Promise<Record<string, unknown>> {
     // Merge customer data, preferring the most complete information
     const merged = {
       ...localCustomer,
@@ -275,9 +275,9 @@ export class ConflictResolver {
       shopifyId: shopifyCustomer.id.toString(),
       shopifyUpdatedAt: new Date(shopifyCustomer.updated_at),
       // Merge order counts and spending
-      ordersCount: Math.max(localCustomer.ordersCount || 0, shopifyCustomer.orders_count),
+      ordersCount: Math.max((localCustomer.ordersCount as number) || 0, shopifyCustomer.orders_count),
       totalSpent: Math.max(
-        parseFloat(localCustomer.totalSpent || '0'),
+        parseFloat((localCustomer.totalSpent as string) || '0'),
         parseFloat(shopifyCustomer.total_spent || '0')
       ),
     };
@@ -287,7 +287,7 @@ export class ConflictResolver {
     return merged;
   }
 
-  private mapShopifyProductToLocal(shopifyProduct: ShopifyProduct): any {
+  private mapShopifyProductToLocal(shopifyProduct: ShopifyProduct): Record<string, unknown> {
     return {
       title: shopifyProduct.title,
       description: shopifyProduct.body_html,
@@ -319,7 +319,7 @@ export class ConflictResolver {
     };
   }
 
-  private mapShopifyCustomerToLocal(shopifyCustomer: ShopifyCustomer): any {
+  private mapShopifyCustomerToLocal(shopifyCustomer: ShopifyCustomer): Record<string, unknown> {
     return {
       firstName: shopifyCustomer.first_name,
       lastName: shopifyCustomer.last_name,

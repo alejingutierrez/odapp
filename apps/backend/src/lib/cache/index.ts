@@ -3,6 +3,7 @@ export { redisClient, initializeRedis, shutdownRedis } from './redis-client.js'
 
 // Cache manager
 export { cacheManager, type CacheOptions, type CacheEntry, type CacheStats } from './cache-manager.js'
+import { cacheManager as cacheManagerInstance, type CacheOptions as CacheOptionsType } from './cache-manager.js'
 
 // Cache patterns
 export {
@@ -43,7 +44,7 @@ export const CacheUtils = {
   /**
    * Generate cache key for product list
    */
-  productListKey(filters: Record<string, any> = {}): string {
+  productListKey(filters: Record<string, unknown> = {}): string {
     const filterString = Object.entries(filters)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}:${value}`)
@@ -146,20 +147,20 @@ export const CacheUtils = {
 }
 
 // Cache decorators for common patterns
-export function Cacheable(options: CacheOptions & { keyGenerator?: (...args: any[]) => string }) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+export function Cacheable(options: CacheOptionsType & { keyGenerator?: (..._args: unknown[]) => string }) {
+  return function (target: Record<string, unknown>, propertyName: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value
 
-    descriptor.value = async function (...args: any[]) {
-      const key = options.keyGenerator ? options.keyGenerator(...args) : `${target.constructor.name}:${propertyName}:${JSON.stringify(args)}`
+    descriptor.value = async function (...args: unknown[]) {
+      const key = options.keyGenerator ? options.keyGenerator(...args) : `${(target as any).constructor.name}:${propertyName}:${JSON.stringify(args)}`
       
-      const cached = await cacheManager.get(key, options)
+      const cached = await cacheManagerInstance.get(key, options)
       if (cached !== null) {
         return cached
       }
 
       const result = await method.apply(this, args)
-      await cacheManager.set(key, result, options)
+      await cacheManagerInstance.set(key, result, options)
       
       return result
     }
@@ -169,21 +170,21 @@ export function Cacheable(options: CacheOptions & { keyGenerator?: (...args: any
 }
 
 export function CacheEvict(options: { keys?: string[]; tags?: string[]; namespace?: string }) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (target: Record<string, unknown>, propertyName: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const result = await method.apply(this, args)
 
       // Evict specific keys
       if (options.keys) {
-        const evictPromises = options.keys.map(key => cacheManager.del(key, options.namespace))
+        const evictPromises = options.keys.map(key => cacheManagerInstance.del(key, options.namespace))
         await Promise.all(evictPromises)
       }
 
       // Evict by tags
       if (options.tags) {
-        await cacheManager.invalidateByTags(options.tags)
+        await cacheManagerInstance.invalidateByTags(options.tags)
       }
 
       return result

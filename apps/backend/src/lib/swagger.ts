@@ -2,6 +2,7 @@ import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import { Express } from 'express'
 import { env } from '../config/env'
+import * as yaml from 'js-yaml'
 
 /**
  * Swagger configuration
@@ -677,7 +678,7 @@ export const setupSwagger = (app: Express): void => {
   // Serve OpenAPI spec in YAML format
   app.get('/api-docs.yaml', (req, res) => {
     res.setHeader('Content-Type', 'text/yaml')
-    res.send(require('js-yaml').dump(swaggerSpec))
+    res.send(yaml.dump(swaggerSpec))
   })
 }
 

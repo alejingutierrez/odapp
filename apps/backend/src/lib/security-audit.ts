@@ -24,7 +24,7 @@ export interface SecurityEvent {
   userId?: string
   ipAddress?: string
   userAgent?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   severity: 'low' | 'medium' | 'high' | 'critical'
 }
 
@@ -42,7 +42,7 @@ export class SecurityAuditService {
           userId: event.userId,
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
-          newValues: event.metadata || {}
+          newValues: event.metadata as any || {}
         }
       })
 
@@ -249,7 +249,7 @@ export class SecurityAuditService {
     ipAddress: string | null
     userAgent: string | null
     createdAt: Date
-    metadata: any
+    metadata: unknown
   }>> {
     return prisma.auditLog.findMany({
       where: {
@@ -309,7 +309,7 @@ export class SecurityAuditService {
       eventsByType[event.action] = (eventsByType[event.action] || 0) + 1
 
       // Count by severity (if available in metadata)
-      const severity = (event.newValues as any)?.severity || 'unknown'
+      const severity = (event.newValues as Record<string, unknown>)?.severity as string || 'unknown'
       eventsBySeverity[severity] = (eventsBySeverity[severity] || 0) + 1
 
       // Count specific event types

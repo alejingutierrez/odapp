@@ -29,19 +29,19 @@ export class RateLimiter {
     }
   }
 
-  updateFromHeaders(headers: Record<string, any>): void {
+  updateFromHeaders(headers: Record<string, unknown>): void {
     // Shopify rate limit headers
     const callLimit = headers['x-shopify-shop-api-call-limit'];
-    const bucketSize = headers['x-shopify-api-request-bucket-size'];
+    const _bucketSize = headers['x-shopify-api-request-bucket-size'];
     const leakRate = headers['x-shopify-api-request-bucket-leak-rate'];
 
     if (callLimit) {
-      const [used, total] = callLimit.split('/').map(Number);
+      const [used, total] = (callLimit as string).split('/').map(Number);
       this.tokens = Math.max(0, total - used);
       
       if (this.tokens === 0) {
         // Calculate reset time based on leak rate
-        const leakRatePerSecond = leakRate ? parseInt(leakRate) : 2;
+        const leakRatePerSecond = leakRate ? parseInt(leakRate as string) : 2;
         const waitSeconds = Math.ceil(used / leakRatePerSecond);
         this.resetTime = new Date(Date.now() + waitSeconds * 1000);
       }

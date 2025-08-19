@@ -12,7 +12,7 @@ export interface WarmupConfig {
 
 export interface WarmupItem {
   key: string
-  loader: () => Promise<any>
+  loader: () => Promise<unknown>
   options?: CacheOptions
   priority: number // 1 = highest, 10 = lowest
 }

@@ -12,7 +12,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // Initialize Shopify service (would be configured per shop in real implementation)
-const getShopifyService = (req: any) => {
+const getShopifyService = (req: Express.Request) => {
   const shopDomain = req.headers['x-shop-domain'] || process.env.SHOPIFY_SHOP_DOMAIN;
   const accessToken = req.headers['x-shopify-access-token'] || process.env.SHOPIFY_ACCESS_TOKEN;
   
@@ -30,10 +30,10 @@ const syncRequestSchema = z.object({
   force: z.boolean().optional(),
 });
 
-const webhookSchema = z.object({
+const _webhookSchema = z.object({
   topic: z.string(),
   shop_domain: z.string(),
-  payload: z.any(),
+  payload: z.unknown(),
 });
 
 // Sync endpoints
@@ -264,7 +264,7 @@ router.post('/config/test', authenticateToken, async (req, res) => {
     const shopifyService = getShopifyService(req);
     
     // Test connection by fetching shop info
-    const shopInfo = await (shopifyService as any).client.get('/shop.json');
+    const shopInfo = await (shopifyService as unknown as { client: { get: (path: string) => Promise<{ data: { shop: unknown } }> } }).client.get('/shop.json');
     
     res.json(ApiResponse.success({
       connected: true,

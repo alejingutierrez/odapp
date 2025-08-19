@@ -1,16 +1,16 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import multer from 'multer'
-import { validate, xssProtection, validateFileUpload } from '../middleware/validation.js'
+import { validate, xssProtection } from '../middleware/validation.js'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { 
-  productSchema, 
+  // productSchema, 
   createProductSchema, 
   updateProductSchema,
   productQuerySchema,
   bulkProductUpdateSchema,
   bulkProductDeleteSchema,
-  productImportSchema,
+  // productImportSchema,
   productExportSchema,
   commonValidationSchemas
 } from '@oda/shared'
@@ -597,7 +597,7 @@ router.post('/reindex',
       })
       
       // Reindex in search engine
-      await searchService.reindexAllProducts(products as any)
+      await searchService.reindexAllProducts(products as unknown)
       
       const response = ApiResponse.success(
         { reindexedCount: products.length },
@@ -659,12 +659,12 @@ router.delete('/:id/images/:imageId',
 )
 
 // Input validation for complex scenarios
-const validateProductAvailability = async (req: any, res: any, next: any) => {
+const validateProductAvailability = async (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
   try {
     const { variants } = req.body
     
     // Custom validation: Check if at least one variant has inventory
-    const hasInventory = variants.some((variant: any) => variant.inventoryQuantity > 0)
+    const hasInventory = variants.some((variant: Record<string, unknown>) => (variant.inventoryQuantity as number) > 0)
     
     if (!hasInventory) {
       return res.status(400).json(

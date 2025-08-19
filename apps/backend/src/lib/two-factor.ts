@@ -9,7 +9,7 @@ export interface TwoFactorSetupResult {
 }
 
 export interface SMSProvider {
-  sendSMS(phoneNumber: string, message: string): Promise<boolean>
+  sendSMS(_phoneNumber: string, _message: string): Promise<boolean>
 }
 
 export class TwoFactorService {
@@ -320,8 +320,8 @@ export class TwoFactorService {
 
 // Default SMS provider implementation (placeholder)
 export class ConsoleSMSProvider implements SMSProvider {
-  async sendSMS(phoneNumber: string, message: string): Promise<boolean> {
-    console.log(`SMS to ${phoneNumber}: ${message}`)
+  async sendSMS(_phoneNumber: string, _message: string): Promise<boolean> {
+    console.log(`SMS to ${_phoneNumber}: ${_message}`)
     return true
   }
 }

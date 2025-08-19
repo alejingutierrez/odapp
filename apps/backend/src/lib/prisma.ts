@@ -100,7 +100,7 @@ export async function getDatabaseMetrics() {
 
 // Transaction helper
 export async function withTransaction<T>(
-  callback: (prisma: PrismaClient) => Promise<T>
+  callback: (_prisma: PrismaClient) => Promise<T>
 ): Promise<T> {
   return prisma.$transaction(callback)
 }
@@ -110,7 +110,7 @@ export async function softDelete(
   model: keyof PrismaClient,
   id: string
 ) {
-  const modelClient = prisma[model] as any
+  const modelClient = prisma[model] as Record<string, unknown>
   return modelClient.update({
     where: { id },
     data: { deletedAt: new Date() },
@@ -123,7 +123,7 @@ export async function bulkUpsert<T>(
   data: T[],
   uniqueField: keyof T
 ) {
-  const modelClient = prisma[model] as any
+  const modelClient = prisma[model] as Record<string, unknown>
   const operations = data.map((item) => 
     modelClient.upsert({
       where: { [uniqueField]: item[uniqueField] },

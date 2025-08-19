@@ -72,7 +72,7 @@ export class DatabasePool {
     })
   }
 
-  async query(text: string, params?: any[]): Promise<any> {
+  async query(text: string, params?: unknown[]): Promise<unknown> {
     const start = Date.now()
     
     try {
@@ -94,7 +94,7 @@ export class DatabasePool {
     return this.pool.connect()
   }
 
-  async transaction<T>(callback: (client: any) => Promise<T>): Promise<T> {
+  async transaction<T>(callback: (_client: unknown) => Promise<T>): Promise<T> {
     const client = await this.pool.connect()
     
     try {
@@ -124,7 +124,7 @@ export class DatabasePool {
     }
   }
 
-  async healthCheck(): Promise<{ healthy: boolean; stats: any; error?: string }> {
+  async healthCheck(): Promise<{ healthy: boolean; stats: Record<string, unknown>; error?: string }> {
     try {
       const start = Date.now()
       await this.query('SELECT 1')

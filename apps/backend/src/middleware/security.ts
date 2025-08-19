@@ -100,13 +100,13 @@ export const createRateLimit = (options: {
     legacyHeaders: false,
     skipSuccessfulRequests: options.skipSuccessfulRequests || false,
     skipFailedRequests: options.skipFailedRequests || false,
-    keyGenerator: options.keyGenerator || ((req) => req.ip),
-    handler: (req, res) => {
+    keyGenerator: options.keyGenerator || ((_req) => _req.ip),
+    handler: (_req, _res) => {
       logger.warn('Rate limit exceeded', {
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        url: req.url,
-        method: req.method,
+        ip: _req.ip,
+        userAgent: _req.get('User-Agent'),
+        url: _req.url,
+        method: _req.method,
       })
 
       throw new RateLimitError(options.message)
@@ -157,7 +157,7 @@ export const uploadRateLimit = createRateLimit({
 export const userRateLimit = createRateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500, // 500 requests per 15 minutes per user
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: (req) => req.user?.id || req.ip || 'unknown',
   message: 'Too many requests from this user, please try again later.',
 })
 
@@ -252,7 +252,7 @@ export const sanitizeRequest = (req: Request, res: Response, next: NextFunction)
     for (const [key, value] of Object.entries(req.query)) {
       if (typeof value === 'string') {
         // Remove potentially dangerous characters
-        req.query[key] = value.replace(/[<>\"']/g, '')
+        req.query[key] = value.replace(/[<>']/g, '')
       }
     }
   }
@@ -268,7 +268,7 @@ export const sanitizeRequest = (req: Request, res: Response, next: NextFunction)
 /**
  * Recursively sanitize object properties
  */
-const sanitizeObject = (obj: any): void => {
+const sanitizeObject = (obj: Record<string, unknown>): void => {
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
       // Basic XSS prevention
@@ -282,7 +282,7 @@ const sanitizeObject = (obj: any): void => {
 /**
  * Trusted proxy configuration
  */
-export const configureTrustedProxies = (app: any): void => {
+export const configureTrustedProxies = (app: Record<string, unknown>): void => {
   // Trust first proxy (load balancer, reverse proxy)
   app.set('trust proxy', 1)
   

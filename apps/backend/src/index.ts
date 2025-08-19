@@ -49,7 +49,6 @@ import healthRoutes from './routes/health'
 import cacheRoutes from './routes/cache'
 import inventoryRoutes, { initializeInventoryRoutes } from './routes/inventory'
 import customerRoutes from './routes/customers'
-import orderRoutes from './routes/orders'
 import simpleRoutes from './routes/simple.js'
 
 // Import Swagger setup

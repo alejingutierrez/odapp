@@ -1,27 +1,38 @@
-import React, { CSSProperties } from 'react';
-import { Progress, ProgressProps, theme, Typography } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import React, { CSSProperties } from 'react'
+import { Progress, ProgressProps, theme, Typography } from 'antd'
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 
-const { Text } = Typography;
-const { useToken } = theme;
+const { Text } = Typography
+const { useToken } = theme
 
-export type ProgressVariant = 'line' | 'circle' | 'dashboard' | 'gradient' | 'stepped';
-export type ProgressSize = 'small' | 'default' | 'large';
-export type ProgressTheme = 'default' | 'success' | 'warning' | 'danger' | 'info';
-export type ProgressStatus = 'normal' | 'success' | 'exception' | 'active';
+export type ProgressVariant =
+  | 'line'
+  | 'circle'
+  | 'dashboard'
+  | 'gradient'
+  | 'stepped'
+export type ProgressSize = 'small' | 'default' | 'large'
+export type ProgressTheme =
+  | 'default'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+export type ProgressStatus = 'normal' | 'success' | 'exception' | 'active'
 
-export interface ProgressIndicatorProps extends Omit<ProgressProps, 'type' | 'size' | 'status'> {
-  variant?: ProgressVariant;
-  size?: ProgressSize;
-  theme?: ProgressTheme;
-  showLabel?: boolean;
-  showPercentage?: boolean;
-  label?: string;
-  animated?: boolean;
-  status?: ProgressStatus;
-  showIcon?: boolean;
-  steps?: number;
-  description?: string;
+export interface ProgressIndicatorProps
+  extends Omit<ProgressProps, 'type' | 'size' | 'status'> {
+  variant?: ProgressVariant
+  size?: ProgressSize
+  theme?: ProgressTheme
+  showLabel?: boolean
+  showPercentage?: boolean
+  label?: string
+  animated?: boolean
+  status?: ProgressStatus
+  showIcon?: boolean
+  steps?: number
+  description?: string
 }
 
 export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
@@ -39,7 +50,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   description,
   ...props
 }) => {
-  const { token } = useToken();
+  const { token } = useToken()
 
   const getSize = () => {
     if (variant === 'circle' || variant === 'dashboard') {
@@ -47,42 +58,51 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         small: 80,
         default: 120,
         large: 160,
-      }[size];
+      }[size]
     }
     if (variant === 'stepped') {
-      return undefined;
+      return undefined
     }
     return {
       small: 6,
       default: 8,
       large: 10,
-    }[size];
-  };
+    }[size]
+  }
 
   const getThemeColor = () => {
     switch (theme) {
-      case 'success': return token.colorSuccess;
-      case 'warning': return token.colorWarning;
-      case 'danger': return token.colorError;
-      case 'info': return token.colorInfo;
-      default: return token.colorPrimary;
+      case 'success':
+        return token.colorSuccess
+      case 'warning':
+        return token.colorWarning
+      case 'danger':
+        return token.colorError
+      case 'info':
+        return token.colorInfo
+      default:
+        return token.colorPrimary
     }
-  };
+  }
 
   const getStatusIcon = () => {
-    if (!showIcon) return null;
-    
+    if (!showIcon) return null
+
     switch (status) {
-      case 'success': return <CheckCircleOutlined style={{ color: token.colorSuccess }} />;
-      case 'exception': return <CloseCircleOutlined style={{ color: token.colorError }} />;
-      default: return null;
+      case 'success':
+        return <CheckCircleOutlined style={{ color: token.colorSuccess }} />
+      case 'exception':
+        return <CloseCircleOutlined style={{ color: token.colorError }} />
+      default:
+        return null
     }
-  };
+  }
 
   const getContainerStyle = (): CSSProperties => ({
-    textAlign: variant !== 'line' && variant !== 'stepped' ? 'center' : undefined,
+    textAlign:
+      variant !== 'line' && variant !== 'stepped' ? 'center' : undefined,
     width: '100%',
-  });
+  })
 
   const getLabelStyle = (): CSSProperties => ({
     marginBottom: 8,
@@ -91,24 +111,24 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-  });
+  })
 
   const getGradientProps = () => {
-    if (variant !== 'gradient') return {};
-    
+    if (variant !== 'gradient') return {}
+
     return {
       strokeColor: {
         '0%': getThemeColor(),
         '100%': token.colorPrimaryBg,
       },
-    };
-  };
+    }
+  }
 
   const renderSteppedProgress = () => {
-    if (variant !== 'stepped' || !steps) return null;
-    
-    const currentStep = Math.floor((percent / 100) * steps);
-    
+    if (variant !== 'stepped' || !steps) return null
+
+    const currentStep = Math.floor((percent / 100) * steps)
+
     return (
       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
         {Array.from({ length: steps }, (_, index) => (
@@ -117,7 +137,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             style={{
               flex: 1,
               height: getSize() || 8,
-              backgroundColor: index < currentStep ? getThemeColor() : token.colorBgContainer,
+              backgroundColor:
+                index < currentStep ? getThemeColor() : token.colorBgContainer,
               borderRadius: 4,
               border: `1px solid ${token.colorBorder}`,
               transition: 'all 0.3s ease',
@@ -125,12 +146,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           />
         ))}
       </div>
-    );
-  };
+    )
+  }
 
   const renderProgress = () => {
     if (variant === 'stepped') {
-      return renderSteppedProgress();
+      return renderSteppedProgress()
     }
 
     const progressProps = {
@@ -141,10 +162,10 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       strokeColor: theme !== 'default' ? getThemeColor() : undefined,
       ...getGradientProps(),
       ...props,
-    };
+    }
 
-    return <Progress {...progressProps} />;
-  };
+    return <Progress {...progressProps} />
+  }
 
   return (
     <div style={getContainerStyle()}>
@@ -157,8 +178,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             )}
           </div>
           {showPercentage && (
-            <Text 
-              type="secondary" 
+            <Text
+              type='secondary'
               style={{ fontSize: size === 'small' ? 11 : 12 }}
             >
               {percent}%
@@ -166,13 +187,13 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           )}
         </div>
       ) : null}
-      
+
       {renderProgress()}
-      
+
       {description && (
         <div style={{ marginTop: 4 }}>
-          <Text 
-            type="secondary" 
+          <Text
+            type='secondary'
             style={{ fontSize: size === 'small' ? 11 : 12 }}
           >
             {description}
@@ -180,5 +201,5 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}

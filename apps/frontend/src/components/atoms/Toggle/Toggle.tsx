@@ -1,9 +1,9 @@
 import React from 'react'
 import { Switch, SwitchProps } from 'antd'
-import { designTokens } from '../../../config/theme'
 import './Toggle.css'
 
-export interface ToggleProps extends Omit<SwitchProps, 'checkedChildren' | 'unCheckedChildren'> {
+export interface ToggleProps
+  extends Omit<SwitchProps, 'checkedChildren' | 'unCheckedChildren'> {
   /** Label for the toggle */
   label?: string
   /** Description text */
@@ -62,33 +62,37 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   const renderLabel = () => {
     if (!label && !description) return null
-    
+
     return (
-      <div className="oda-toggle__label-container">
-        {label && <span className="oda-toggle__label">{label}</span>}
-        {description && <span className="oda-toggle__description">{description}</span>}
+      <div className='oda-toggle__label-container'>
+        {label && <span className='oda-toggle__label'>{label}</span>}
+        {description && (
+          <span className='oda-toggle__description'>{description}</span>
+        )}
       </div>
     )
   }
 
   const renderToggle = () => (
     <Switch
-      className="oda-toggle__switch"
-      size={size === 'large' ? 'default' : size === 'small' ? 'small' : 'default'}
+      className='oda-toggle__switch'
+      size={
+        size === 'large' ? 'default' : size === 'small' ? 'small' : 'default'
+      }
       loading={loading}
       checkedChildren={
         onLabel || onIcon ? (
-          <span className="oda-toggle__content">
-            {onIcon && <span className="oda-toggle__icon">{onIcon}</span>}
-            {onLabel && <span className="oda-toggle__text">{onLabel}</span>}
+          <span className='oda-toggle__content'>
+            {onIcon && <span className='oda-toggle__icon'>{onIcon}</span>}
+            {onLabel && <span className='oda-toggle__text'>{onLabel}</span>}
           </span>
         ) : undefined
       }
       unCheckedChildren={
         offLabel || offIcon ? (
-          <span className="oda-toggle__content">
-            {offIcon && <span className="oda-toggle__icon">{offIcon}</span>}
-            {offLabel && <span className="oda-toggle__text">{offLabel}</span>}
+          <span className='oda-toggle__content'>
+            {offIcon && <span className='oda-toggle__icon'>{offIcon}</span>}
+            {offLabel && <span className='oda-toggle__text'>{offLabel}</span>}
           </span>
         ) : undefined
       }
@@ -100,7 +104,8 @@ export const Toggle: React.FC<ToggleProps> = ({
     <div className={toggleClasses} style={toggleStyle}>
       {(labelPosition === 'left' || labelPosition === 'top') && renderLabel()}
       {renderToggle()}
-      {(labelPosition === 'right' || labelPosition === 'bottom') && renderLabel()}
+      {(labelPosition === 'right' || labelPosition === 'bottom') &&
+        renderLabel()}
     </div>
   )
 }

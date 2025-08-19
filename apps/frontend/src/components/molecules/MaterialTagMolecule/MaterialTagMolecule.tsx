@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
-import { Tag, Tooltip, Modal, Typography, Space, Progress } from 'antd'
-import { InfoCircleOutlined, LeafOutlined, RecyclingOutlined } from '@ant-design/icons'
+import { Tag, Modal, Typography, Space, Progress } from 'antd'
+import {
+  InfoCircleOutlined,
+  LeafOutlined,
+  RecyclingOutlined,
+} from '@ant-design/icons'
 import './MaterialTagMolecule.css'
 
 export interface MaterialInfo {
@@ -39,7 +43,7 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
   showCareInfo = true,
   interactive = true,
   size = 'default',
-  className = ''
+  className = '',
 }) => {
   const [showModal, setShowModal] = useState(false)
 
@@ -82,11 +86,11 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
     if (!showTexture) return null
 
     return (
-      <div 
-        className="material-tag__texture-preview"
-        style={{ 
+      <div
+        className='material-tag__texture-preview'
+        style={{
           background: getTexturePattern(),
-          backgroundSize: '8px 8px'
+          backgroundSize: '8px 8px',
         }}
         title={`${material.texture} texture`}
       />
@@ -97,22 +101,22 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
     if (!showSustainability) return null
 
     return (
-      <div className="material-tag__sustainability">
-        <Space size="small">
+      <div className='material-tag__sustainability'>
+        <Space size='small'>
           {material.sustainability.organic && (
-            <LeafOutlined 
+            <LeafOutlined
               style={{ color: '#52c41a' }}
-              title="Organic material"
+              title='Organic material'
             />
           )}
           {material.sustainability.recyclable && (
-            <RecyclingOutlined 
+            <RecyclingOutlined
               style={{ color: '#1890ff' }}
-              title="Recyclable material"
+              title='Recyclable material'
             />
           )}
-          <div 
-            className="material-tag__sustainability-score"
+          <div
+            className='material-tag__sustainability-score'
             style={{ backgroundColor: getSustainabilityColor() }}
             title={`Sustainability score: ${material.sustainability.score}/100`}
           >
@@ -131,41 +135,53 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
       footer={null}
       width={600}
     >
-      <div className="material-tag__modal-content">
-        <div className="material-tag__section">
+      <div className='material-tag__modal-content'>
+        <div className='material-tag__section'>
           <Typography.Title level={5}>Composition</Typography.Title>
           <Typography.Text>{material.composition}</Typography.Text>
         </div>
 
-        <div className="material-tag__section">
+        <div className='material-tag__section'>
           <Typography.Title level={5}>Properties</Typography.Title>
           <Space wrap>
-            {material.properties.breathable && <Tag color="blue">Breathable</Tag>}
-            {material.properties.waterResistant && <Tag color="cyan">Water Resistant</Tag>}
-            {material.properties.stretchable && <Tag color="purple">Stretchable</Tag>}
-            {material.properties.wrinkleResistant && <Tag color="green">Wrinkle Resistant</Tag>}
+            {material.properties.breathable && (
+              <Tag color='blue'>Breathable</Tag>
+            )}
+            {material.properties.waterResistant && (
+              <Tag color='cyan'>Water Resistant</Tag>
+            )}
+            {material.properties.stretchable && (
+              <Tag color='purple'>Stretchable</Tag>
+            )}
+            {material.properties.wrinkleResistant && (
+              <Tag color='green'>Wrinkle Resistant</Tag>
+            )}
           </Space>
         </div>
 
         {showSustainability && (
-          <div className="material-tag__section">
+          <div className='material-tag__section'>
             <Typography.Title level={5}>Sustainability</Typography.Title>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction='vertical' style={{ width: '100%' }}>
               <div>
                 <Typography.Text strong>Score: </Typography.Text>
-                <Progress 
-                  percent={material.sustainability.score} 
+                <Progress
+                  percent={material.sustainability.score}
                   strokeColor={getSustainabilityColor()}
-                  format={() => `${material.sustainability.score}/100 (${getSustainabilityLevel()})`}
+                  format={() =>
+                    `${material.sustainability.score}/100 (${getSustainabilityLevel()})`
+                  }
                 />
               </div>
-              
+
               {material.sustainability.certifications.length > 0 && (
                 <div>
                   <Typography.Text strong>Certifications: </Typography.Text>
                   <Space wrap>
-                    {material.sustainability.certifications.map(cert => (
-                      <Tag key={cert} color="green">{cert}</Tag>
+                    {material.sustainability.certifications.map((cert) => (
+                      <Tag key={cert} color='green'>
+                        {cert}
+                      </Tag>
                     ))}
                   </Space>
                 </div>
@@ -175,9 +191,9 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
         )}
 
         {showCareInfo && (
-          <div className="material-tag__section">
+          <div className='material-tag__section'>
             <Typography.Title level={5}>Care Instructions</Typography.Title>
-            <ul className="material-tag__care-list">
+            <ul className='material-tag__care-list'>
               {material.careInstructions.map((instruction, index) => (
                 <li key={index}>
                   <Typography.Text>{instruction}</Typography.Text>
@@ -191,12 +207,12 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
   )
 
   const tagContent = (
-    <Space size="small" className="material-tag__content">
+    <Space size='small' className='material-tag__content'>
       {renderTexturePreview()}
-      <span className="material-tag__name">{material.name}</span>
+      <span className='material-tag__name'>{material.name}</span>
       {renderSustainabilityIndicator()}
       {interactive && showCareInfo && (
-        <InfoCircleOutlined className="material-tag__info-icon" />
+        <InfoCircleOutlined className='material-tag__info-icon' />
       )}
     </Space>
   )

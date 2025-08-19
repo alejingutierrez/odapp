@@ -1,14 +1,20 @@
 import React from 'react'
 import { Tag, TagProps } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './Chip.css'
 
 export interface ChipProps extends Omit<TagProps, 'closable' | 'onClose'> {
   /** Chip label text */
   label: string
   /** Chip variant */
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
+  variant?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'info'
   /** Chip size */
   size?: 'small' | 'medium' | 'large'
   /** Whether chip is removable */
@@ -76,13 +82,13 @@ export const Chip: React.FC<ChipProps> = ({
       closable={removable && !disabled}
       onClose={handleRemove}
       onClick={handleClick}
-      closeIcon={<CloseOutlined className="oda-chip__close-icon" />}
+      closeIcon={<CloseOutlined className='oda-chip__close-icon' />}
       {...props}
     >
-      <div className="oda-chip__content">
-        {avatar && <div className="oda-chip__avatar">{avatar}</div>}
-        {icon && <div className="oda-chip__icon">{icon}</div>}
-        <span className="oda-chip__label">{label}</span>
+      <div className='oda-chip__content'>
+        {avatar && <div className='oda-chip__avatar'>{avatar}</div>}
+        {icon && <div className='oda-chip__icon'>{icon}</div>}
+        <span className='oda-chip__label'>{label}</span>
       </div>
     </Tag>
   )

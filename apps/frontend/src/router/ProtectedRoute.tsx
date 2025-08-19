@@ -2,7 +2,12 @@ import React, { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { Spin } from 'antd'
-import { selectIsAuthenticated, selectAuthLoading, selectSessionExpiry, refreshToken } from '../store/slices/authSlice'
+import {
+  selectIsAuthenticated,
+  selectAuthLoading,
+  selectSessionExpiry,
+  refreshToken,
+} from '../store/slices/authSlice'
 import { AppDispatch } from '../store'
 
 interface ProtectedRouteProps {
@@ -16,12 +21,11 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requiredPermission,
   fallbackPath = '/auth/login',
 }) => {
   const dispatch = useDispatch<AppDispatch>()
   const location = useLocation()
-  
+
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const isLoading = useSelector(selectAuthLoading)
   const sessionExpiry = useSelector(selectSessionExpiry)
@@ -31,7 +35,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (isAuthenticated && sessionExpiry) {
       const now = Date.now()
       const timeUntilExpiry = sessionExpiry - now
-      
+
       // Refresh token if it expires in less than 5 minutes
       if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
         dispatch(refreshToken())
@@ -42,15 +46,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column',
-        gap: '16px'
-      }}>
-        <Spin size="large" />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        <Spin size='large' />
         <div>Authenticating...</div>
       </div>
     )
@@ -59,10 +65,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return (
-      <Navigate 
-        to={fallbackPath} 
-        state={{ from: location.pathname + location.search }} 
-        replace 
+      <Navigate
+        to={fallbackPath}
+        state={{ from: location.pathname + location.search }}
+        replace
       />
     )
   }
@@ -73,7 +79,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   //     requiredPermission.resource,
   //     requiredPermission.action
   //   ))
-  //   
+  //
   //   if (!hasPermission) {
   //     return <Navigate to="/unauthorized" replace />
   //   }
@@ -89,10 +95,10 @@ export const withPermission = (
   fallbackPath = '/unauthorized'
 ) => {
   return function PermissionWrapper(Component: React.ComponentType) {
-    return function ProtectedComponent(props: any) {
+    return function ProtectedComponent(props: Record<string, unknown>) {
       return (
-        <ProtectedRoute 
-          requiredPermission={{ resource, action }} 
+        <ProtectedRoute
+          requiredPermission={{ resource, action }}
           fallbackPath={fallbackPath}
         >
           <Component {...props} />
@@ -103,14 +109,16 @@ export const withPermission = (
 }
 
 // Hook for checking permissions in components
-export const usePermission = (resource: string, action: string): boolean => {
+export const usePermission = (): boolean => {
   // TODO: Implement when RBAC is ready
   // return useSelector(selectHasPermission(resource, action))
   return true // Temporary - allow all for now
 }
 
 // Hook for checking multiple permissions
-export const usePermissions = (permissions: Array<{ resource: string; action: string }>): boolean[] => {
+export const usePermissions = (
+  permissions: Array<{ resource: string; action: string }>
+): boolean[] => {
   // TODO: Implement when RBAC is ready
   return permissions.map(() => true) // Temporary - allow all for now
 }

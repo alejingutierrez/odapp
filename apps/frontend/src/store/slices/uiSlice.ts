@@ -16,13 +16,13 @@ export interface Notification {
 export interface NotificationAction {
   label: string
   action: string
-  payload?: any
+  payload?: Record<string, unknown>
 }
 
 export interface Modal {
   id: string
   isOpen: boolean
-  data?: any
+  data?: Record<string, unknown>
 }
 
 export interface LoadingState {
@@ -40,11 +40,11 @@ export interface UIState {
   sidebarCollapsed: boolean
   sidebarWidth: number
   headerHeight: number
-  
+
   // Theme
   theme: 'light' | 'dark' | 'auto'
   primaryColor: string
-  
+
   // Modals
   modals: {
     productCreate: Modal
@@ -59,33 +59,33 @@ export interface UIState {
     settings: Modal
     shopifySync: Modal
   }
-  
+
   // Loading states
   loading: LoadingState
-  
+
   // Notifications
   notifications: Notification[]
   unreadNotificationCount: number
-  
+
   // Page state
   currentPage: string
   breadcrumbs: Breadcrumb[]
   pageTitle: string
-  
+
   // Filters and search
   globalSearch: string
-  activeFilters: Record<string, any>
-  
+  activeFilters: Record<string, unknown>
+
   // View preferences
   viewMode: 'grid' | 'list' | 'table'
   pageSize: number
   sortBy: string
   sortOrder: 'asc' | 'desc'
-  
+
   // Connection status
   isOnline: boolean
   websocketConnected: boolean
-  
+
   // Error boundaries
   errorBoundaries: Record<string, boolean>
 }
@@ -102,11 +102,11 @@ const initialState: UIState = {
   sidebarCollapsed: false,
   sidebarWidth: 256,
   headerHeight: 64,
-  
+
   // Theme
   theme: 'light',
   primaryColor: '#1890ff',
-  
+
   // Modals
   modals: {
     productCreate: { id: 'productCreate', isOpen: false },
@@ -121,7 +121,7 @@ const initialState: UIState = {
     settings: { id: 'settings', isOpen: false },
     shopifySync: { id: 'shopifySync', isOpen: false },
   },
-  
+
   // Loading states
   loading: {
     global: false,
@@ -132,30 +132,30 @@ const initialState: UIState = {
     analytics: false,
     shopify: false,
   },
-  
+
   // Notifications
   notifications: [],
   unreadNotificationCount: 0,
-  
+
   // Page state
   currentPage: '',
   breadcrumbs: [],
   pageTitle: '',
-  
+
   // Filters and search
   globalSearch: '',
   activeFilters: {},
-  
+
   // View preferences
   viewMode: 'grid',
   pageSize: 20,
   sortBy: 'createdAt',
   sortOrder: 'desc',
-  
+
   // Connection status
   isOnline: true,
   websocketConnected: false,
-  
+
   // Error boundaries
   errorBoundaries: {},
 }
@@ -169,28 +169,31 @@ const uiSlice = createSlice({
     toggleSidebar: (state) => {
       state.sidebarCollapsed = !state.sidebarCollapsed
     },
-    
+
     setSidebarCollapsed: (state, action: PayloadAction<boolean>) => {
       state.sidebarCollapsed = action.payload
     },
-    
+
     setSidebarWidth: (state, action: PayloadAction<number>) => {
       state.sidebarWidth = action.payload
     },
-    
+
     // Theme actions
     setTheme: (state, action: PayloadAction<'light' | 'dark' | 'auto'>) => {
       state.theme = action.payload
     },
-    
+
     setPrimaryColor: (state, action: PayloadAction<string>) => {
       state.primaryColor = action.payload
     },
-    
+
     // Modal actions
     openModal: (
       state,
-      action: PayloadAction<{ modalId: keyof UIState['modals']; data?: any }>
+      action: PayloadAction<{
+        modalId: keyof UIState['modals']
+        data?: Record<string, unknown>
+      }>
     ) => {
       const { modalId, data } = action.payload
       if (state.modals[modalId]) {
@@ -198,7 +201,7 @@ const uiSlice = createSlice({
         state.modals[modalId].data = data
       }
     },
-    
+
     closeModal: (state, action: PayloadAction<keyof UIState['modals']>) => {
       const modalId = action.payload
       if (state.modals[modalId]) {
@@ -206,7 +209,7 @@ const uiSlice = createSlice({
         state.modals[modalId].data = undefined
       }
     },
-    
+
     closeAllModals: (state) => {
       Object.keys(state.modals).forEach((key) => {
         const modalKey = key as keyof UIState['modals']
@@ -214,7 +217,7 @@ const uiSlice = createSlice({
         state.modals[modalKey].data = undefined
       })
     },
-    
+
     // Loading actions
     setLoading: (
       state,
@@ -223,13 +226,16 @@ const uiSlice = createSlice({
       const { key, loading } = action.payload
       state.loading[key] = loading
     },
-    
+
     setGlobalLoading: (state, action: PayloadAction<boolean>) => {
       state.loading.global = action.payload
     },
-    
+
     // Notification actions
-    addNotification: (state, action: PayloadAction<Omit<Notification, 'id' | 'timestamp' | 'read'>>) => {
+    addNotification: (
+      state,
+      action: PayloadAction<Omit<Notification, 'id' | 'timestamp' | 'read'>>
+    ) => {
       const notification: Notification = {
         ...action.payload,
         id: `notification-${Date.now()}-${Math.random()}`,
@@ -239,9 +245,11 @@ const uiSlice = createSlice({
       state.notifications.unshift(notification)
       state.unreadNotificationCount += 1
     },
-    
+
     removeNotification: (state, action: PayloadAction<string>) => {
-      const index = state.notifications.findIndex((n) => n.id === action.payload)
+      const index = state.notifications.findIndex(
+        (n) => n.id === action.payload
+      )
       if (index !== -1) {
         const notification = state.notifications[index]
         if (!notification.read) {
@@ -250,71 +258,79 @@ const uiSlice = createSlice({
         state.notifications.splice(index, 1)
       }
     },
-    
+
     markNotificationAsRead: (state, action: PayloadAction<string>) => {
-      const notification = state.notifications.find((n) => n.id === action.payload)
+      const notification = state.notifications.find(
+        (n) => n.id === action.payload
+      )
       if (notification && !notification.read) {
         notification.read = true
         state.unreadNotificationCount -= 1
       }
     },
-    
+
     markAllNotificationsAsRead: (state) => {
       state.notifications.forEach((notification) => {
         notification.read = true
       })
       state.unreadNotificationCount = 0
     },
-    
+
     clearNotifications: (state) => {
       state.notifications = []
       state.unreadNotificationCount = 0
     },
-    
+
     // Page state actions
     setCurrentPage: (state, action: PayloadAction<string>) => {
       state.currentPage = action.payload
     },
-    
+
     setBreadcrumbs: (state, action: PayloadAction<Breadcrumb[]>) => {
       state.breadcrumbs = action.payload
     },
-    
+
     setPageTitle: (state, action: PayloadAction<string>) => {
       state.pageTitle = action.payload
     },
-    
+
     // Search and filter actions
     setGlobalSearch: (state, action: PayloadAction<string>) => {
       state.globalSearch = action.payload
     },
-    
-    setActiveFilters: (state, action: PayloadAction<Record<string, any>>) => {
+
+    setActiveFilters: (
+      state,
+      action: PayloadAction<Record<string, unknown>>
+    ) => {
       state.activeFilters = action.payload
     },
-    
-    addFilter: (state, action: PayloadAction<{ key: string; value: any }>) => {
+
+    addFilter: (
+      state,
+      action: PayloadAction<{ key: string; value: unknown }>
+    ) => {
       const { key, value } = action.payload
       state.activeFilters[key] = value
     },
-    
+
     removeFilter: (state, action: PayloadAction<string>) => {
       delete state.activeFilters[action.payload]
     },
-    
+
     clearFilters: (state) => {
       state.activeFilters = {}
     },
-    
+
     // View preference actions
     setViewMode: (state, action: PayloadAction<'grid' | 'list' | 'table'>) => {
       state.viewMode = action.payload
     },
-    
+
     setPageSize: (state, action: PayloadAction<number>) => {
       state.pageSize = action.payload
     },
-    
+
     setSorting: (
       state,
       action: PayloadAction<{ sortBy: string; sortOrder: 'asc' | 'desc' }>
@@ -323,16 +339,16 @@ const uiSlice = createSlice({
       state.sortBy = sortBy
       state.sortOrder = sortOrder
     },
-    
+
     // Connection status actions
     setOnlineStatus: (state, action: PayloadAction<boolean>) => {
       state.isOnline = action.payload
     },
-    
+
     setWebSocketStatus: (state, action: PayloadAction<boolean>) => {
       state.websocketConnected = action.payload
     },
-    
+
     // Error boundary actions
     setErrorBoundary: (
       state,
@@ -341,11 +357,11 @@ const uiSlice = createSlice({
       const { component, hasError } = action.payload
       state.errorBoundaries[component] = hasError
     },
-    
+
     clearErrorBoundary: (state, action: PayloadAction<string>) => {
       delete state.errorBoundaries[action.payload]
     },
-    
+
     // Reset actions
     resetUIState: () => initialState,
   },
@@ -387,13 +403,15 @@ export const {
 } = uiSlice.actions
 
 // Selectors
-export const selectSidebarCollapsed = (state: RootState) => state.ui.sidebarCollapsed
+export const selectSidebarCollapsed = (state: RootState) =>
+  state.ui.sidebarCollapsed
 export const selectSidebarWidth = (state: RootState) => state.ui.sidebarWidth
 export const selectTheme = (state: RootState) => state.ui.theme
 export const selectPrimaryColor = (state: RootState) => state.ui.primaryColor
 
-export const selectModal = (modalId: keyof UIState['modals']) => (state: RootState) =>
-  state.ui.modals[modalId]
+export const selectModal =
+  (modalId: keyof UIState['modals']) => (state: RootState) =>
+    state.ui.modals[modalId]
 
 export const selectLoading = (key: keyof LoadingState) => (state: RootState) =>
   state.ui.loading[key]
@@ -403,9 +421,12 @@ export const selectAnyLoading = (state: RootState) =>
   Object.values(state.ui.loading).some(Boolean)
 
 export const selectNotifications = (state: RootState) => state.ui.notifications
-export const selectUnreadNotificationCount = (state: RootState) => state.ui.unreadNotificationCount
-export const selectRecentNotifications = (limit = 5) => (state: RootState) =>
-  state.ui.notifications.slice(0, limit)
+export const selectUnreadNotificationCount = (state: RootState) =>
+  state.ui.unreadNotificationCount
+export const selectRecentNotifications =
+  (limit = 5) =>
+  (state: RootState) =>
+    state.ui.notifications.slice(0, limit)
 
 export const selectCurrentPage = (state: RootState) => state.ui.currentPage
 export const selectBreadcrumbs = (state: RootState) => state.ui.breadcrumbs
@@ -424,13 +445,15 @@ export const selectSorting = (state: RootState) => ({
 })
 
 export const selectIsOnline = (state: RootState) => state.ui.isOnline
-export const selectWebSocketConnected = (state: RootState) => state.ui.websocketConnected
+export const selectWebSocketConnected = (state: RootState) =>
+  state.ui.websocketConnected
 export const selectConnectionStatus = (state: RootState) => ({
   isOnline: state.ui.isOnline,
   websocketConnected: state.ui.websocketConnected,
 })
 
-export const selectErrorBoundaries = (state: RootState) => state.ui.errorBoundaries
+export const selectErrorBoundaries = (state: RootState) =>
+  state.ui.errorBoundaries
 export const selectHasErrors = (state: RootState) =>
   Object.values(state.ui.errorBoundaries).some(Boolean)
 

@@ -7,7 +7,7 @@ import { PublicRoute } from '../PublicRoute'
 import authReducer from '../../store/slices/authSlice'
 
 // Mock store factory
-const createMockStore = (authState: any) => {
+const createMockStore = (authState: Record<string, unknown>) => {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -32,13 +32,14 @@ const createMockStore = (authState: any) => {
 
 const TestComponent = () => <div>Public Content</div>
 
-const renderWithProviders = (component: React.ReactElement, authState: any = {}) => {
+const renderWithProviders = (
+  component: React.ReactElement,
+  authState: Record<string, unknown> = {}
+) => {
   const store = createMockStore(authState)
   return render(
     <Provider store={store}>
-      <BrowserRouter>
-        {component}
-      </BrowserRouter>
+      <BrowserRouter>{component}</BrowserRouter>
     </Provider>
   )
 }
@@ -60,10 +61,10 @@ describe('PublicRoute', () => {
       <PublicRoute>
         <TestComponent />
       </PublicRoute>,
-      { 
+      {
         isAuthenticated: true,
         user: { id: '1', email: 'test@example.com' },
-        token: 'mock-token'
+        token: 'mock-token',
       }
     )
 
@@ -72,13 +73,13 @@ describe('PublicRoute', () => {
 
   it('should use custom redirect path when provided', () => {
     renderWithProviders(
-      <PublicRoute redirectTo="/custom-dashboard">
+      <PublicRoute redirectTo='/custom-dashboard'>
         <TestComponent />
       </PublicRoute>,
-      { 
+      {
         isAuthenticated: true,
         user: { id: '1', email: 'test@example.com' },
-        token: 'mock-token'
+        token: 'mock-token',
       }
     )
 

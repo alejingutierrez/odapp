@@ -21,7 +21,7 @@ export interface Permission {
   name: string
   resource: string
   action: string
-  conditions?: Record<string, any>
+  conditions?: Record<string, unknown>
 }
 
 export interface UserPreferences {
@@ -95,7 +95,7 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
   'auth/logout',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { getState }) => {
     try {
       const state = getState() as RootState
       const response = await fetch('/api/v1/auth/logout', {
@@ -151,7 +151,9 @@ export const refreshToken = createAsyncThunk(
 export const updateUserProfile = createAsyncThunk(
   'auth/updateProfile',
   async (
-    updates: Partial<Pick<User, 'firstName' | 'lastName' | 'avatar' | 'preferences'>>,
+    updates: Partial<
+      Pick<User, 'firstName' | 'lastName' | 'avatar' | 'preferences'>
+    >,
     { getState, rejectWithValue }
   ) => {
     try {
@@ -268,10 +270,10 @@ const authSlice = createSlice({
       .addCase(logoutUser.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(logoutUser.fulfilled, (state) => {
+      .addCase(logoutUser.fulfilled, () => {
         return initialState
       })
-      .addCase(logoutUser.rejected, (state) => {
+      .addCase(logoutUser.rejected, () => {
         // Clear state even if logout failed
         return initialState
       })
@@ -284,7 +286,7 @@ const authSlice = createSlice({
         state.refreshToken = refreshToken
         state.sessionExpiry = Date.now() + expiresIn * 1000
       })
-      .addCase(refreshToken.rejected, (state) => {
+      .addCase(refreshToken.rejected, () => {
         // Clear credentials if refresh fails
         return initialState
       })
@@ -322,23 +324,31 @@ export const {
 // Selectors
 export const selectCurrentUser = (state: RootState) => state.auth.user
 export const selectToken = (state: RootState) => state.auth.token
-export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated
+export const selectIsAuthenticated = (state: RootState) =>
+  state.auth.isAuthenticated
 export const selectPermissions = (state: RootState) => state.auth.permissions
 export const selectAuthLoading = (state: RootState) => state.auth.isLoading
 export const selectAuthError = (state: RootState) => state.auth.error
-export const selectSessionExpiry = (state: RootState) => state.auth.sessionExpiry
-export const selectUserPreferences = (state: RootState) => state.auth.user?.preferences
+export const selectSessionExpiry = (state: RootState) =>
+  state.auth.sessionExpiry
+export const selectUserPreferences = (state: RootState) =>
+  state.auth.user?.preferences
 
 // Permission selectors
-export const selectHasPermission = (resource: string, action: string) => (state: RootState) => {
-  return state.auth.permissions.some(
-    (permission) => permission.resource === resource && permission.action === action
-  )
-}
+export const selectHasPermission =
+  (resource: string, action: string) => (state: RootState) => {
+    return state.auth.permissions.some(
+      (permission) =>
+        permission.resource === resource && permission.action === action
+    )
+  }
 
-export const selectCanAccessResource = (resource: string) => (state: RootState) => {
-  return state.auth.permissions.some((permission) => permission.resource === resource)
-}
+export const selectCanAccessResource =
+  (resource: string) => (state: RootState) => {
+    return state.auth.permissions.some(
+      (permission) => permission.resource === resource
+    )
+  }
 
 // Session selectors
 export const selectIsSessionValid = (state: RootState) => {

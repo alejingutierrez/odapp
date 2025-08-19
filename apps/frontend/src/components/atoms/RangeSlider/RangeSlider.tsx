@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Slider, SliderSingleProps, InputNumber, Space } from 'antd'
-import { designTokens } from '../../../config/theme'
+import { Slider, SliderSingleProps, InputNumber } from 'antd'
 import './RangeSlider.css'
 
-export interface RangeSliderProps extends Omit<SliderSingleProps, 'value' | 'onChange' | 'range'> {
+export interface RangeSliderProps
+  extends Omit<SliderSingleProps, 'value' | 'onChange' | 'range'> {
   /** Current range value [min, max] */
   value?: [number, number]
   /** Change handler */
@@ -31,7 +31,10 @@ export interface RangeSliderProps extends Omit<SliderSingleProps, 'value' | 'onC
   /** Whether to allow crossing handles */
   allowCross?: boolean
   /** Custom marks */
-  marks?: Record<number, React.ReactNode | { style: React.CSSProperties; label: React.ReactNode }>
+  marks?: Record<
+    number,
+    React.ReactNode | { style: React.CSSProperties; label: React.ReactNode }
+  >
   /** Whether to show tooltips */
   showTooltips?: boolean
   /** Tooltip formatter */
@@ -57,7 +60,6 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   size = 'medium',
   showRange = false,
   rangeLabels = ['Min', 'Max'],
-  allowCross = false,
   marks,
   showTooltips = true,
   tooltipFormatter,
@@ -85,31 +87,21 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   const formatValue = (val: number): string => {
     if (val === null || val === undefined || isNaN(val)) return '0'
     if (formatter) return formatter(val)
-    
+
     let formatted = val.toString()
     if (prefix) formatted = prefix + formatted
     if (suffix) formatted = formatted + suffix
     if (unit) formatted = formatted + ' ' + unit
-    
+
     return formatted
   }
 
-  const parseValue = (displayValue: string): number => {
-    if (parser) return parser(displayValue)
-    
-    let cleaned = displayValue
-    if (prefix) cleaned = cleaned.replace(prefix, '')
-    if (suffix) cleaned = cleaned.replace(suffix, '')
-    if (unit) cleaned = cleaned.replace(' ' + unit, '')
-    
-    const parsed = parseFloat(cleaned)
-    return isNaN(parsed) ? 0 : parsed
-  }
-
   const handleSliderChange = (newValue: number | [number, number]) => {
-    const rangeValue = Array.isArray(newValue) ? newValue : [newValue, newValue] as [number, number]
+    const rangeValue = Array.isArray(newValue)
+      ? newValue
+      : ([newValue, newValue] as [number, number])
     setInternalValue(rangeValue)
-    
+
     if (onChange) {
       onChange(rangeValue)
     }
@@ -117,10 +109,10 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
   const handleMinInputChange = (newMin: number | null) => {
     if (newMin === null) return
-    
+
     const clampedMin = Math.max(min, Math.min(newMin, internalValue[1]))
     const newValue: [number, number] = [clampedMin, internalValue[1]]
-    
+
     setInternalValue(newValue)
     if (onChange) {
       onChange(newValue)
@@ -129,10 +121,10 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
   const handleMaxInputChange = (newMax: number | null) => {
     if (newMax === null) return
-    
+
     const clampedMax = Math.min(max, Math.max(newMax, internalValue[0]))
     const newValue: [number, number] = [internalValue[0], clampedMax]
-    
+
     setInternalValue(newValue)
     if (onChange) {
       onChange(newValue)
@@ -145,10 +137,10 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     if (!showInputs) return null
 
     return (
-      <div className="oda-range-slider__inputs">
-        <div className="oda-range-slider__input-group">
+      <div className='oda-range-slider__inputs'>
+        <div className='oda-range-slider__input-group'>
           {showLabels && (
-            <label className="oda-range-slider__input-label">
+            <label className='oda-range-slider__input-label'>
               {rangeLabels[0]}
             </label>
           )}
@@ -161,15 +153,15 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             size={size === 'large' ? 'middle' : size}
             formatter={formatter}
             parser={parser}
-            className="oda-range-slider__input"
+            className='oda-range-slider__input'
           />
         </div>
-        
-        <div className="oda-range-slider__separator">-</div>
-        
-        <div className="oda-range-slider__input-group">
+
+        <div className='oda-range-slider__separator'>-</div>
+
+        <div className='oda-range-slider__input-group'>
           {showLabels && (
-            <label className="oda-range-slider__input-label">
+            <label className='oda-range-slider__input-label'>
               {rangeLabels[1]}
             </label>
           )}
@@ -182,7 +174,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             size={size === 'large' ? 'middle' : size}
             formatter={formatter}
             parser={parser}
-            className="oda-range-slider__input"
+            className='oda-range-slider__input'
           />
         </div>
       </div>
@@ -193,19 +185,20 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     if (!showRange) return null
 
     // Ensure internalValue is a valid array with two elements
-    const safeValue = Array.isArray(internalValue) && internalValue.length >= 2 
-      ? internalValue 
-      : [min, max]
+    const safeValue =
+      Array.isArray(internalValue) && internalValue.length >= 2
+        ? internalValue
+        : [min, max]
 
     const rangeSize = safeValue[1] - safeValue[0]
-    const rangePercentage = ((rangeSize) / (max - min) * 100).toFixed(1)
+    const rangePercentage = ((rangeSize / (max - min)) * 100).toFixed(1)
 
     return (
-      <div className="oda-range-slider__range-info">
-        <span className="oda-range-slider__range-size">
+      <div className='oda-range-slider__range-info'>
+        <span className='oda-range-slider__range-size'>
           Range: {formatValue(rangeSize)}
         </span>
-        <span className="oda-range-slider__range-percentage">
+        <span className='oda-range-slider__range-percentage'>
           ({rangePercentage}% of total)
         </span>
       </div>
@@ -216,16 +209,17 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
     if (!showLabels || showInputs) return null
 
     // Ensure internalValue is a valid array with two elements
-    const safeValue = Array.isArray(internalValue) && internalValue.length >= 2 
-      ? internalValue 
-      : [min, max]
+    const safeValue =
+      Array.isArray(internalValue) && internalValue.length >= 2
+        ? internalValue
+        : [min, max]
 
     return (
-      <div className="oda-range-slider__labels">
-        <span className="oda-range-slider__label oda-range-slider__label--min">
+      <div className='oda-range-slider__labels'>
+        <span className='oda-range-slider__label oda-range-slider__label--min'>
           {rangeLabels[0]}: {formatValue(safeValue[0])}
         </span>
-        <span className="oda-range-slider__label oda-range-slider__label--max">
+        <span className='oda-range-slider__label oda-range-slider__label--max'>
           {rangeLabels[1]}: {formatValue(safeValue[1])}
         </span>
       </div>
@@ -235,8 +229,8 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   return (
     <div className={sliderClasses}>
       {renderInputs()}
-      
-      <div className="oda-range-slider__slider-container">
+
+      <div className='oda-range-slider__slider-container'>
         <Slider
           range
           value={internalValue}
@@ -246,12 +240,14 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
           step={step}
           marks={marks}
           tooltip={{
-            formatter: showTooltips ? (tooltipFormatter || defaultTooltipFormatter) : undefined,
+            formatter: showTooltips
+              ? tooltipFormatter || defaultTooltipFormatter
+              : undefined,
           }}
           {...props}
         />
       </div>
-      
+
       {renderLabels()}
       {renderRangeInfo()}
     </div>

@@ -1,7 +1,11 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import {
+  createMemoryRouter,
+  RouterProvider,
+  RouteObject,
+} from 'react-router-dom'
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '../../store/slices/authSlice'
 import uiReducer from '../../store/slices/uiSlice'
@@ -9,47 +13,47 @@ import uiReducer from '../../store/slices/uiSlice'
 // Mock components to avoid complex dependencies
 jest.mock('../../components/layouts/DashboardLayout', () => ({
   DashboardLayout: () => (
-    <div data-testid="dashboard-layout">
+    <div data-testid='dashboard-layout'>
       <div>Dashboard Layout</div>
-      <div data-testid="outlet">Content Area</div>
+      <div data-testid='outlet'>Content Area</div>
     </div>
-  )
+  ),
 }))
 
 jest.mock('../../components/layouts/AuthLayout', () => ({
   AuthLayout: () => (
-    <div data-testid="auth-layout">
+    <div data-testid='auth-layout'>
       <div>Auth Layout</div>
-      <div data-testid="outlet">Auth Content</div>
+      <div data-testid='outlet'>Auth Content</div>
     </div>
-  )
+  ),
 }))
 
 jest.mock('../../pages/Dashboard', () => ({
   __esModule: true,
-  default: () => <div data-testid="dashboard-page">Dashboard Page</div>
+  default: () => <div data-testid='dashboard-page'>Dashboard Page</div>,
 }))
 
 jest.mock('../../pages/auth/Login', () => ({
   __esModule: true,
-  default: () => <div data-testid="login-page">Login Page</div>
+  default: () => <div data-testid='login-page'>Login Page</div>,
 }))
 
 jest.mock('../../pages/NotFound', () => ({
-  NotFoundPage: () => <div data-testid="not-found">404 Not Found</div>
+  NotFoundPage: () => <div data-testid='not-found'>404 Not Found</div>,
 }))
 
 // Mock route guards
 jest.mock('../../router/ProtectedRoute', () => ({
   ProtectedRoute: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="protected-route">{children}</div>
-  )
+    <div data-testid='protected-route'>{children}</div>
+  ),
 }))
 
 jest.mock('../../router/PublicRoute', () => ({
   PublicRoute: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="public-route">{children}</div>
-  )
+    <div data-testid='public-route'>{children}</div>
+  ),
 }))
 
 const createTestStore = (initialState = {}) => {
@@ -108,7 +112,11 @@ const createTestStore = (initialState = {}) => {
   })
 }
 
-const renderWithRouter = (routes: any[], initialEntries = ['/'], initialState = {}) => {
+const renderWithRouter = (
+  routes: RouteObject[],
+  initialEntries = ['/'],
+  initialState: Record<string, unknown> = {}
+) => {
   const store = createTestStore(initialState)
   const router = createMemoryRouter(routes, { initialEntries })
 
@@ -124,9 +132,9 @@ describe('Routing Integration', () => {
     {
       path: '/',
       element: (
-        <div data-testid="protected-route">
-          <div data-testid="dashboard-layout">
-            <div data-testid="dashboard-page">Dashboard Page</div>
+        <div data-testid='protected-route'>
+          <div data-testid='dashboard-layout'>
+            <div data-testid='dashboard-page'>Dashboard Page</div>
           </div>
         </div>
       ),
@@ -134,22 +142,22 @@ describe('Routing Integration', () => {
     {
       path: '/auth/login',
       element: (
-        <div data-testid="public-route">
-          <div data-testid="auth-layout">
-            <div data-testid="login-page">Login Page</div>
+        <div data-testid='public-route'>
+          <div data-testid='auth-layout'>
+            <div data-testid='login-page'>Login Page</div>
           </div>
         </div>
       ),
     },
     {
       path: '*',
-      element: <div data-testid="not-found">404 Not Found</div>,
+      element: <div data-testid='not-found'>404 Not Found</div>,
     },
   ]
 
   it('should render dashboard for authenticated users', () => {
     renderWithRouter(basicRoutes, ['/'], {
-      auth: { isAuthenticated: true }
+      auth: { isAuthenticated: true },
     })
 
     expect(screen.getByTestId('protected-route')).toBeInTheDocument()
@@ -178,8 +186,10 @@ describe('Routing Integration', () => {
         path: '/',
         element: (
           <div>
-            <div data-testid="dashboard-page">Dashboard</div>
-            <button onClick={() => window.history.pushState({}, '', '/auth/login')}>
+            <div data-testid='dashboard-page'>Dashboard</div>
+            <button
+              onClick={() => window.history.pushState({}, '', '/auth/login')}
+            >
               Go to Login
             </button>
           </div>
@@ -187,7 +197,7 @@ describe('Routing Integration', () => {
       },
       {
         path: '/auth/login',
-        element: <div data-testid="login-page">Login Page</div>,
+        element: <div data-testid='login-page'>Login Page</div>,
       },
     ]
 

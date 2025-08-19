@@ -47,8 +47,11 @@ export const useRouteAnalytics = () => {
               const navigationEntry = entry as PerformanceNavigationTiming
               const metrics = {
                 path: location.pathname,
-                loadTime: navigationEntry.loadEventEnd - navigationEntry.loadEventStart,
-                domContentLoaded: navigationEntry.domContentLoadedEventEnd - navigationEntry.domContentLoadedEventStart,
+                loadTime:
+                  navigationEntry.loadEventEnd - navigationEntry.loadEventStart,
+                domContentLoaded:
+                  navigationEntry.domContentLoadedEventEnd -
+                  navigationEntry.domContentLoadedEventStart,
                 firstPaint: 0,
                 firstContentfulPaint: 0,
               }
@@ -64,7 +67,7 @@ export const useRouteAnalytics = () => {
               })
 
               console.log('Route performance metrics:', metrics)
-              
+
               // TODO: Send to monitoring service
               // sendPerformanceMetrics(metrics)
             }
@@ -84,7 +87,7 @@ export const useRouteAnalytics = () => {
   }, [location])
 
   return {
-    trackEvent: (eventName: string, properties?: Record<string, any>) => {
+    trackEvent: (eventName: string, properties?: Record<string, unknown>) => {
       const eventData = {
         event: eventName,
         path: location.pathname,
@@ -93,7 +96,7 @@ export const useRouteAnalytics = () => {
       }
 
       console.log('Event tracked:', eventData)
-      
+
       // TODO: Send to analytics service
       // trackAnalyticsEvent(eventData)
     },
@@ -118,7 +121,7 @@ export const useRouteInteractions = () => {
     }
 
     console.log('Interaction tracked:', interactionData)
-    
+
     // TODO: Send to analytics service
     // trackUserInteraction(interactionData)
   }

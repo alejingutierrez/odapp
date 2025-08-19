@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { InputNumber, InputNumberProps, Button, Input } from 'antd'
+import { InputNumber, InputNumberProps, Button } from 'antd'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './QuantityCounter.css'
 
-export interface QuantityCounterProps extends Omit<InputNumberProps, 'value' | 'onChange'> {
+export interface QuantityCounterProps
+  extends Omit<InputNumberProps, 'value' | 'onChange'> {
   /** Current quantity value */
   value?: number
   /** Change handler */
@@ -109,7 +109,8 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
 
   const handleIncrement = () => {
     const newValue = (inputValue || 0) + step
-    const clampedValue = effectiveMax !== undefined ? Math.min(newValue, effectiveMax) : newValue
+    const clampedValue =
+      effectiveMax !== undefined ? Math.min(newValue, effectiveMax) : newValue
     handleChange(clampedValue)
   }
 
@@ -124,7 +125,9 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
     }
   }
 
-  const canIncrement = !disabled && (effectiveMax === undefined || (inputValue || 0) < effectiveMax)
+  const canIncrement =
+    !disabled &&
+    (effectiveMax === undefined || (inputValue || 0) < effectiveMax)
   const canDecrement = !disabled && (inputValue || 0) > min
 
   const counterClasses = [
@@ -140,13 +143,13 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
     .join(' ')
 
   const renderCompactCounter = () => (
-    <div className="oda-quantity-counter__compact">
+    <div className='oda-quantity-counter__compact'>
       <Button
         size={size === 'large' ? 'middle' : size}
         icon={decrementIcon}
         onClick={handleDecrement}
         disabled={!canDecrement}
-        className="oda-quantity-counter__button oda-quantity-counter__button--decrement"
+        className='oda-quantity-counter__button oda-quantity-counter__button--decrement'
       />
       <InputNumber
         value={inputValue}
@@ -156,7 +159,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         step={step}
         size={size === 'large' ? 'middle' : size}
         controls={false}
-        className="oda-quantity-counter__input"
+        className='oda-quantity-counter__input'
         disabled={disabled}
         {...props}
       />
@@ -165,37 +168,37 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         icon={incrementIcon}
         onClick={handleIncrement}
         disabled={!canIncrement}
-        className="oda-quantity-counter__button oda-quantity-counter__button--increment"
+        className='oda-quantity-counter__button oda-quantity-counter__button--increment'
       />
     </div>
   )
 
   const renderInlineCounter = () => (
-    <div className="oda-quantity-counter__inline">
-      <span className="oda-quantity-counter__label">Qty:</span>
+    <div className='oda-quantity-counter__inline'>
+      <span className='oda-quantity-counter__label'>Qty:</span>
       <Button
-        size="small"
+        size='small'
         icon={decrementIcon}
         onClick={handleDecrement}
         disabled={!canDecrement}
-        className="oda-quantity-counter__button oda-quantity-counter__button--decrement"
+        className='oda-quantity-counter__button oda-quantity-counter__button--decrement'
       />
-      <span className="oda-quantity-counter__value">
+      <span className='oda-quantity-counter__value'>
         {inputValue || 0}
-        {unit && <span className="oda-quantity-counter__unit">{unit}</span>}
+        {unit && <span className='oda-quantity-counter__unit'>{unit}</span>}
       </span>
       <Button
-        size="small"
+        size='small'
         icon={incrementIcon}
         onClick={handleIncrement}
         disabled={!canIncrement}
-        className="oda-quantity-counter__button oda-quantity-counter__button--increment"
+        className='oda-quantity-counter__button oda-quantity-counter__button--increment'
       />
     </div>
   )
 
   const renderStepperCounter = () => (
-    <div className="oda-quantity-counter__stepper">
+    <div className='oda-quantity-counter__stepper'>
       <InputNumber
         value={inputValue}
         onChange={handleChange}
@@ -207,7 +210,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
           upIcon: incrementIcon,
           downIcon: decrementIcon,
         }}
-        className="oda-quantity-counter__input"
+        className='oda-quantity-counter__input'
         disabled={disabled}
         {...props}
       />
@@ -215,14 +218,14 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   )
 
   const renderDefaultCounter = () => (
-    <div className="oda-quantity-counter__default">
+    <div className='oda-quantity-counter__default'>
       {showButtons && (
         <Button
           size={size === 'large' ? 'middle' : size}
           icon={decrementIcon}
           onClick={handleDecrement}
           disabled={!canDecrement}
-          className="oda-quantity-counter__button oda-quantity-counter__button--decrement"
+          className='oda-quantity-counter__button oda-quantity-counter__button--decrement'
         />
       )}
       <InputNumber
@@ -233,7 +236,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         step={step}
         size={size === 'large' ? 'middle' : size}
         controls={false}
-        className="oda-quantity-counter__input"
+        className='oda-quantity-counter__input'
         disabled={disabled}
         {...props}
       />
@@ -243,12 +246,10 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
           icon={incrementIcon}
           onClick={handleIncrement}
           disabled={!canIncrement}
-          className="oda-quantity-counter__button oda-quantity-counter__button--increment"
+          className='oda-quantity-counter__button oda-quantity-counter__button--increment'
         />
       )}
-      {unit && (
-        <span className="oda-quantity-counter__unit-label">{unit}</span>
-      )}
+      {unit && <span className='oda-quantity-counter__unit-label'>{unit}</span>}
     </div>
   )
 
@@ -268,27 +269,23 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   return (
     <div className={counterClasses}>
       {renderCounter()}
-      
+
       {showStock && stock !== undefined && (
-        <div className="oda-quantity-counter__stock">
-          {stock} available
-        </div>
+        <div className='oda-quantity-counter__stock'>{stock} available</div>
       )}
-      
+
       {allowBulkEntry && (inputValue || 0) >= bulkThreshold && (
         <Button
-          size="small"
-          type="link"
+          size='small'
+          type='link'
           onClick={handleBulkToggle}
-          className="oda-quantity-counter__bulk-toggle"
+          className='oda-quantity-counter__bulk-toggle'
         >
           {isBulkMode ? 'Exit bulk mode' : 'Bulk entry'}
         </Button>
       )}
-      
-      {error && (
-        <div className="oda-quantity-counter__error">{error}</div>
-      )}
+
+      {error && <div className='oda-quantity-counter__error'>{error}</div>}
     </div>
   )
 }

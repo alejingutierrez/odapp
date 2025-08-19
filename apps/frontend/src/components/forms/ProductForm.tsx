@@ -24,11 +24,13 @@ import {
   EyeOutlined,
 } from '@ant-design/icons'
 import { Controller, useFieldArray } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useFormValidation, useDynamicFormArray, useFormPersistence } from '../../hooks/useFormValidation'
+import {
+  useFormValidation,
+  useDynamicFormArray,
+  useFormPersistence,
+} from '../../hooks/useFormValidation'
 import { validationSchemas } from '../../utils/validation'
-import type { CreateProduct, ProductVariant } from '@oda/shared'
 
 const { TextArea } = Input
 const { Option } = Select
@@ -43,7 +45,8 @@ const productFormSchema = yup.object({
   vendor: validationSchemas.product.vendor,
   productType: validationSchemas.product.productType,
   tags: validationSchemas.product.tags,
-  variants: yup.array()
+  variants: yup
+    .array()
     .of(validationSchemas.product.variant)
     .min(1, 'At least one variant is required')
     .required('Variants are required'),
@@ -68,7 +71,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   mode = 'create',
 }) => {
   const [previewMode, setPreviewMode] = useState(false)
-  const [uploadedImages, setUploadedImages] = useState<any[]>([])
 
   // Form validation hook
   const {
@@ -82,7 +84,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     validateForm,
     isFormValid,
     hasErrors,
-    clearFieldError,
     setFieldError,
   } = useFormValidation({
     schema: productFormSchema,
@@ -95,18 +96,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       vendor: '',
       productType: '',
       tags: [],
-      variants: [{
-        sku: '',
-        size: '',
-        color: '',
-        price: 0,
-        compareAtPrice: undefined,
-        cost: undefined,
-        weight: undefined,
-        inventoryQuantity: 0,
-        requiresShipping: true,
-        taxable: true,
-      }],
+      variants: [
+        {
+          sku: '',
+          size: '',
+          color: '',
+          price: 0,
+          compareAtPrice: undefined,
+          cost: undefined,
+          weight: undefined,
+          inventoryQuantity: 0,
+          requiresShipping: true,
+          taxable: true,
+        },
+      ],
       seo: {
         title: '',
         description: '',
@@ -149,7 +152,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   // Watch form values for real-time updates
   const watchedName = watch('name')
-  const watchedVariants = watch('variants')
 
   // Auto-generate slug from name
   useEffect(() => {
@@ -178,7 +180,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const savedData = formPersistence.loadFormData()
       if (savedData) {
         Object.entries(savedData).forEach(([key, value]) => {
-          setValue(key as any, value)
+          setValue(key as keyof ProductFormData, value)
         })
       }
     }
@@ -194,15 +196,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       }
 
       // Custom business validation
-      const skus = data.variants.map(v => v.sku)
-      const duplicateSkus = skus.filter((sku, index) => skus.indexOf(sku) !== index)
+      const skus = data.variants.map((v) => v.sku)
+      const duplicateSkus = skus.filter(
+        (sku, index) => skus.indexOf(sku) !== index
+      )
       if (duplicateSkus.length > 0) {
-        setFieldError('variants', `Duplicate SKUs found: ${duplicateSkus.join(', ')}`)
+        setFieldError(
+          'variants',
+          `Duplicate SKUs found: ${duplicateSkus.join(', ')}`
+        )
         return
       }
 
       await onSubmit(data)
-      
+
       // Clear saved form data on successful submission
       if (mode === 'create') {
         formPersistence.clearFormData()
@@ -226,9 +233,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }
 
   // Handle image upload
-  const handleImageUpload = (info: any) => {
+  const handleImageUpload = (info: {
+    file: { status: string; response: unknown }
+  }) => {
     if (info.file.status === 'done') {
-      setUploadedImages(prev => [...prev, info.file.response])
+      // Handle file upload response
+      console.log('File uploaded:', info.file.response)
     }
   }
 
@@ -252,7 +262,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   if (previewMode) {
     return (
       <Card
-        title="Product Preview"
+        title='Product Preview'
         extra={
           <Button onClick={() => setPreviewMode(false)} icon={<EyeOutlined />}>
             Edit Mode
@@ -266,150 +276,171 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <Spin spinning={loading}>
-      <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)}>
+      <Form layout='vertical' onFinish={handleSubmit(handleFormSubmit)}>
         {hasErrors && (
           <Alert
-            message="Please fix the validation errors below"
-            type="error"
+            message='Please fix the validation errors below'
+            type='error'
             showIcon
             style={{ marginBottom: 24 }}
           />
         )}
 
-        <Card title="Basic Information" style={{ marginBottom: 24 }}>
+        <Card title='Basic Information' style={{ marginBottom: 24 }}>
           <Row gutter={16}>
             <Col span={12}>
-              {renderFormField('name', 'Product Name', (
+              {renderFormField(
+                'name',
+                'Product Name',
                 <Controller
-                  name="name"
+                  name='name'
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="Enter product name"
+                      placeholder='Enter product name'
                       onBlur={async (e) => {
                         field.onBlur(e)
                         await validateField('name', e.target.value)
                       }}
                     />
                   )}
-                />
-              ), true)}
+                />,
+                true
+              )}
             </Col>
             <Col span={12}>
-              {renderFormField('slug', 'URL Slug', (
+              {renderFormField(
+                'slug',
+                'URL Slug',
                 <Controller
-                  name="slug"
+                  name='slug'
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="product-url-slug"
-                      addonBefore="/"
+                      placeholder='product-url-slug'
+                      addonBefore='/'
                     />
                   )}
-                />
-              ), true)}
+                />,
+                true
+              )}
             </Col>
           </Row>
 
           <Row gutter={16}>
             <Col span={8}>
-              {renderFormField('status', 'Status', (
+              {renderFormField(
+                'status',
+                'Status',
                 <Controller
-                  name="status"
+                  name='status'
                   control={control}
                   render={({ field }) => (
-                    <Select {...field} placeholder="Select status">
-                      <Option value="draft">Draft</Option>
-                      <Option value="active">Active</Option>
-                      <Option value="archived">Archived</Option>
+                    <Select {...field} placeholder='Select status'>
+                      <Option value='draft'>Draft</Option>
+                      <Option value='active'>Active</Option>
+                      <Option value='archived'>Archived</Option>
                     </Select>
                   )}
                 />
-              ))}
+              )}
             </Col>
             <Col span={8}>
-              {renderFormField('vendor', 'Vendor', (
+              {renderFormField(
+                'vendor',
+                'Vendor',
                 <Controller
-                  name="vendor"
+                  name='vendor'
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Enter vendor name" />
+                    <Input {...field} placeholder='Enter vendor name' />
                   )}
                 />
-              ))}
+              )}
             </Col>
             <Col span={8}>
-              {renderFormField('productType', 'Product Type', (
+              {renderFormField(
+                'productType',
+                'Product Type',
                 <Controller
-                  name="productType"
+                  name='productType'
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} placeholder="e.g., Clothing, Electronics" />
+                    <Input
+                      {...field}
+                      placeholder='e.g., Clothing, Electronics'
+                    />
                   )}
                 />
-              ))}
+              )}
             </Col>
           </Row>
 
-          {renderFormField('description', 'Description', (
+          {renderFormField(
+            'description',
+            'Description',
             <Controller
-              name="description"
+              name='description'
               control={control}
               render={({ field }) => (
                 <TextArea
                   {...field}
                   rows={4}
-                  placeholder="Enter product description"
+                  placeholder='Enter product description'
                 />
               )}
             />
-          ))}
+          )}
 
-          {renderFormField('shortDescription', 'Short Description', (
+          {renderFormField(
+            'shortDescription',
+            'Short Description',
             <Controller
-              name="shortDescription"
+              name='shortDescription'
               control={control}
               render={({ field }) => (
                 <TextArea
                   {...field}
                   rows={2}
-                  placeholder="Brief product summary"
+                  placeholder='Brief product summary'
                   maxLength={500}
                   showCount
                 />
               )}
             />
-          ))}
+          )}
 
-          {renderFormField('tags', 'Tags', (
+          {renderFormField(
+            'tags',
+            'Tags',
             <Controller
-              name="tags"
+              name='tags'
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
-                  mode="tags"
-                  placeholder="Add tags"
+                  mode='tags'
+                  placeholder='Add tags'
                   tokenSeparators={[',']}
                   maxTagCount={20}
                 />
               )}
             />
-          ))}
+          )}
         </Card>
 
-        <Card title="Product Variants" style={{ marginBottom: 24 }}>
+        <Card title='Product Variants' style={{ marginBottom: 24 }}>
           {variantFields.map((field, index) => (
             <Card
               key={field.id}
-              type="inner"
+              type='inner'
               title={`Variant ${index + 1}`}
               extra={
                 variantFields.length > 1 && (
                   <Button
-                    type="text"
+                    type='text'
                     danger
                     icon={<MinusCircleOutlined />}
                     onClick={() => handleRemoveVariant(index)}
@@ -422,54 +453,68 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             >
               <Row gutter={16}>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.sku`, 'SKU', (
+                  {renderFormField(
+                    `variants.${index}.sku`,
+                    'SKU',
                     <Controller
                       name={`variants.${index}.sku`}
                       control={control}
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="PROD-001"
+                          placeholder='PROD-001'
                           onBlur={async (e) => {
                             field.onBlur(e)
-                            await validateField(`variants.${index}.sku`, e.target.value)
+                            await validateField(
+                              `variants.${index}.sku`,
+                              e.target.value
+                            )
                           }}
                         />
                       )}
-                    />
-                  ), true)}
+                    />,
+                    true
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.size`, 'Size', (
+                  {renderFormField(
+                    `variants.${index}.size`,
+                    'Size',
                     <Controller
                       name={`variants.${index}.size`}
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder="S, M, L, XL" />
+                        <Input {...field} placeholder='S, M, L, XL' />
                       )}
-                    />
-                  ), true)}
+                    />,
+                    true
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.color`, 'Color', (
+                  {renderFormField(
+                    `variants.${index}.color`,
+                    'Color',
                     <Controller
                       name={`variants.${index}.color`}
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder="Red, Blue, Green" />
+                        <Input {...field} placeholder='Red, Blue, Green' />
                       )}
-                    />
-                  ), true)}
+                    />,
+                    true
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.colorHex`, 'Color Code', (
+                  {renderFormField(
+                    `variants.${index}.colorHex`,
+                    'Color Code',
                     <Controller
                       name={`variants.${index}.colorHex`}
                       control={control}
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="#FF0000"
+                          placeholder='#FF0000'
                           addonBefore={
                             <div
                               style={{
@@ -483,13 +528,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         />
                       )}
                     />
-                  ))}
+                  )}
                 </Col>
               </Row>
 
               <Row gutter={16}>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.price`, 'Price', (
+                  {renderFormField(
+                    `variants.${index}.price`,
+                    'Price',
                     <Controller
                       name={`variants.${index}.price`}
                       control={control}
@@ -497,17 +544,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <InputNumber
                           {...field}
                           style={{ width: '100%' }}
-                          placeholder="29.99"
+                          placeholder='29.99'
                           min={0}
                           precision={2}
-                          addonBefore="$"
+                          addonBefore='$'
                         />
                       )}
-                    />
-                  ), true)}
+                    />,
+                    true
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.compareAtPrice`, 'Compare Price', (
+                  {renderFormField(
+                    `variants.${index}.compareAtPrice`,
+                    'Compare Price',
                     <Controller
                       name={`variants.${index}.compareAtPrice`}
                       control={control}
@@ -515,17 +565,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <InputNumber
                           {...field}
                           style={{ width: '100%' }}
-                          placeholder="39.99"
+                          placeholder='39.99'
                           min={0}
                           precision={2}
-                          addonBefore="$"
+                          addonBefore='$'
                         />
                       )}
                     />
-                  ))}
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.inventoryQuantity`, 'Inventory', (
+                  {renderFormField(
+                    `variants.${index}.inventoryQuantity`,
+                    'Inventory',
                     <Controller
                       name={`variants.${index}.inventoryQuantity`}
                       control={control}
@@ -533,15 +585,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <InputNumber
                           {...field}
                           style={{ width: '100%' }}
-                          placeholder="10"
+                          placeholder='10'
                           min={0}
                         />
                       )}
-                    />
-                  ), true)}
+                    />,
+                    true
+                  )}
                 </Col>
                 <Col span={6}>
-                  {renderFormField(`variants.${index}.weight`, 'Weight (kg)', (
+                  {renderFormField(
+                    `variants.${index}.weight`,
+                    'Weight (kg)',
                     <Controller
                       name={`variants.${index}.weight`}
                       control={control}
@@ -549,19 +604,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <InputNumber
                           {...field}
                           style={{ width: '100%' }}
-                          placeholder="0.5"
+                          placeholder='0.5'
                           min={0}
                           precision={2}
                         />
                       )}
                     />
-                  ))}
+                  )}
                 </Col>
               </Row>
 
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item label="Requires Shipping">
+                  <Form.Item label='Requires Shipping'>
                     <Controller
                       name={`variants.${index}.requiresShipping`}
                       control={control}
@@ -572,7 +627,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Taxable">
+                  <Form.Item label='Taxable'>
                     <Controller
                       name={`variants.${index}.taxable`}
                       control={control}
@@ -587,7 +642,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           ))}
 
           <Button
-            type="dashed"
+            type='dashed'
             onClick={handleAddVariant}
             disabled={!variantArrayHelper.canAddItem(variantFields.length)}
             icon={<PlusOutlined />}
@@ -597,66 +652,72 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </Button>
         </Card>
 
-        <Card title="SEO Settings" style={{ marginBottom: 24 }}>
+        <Card title='SEO Settings' style={{ marginBottom: 24 }}>
           <Row gutter={16}>
             <Col span={12}>
-              {renderFormField('seo.title', 'SEO Title', (
+              {renderFormField(
+                'seo.title',
+                'SEO Title',
                 <Controller
-                  name="seo.title"
+                  name='seo.title'
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="SEO optimized title"
+                      placeholder='SEO optimized title'
                       maxLength={60}
                       showCount
                     />
                   )}
                 />
-              ))}
+              )}
             </Col>
             <Col span={12}>
-              {renderFormField('seo.description', 'SEO Description', (
+              {renderFormField(
+                'seo.description',
+                'SEO Description',
                 <Controller
-                  name="seo.description"
+                  name='seo.description'
                   control={control}
                   render={({ field }) => (
                     <TextArea
                       {...field}
-                      placeholder="SEO meta description"
+                      placeholder='SEO meta description'
                       maxLength={160}
                       showCount
                       rows={3}
                     />
                   )}
                 />
-              ))}
+              )}
             </Col>
           </Row>
 
-          {renderFormField('seo.keywords', 'SEO Keywords', (
+          {renderFormField(
+            'seo.keywords',
+            'SEO Keywords',
             <Controller
-              name="seo.keywords"
+              name='seo.keywords'
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
-                  mode="tags"
-                  placeholder="Add SEO keywords"
+                  mode='tags'
+                  placeholder='Add SEO keywords'
                   maxTagCount={10}
                 />
               )}
             />
-          ))}
+          )}
         </Card>
 
-        <Card title="Images" style={{ marginBottom: 24 }}>
+        <Card title='Images' style={{ marginBottom: 24 }}>
           <Upload
-            name="images"
-            listType="picture-card"
+            name='images'
+            listType='picture-card'
             multiple
             maxCount={10}
-            accept="image/*"
+            accept='image/*'
             onChange={handleImageUpload}
           >
             <div>
@@ -669,28 +730,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         <Card>
           <Space>
             <Button
-              type="primary"
-              htmlType="submit"
+              type='primary'
+              htmlType='submit'
               loading={isSubmitting}
               disabled={!isFormValid}
               icon={<SaveOutlined />}
             >
               {mode === 'create' ? 'Create Product' : 'Update Product'}
             </Button>
-            
+
             <Button onClick={() => setPreviewMode(true)} icon={<EyeOutlined />}>
               Preview
             </Button>
-            
-            {onCancel && (
-              <Button onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
-            
-            {isDirty && (
-              <Tag color="orange">Unsaved changes</Tag>
-            )}
+
+            {onCancel && <Button onClick={onCancel}>Cancel</Button>}
+
+            {isDirty && <Tag color='orange'>Unsaved changes</Tag>}
           </Space>
         </Card>
       </Form>
@@ -703,19 +758,32 @@ const ProductPreview: React.FC<{ data: ProductFormData }> = ({ data }) => {
   return (
     <div>
       <h2>{data.name}</h2>
-      <p><strong>Status:</strong> {data.status}</p>
-      <p><strong>Slug:</strong> /{data.slug}</p>
+      <p>
+        <strong>Status:</strong> {data.status}
+      </p>
+      <p>
+        <strong>Slug:</strong> /{data.slug}
+      </p>
       {data.description && <p>{data.description}</p>}
-      
+
       <Divider />
-      
+
       <h3>Variants ({data.variants.length})</h3>
       {data.variants.map((variant, index) => (
-        <Card key={index} size="small" style={{ marginBottom: 8 }}>
-          <p><strong>SKU:</strong> {variant.sku}</p>
-          <p><strong>Size:</strong> {variant.size} | <strong>Color:</strong> {variant.color}</p>
-          <p><strong>Price:</strong> ${variant.price}</p>
-          <p><strong>Inventory:</strong> {variant.inventoryQuantity}</p>
+        <Card key={index} size='small' style={{ marginBottom: 8 }}>
+          <p>
+            <strong>SKU:</strong> {variant.sku}
+          </p>
+          <p>
+            <strong>Size:</strong> {variant.size} | <strong>Color:</strong>{' '}
+            {variant.color}
+          </p>
+          <p>
+            <strong>Price:</strong> ${variant.price}
+          </p>
+          <p>
+            <strong>Inventory:</strong> {variant.inventoryQuantity}
+          </p>
         </Card>
       ))}
     </div>

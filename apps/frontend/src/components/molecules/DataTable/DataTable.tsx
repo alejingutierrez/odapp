@@ -1,24 +1,24 @@
 import React, { useState, useCallback } from 'react'
 import { Table, Space, Button, Input, Select, Tooltip } from 'antd'
-import { 
-  SearchOutlined, 
-  FilterOutlined, 
+import {
   ReloadOutlined,
   DownloadOutlined,
-  SettingOutlined
+  SettingOutlined,
 } from '@ant-design/icons'
 import type { ColumnsType, TableProps } from 'antd/es/table'
 import { SearchBox } from '../SearchBox'
 import './DataTable.css'
 
-export interface DataTableColumn<T = any> extends Omit<ColumnsType<T>[0], 'key'> {
+export interface DataTableColumn<T = Record<string, unknown>>
+  extends Omit<ColumnsType<T>[0], 'key'> {
   key: string
   searchable?: boolean
   filterable?: boolean
   sortable?: boolean
 }
 
-export interface DataTableProps<T = any> extends Omit<TableProps<T>, 'columns'> {
+export interface DataTableProps<T = Record<string, unknown>>
+  extends Omit<TableProps<T>, 'columns'> {
   columns: DataTableColumn<T>[]
   data: T[]
   loading?: boolean
@@ -28,7 +28,7 @@ export interface DataTableProps<T = any> extends Omit<TableProps<T>, 'columns'> 
   refreshable?: boolean
   selectable?: boolean
   onSearch?: (searchTerm: string) => void
-  onFilter?: (filters: Record<string, any>) => void
+  onFilter?: (filters: Record<string, unknown>) => void
   onRefresh?: () => void
   onExport?: (format: 'csv' | 'excel' | 'pdf') => void
   onSelectionChange?: (selectedRowKeys: React.Key[], selectedRows: T[]) => void
@@ -37,7 +37,7 @@ export interface DataTableProps<T = any> extends Omit<TableProps<T>, 'columns'> 
   className?: string
 }
 
-export const DataTable = <T extends Record<string, any>>({
+export const DataTable = <T extends Record<string, unknown>>({
   columns,
   data,
   loading = false,
@@ -56,46 +56,55 @@ export const DataTable = <T extends Record<string, any>>({
   className = '',
   ...tableProps
 }: DataTableProps<T>) => {
-  const [searchTerm, setSearchTerm] = useState('')
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
-  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({})
+  const [activeFilters, setActiveFilters] = useState<Record<string, unknown>>(
+    {}
+  )
 
-  const handleSearch = useCallback((value: string) => {
-    setSearchTerm(value)
-    onSearch?.(value)
-  }, [onSearch])
+  const handleSearch = useCallback(
+    (value: string) => {
+      onSearch?.(value)
+    },
+    [onSearch]
+  )
 
-  const handleFilterChange = useCallback((key: string, value: any) => {
-    const newFilters = { ...activeFilters, [key]: value }
-    if (!value || (Array.isArray(value) && value.length === 0)) {
-      delete newFilters[key]
-    }
-    setActiveFilters(newFilters)
-    onFilter?.(newFilters)
-  }, [activeFilters, onFilter])
+  const handleFilterChange = useCallback(
+    (key: string, value: unknown) => {
+      const newFilters = { ...activeFilters, [key]: value }
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        delete newFilters[key]
+      }
+      setActiveFilters(newFilters)
+      onFilter?.(newFilters)
+    },
+    [activeFilters, onFilter]
+  )
 
-  const handleSelectionChange = useCallback((newSelectedRowKeys: React.Key[], selectedRows: T[]) => {
-    setSelectedRowKeys(newSelectedRowKeys)
-    onSelectionChange?.(newSelectedRowKeys, selectedRows)
-  }, [onSelectionChange])
+  const handleSelectionChange = useCallback(
+    (newSelectedRowKeys: React.Key[], selectedRows: T[]) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      onSelectionChange?.(newSelectedRowKeys, selectedRows)
+    },
+    [onSelectionChange]
+  )
 
   const renderToolbar = () => (
-    <div className="data-table__toolbar">
-      <div className="data-table__toolbar-left">
+    <div className='data-table__toolbar'>
+      <div className='data-table__toolbar-left'>
         {searchable && (
           <SearchBox
             placeholder={searchPlaceholder}
             onSearch={handleSearch}
             loading={loading}
-            className="data-table__search"
+            className='data-table__search'
           />
         )}
       </div>
-      
-      <div className="data-table__toolbar-right">
-        <Space size="small">
+
+      <div className='data-table__toolbar-right'>
+        <Space size='small'>
           {refreshable && (
-            <Tooltip title="Refresh">
+            <Tooltip title='Refresh'>
               <Button
                 icon={<ReloadOutlined />}
                 onClick={onRefresh}
@@ -103,22 +112,22 @@ export const DataTable = <T extends Record<string, any>>({
               />
             </Tooltip>
           )}
-          
+
           {exportable && (
             <Select
-              placeholder="Export"
+              placeholder='Export'
               suffixIcon={<DownloadOutlined />}
               style={{ width: 100 }}
               onSelect={(format: 'csv' | 'excel' | 'pdf') => onExport?.(format)}
               options={[
                 { label: 'CSV', value: 'csv' },
                 { label: 'Excel', value: 'excel' },
-                { label: 'PDF', value: 'pdf' }
+                { label: 'PDF', value: 'pdf' },
               ]}
             />
           )}
-          
-          <Tooltip title="Table Settings">
+
+          <Tooltip title='Table Settings'>
             <Button icon={<SettingOutlined />} />
           </Tooltip>
         </Space>
@@ -129,20 +138,20 @@ export const DataTable = <T extends Record<string, any>>({
   const renderFilterRow = () => {
     if (!filterable) return null
 
-    const filterableColumns = columns.filter(col => col.filterable)
+    const filterableColumns = columns.filter((col) => col.filterable)
     if (filterableColumns.length === 0) return null
 
     return (
-      <div className="data-table__filters">
+      <div className='data-table__filters'>
         <Space wrap>
-          {filterableColumns.map(column => (
-            <div key={column.key} className="data-table__filter-item">
+          {filterableColumns.map((column) => (
+            <div key={column.key} className='data-table__filter-item'>
               <Input
                 placeholder={`Filter by ${column.title}`}
                 value={activeFilters[column.key] || ''}
                 onChange={(e) => handleFilterChange(column.key, e.target.value)}
                 allowClear
-                size="small"
+                size='small'
                 style={{ width: 150 }}
               />
             </div>
@@ -152,25 +161,29 @@ export const DataTable = <T extends Record<string, any>>({
     )
   }
 
-  const rowSelection = selectable ? {
-    selectedRowKeys,
-    onChange: handleSelectionChange,
-    getCheckboxProps: (record: T) => ({
-      disabled: record.disabled === true,
-    }),
-  } : undefined
+  const rowSelection = selectable
+    ? {
+        selectedRowKeys,
+        onChange: handleSelectionChange,
+        getCheckboxProps: (record: T) => ({
+          disabled: record.disabled === true,
+        }),
+      }
+    : undefined
 
-  const processedColumns = columns.map(column => ({
+  const processedColumns = columns.map((column) => ({
     ...column,
     sorter: column.sortable ? true : false,
-    showSorterTooltip: column.sortable ? { title: `Sort by ${column.title}` } : false
+    showSorterTooltip: column.sortable
+      ? { title: `Sort by ${column.title}` }
+      : false,
   }))
 
   return (
     <div className={`data-table ${className}`}>
       {renderToolbar()}
       {renderFilterRow()}
-      
+
       <Table<T>
         columns={processedColumns}
         dataSource={data}
@@ -178,18 +191,15 @@ export const DataTable = <T extends Record<string, any>>({
         rowSelection={rowSelection}
         locale={{ emptyText }}
         scroll={{ x: 'max-content' }}
-        className="data-table__table"
+        className='data-table__table'
         {...tableProps}
       />
-      
+
       {selectedRowKeys.length > 0 && (
-        <div className="data-table__selection-info">
+        <div className='data-table__selection-info'>
           <Space>
             <span>{selectedRowKeys.length} item(s) selected</span>
-            <Button 
-              size="small" 
-              onClick={() => setSelectedRowKeys([])}
-            >
+            <Button size='small' onClick={() => setSelectedRowKeys([])}>
               Clear Selection
             </Button>
           </Space>

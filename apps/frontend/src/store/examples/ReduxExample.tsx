@@ -1,9 +1,21 @@
 import React from 'react'
-import { Button, Card, Space, Typography, Notification } from 'antd'
+import { Button, Card, Space, Typography } from 'antd'
 import { useAppDispatch, useAppSelector } from '../hooks'
-import { loginUser, logoutUser, selectCurrentUser, selectIsAuthenticated } from '../slices/authSlice'
-import { addNotification, toggleSidebar, selectSidebarCollapsed } from '../slices/uiSlice'
-import { useGetProductsQuery, useCreateProductMutation } from '../api/productsApi'
+import {
+  loginUser,
+  logoutUser,
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from '../slices/authSlice'
+import {
+  addNotification,
+  toggleSidebar,
+  selectSidebarCollapsed,
+} from '../slices/uiSlice'
+import {
+  useGetProductsQuery,
+  useCreateProductMutation,
+} from '../api/productsApi'
 
 const { Title, Text } = Typography
 
@@ -18,54 +30,67 @@ const { Title, Text } = Typography
  */
 export const ReduxExample: React.FC = () => {
   const dispatch = useAppDispatch()
-  
+
   // Auth selectors
   const currentUser = useAppSelector(selectCurrentUser)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
-  
+
   // UI selectors
   const sidebarCollapsed = useAppSelector(selectSidebarCollapsed)
-  
+
   // RTK Query hooks
-  const { data: productsData, isLoading: productsLoading, error: productsError } = useGetProductsQuery({
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useGetProductsQuery({
     page: 1,
     pageSize: 10,
   })
-  
-  const [createProduct, { isLoading: createProductLoading }] = useCreateProductMutation()
+
+  const [createProduct, { isLoading: createProductLoading }] =
+    useCreateProductMutation()
 
   // Event handlers
   const handleLogin = async () => {
     try {
-      await dispatch(loginUser({
-        email: 'demo@example.com',
-        password: 'password123',
-        rememberMe: true,
-      })).unwrap()
-      
-      dispatch(addNotification({
-        type: 'success',
-        title: 'Login Successful',
-        message: 'Welcome back!',
-      }))
+      await dispatch(
+        loginUser({
+          email: 'demo@example.com',
+          password: 'password123',
+          rememberMe: true,
+        })
+      ).unwrap()
+
+      dispatch(
+        addNotification({
+          type: 'success',
+          title: 'Login Successful',
+          message: 'Welcome back!',
+        })
+      )
     } catch (error) {
-      dispatch(addNotification({
-        type: 'error',
-        title: 'Login Failed',
-        message: 'Invalid credentials',
-      }))
+      dispatch(
+        addNotification({
+          type: 'error',
+          title: 'Login Failed',
+          message: 'Invalid credentials',
+        })
+      )
     }
   }
 
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap()
-      
-      dispatch(addNotification({
-        type: 'info',
-        title: 'Logged Out',
-        message: 'You have been logged out successfully',
-      }))
+
+      dispatch(
+        addNotification({
+          type: 'info',
+          title: 'Logged Out',
+          message: 'You have been logged out successfully',
+        })
+      )
     } catch (error) {
       // Logout should always succeed locally even if server fails
       console.warn('Logout error:', error)
@@ -90,17 +115,21 @@ export const ReduxExample: React.FC = () => {
         tags: ['demo', 'example'],
       }).unwrap()
 
-      dispatch(addNotification({
-        type: 'success',
-        title: 'Product Created',
-        message: `Product "${newProduct.name}" created successfully`,
-      }))
+      dispatch(
+        addNotification({
+          type: 'success',
+          title: 'Product Created',
+          message: `Product "${newProduct.name}" created successfully`,
+        })
+      )
     } catch (error) {
-      dispatch(addNotification({
-        type: 'error',
-        title: 'Creation Failed',
-        message: 'Failed to create product',
-      }))
+      dispatch(
+        addNotification({
+          type: 'error',
+          title: 'Creation Failed',
+          message: 'Failed to create product',
+        })
+      )
     }
   }
 
@@ -111,23 +140,23 @@ export const ReduxExample: React.FC = () => {
   return (
     <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
       <Title level={2}>Redux Store Example</Title>
-      
+
       {/* Authentication Section */}
-      <Card title="Authentication" style={{ marginBottom: '16px' }}>
+      <Card title='Authentication' style={{ marginBottom: '16px' }}>
         {isAuthenticated ? (
-          <Space direction="vertical">
+          <Space direction='vertical'>
             <Text>
               Welcome, {currentUser?.firstName} {currentUser?.lastName}!
             </Text>
-            <Text type="secondary">Email: {currentUser?.email}</Text>
-            <Button onClick={handleLogout} type="primary" danger>
+            <Text type='secondary'>Email: {currentUser?.email}</Text>
+            <Button onClick={handleLogout} type='primary' danger>
               Logout
             </Button>
           </Space>
         ) : (
-          <Space direction="vertical">
+          <Space direction='vertical'>
             <Text>You are not logged in</Text>
-            <Button onClick={handleLogin} type="primary">
+            <Button onClick={handleLogin} type='primary'>
               Login (Demo)
             </Button>
           </Space>
@@ -135,29 +164,29 @@ export const ReduxExample: React.FC = () => {
       </Card>
 
       {/* UI State Section */}
-      <Card title="UI State Management" style={{ marginBottom: '16px' }}>
-        <Space direction="vertical">
+      <Card title='UI State Management' style={{ marginBottom: '16px' }}>
+        <Space direction='vertical'>
           <Text>
             Sidebar is currently: {sidebarCollapsed ? 'Collapsed' : 'Expanded'}
           </Text>
-          <Button onClick={handleToggleSidebar}>
-            Toggle Sidebar
-          </Button>
+          <Button onClick={handleToggleSidebar}>Toggle Sidebar</Button>
         </Space>
       </Card>
 
       {/* RTK Query Section */}
-      <Card title="RTK Query (API Calls)" style={{ marginBottom: '16px' }}>
-        <Space direction="vertical" style={{ width: '100%' }}>
+      <Card title='RTK Query (API Calls)' style={{ marginBottom: '16px' }}>
+        <Space direction='vertical' style={{ width: '100%' }}>
           <div>
             <Text strong>Products Data:</Text>
             {productsLoading && <Text> Loading...</Text>}
-            {productsError && <Text type="danger"> Error loading products</Text>}
+            {productsError && (
+              <Text type='danger'> Error loading products</Text>
+            )}
             {productsData && (
               <div>
                 <Text> Found {productsData.total} products</Text>
                 <ul>
-                  {productsData.products.slice(0, 3).map(product => (
+                  {productsData.products.slice(0, 3).map((product) => (
                     <li key={product.id}>
                       {product.name} - ${product.pricing.basePrice}
                     </li>
@@ -166,47 +195,63 @@ export const ReduxExample: React.FC = () => {
               </div>
             )}
           </div>
-          
-          <Button 
-            onClick={handleCreateProduct} 
+
+          <Button
+            onClick={handleCreateProduct}
             loading={createProductLoading}
             disabled={!isAuthenticated}
           >
             Create Demo Product
           </Button>
-          
+
           {!isAuthenticated && (
-            <Text type="secondary">
-              Login required to create products
-            </Text>
+            <Text type='secondary'>Login required to create products</Text>
           )}
         </Space>
       </Card>
 
       {/* Code Examples */}
-      <Card title="Code Examples">
-        <Space direction="vertical" style={{ width: '100%' }}>
+      <Card title='Code Examples'>
+        <Space direction='vertical' style={{ width: '100%' }}>
           <div>
             <Text strong>Using typed hooks:</Text>
-            <pre style={{ background: '#f5f5f5', padding: '8px', borderRadius: '4px' }}>
-{`const dispatch = useAppDispatch()
+            <pre
+              style={{
+                background: '#f5f5f5',
+                padding: '8px',
+                borderRadius: '4px',
+              }}
+            >
+              {`const dispatch = useAppDispatch()
 const user = useAppSelector(selectCurrentUser)
 const isAuth = useAppSelector(selectIsAuthenticated)`}
             </pre>
           </div>
-          
+
           <div>
             <Text strong>Async actions:</Text>
-            <pre style={{ background: '#f5f5f5', padding: '8px', borderRadius: '4px' }}>
-{`const result = await dispatch(loginUser(credentials)).unwrap()
+            <pre
+              style={{
+                background: '#f5f5f5',
+                padding: '8px',
+                borderRadius: '4px',
+              }}
+            >
+              {`const result = await dispatch(loginUser(credentials)).unwrap()
 dispatch(addNotification({ type: 'success', ... }))`}
             </pre>
           </div>
-          
+
           <div>
             <Text strong>RTK Query:</Text>
-            <pre style={{ background: '#f5f5f5', padding: '8px', borderRadius: '4px' }}>
-{`const { data, isLoading, error } = useGetProductsQuery(params)
+            <pre
+              style={{
+                background: '#f5f5f5',
+                padding: '8px',
+                borderRadius: '4px',
+              }}
+            >
+              {`const { data, isLoading, error } = useGetProductsQuery(params)
 const [createProduct] = useCreateProductMutation()`}
             </pre>
           </div>

@@ -1,15 +1,23 @@
-import React from 'react';
-import { Button, ButtonProps, Tooltip } from 'antd';
+import React from 'react'
+import { Button, ButtonProps, Tooltip } from 'antd'
 
-export type IconButtonSize = 'small' | 'middle' | 'large';
-export type IconButtonVariant = 'primary' | 'dashed' | 'text' | 'link' | 'outlined' | 'solid' | 'filled';
+export type IconButtonSize = 'small' | 'middle' | 'large'
+export type IconButtonVariant =
+  | 'primary'
+  | 'dashed'
+  | 'text'
+  | 'link'
+  | 'outlined'
+  | 'solid'
+  | 'filled'
 
-export interface IconButtonProps extends Omit<ButtonProps, 'size' | 'type' | 'variant'> {
-  icon: React.ReactNode;
-  tooltip?: string;
-  size?: IconButtonSize;
-  variant?: IconButtonVariant;
-  circular?: boolean;
+export interface IconButtonProps
+  extends Omit<ButtonProps, 'size' | 'type' | 'variant'> {
+  icon: React.ReactNode
+  tooltip?: string
+  size?: IconButtonSize
+  variant?: IconButtonVariant
+  circular?: boolean
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({
@@ -30,23 +38,25 @@ export const IconButton: React.FC<IconButtonProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
     }),
-  };
+  }
 
   const button = (
     <Button
-      type={variant === 'outlined' ? 'default' : variant === 'solid' ? 'primary' : variant === 'filled' ? 'primary' : variant as any}
+      type={
+        variant === 'outlined'
+          ? 'default'
+          : variant === 'solid'
+            ? 'primary'
+            : variant === 'filled'
+              ? 'primary'
+              : (variant as 'default' | 'primary' | 'dashed' | 'text' | 'link')
+      }
       size={size}
       icon={icon}
       style={buttonStyle}
       {...props}
     />
-  );
+  )
 
-  return tooltip ? (
-    <Tooltip title={tooltip}>
-      {button}
-    </Tooltip>
-  ) : (
-    button
-  );
-};
+  return tooltip ? <Tooltip title={tooltip}>{button}</Tooltip> : button
+}

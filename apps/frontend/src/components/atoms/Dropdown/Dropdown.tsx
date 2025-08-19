@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { Select, SelectProps, Input } from 'antd'
+import { Select, SelectProps } from 'antd'
 import { SearchOutlined, CheckOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './Dropdown.css'
 
 const { Option, OptGroup } = Select
@@ -13,10 +12,11 @@ export interface DropdownOption {
   icon?: React.ReactNode
   description?: string
   group?: string
-  data?: any
+  data?: Record<string, unknown>
 }
 
-export interface DropdownProps extends Omit<SelectProps, 'options' | 'children'> {
+export interface DropdownProps
+  extends Omit<SelectProps, 'options' | 'children'> {
   /** Dropdown options */
   options: DropdownOption[]
   /** Whether to show search input */
@@ -50,8 +50,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
   searchable = false,
   multiple = false,
   optionRender,
-  valueRender,
-  searchPlaceholder = 'Search options...',
   showDescriptions = false,
   showIcons = true,
   maxHeight = 300,
@@ -79,7 +77,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     const groups: Record<string, DropdownOption[]> = {}
     const ungrouped: DropdownOption[] = []
 
-    options.forEach(option => {
+    options.forEach((option) => {
       if (option.group) {
         if (!groups[option.group]) {
           groups[option.group] = []
@@ -97,9 +95,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options
 
-    return options.filter(option =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-      (option.description && option.description.toLowerCase().includes(searchValue.toLowerCase()))
+    return options.filter(
+      (option) =>
+        option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+        (option.description &&
+          option.description.toLowerCase().includes(searchValue.toLowerCase()))
     )
   }, [options, searchValue])
 
@@ -108,7 +108,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }
 
   const renderOption = (option: DropdownOption) => {
-    const isSelected = Array.isArray(props.value) 
+    const isSelected = Array.isArray(props.value)
       ? props.value.includes(option.value)
       : props.value === option.value
 
@@ -117,18 +117,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
     }
 
     return (
-      <div className="oda-dropdown__option">
-        <div className="oda-dropdown__option-main">
+      <div className='oda-dropdown__option'>
+        <div className='oda-dropdown__option-main'>
           {showIcons && option.icon && (
-            <span className="oda-dropdown__option-icon">{option.icon}</span>
+            <span className='oda-dropdown__option-icon'>{option.icon}</span>
           )}
-          <span className="oda-dropdown__option-label">{option.label}</span>
+          <span className='oda-dropdown__option-label'>{option.label}</span>
           {multiple && isSelected && (
-            <CheckOutlined className="oda-dropdown__option-check" />
+            <CheckOutlined className='oda-dropdown__option-check' />
           )}
         </div>
         {showDescriptions && option.description && (
-          <div className="oda-dropdown__option-description">
+          <div className='oda-dropdown__option-description'>
             {option.description}
           </div>
         )}
@@ -139,19 +139,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const renderSelectAllOption = () => {
     if (!multiple || !showSelectAll) return null
 
-    const allSelected = options.length > 0 && 
-      options.every(option => 
-        Array.isArray(props.value) && props.value.includes(option.value)
+    const allSelected =
+      options.length > 0 &&
+      options.every(
+        (option) =>
+          Array.isArray(props.value) && props.value.includes(option.value)
       )
 
     return (
-      <Option key="__select_all__" value="__select_all__" className="oda-dropdown__select-all">
-        <div className="oda-dropdown__option">
-          <div className="oda-dropdown__option-main">
-            <span className="oda-dropdown__option-label">Select All</span>
-            {allSelected && (
-              <CheckOutlined className="oda-dropdown__option-check" />
-            )}
+      <Option
+        key='__select_all__'
+        value='__select_all__'
+        className='oda-dropdown__select-all'
+      >
+        <div className='oda-dropdown__option'>
+          <div className='oda-dropdown__option-main'>
+            <span className='oda-dropdown__option-label'>
+              {allSelected ? 'Deselect All' : 'Select All'}
+            </span>
           </div>
         </div>
       </Option>
@@ -163,12 +168,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
     const hasGroups = Object.keys(groups).length > 0
 
     if (!hasGroups) {
-      return filteredOptions.map(option => (
+      return filteredOptions.map((option) => (
         <Option
           key={option.value}
           value={option.value}
           disabled={option.disabled}
-          className="oda-dropdown__option-wrapper"
+          className='oda-dropdown__option-wrapper'
         >
           {renderOption(option)}
         </Option>
@@ -177,34 +182,41 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
     return (
       <>
-        {ungrouped.length > 0 && ungrouped.map(option => (
-          <Option
-            key={option.value}
-            value={option.value}
-            disabled={option.disabled}
-            className="oda-dropdown__option-wrapper"
-          >
-            {renderOption(option)}
-          </Option>
-        ))}
+        {ungrouped.length > 0 &&
+          ungrouped.map((option) => (
+            <Option
+              key={option.value}
+              value={option.value}
+              disabled={option.disabled}
+              className='oda-dropdown__option-wrapper'
+            >
+              {renderOption(option)}
+            </Option>
+          ))}
         {Object.entries(groups).map(([groupName, groupOptions]) => (
           <OptGroup key={groupName} label={groupName}>
             {groupOptions
-              .filter(option => !searchValue || 
-                option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-                (option.description && option.description.toLowerCase().includes(searchValue.toLowerCase()))
+              .filter(
+                (option) =>
+                  !searchValue ||
+                  option.label
+                    .toLowerCase()
+                    .includes(searchValue.toLowerCase()) ||
+                  (option.description &&
+                    option.description
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase()))
               )
-              .map(option => (
+              .map((option) => (
                 <Option
                   key={option.value}
                   value={option.value}
                   disabled={option.disabled}
-                  className="oda-dropdown__option-wrapper"
+                  className='oda-dropdown__option-wrapper'
                 >
                   {renderOption(option)}
                 </Option>
-              ))
-            }
+              ))}
           </OptGroup>
         ))}
       </>

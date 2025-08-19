@@ -21,17 +21,23 @@ export const useSEO = (config: SEOConfig = {}) => {
       keywords = ['fashion', 'ERP', 'inventory', 'orders', 'shopify', 'retail'],
       image = '/og-image.png',
       type = 'website',
-      siteName = 'Oda'
+      siteName = 'Oda',
     } = config
 
     // Set document title
     document.title = title
 
     // Helper function to set or update meta tags
-    const setMetaTag = (property: string, content: string, isProperty = false) => {
-      const selector = isProperty ? `meta[property="${property}"]` : `meta[name="${property}"]`
+    const setMetaTag = (
+      property: string,
+      content: string,
+      isProperty = false
+    ) => {
+      const selector = isProperty
+        ? `meta[property="${property}"]`
+        : `meta[name="${property}"]`
       let meta = document.querySelector(selector) as HTMLMetaElement
-      
+
       if (!meta) {
         meta = document.createElement('meta')
         if (isProperty) {
@@ -41,7 +47,7 @@ export const useSEO = (config: SEOConfig = {}) => {
         }
         document.head.appendChild(meta)
       }
-      
+
       meta.setAttribute('content', content)
     }
 
@@ -71,7 +77,9 @@ export const useSEO = (config: SEOConfig = {}) => {
     setMetaTag('twitter:creator', '@oda_fashion')
 
     // Set canonical URL
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+    let canonical = document.querySelector(
+      'link[rel="canonical"]'
+    ) as HTMLLinkElement
     if (!canonical) {
       canonical = document.createElement('link')
       canonical.setAttribute('rel', 'canonical')
@@ -81,15 +89,20 @@ export const useSEO = (config: SEOConfig = {}) => {
 
     // Set alternate language links (for future i18n support)
     const languages = ['en', 'es', 'fr', 'de']
-    languages.forEach(lang => {
-      let alternate = document.querySelector(`link[hreflang="${lang}"]`) as HTMLLinkElement
+    languages.forEach((lang) => {
+      let alternate = document.querySelector(
+        `link[hreflang="${lang}"]`
+      ) as HTMLLinkElement
       if (!alternate) {
         alternate = document.createElement('link')
         alternate.setAttribute('rel', 'alternate')
         alternate.setAttribute('hreflang', lang)
         document.head.appendChild(alternate)
       }
-      alternate.setAttribute('href', `${window.location.origin}/${lang}${location.pathname}`)
+      alternate.setAttribute(
+        'href',
+        `${window.location.origin}/${lang}${location.pathname}`
+      )
     })
 
     // Set structured data (JSON-LD)
@@ -104,12 +117,12 @@ export const useSEO = (config: SEOConfig = {}) => {
         operatingSystem: 'Web Browser',
         offers: {
           '@type': 'Offer',
-          category: 'SaaS'
+          category: 'SaaS',
         },
         author: {
           '@type': 'Organization',
-          name: 'Oda Team'
-        }
+          name: 'Oda Team',
+        },
       }
 
       let script = document.querySelector('script[type="application/ld+json"]')
@@ -122,14 +135,13 @@ export const useSEO = (config: SEOConfig = {}) => {
     }
 
     setStructuredData()
-
   }, [config, location.pathname])
 
   return {
-    updateSEO: (newConfig: SEOConfig) => {
+    updateSEO: () => {
       // This would trigger a re-render with new config
       // Implementation depends on how you want to handle dynamic updates
-    }
+    },
   }
 }
 
@@ -144,47 +156,74 @@ export const usePageSEO = () => {
     const seoConfigs: Record<string, SEOConfig> = {
       '/': {
         title: 'Dashboard - Oda Fashion ERP',
-        description: 'Manage your fashion business with Oda\'s comprehensive dashboard. View analytics, inventory, orders, and more.',
-        keywords: ['dashboard', 'fashion', 'ERP', 'analytics', 'business management']
+        description:
+          "Manage your fashion business with Oda's comprehensive dashboard. View analytics, inventory, orders, and more.",
+        keywords: [
+          'dashboard',
+          'fashion',
+          'ERP',
+          'analytics',
+          'business management',
+        ],
       },
       '/products': {
         title: 'Products - Oda Fashion ERP',
-        description: 'Manage your fashion product catalog with collections, variants, and inventory tracking.',
-        keywords: ['products', 'catalog', 'fashion', 'inventory', 'collections']
+        description:
+          'Manage your fashion product catalog with collections, variants, and inventory tracking.',
+        keywords: [
+          'products',
+          'catalog',
+          'fashion',
+          'inventory',
+          'collections',
+        ],
       },
       '/inventory': {
         title: 'Inventory Management - Oda Fashion ERP',
-        description: 'Track stock levels, manage adjustments, and monitor inventory across multiple locations.',
-        keywords: ['inventory', 'stock', 'warehouse', 'tracking', 'management']
+        description:
+          'Track stock levels, manage adjustments, and monitor inventory across multiple locations.',
+        keywords: ['inventory', 'stock', 'warehouse', 'tracking', 'management'],
       },
       '/orders': {
         title: 'Order Management - Oda Fashion ERP',
-        description: 'Process orders, manage fulfillment, and track customer purchases efficiently.',
-        keywords: ['orders', 'fulfillment', 'customers', 'sales', 'processing']
+        description:
+          'Process orders, manage fulfillment, and track customer purchases efficiently.',
+        keywords: ['orders', 'fulfillment', 'customers', 'sales', 'processing'],
       },
       '/customers': {
         title: 'Customer Management - Oda Fashion ERP',
-        description: 'Manage customer relationships, segments, and loyalty programs with advanced CRM features.',
-        keywords: ['customers', 'CRM', 'loyalty', 'segments', 'relationships']
+        description:
+          'Manage customer relationships, segments, and loyalty programs with advanced CRM features.',
+        keywords: ['customers', 'CRM', 'loyalty', 'segments', 'relationships'],
       },
       '/analytics': {
         title: 'Analytics & Reports - Oda Fashion ERP',
-        description: 'Analyze sales performance, customer behavior, and business metrics with detailed reports.',
-        keywords: ['analytics', 'reports', 'metrics', 'performance', 'insights']
+        description:
+          'Analyze sales performance, customer behavior, and business metrics with detailed reports.',
+        keywords: [
+          'analytics',
+          'reports',
+          'metrics',
+          'performance',
+          'insights',
+        ],
       },
       '/shopify': {
         title: 'Shopify Integration - Oda Fashion ERP',
-        description: 'Sync your Shopify store with Oda for seamless inventory and order management.',
-        keywords: ['shopify', 'integration', 'sync', 'ecommerce', 'automation']
-      }
+        description:
+          'Sync your Shopify store with Oda for seamless inventory and order management.',
+        keywords: ['shopify', 'integration', 'sync', 'ecommerce', 'automation'],
+      },
     }
 
     // Return specific config or default
-    return seoConfigs[path] || {
-      title: 'Oda Fashion ERP',
-      description: 'Professional ERP solution for fashion businesses.',
-      keywords: ['fashion', 'ERP', 'business', 'management']
-    }
+    return (
+      seoConfigs[path] || {
+        title: 'Oda Fashion ERP',
+        description: 'Professional ERP solution for fashion businesses.',
+        keywords: ['fashion', 'ERP', 'business', 'management'],
+      }
+    )
   }
 
   return getPageSEO()

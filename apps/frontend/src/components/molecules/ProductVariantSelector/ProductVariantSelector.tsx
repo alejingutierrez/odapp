@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Space, Select, Radio, Button, Typography, Tooltip } from 'antd'
+import { Space, Select, Radio, Typography, Tooltip } from 'antd'
 import { ColorSwatch, SizeIndicator, MaterialTag } from '../../atoms'
 import type { ProductVariant } from '../ProductCard/ProductCard'
 import './ProductVariantSelector.css'
@@ -32,38 +32,47 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   showLabels = true,
   showAvailability = true,
   disabled = false,
-  className = ''
+  className = '',
 }) => {
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({
+  const [selectedOptions, setSelectedOptions] = useState<
+    Record<string, string>
+  >({
     size: selectedVariant?.size || '',
     color: selectedVariant?.color || '',
-    material: selectedVariant?.material || ''
+    material: selectedVariant?.material || '',
   })
 
   // Extract unique options for each variant type
   const getUniqueOptions = (type: keyof ProductVariant) => {
     const options = new Map<string, VariantOption>()
-    
-    variants.forEach(variant => {
+
+    variants.forEach((variant) => {
       const value = variant[type] as string
       if (value && !options.has(value)) {
-        const isAvailable = variants.some(v => 
-          v[type] === value && 
-          v.inventory > 0 &&
-          (!selectedOptions.size || !v.size || v.size === selectedOptions.size) &&
-          (!selectedOptions.color || !v.color || v.color === selectedOptions.color) &&
-          (!selectedOptions.material || !v.material || v.material === selectedOptions.material)
+        const isAvailable = variants.some(
+          (v) =>
+            v[type] === value &&
+            v.inventory > 0 &&
+            (!selectedOptions.size ||
+              !v.size ||
+              v.size === selectedOptions.size) &&
+            (!selectedOptions.color ||
+              !v.color ||
+              v.color === selectedOptions.color) &&
+            (!selectedOptions.material ||
+              !v.material ||
+              v.material === selectedOptions.material)
         )
 
         options.set(value, {
           type: type as 'size' | 'color' | 'material',
           value,
           label: value,
-          available: isAvailable
+          available: isAvailable,
         })
       }
     })
-    
+
     return Array.from(options.values())
   }
 
@@ -71,29 +80,33 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   const colorOptions = getUniqueOptions('color')
   const materialOptions = getUniqueOptions('material')
 
-  const handleOptionChange = useCallback((type: string, value: string) => {
-    const newOptions = { ...selectedOptions, [type]: value }
-    setSelectedOptions(newOptions)
+  const handleOptionChange = useCallback(
+    (type: string, value: string) => {
+      const newOptions = { ...selectedOptions, [type]: value }
+      setSelectedOptions(newOptions)
 
-    // Find matching variant
-    const matchingVariant = variants.find(variant => 
-      (!newOptions.size || variant.size === newOptions.size) &&
-      (!newOptions.color || variant.color === newOptions.color) &&
-      (!newOptions.material || variant.material === newOptions.material)
-    )
+      // Find matching variant
+      const matchingVariant = variants.find(
+        (variant) =>
+          (!newOptions.size || variant.size === newOptions.size) &&
+          (!newOptions.color || variant.color === newOptions.color) &&
+          (!newOptions.material || variant.material === newOptions.material)
+      )
 
-    if (matchingVariant) {
-      onVariantChange(matchingVariant)
-    }
-  }, [selectedOptions, variants, onVariantChange])
+      if (matchingVariant) {
+        onVariantChange(matchingVariant)
+      }
+    },
+    [selectedOptions, variants, onVariantChange]
+  )
 
   const renderSizeSelector = () => {
     if (sizeOptions.length === 0) return null
 
     return (
-      <div className="variant-selector__group">
+      <div className='variant-selector__group'>
         {showLabels && (
-          <Typography.Text strong className="variant-selector__label">
+          <Typography.Text strong className='variant-selector__label'>
             Size
           </Typography.Text>
         )}
@@ -101,12 +114,16 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
           value={selectedOptions.size}
           onChange={(e) => handleOptionChange('size', e.target.value)}
           disabled={disabled}
-          className="variant-selector__size-group"
+          className='variant-selector__size-group'
         >
-          {sizeOptions.map(option => (
+          {sizeOptions.map((option) => (
             <Tooltip
               key={option.value}
-              title={!option.available && showAvailability ? 'Out of stock' : undefined}
+              title={
+                !option.available && showAvailability
+                  ? 'Out of stock'
+                  : undefined
+              }
             >
               <Radio.Button
                 value={option.value}
@@ -126,14 +143,14 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
     if (colorOptions.length === 0) return null
 
     return (
-      <div className="variant-selector__group">
+      <div className='variant-selector__group'>
         {showLabels && (
-          <Typography.Text strong className="variant-selector__label">
+          <Typography.Text strong className='variant-selector__label'>
             Color
           </Typography.Text>
         )}
-        <Space wrap className="variant-selector__color-group">
-          {colorOptions.map(option => (
+        <Space wrap className='variant-selector__color-group'>
+          {colorOptions.map((option) => (
             <Tooltip
               key={option.value}
               title={`${option.label}${!option.available && showAvailability ? ' - Out of stock' : ''}`}
@@ -144,7 +161,7 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
                 selected={selectedOptions.color === option.value}
                 disabled={(!option.available && showAvailability) || disabled}
                 onClick={() => handleOptionChange('color', option.value)}
-                size="medium"
+                size='medium'
               />
             </Tooltip>
           ))}
@@ -157,21 +174,21 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
     if (materialOptions.length === 0) return null
 
     return (
-      <div className="variant-selector__group">
+      <div className='variant-selector__group'>
         {showLabels && (
-          <Typography.Text strong className="variant-selector__label">
+          <Typography.Text strong className='variant-selector__label'>
             Material
           </Typography.Text>
         )}
         <Select
           value={selectedOptions.material}
           onChange={(value) => handleOptionChange('material', value)}
-          placeholder="Select material"
+          placeholder='Select material'
           disabled={disabled}
-          className="variant-selector__material-select"
+          className='variant-selector__material-select'
           style={{ width: '100%' }}
         >
-          {materialOptions.map(option => (
+          {materialOptions.map((option) => (
             <Select.Option
               key={option.value}
               value={option.value}
@@ -179,7 +196,7 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
             >
               <MaterialTag
                 material={option.value}
-                size="small"
+                size='small'
                 showIcon={false}
               />
             </Select.Option>
@@ -190,7 +207,9 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   }
 
   return (
-    <div className={`variant-selector variant-selector--${layout} ${className}`}>
+    <div
+      className={`variant-selector variant-selector--${layout} ${className}`}
+    >
       {renderSizeSelector()}
       {renderColorSelector()}
       {renderMaterialSelector()}

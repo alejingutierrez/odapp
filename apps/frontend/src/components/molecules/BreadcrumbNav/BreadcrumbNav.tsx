@@ -30,10 +30,10 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
   homeHref = '/',
   onHomeClick,
   separator,
-  className = ''
+  className = '',
 }) => {
   const processedItems = [...items]
-  
+
   // Add home item if requested
   if (showHome) {
     const homeItem: BreadcrumbItem = {
@@ -41,7 +41,7 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
       title: 'Home',
       icon: <HomeOutlined />,
       href: homeHref,
-      onClick: onHomeClick
+      onClick: onHomeClick,
     }
     processedItems.unshift(homeItem)
   }
@@ -53,64 +53,65 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
   if (shouldCollapse) {
     const firstItem = processedItems[0]
     const lastItems = processedItems.slice(-2) // Always show last 2 items
-    const hiddenItems = processedItems.slice(1, -2) // Items to hide in dropdown
+    // const hiddenItems = processedItems.slice(1, -2) // Items to hide in dropdown
 
-    const dropdownMenu: MenuProps['items'] = hiddenItems.map(item => ({
-      key: item.key,
-      label: item.title,
-      icon: item.icon,
-      disabled: item.disabled,
-      onClick: item.onClick
-    }))
+    // Dropdown menu for hidden items (unused but kept for future implementation)
+    // const dropdownMenu: MenuProps['items'] = hiddenItems.map(item => ({
+    //   key: item.key,
+    //   label: item.title,
+    //   icon: item.icon,
+    //   disabled: item.disabled,
+    //   onClick: item.onClick
+    // }))
 
     const ellipsisItem: BreadcrumbItem = {
       key: 'ellipsis',
       title: '...',
-      onClick: () => {} // Handled by dropdown
+      onClick: () => {}, // Handled by dropdown
     }
 
     displayItems = [firstItem, ellipsisItem, ...lastItems]
   }
 
-  const renderBreadcrumbItem = (item: BreadcrumbItem, index: number) => {
+  const renderBreadcrumbItem = (item: BreadcrumbItem) => {
     const isEllipsis = item.key === 'ellipsis'
-    
+
     if (isEllipsis && shouldCollapse) {
       const hiddenItems = processedItems.slice(1, -2)
-      const dropdownMenu: MenuProps['items'] = hiddenItems.map(hiddenItem => ({
-        key: hiddenItem.key,
-        label: hiddenItem.title,
-        icon: hiddenItem.icon,
-        disabled: hiddenItem.disabled,
-        onClick: hiddenItem.onClick
-      }))
+      const dropdownMenu: MenuProps['items'] = hiddenItems.map(
+        (hiddenItem) => ({
+          key: hiddenItem.key,
+          label: hiddenItem.title,
+          icon: hiddenItem.icon,
+          disabled: hiddenItem.disabled,
+          onClick: hiddenItem.onClick,
+        })
+      )
 
       return {
         key: item.key,
         title: (
-          <Dropdown menu={{ items: dropdownMenu }} placement="bottomLeft">
-            <span className="breadcrumb-nav__ellipsis">
+          <Dropdown menu={{ items: dropdownMenu }} placement='bottomLeft'>
+            <span className='breadcrumb-nav__ellipsis'>
               <MoreOutlined />
             </span>
           </Dropdown>
-        )
+        ),
       }
     }
 
     const content = (
-      <span className="breadcrumb-nav__item">
-        {item.icon && (
-          <span className="breadcrumb-nav__icon">{item.icon}</span>
-        )}
-        <span className="breadcrumb-nav__title">{item.title}</span>
+      <span className='breadcrumb-nav__item'>
+        {item.icon && <span className='breadcrumb-nav__icon'>{item.icon}</span>}
+        <span className='breadcrumb-nav__title'>{item.title}</span>
       </span>
     )
 
     return {
       key: item.key,
       title: item.href ? (
-        <a 
-          href={item.href} 
+        <a
+          href={item.href}
           onClick={(e) => {
             if (item.onClick) {
               e.preventDefault()
@@ -122,13 +123,13 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
           {content}
         </a>
       ) : (
-        <span 
+        <span
           onClick={item.onClick}
           className={`breadcrumb-nav__text ${item.onClick ? 'breadcrumb-nav__text--clickable' : ''} ${item.disabled ? 'breadcrumb-nav__text--disabled' : ''}`}
         >
           {content}
         </span>
-      )
+      ),
     }
   }
 

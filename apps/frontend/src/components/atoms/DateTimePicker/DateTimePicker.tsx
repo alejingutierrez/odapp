@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { DatePicker, TimePicker, Select, Space, Alert } from 'antd'
-import { CalendarOutlined, ClockCircleOutlined, GlobalOutlined } from '@ant-design/icons'
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons'
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { designTokens } from '../../../config/theme'
 import './DateTimePicker.css'
 
 dayjs.extend(utc)
@@ -109,7 +112,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   layout = 'horizontal',
   validator,
 }) => {
-  const [internalValue, setInternalValue] = useState<Dayjs | null>(value || null)
+  const [internalValue, setInternalValue] = useState<Dayjs | null>(
+    value || null
+  )
   const [currentTimezone, setCurrentTimezone] = useState(selectedTimezone)
   const [validationError, setValidationError] = useState<string>()
 
@@ -136,7 +141,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     return timeStr >= businessHours.start && timeStr <= businessHours.end
   }
 
-  const validateDateTime = (date: Dayjs | null, tz: string): string | undefined => {
+  const validateDateTime = (
+    date: Dayjs | null,
+    tz: string
+  ): string | undefined => {
     if (!date) return undefined
 
     if (enforceBusinessHours) {
@@ -157,7 +165,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   const handleDateChange = (date: Dayjs | null) => {
     let newValue = date
-    
+
     if (date && internalValue) {
       // Preserve time when changing date
       newValue = date
@@ -167,7 +175,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
 
     setInternalValue(newValue)
-    
+
     const error = validateDateTime(newValue, currentTimezone)
     setValidationError(error)
 
@@ -185,7 +193,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       .second(time.second())
 
     setInternalValue(newValue)
-    
+
     const error = validateDateTime(newValue, currentTimezone)
     setValidationError(error)
 
@@ -196,7 +204,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   const handleTimezoneChange = (tz: string) => {
     setCurrentTimezone(tz)
-    
+
     if (internalValue && onChange) {
       const convertedValue = internalValue.tz(tz)
       onChange(convertedValue, tz)
@@ -207,11 +215,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     if (disabledDate && disabledDate(date)) return true
     if (minDate && date.isBefore(minDate, 'day')) return true
     if (maxDate && date.isAfter(maxDate, 'day')) return true
-    
+
     if (enforceBusinessHours && !isBusinessDay(date)) {
       return true
     }
-    
+
     return false
   }
 
@@ -219,11 +227,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     if (!date) return {}
 
     const baseDisabled = disabledTime ? disabledTime(date) : {}
-    
+
     if (enforceBusinessHours) {
-      const [startHour, startMinute] = businessHours.start.split(':').map(Number)
+      const [startHour, startMinute] = businessHours.start
+        .split(':')
+        .map(Number)
       const [endHour, endMinute] = businessHours.end.split(':').map(Number)
-      
+
       return {
         ...baseDisabled,
         disabledHours: () => {
@@ -251,7 +261,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         },
       }
     }
-    
+
     return baseDisabled
   }
 
@@ -272,7 +282,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           disabledTime: getDisabledTime,
         }}
         showNow={showNow}
-        className="oda-datetime-picker__combined"
+        className='oda-datetime-picker__combined'
       />
       {showTimezone && (
         <Select
@@ -282,9 +292,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           disabled={disabled}
           placeholder={placeholder.timezone || 'Timezone'}
           suffixIcon={<GlobalOutlined />}
-          className="oda-datetime-picker__timezone"
+          className='oda-datetime-picker__timezone'
         >
-          {timezones.map(tz => (
+          {timezones.map((tz) => (
             <Option key={tz} value={tz}>
               {tz} ({dayjs().tz(tz).format('Z')})
             </Option>
@@ -296,7 +306,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   const renderSeparateLayout = () => (
     <div className={pickerClasses}>
-      <Space direction={layout === 'vertical' ? 'vertical' : 'horizontal'} size="middle">
+      <Space
+        direction={layout === 'vertical' ? 'vertical' : 'horizontal'}
+        size='middle'
+      >
         <DatePicker
           value={internalValue}
           onChange={handleDateChange}
@@ -306,9 +319,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           disabledDate={getDisabledDate}
           placeholder={placeholder.date || 'Select date'}
           suffixIcon={<CalendarOutlined />}
-          className="oda-datetime-picker__date"
+          className='oda-datetime-picker__date'
         />
-        
+
         <TimePicker
           value={internalValue}
           onChange={handleTimeChange}
@@ -319,9 +332,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           placeholder={placeholder.time || 'Select time'}
           suffixIcon={<ClockCircleOutlined />}
           showNow={showNow}
-          className="oda-datetime-picker__time"
+          className='oda-datetime-picker__time'
         />
-        
+
         {showTimezone && (
           <Select
             value={currentTimezone}
@@ -330,9 +343,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             disabled={disabled}
             placeholder={placeholder.timezone || 'Timezone'}
             suffixIcon={<GlobalOutlined />}
-            className="oda-datetime-picker__timezone"
+            className='oda-datetime-picker__timezone'
           >
-            {timezones.map(tz => (
+            {timezones.map((tz) => (
               <Option key={tz} value={tz}>
                 {tz} ({dayjs().tz(tz).format('Z')})
               </Option>
@@ -344,25 +357,23 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   )
 
   return (
-    <div className="oda-datetime-picker-wrapper">
+    <div className='oda-datetime-picker-wrapper'>
       {layout === 'compact' ? renderCompactLayout() : renderSeparateLayout()}
-      
+
       {validationError && (
         <Alert
           message={validationError}
-          type="error"
-          size="small"
+          type='error'
+          size='small'
           showIcon
-          className="oda-datetime-picker__error"
+          className='oda-datetime-picker__error'
         />
       )}
-      
+
       {enforceBusinessHours && !validationError && (
-        <div className="oda-datetime-picker__business-hours-info">
+        <div className='oda-datetime-picker__business-hours-info'>
           Business hours: {businessHours.start} - {businessHours.end}
-          {businessHours.days.length < 7 && (
-            <span> (Business days only)</span>
-          )}
+          {businessHours.days.length < 7 && <span> (Business days only)</span>}
         </div>
       )}
     </div>

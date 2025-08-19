@@ -17,7 +17,7 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({
 
   // If user is authenticated, redirect to dashboard or intended page
   if (isAuthenticated) {
-    const from = (location.state as any)?.from || redirectTo
+    const from = (location.state as { from?: string })?.from || redirectTo
     return <Navigate to={from} replace />
   }
 

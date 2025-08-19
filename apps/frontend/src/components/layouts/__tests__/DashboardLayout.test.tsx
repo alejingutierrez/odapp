@@ -10,11 +10,11 @@ import uiReducer from '../../../store/slices/uiSlice'
 // Mock the Outlet component
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  Outlet: () => <div data-testid="outlet">Page Content</div>,
+  Outlet: () => <div data-testid='outlet'>Page Content</div>,
 }))
 
 // Mock store factory
-const createMockStore = (initialState: any = {}) => {
+const createMockStore = (initialState: Record<string, unknown> = {}) => {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -106,7 +106,7 @@ const createMockStore = (initialState: any = {}) => {
   })
 }
 
-const renderWithProviders = (initialState: any = {}) => {
+const renderWithProviders = (initialState: Record<string, unknown> = {}) => {
   const store = createMockStore(initialState)
   return render(
     <Provider store={store}>

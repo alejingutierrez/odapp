@@ -1,21 +1,21 @@
 import React from 'react'
 import { Badge, Tooltip, Space } from 'antd'
-import { 
-  CheckCircleOutlined, 
-  ClockCircleOutlined, 
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
   ExclamationCircleOutlined,
   CloseCircleOutlined,
   SyncOutlined,
-  MinusCircleOutlined
+  MinusCircleOutlined,
 } from '@ant-design/icons'
 import { Typography } from '../../atoms'
 import './StatusIndicator.css'
 
-export type StatusType = 
-  | 'success' 
-  | 'processing' 
-  | 'warning' 
-  | 'error' 
+export type StatusType =
+  | 'success'
+  | 'processing'
+  | 'warning'
+  | 'error'
   | 'default'
   | 'pending'
   | 'cancelled'
@@ -36,43 +36,43 @@ const statusConfig = {
   success: {
     color: 'success',
     icon: CheckCircleOutlined,
-    defaultText: 'Success'
+    defaultText: 'Success',
   },
   processing: {
     color: 'processing',
     icon: SyncOutlined,
-    defaultText: 'Processing'
+    defaultText: 'Processing',
   },
   warning: {
     color: 'warning',
     icon: ExclamationCircleOutlined,
-    defaultText: 'Warning'
+    defaultText: 'Warning',
   },
   error: {
     color: 'error',
     icon: CloseCircleOutlined,
-    defaultText: 'Error'
+    defaultText: 'Error',
   },
   pending: {
     color: 'default',
     icon: ClockCircleOutlined,
-    defaultText: 'Pending'
+    defaultText: 'Pending',
   },
   cancelled: {
     color: 'default',
     icon: MinusCircleOutlined,
-    defaultText: 'Cancelled'
+    defaultText: 'Cancelled',
   },
   draft: {
     color: 'default',
     icon: MinusCircleOutlined,
-    defaultText: 'Draft'
+    defaultText: 'Draft',
   },
   default: {
     color: 'default',
     icon: MinusCircleOutlined,
-    defaultText: 'Unknown'
-  }
+    defaultText: 'Unknown',
+  },
 } as const
 
 export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
@@ -83,19 +83,26 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   showDot = false,
   animated = false,
   size = 'default',
-  className = ''
+  className = '',
 }) => {
   const config = statusConfig[status] || statusConfig.default
   const displayText = text || config.defaultText
   const IconComponent = config.icon
 
-  const shouldAnimate = animated && (status === 'processing')
+  const shouldAnimate = animated && status === 'processing'
 
   const renderContent = () => {
     if (showDot) {
       return (
-        <Badge 
-          status={config.color as any}
+        <Badge
+          status={
+            config.color as
+              | 'success'
+              | 'processing'
+              | 'warning'
+              | 'error'
+              | 'default'
+          }
           text={displayText}
           className={`status-indicator__badge ${shouldAnimate ? 'status-indicator__badge--animated' : ''}`}
         />
@@ -103,13 +110,13 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
     }
 
     return (
-      <Space size="small" className="status-indicator__content">
+      <Space size='small' className='status-indicator__content'>
         {showIcon && (
-          <IconComponent 
+          <IconComponent
             className={`status-indicator__icon status-indicator__icon--${status} ${shouldAnimate ? 'status-indicator__icon--spinning' : ''}`}
           />
         )}
-        <Typography.Text 
+        <Typography.Text
           className={`status-indicator__text status-indicator__text--${size}`}
         >
           {displayText}
@@ -123,18 +130,12 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   if (tooltip) {
     return (
       <Tooltip title={tooltip}>
-        <span className={`status-indicator ${className}`}>
-          {content}
-        </span>
+        <span className={`status-indicator ${className}`}>{content}</span>
       </Tooltip>
     )
   }
 
-  return (
-    <span className={`status-indicator ${className}`}>
-      {content}
-    </span>
-  )
+  return <span className={`status-indicator ${className}`}>{content}</span>
 }
 
 export default StatusIndicator

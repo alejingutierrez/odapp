@@ -1,13 +1,13 @@
 import React from 'react'
 import { Card, Space, Image, Tooltip } from 'antd'
-import { 
-  EditOutlined, 
-  DeleteOutlined, 
-  EyeOutlined, 
+import {
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
   HeartOutlined,
-  ShoppingCartOutlined 
+  ShoppingCartOutlined,
 } from '@ant-design/icons'
-import { Typography, Badge, Button } from '../../atoms'
+import { Typography, Badge } from '../../atoms'
 import { StatusIndicator } from '../StatusIndicator'
 import { PriceDisplay } from '../PriceDisplay'
 import { ActionButtonGroup, type ActionButton } from '../ActionButtonGroup'
@@ -73,12 +73,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   showInventory = false,
   compact = false,
   className = '',
-  loading = false
+  loading = false,
 }) => {
-  const primaryImage = product.images.find(img => img.position === 0) || product.images[0]
-  const basePrice = Math.min(...product.variants.map(v => v.price))
-  const compareAtPrice = product.variants.find(v => v.compareAtPrice)?.compareAtPrice
-  const totalInventory = product.variants.reduce((sum, v) => sum + v.inventory, 0)
+  const primaryImage =
+    product.images.find((img) => img.position === 0) || product.images[0]
+  const basePrice = Math.min(...product.variants.map((v) => v.price))
+  const compareAtPrice = product.variants.find(
+    (v) => v.compareAtPrice
+  )?.compareAtPrice
+  const totalInventory = product.variants.reduce(
+    (sum, v) => sum + v.inventory,
+    0
+  )
 
   const actions: ActionButton[] = []
 
@@ -87,7 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       key: 'view',
       label: 'View',
       icon: <EyeOutlined />,
-      onClick: () => onView(product.id)
+      onClick: () => onView(product.id),
     })
   }
 
@@ -96,7 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       key: 'edit',
       label: 'Edit',
       icon: <EditOutlined />,
-      onClick: () => onEdit(product)
+      onClick: () => onEdit(product),
     })
   }
 
@@ -106,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       label: 'Add to Cart',
       icon: <ShoppingCartOutlined />,
       onClick: () => onAddToCart(product.id),
-      type: 'primary'
+      type: 'primary',
     })
   }
 
@@ -115,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       key: 'favorite',
       label: 'Favorite',
       icon: <HeartOutlined />,
-      onClick: () => onToggleFavorite(product.id)
+      onClick: () => onToggleFavorite(product.id),
     })
   }
 
@@ -125,18 +131,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       label: 'Delete',
       icon: <DeleteOutlined />,
       onClick: () => onDelete(product.id),
-      danger: true
+      danger: true,
     })
   }
 
-  const cardActions = showActions && actions.length > 0 ? [
-    <ActionButtonGroup 
-      key="actions"
-      actions={actions}
-      maxVisible={compact ? 2 : 3}
-      size="small"
-    />
-  ] : undefined
+  const cardActions =
+    showActions && actions.length > 0
+      ? [
+          <ActionButtonGroup
+            key='actions'
+            actions={actions}
+            maxVisible={compact ? 2 : 3}
+            size='small'
+          />,
+        ]
+      : undefined
 
   return (
     <Card
@@ -144,20 +153,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       hoverable
       className={`product-card ${compact ? 'product-card--compact' : ''} ${className}`}
       cover={
-        <div className="product-card__image-container">
+        <div className='product-card__image-container'>
           <Image
             src={primaryImage?.url}
             alt={primaryImage?.alt || product.name}
-            fallback="/placeholder-product.png"
+            fallback='/placeholder-product.png'
             preview={false}
-            className="product-card__image"
+            className='product-card__image'
           />
           {showStatus && (
-            <div className="product-card__status-overlay">
-              <StatusIndicator 
+            <div className='product-card__status-overlay'>
+              <StatusIndicator
                 status={product.status === 'active' ? 'success' : 'default'}
                 text={product.status}
-                size="small"
+                size='small'
               />
             </div>
           )}
@@ -168,47 +177,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <Card.Meta
         title={
           <Tooltip title={product.name}>
-            <Typography.Title 
-              level={5} 
+            <Typography.Title
+              level={5}
               ellipsis={{ rows: 2 }}
-              className="product-card__title"
+              className='product-card__title'
             >
               {product.name}
             </Typography.Title>
           </Tooltip>
         }
         description={
-          <div className="product-card__details">
+          <div className='product-card__details'>
             <PriceDisplay
               price={basePrice}
               compareAtPrice={compareAtPrice}
-              size="small"
+              size='small'
             />
-            
-            <Space size="small" className="product-card__meta">
+
+            <Space size='small' className='product-card__meta'>
               {showVariantCount && product.variants.length > 1 && (
-                <Badge 
-                  count={product.variants.length} 
+                <Badge
+                  count={product.variants.length}
                   showZero={false}
-                  size="small"
+                  size='small'
                   title={`${product.variants.length} variants`}
                 />
               )}
-              
+
               {showInventory && (
-                <Typography.Text 
+                <Typography.Text
                   type={totalInventory > 0 ? 'success' : 'danger'}
-                  className="product-card__inventory"
+                  className='product-card__inventory'
                 >
-                  {totalInventory > 0 ? `${totalInventory} in stock` : 'Out of stock'}
+                  {totalInventory > 0
+                    ? `${totalInventory} in stock`
+                    : 'Out of stock'}
                 </Typography.Text>
               )}
             </Space>
 
             {product.category && (
-              <Typography.Text 
-                type="secondary" 
-                className="product-card__category"
+              <Typography.Text
+                type='secondary'
+                className='product-card__category'
               >
                 {product.category}
               </Typography.Text>

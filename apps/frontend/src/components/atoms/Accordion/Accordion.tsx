@@ -1,7 +1,6 @@
 import React from 'react'
 import { Collapse, CollapseProps } from 'antd'
 import { CaretRightOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './Accordion.css'
 
 const { Panel } = Collapse
@@ -15,6 +14,10 @@ export interface AccordionItem {
   extra?: React.ReactNode
 }
 
+interface PanelProps {
+  isActive?: boolean
+}
+
 export interface AccordionProps extends Omit<CollapseProps, 'children'> {
   /** Accordion items */
   items: AccordionItem[]
@@ -23,7 +26,7 @@ export interface AccordionProps extends Omit<CollapseProps, 'children'> {
   /** Whether to show expand/collapse icons */
   showArrow?: boolean
   /** Custom expand icon */
-  expandIcon?: (panelProps: any) => React.ReactNode
+  expandIcon?: (panelProps: PanelProps) => React.ReactNode
   /** Accordion variant */
   variant?: 'default' | 'bordered' | 'ghost' | 'filled'
   /** Accordion size */
@@ -41,7 +44,6 @@ export const Accordion: React.FC<AccordionProps> = ({
   expandIcon,
   variant = 'default',
   size = 'medium',
-  animated = true,
   headerRender,
   className = '',
   ...props
@@ -56,7 +58,7 @@ export const Accordion: React.FC<AccordionProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  const defaultExpandIcon = (panelProps: any) => (
+  const defaultExpandIcon = (panelProps: PanelProps) => (
     <CaretRightOutlined
       className={`oda-accordion__expand-icon ${
         panelProps.isActive ? 'oda-accordion__expand-icon--active' : ''
@@ -71,13 +73,13 @@ export const Accordion: React.FC<AccordionProps> = ({
     }
 
     return (
-      <div className="oda-accordion__header">
+      <div className='oda-accordion__header'>
         {item.icon && (
-          <span className="oda-accordion__header-icon">{item.icon}</span>
+          <span className='oda-accordion__header-icon'>{item.icon}</span>
         )}
-        <span className="oda-accordion__header-title">{item.title}</span>
+        <span className='oda-accordion__header-title'>{item.title}</span>
         {item.extra && (
-          <span className="oda-accordion__header-extra">{item.extra}</span>
+          <span className='oda-accordion__header-extra'>{item.extra}</span>
         )}
       </div>
     )
@@ -87,7 +89,7 @@ export const Accordion: React.FC<AccordionProps> = ({
     <Collapse
       className={accordionClasses}
       accordion={!multiple}
-      expandIcon={showArrow ? (expandIcon || defaultExpandIcon) : undefined}
+      expandIcon={showArrow ? expandIcon || defaultExpandIcon : undefined}
       ghost={variant === 'ghost'}
       bordered={variant === 'bordered'}
       size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
@@ -98,11 +100,9 @@ export const Accordion: React.FC<AccordionProps> = ({
           key={item.key}
           header={renderHeader(item, false)}
           disabled={item.disabled}
-          className="oda-accordion__panel"
+          className='oda-accordion__panel'
         >
-          <div className="oda-accordion__content">
-            {item.content}
-          </div>
+          <div className='oda-accordion__content'>{item.content}</div>
         </Panel>
       ))}
     </Collapse>

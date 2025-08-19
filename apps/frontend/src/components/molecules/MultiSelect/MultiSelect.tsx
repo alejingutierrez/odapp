@@ -37,15 +37,15 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   disabled = false,
   loading = false,
   size = 'middle',
-  className = ''
+  className = '',
 }) => {
   const [searchValue, setSearchValue] = useState('')
   const [open, setOpen] = useState(false)
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options
-    
-    return options.filter(option =>
+
+    return options.filter((option) =>
       option.label.toLowerCase().includes(searchValue.toLowerCase())
     )
   }, [options, searchValue])
@@ -54,7 +54,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     const groups: Record<string, SelectOption[]> = {}
     const ungrouped: SelectOption[] = []
 
-    filteredOptions.forEach(option => {
+    filteredOptions.forEach((option) => {
       if (option.group) {
         if (!groups[option.group]) {
           groups[option.group] = []
@@ -74,8 +74,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const handleSelectAll = () => {
     const allValues = filteredOptions
-      .filter(option => !option.disabled)
-      .map(option => option.value)
+      .filter((option) => !option.disabled)
+      .map((option) => option.value)
     onChange?.(allValues)
   }
 
@@ -84,29 +84,33 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   }
 
   const isAllSelected = useMemo(() => {
-    const availableOptions = filteredOptions.filter(option => !option.disabled)
-    return availableOptions.length > 0 && 
-           availableOptions.every(option => value.includes(option.value))
+    const availableOptions = filteredOptions.filter(
+      (option) => !option.disabled
+    )
+    return (
+      availableOptions.length > 0 &&
+      availableOptions.every((option) => value.includes(option.value))
+    )
   }, [filteredOptions, value])
 
   const renderDropdownHeader = () => (
-    <div className="multi-select__header">
+    <div className='multi-select__header'>
       {searchable && (
         <Input
-          placeholder="Search options..."
+          placeholder='Search options...'
           prefix={<SearchOutlined />}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          size="small"
-          className="multi-select__search"
+          size='small'
+          className='multi-select__search'
         />
       )}
-      
-      <Space size="small" className="multi-select__actions">
+
+      <Space size='small' className='multi-select__actions'>
         {showSelectAll && (
           <Button
-            type="text"
-            size="small"
+            type='text'
+            size='small'
             icon={<CheckOutlined />}
             onClick={handleSelectAll}
             disabled={isAllSelected || filteredOptions.length === 0}
@@ -114,11 +118,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             Select All
           </Button>
         )}
-        
+
         {showClearAll && (
           <Button
-            type="text"
-            size="small"
+            type='text'
+            size='small'
             icon={<ClearOutlined />}
             onClick={handleClearAll}
             disabled={value.length === 0}
@@ -136,7 +140,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
     // Render ungrouped options first
     if (ungrouped.length > 0) {
-      ungrouped.forEach(option => {
+      ungrouped.forEach((option) => {
         elements.push(
           <Select.Option
             key={option.value}
@@ -153,7 +157,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     Object.entries(groups).forEach(([groupName, groupOptions]) => {
       elements.push(
         <Select.OptGroup key={groupName} label={groupName}>
-          {groupOptions.map(option => (
+          {groupOptions.map((option) => (
             <Select.Option
               key={option.value}
               value={option.value}
@@ -169,16 +173,17 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     return elements
   }
 
-  const renderTag = (props: any) => {
+  const renderTag = (props: {
+    label: string
+    value: string
+    closable?: boolean
+    onClose?: () => void
+  }) => {
     const { label, value: tagValue, closable, onClose } = props
-    const option = options.find(opt => opt.value === tagValue)
-    
+    const option = options.find((opt) => opt.value === tagValue)
+
     return (
-      <Tag
-        closable={closable}
-        onClose={onClose}
-        className="multi-select__tag"
-      >
+      <Tag closable={closable} onClose={onClose} className='multi-select__tag'>
         {option?.label || label}
       </Tag>
     )
@@ -187,7 +192,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className={`multi-select ${className}`}>
       <Select
-        mode="multiple"
+        mode='multiple'
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
@@ -199,27 +204,27 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         maxTagCount={maxTagCount}
         tagRender={renderTag}
         dropdownRender={(menu) => (
-          <div className="multi-select__dropdown">
+          <div className='multi-select__dropdown'>
             {renderDropdownHeader()}
             {menu}
             {filteredOptions.length === 0 && (
-              <div className="multi-select__empty">
-                <Typography.Text type="secondary">
+              <div className='multi-select__empty'>
+                <Typography.Text type='secondary'>
                   No options found
                 </Typography.Text>
               </div>
             )}
           </div>
         )}
-        className="multi-select__select"
+        className='multi-select__select'
         showSearch={false} // We handle search in dropdown header
       >
         {renderGroupedOptions()}
       </Select>
-      
+
       {value.length > 0 && (
-        <div className="multi-select__summary">
-          <Typography.Text type="secondary" className="multi-select__count">
+        <div className='multi-select__summary'>
+          <Typography.Text type='secondary' className='multi-select__count'>
             {value.length} item{value.length !== 1 ? 's' : ''} selected
           </Typography.Text>
         </div>

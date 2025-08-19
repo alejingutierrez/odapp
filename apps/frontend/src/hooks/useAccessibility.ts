@@ -9,7 +9,7 @@ export const useAccessibility = () => {
     const announceRouteChange = () => {
       // Create or update the live region for route announcements
       let liveRegion = document.getElementById('route-announcer')
-      
+
       if (!liveRegion) {
         liveRegion = document.createElement('div')
         liveRegion.id = 'route-announcer'
@@ -26,14 +26,14 @@ export const useAccessibility = () => {
       // Generate announcement text based on route
       const getRouteAnnouncement = () => {
         const pathSegments = location.pathname.split('/').filter(Boolean)
-        
+
         if (pathSegments.length === 0) {
           return 'Navigated to Dashboard page'
         }
 
         const pageName = pathSegments[pathSegments.length - 1]
           .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
 
         return `Navigated to ${pageName} page`
@@ -52,17 +52,18 @@ export const useAccessibility = () => {
   useEffect(() => {
     const manageFocus = () => {
       // Find the main content area or first heading
-      const mainContent = document.querySelector('main') || 
-                         document.querySelector('[role="main"]') ||
-                         document.querySelector('h1') ||
-                         document.querySelector('[tabindex="-1"]')
+      const mainContent =
+        document.querySelector('main') ||
+        document.querySelector('[role="main"]') ||
+        document.querySelector('h1') ||
+        document.querySelector('[tabindex="-1"]')
 
       if (mainContent) {
         // Make it focusable if it isn't already
         if (!mainContent.hasAttribute('tabindex')) {
           mainContent.setAttribute('tabindex', '-1')
         }
-        
+
         // Focus the element
         ;(mainContent as HTMLElement).focus()
       }
@@ -77,8 +78,9 @@ export const useAccessibility = () => {
     // Skip to main content (Alt + M)
     if (event.altKey && event.key === 'm') {
       event.preventDefault()
-      const mainContent = document.querySelector('main') || 
-                         document.querySelector('[role="main"]')
+      const mainContent =
+        document.querySelector('main') ||
+        document.querySelector('[role="main"]')
       if (mainContent) {
         ;(mainContent as HTMLElement).focus()
       }
@@ -87,8 +89,9 @@ export const useAccessibility = () => {
     // Skip to navigation (Alt + N)
     if (event.altKey && event.key === 'n') {
       event.preventDefault()
-      const navigation = document.querySelector('nav') || 
-                        document.querySelector('[role="navigation"]')
+      const navigation =
+        document.querySelector('nav') ||
+        document.querySelector('[role="navigation"]')
       if (navigation) {
         const firstLink = navigation.querySelector('a, button')
         if (firstLink) {
@@ -107,7 +110,8 @@ export const useAccessibility = () => {
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyboardNavigation)
-    return () => document.removeEventListener('keydown', handleKeyboardNavigation)
+    return () =>
+      document.removeEventListener('keydown', handleKeyboardNavigation)
   }, [handleKeyboardNavigation])
 
   // High contrast mode detection
@@ -116,8 +120,9 @@ export const useAccessibility = () => {
   useEffect(() => {
     const checkHighContrast = () => {
       // Check for Windows high contrast mode
-      const isHighContrastMode = window.matchMedia('(prefers-contrast: high)').matches ||
-                                window.matchMedia('(-ms-high-contrast: active)').matches
+      const isHighContrastMode =
+        window.matchMedia('(prefers-contrast: high)').matches ||
+        window.matchMedia('(-ms-high-contrast: active)').matches
 
       setIsHighContrast(isHighContrastMode)
 
@@ -142,7 +147,9 @@ export const useAccessibility = () => {
 
   useEffect(() => {
     const checkReducedMotion = () => {
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches
       setPrefersReducedMotion(prefersReduced)
 
       if (prefersReduced) {
@@ -182,7 +189,9 @@ export const useFocusTrap = (isActive: boolean) => {
     )
 
     const firstElement = focusableElements[0] as HTMLElement
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement
 
     const handleTabKey = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return
@@ -201,7 +210,7 @@ export const useFocusTrap = (isActive: boolean) => {
     }
 
     document.addEventListener('keydown', handleTabKey)
-    
+
     // Focus the first element when trap becomes active
     if (firstElement) {
       firstElement.focus()

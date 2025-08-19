@@ -1,7 +1,6 @@
 import React from 'react'
 import { Card, Tooltip, Tag } from 'antd'
-import { InfoCircleOutlined, EyeOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
+import { EyeOutlined } from '@ant-design/icons'
 import './FabricSwatch.css'
 
 export interface FabricComposition {
@@ -108,9 +107,9 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
     if (composition.length === 0) return null
 
     return (
-      <div className="oda-fabric-swatch__composition">
+      <div className='oda-fabric-swatch__composition'>
         {composition.map((comp, index) => (
-          <span key={index} className="oda-fabric-swatch__composition-item">
+          <span key={index} className='oda-fabric-swatch__composition-item'>
             {comp.percentage}% {comp.material}
           </span>
         ))}
@@ -122,15 +121,17 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
     if (careInstructions.length === 0) return null
 
     return (
-      <div className="oda-fabric-swatch__care">
-        <div className="oda-fabric-swatch__care-title">Care Instructions:</div>
-        <div className="oda-fabric-swatch__care-list">
+      <div className='oda-fabric-swatch__care'>
+        <div className='oda-fabric-swatch__care-title'>Care Instructions:</div>
+        <div className='oda-fabric-swatch__care-list'>
           {careInstructions.map((care, index) => (
-            <div key={index} className="oda-fabric-swatch__care-item">
+            <div key={index} className='oda-fabric-swatch__care-item'>
               {care.symbol && (
-                <span className="oda-fabric-swatch__care-symbol">{care.symbol}</span>
+                <span className='oda-fabric-swatch__care-symbol'>
+                  {care.symbol}
+                </span>
               )}
-              <span className="oda-fabric-swatch__care-text">
+              <span className='oda-fabric-swatch__care-text'>
                 {care.instruction}
                 {care.temperature && ` (${care.temperature}°C)`}
               </span>
@@ -143,30 +144,27 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
 
   const renderSpecs = () => {
     const specs = []
-    
+
     if (weight) {
       specs.push(`${weight} GSM`)
     }
-    
+
     if (width) {
       specs.push(`${width}${widthUnit} wide`)
     }
 
     if (specs.length === 0) return null
 
-    return (
-      <div className="oda-fabric-swatch__specs">
-        {specs.join(' • ')}
-      </div>
-    )
+    return <div className='oda-fabric-swatch__specs'>{specs.join(' • ')}</div>
   }
 
   const renderPrice = () => {
     if (!pricePerUnit) return null
 
     return (
-      <div className="oda-fabric-swatch__price">
-        {currency}{pricePerUnit.toFixed(2)}/{priceUnit}
+      <div className='oda-fabric-swatch__price'>
+        {currency}
+        {pricePerUnit.toFixed(2)}/{priceUnit}
       </div>
     )
   }
@@ -175,9 +173,9 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
     if (certifications.length === 0) return null
 
     return (
-      <div className="oda-fabric-swatch__certifications">
+      <div className='oda-fabric-swatch__certifications'>
         {certifications.map((cert, index) => (
-          <Tag key={index} size="small" color="green">
+          <Tag key={index} size='small' color='green'>
             {cert}
           </Tag>
         ))}
@@ -186,8 +184,8 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
   }
 
   const tooltipContent = (
-    <div className="oda-fabric-swatch__tooltip">
-      <div className="oda-fabric-swatch__tooltip-title">{name}</div>
+    <div className='oda-fabric-swatch__tooltip'>
+      <div className='oda-fabric-swatch__tooltip-title'>{name}</div>
       {renderComposition()}
       {renderSpecs()}
       {renderCareInstructions()}
@@ -196,17 +194,17 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
   )
 
   return (
-    <Tooltip title={tooltipContent} placement="top">
+    <Tooltip title={tooltipContent} placement='top'>
       <Card
         className={swatchClasses}
         onClick={handleClick}
         hoverable={!disabled && !!onClick}
-        size="small"
+        size='small'
         bodyStyle={{ padding: 0 }}
       >
-        <div className="oda-fabric-swatch__preview">
-          <div 
-            className="oda-fabric-swatch__texture"
+        <div className='oda-fabric-swatch__preview'>
+          <div
+            className='oda-fabric-swatch__texture'
             style={{
               backgroundColor: color,
               backgroundImage: textureUrl ? `url(${textureUrl})` : undefined,
@@ -215,34 +213,30 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
             }}
           >
             {pattern && (
-              <div className="oda-fabric-swatch__pattern">{pattern}</div>
+              <div className='oda-fabric-swatch__pattern'>{pattern}</div>
             )}
             {textureOverlay}
-            
+
             {sustainable && (
-              <div className="oda-fabric-swatch__sustainable-badge">
-                🌱
-              </div>
+              <div className='oda-fabric-swatch__sustainable-badge'>🌱</div>
             )}
-            
+
             {onPreview && (
-              <div className="oda-fabric-swatch__preview-button">
+              <div className='oda-fabric-swatch__preview-button'>
                 <EyeOutlined onClick={handlePreview} />
               </div>
             )}
           </div>
-          
-          <div className="oda-fabric-swatch__info">
-            <div className="oda-fabric-swatch__name">{name}</div>
+
+          <div className='oda-fabric-swatch__info'>
+            <div className='oda-fabric-swatch__name'>{name}</div>
             {renderSpecs()}
             {renderPrice()}
           </div>
         </div>
 
         {selected && (
-          <div className="oda-fabric-swatch__selected-indicator">
-            ✓
-          </div>
+          <div className='oda-fabric-swatch__selected-indicator'>✓</div>
         )}
       </Card>
     </Tooltip>

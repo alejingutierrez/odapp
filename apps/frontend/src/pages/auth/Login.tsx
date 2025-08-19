@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -18,7 +18,11 @@ import {
   EyeTwoTone,
 } from '@ant-design/icons'
 import { AppDispatch } from '../../store'
-import { loginUser, selectAuthLoading, selectAuthError } from '../../store/slices/authSlice'
+import {
+  loginUser,
+  selectAuthLoading,
+  selectAuthError,
+} from '../../store/slices/authSlice'
 
 const { Title, Text } = Typography
 
@@ -32,13 +36,13 @@ const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   const isLoading = useSelector(selectAuthLoading)
   const error = useSelector(selectAuthError)
-  
+
   const [form] = Form.useForm()
 
-  const from = (location.state as any)?.from || '/'
+  const from = (location.state as { from?: string })?.from || '/'
 
   const handleSubmit = async (values: LoginFormData) => {
     try {
@@ -56,16 +60,14 @@ const Login: React.FC = () => {
         <Title level={3} style={{ margin: 0 }}>
           Welcome Back
         </Title>
-        <Text type="secondary">
-          Sign in to your Oda account
-        </Text>
+        <Text type='secondary'>Sign in to your Oda account</Text>
       </div>
 
       {error && (
         <Alert
-          message="Login Failed"
+          message='Login Failed'
           description={error}
-          type="error"
+          type='error'
           showIcon
           closable
           style={{ marginBottom: '24px' }}
@@ -74,15 +76,15 @@ const Login: React.FC = () => {
 
       <Form
         form={form}
-        name="login"
-        layout="vertical"
+        name='login'
+        layout='vertical'
         onFinish={handleSubmit}
-        autoComplete="off"
-        size="large"
+        autoComplete='off'
+        size='large'
       >
         <Form.Item
-          name="email"
-          label="Email"
+          name='email'
+          label='Email'
           rules={[
             { required: true, message: 'Please input your email!' },
             { type: 'email', message: 'Please enter a valid email!' },
@@ -90,14 +92,14 @@ const Login: React.FC = () => {
         >
           <Input
             prefix={<UserOutlined />}
-            placeholder="Enter your email"
-            autoComplete="email"
+            placeholder='Enter your email'
+            autoComplete='email'
           />
         </Form.Item>
 
         <Form.Item
-          name="password"
-          label="Password"
+          name='password'
+          label='Password'
           rules={[
             { required: true, message: 'Please input your password!' },
             { min: 6, message: 'Password must be at least 6 characters!' },
@@ -105,8 +107,8 @@ const Login: React.FC = () => {
         >
           <Input.Password
             prefix={<LockOutlined />}
-            placeholder="Enter your password"
-            autoComplete="current-password"
+            placeholder='Enter your password'
+            autoComplete='current-password'
             iconRender={(visible) =>
               visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
             }
@@ -114,23 +116,29 @@ const Login: React.FC = () => {
         </Form.Item>
 
         <Form.Item>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Form.Item name="rememberMe" valuePropName="checked" noStyle>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Form.Item name='rememberMe' valuePropName='checked' noStyle>
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
-            <Link to="/auth/forgot-password">
-              <Text type="secondary">Forgot password?</Text>
+            <Link to='/auth/forgot-password'>
+              <Text type='secondary'>Forgot password?</Text>
             </Link>
           </div>
         </Form.Item>
 
         <Form.Item>
           <Button
-            type="primary"
-            htmlType="submit"
+            type='primary'
+            htmlType='submit'
             loading={isLoading}
             block
-            size="large"
+            size='large'
           >
             Sign In
           </Button>
@@ -138,15 +146,15 @@ const Login: React.FC = () => {
       </Form>
 
       <Divider>
-        <Text type="secondary">New to Oda?</Text>
+        <Text type='secondary'>New to Oda?</Text>
       </Divider>
 
       <div style={{ textAlign: 'center' }}>
-        <Space direction="vertical" size="small">
-          <Text type="secondary">
+        <Space direction='vertical' size='small'>
+          <Text type='secondary'>
             Don't have an account?{' '}
-            <Link to="/auth/register">
-              <Text type="secondary" underline>
+            <Link to='/auth/register'>
+              <Text type='secondary' underline>
                 Sign up here
               </Text>
             </Link>

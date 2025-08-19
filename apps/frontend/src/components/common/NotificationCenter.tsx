@@ -8,7 +8,6 @@ import {
   Badge,
   Space,
   Empty,
-  Divider,
   Tag,
 } from 'antd'
 import {
@@ -35,7 +34,7 @@ import {
 
 dayjs.extend(relativeTime)
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 interface NotificationCenterProps {
   open: boolean
@@ -100,12 +99,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <BellOutlined />
           <span>Notifications</span>
-          {unreadCount > 0 && (
-            <Badge count={unreadCount} size="small" />
-          )}
+          {unreadCount > 0 && <Badge count={unreadCount} size='small' />}
         </div>
       }
-      placement="right"
+      placement='right'
       onClose={onClose}
       open={open}
       width={400}
@@ -114,8 +111,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           <Space>
             {unreadCount > 0 && (
               <Button
-                type="text"
-                size="small"
+                type='text'
+                size='small'
                 icon={<CheckOutlined />}
                 onClick={handleMarkAllAsRead}
               >
@@ -123,8 +120,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               </Button>
             )}
             <Button
-              type="text"
-              size="small"
+              type='text'
+              size='small'
               icon={<DeleteOutlined />}
               onClick={handleClearAll}
               danger
@@ -138,7 +135,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       {notifications.length === 0 ? (
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="No notifications"
+          description='No notifications'
         />
       ) : (
         <List
@@ -155,19 +152,19 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               actions={[
                 !notification.read && (
                   <Button
-                    type="text"
-                    size="small"
+                    type='text'
+                    size='small'
                     icon={<CheckOutlined />}
                     onClick={() => handleMarkAsRead(notification.id)}
-                    title="Mark as read"
+                    title='Mark as read'
                   />
                 ),
                 <Button
-                  type="text"
-                  size="small"
+                  type='text'
+                  size='small'
                   icon={<DeleteOutlined />}
                   onClick={() => handleRemove(notification.id)}
-                  title="Remove"
+                  title='Remove'
                   danger
                 />,
               ].filter(Boolean)}
@@ -175,51 +172,54 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <List.Item.Meta
                 avatar={getNotificationIcon(notification.type)}
                 title={
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
                     <Text strong={!notification.read}>
                       {notification.title}
                     </Text>
-                    {!notification.read && (
-                      <Badge dot />
-                    )}
+                    {!notification.read && <Badge dot />}
                   </div>
                 }
                 description={
                   <div>
-                    <Text type="secondary">
-                      {notification.message}
-                    </Text>
+                    <Text type='secondary'>{notification.message}</Text>
                     <div style={{ marginTop: '4px' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
+                      <Text type='secondary' style={{ fontSize: '12px' }}>
                         {dayjs(notification.timestamp).fromNow()}
                       </Text>
                       <Tag
                         color={getNotificationColor(notification.type)}
-                        size="small"
+                        size='small'
                         style={{ marginLeft: '8px' }}
                       >
                         {notification.type.toUpperCase()}
                       </Tag>
                     </div>
-                    {notification.actions && notification.actions.length > 0 && (
-                      <div style={{ marginTop: '8px' }}>
-                        <Space size="small">
-                          {notification.actions.map((action, index) => (
-                            <Button
-                              key={index}
-                              type="link"
-                              size="small"
-                              onClick={() => {
-                                // Handle notification action
-                                console.log('Notification action:', action)
-                              }}
-                            >
-                              {action.label}
-                            </Button>
-                          ))}
-                        </Space>
-                      </div>
-                    )}
+                    {notification.actions &&
+                      notification.actions.length > 0 && (
+                        <div style={{ marginTop: '8px' }}>
+                          <Space size='small'>
+                            {notification.actions.map((action, index) => (
+                              <Button
+                                key={index}
+                                type='link'
+                                size='small'
+                                onClick={() => {
+                                  // Handle notification action
+                                  console.log('Notification action:', action)
+                                }}
+                              >
+                                {action.label}
+                              </Button>
+                            ))}
+                          </Space>
+                        </div>
+                      )}
                   </div>
                 }
               />

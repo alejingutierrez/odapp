@@ -1,6 +1,10 @@
 import React from 'react'
-import { Progress, Typography, Space, Tooltip } from 'antd'
-import { CheckCircleOutlined, ClockCircleOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Progress, Typography, Space } from 'antd'
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons'
 import './ProgressIndicator.css'
 
 export type ProgressType = 'line' | 'circle' | 'dashboard'
@@ -40,12 +44,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   size = 'default',
   strokeColor,
   trailColor,
-  strokeWidth,
+
   format,
   title,
   subtitle,
-  animated = true,
-  className = ''
+
+  className = '',
 }) => {
   const getStatusIcon = () => {
     switch (status) {
@@ -60,48 +64,6 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     }
   }
 
-  const getProgressSize = () => {
-    if (type === 'circle' || type === 'dashboard') {
-      switch (size) {
-        case 'small':
-          return 80
-        case 'large':
-          return 160
-        default:
-          return 120
-      }
-    }
-    return undefined
-  }
-
-  const getStrokeWidth = () => {
-    // @deprecated Use size prop instead
-    if (strokeWidth) return strokeWidth
-    
-    switch (size) {
-      case 'small':
-        return type === 'line' ? 6 : 4
-      case 'large':
-        return type === 'line' ? 10 : 8
-      default:
-        return type === 'line' ? 8 : 6
-    }
-  }
-
-  const getProgressSize = () => {
-    if (type === 'circle' || type === 'dashboard') {
-      switch (size) {
-        case 'small':
-          return 80
-        case 'large':
-          return 160
-        default:
-          return 120
-      }
-    }
-    return undefined
-  }
-
   const defaultFormat = (percent?: number) => {
     if (percent === undefined) return '0%'
     return `${Math.round(percent)}%`
@@ -111,29 +73,29 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     if (!showSteps || steps.length === 0) return null
 
     return (
-      <div className="progress-indicator__steps">
+      <div className='progress-indicator__steps'>
         {steps.map((step, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className={`progress-indicator__step progress-indicator__step--${step.status}`}
           >
-            <div className="progress-indicator__step-icon">
+            <div className='progress-indicator__step-icon'>
               {step.status === 'finish' && <CheckCircleOutlined />}
               {step.status === 'process' && <LoadingOutlined />}
               {step.status === 'error' && <CheckCircleOutlined />}
               {step.status === 'wait' && <ClockCircleOutlined />}
             </div>
-            <div className="progress-indicator__step-content">
-              <Typography.Text 
-                strong 
-                className="progress-indicator__step-title"
+            <div className='progress-indicator__step-content'>
+              <Typography.Text
+                strong
+                className='progress-indicator__step-title'
               >
                 {step.title}
               </Typography.Text>
               {step.description && (
-                <Typography.Text 
-                  type="secondary" 
-                  className="progress-indicator__step-description"
+                <Typography.Text
+                  type='secondary'
+                  className='progress-indicator__step-description'
                 >
                   {step.description}
                 </Typography.Text>
@@ -149,19 +111,16 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     if (!title && !subtitle) return null
 
     return (
-      <div className="progress-indicator__header">
+      <div className='progress-indicator__header'>
         {title && (
-          <Typography.Title 
-            level={5} 
-            className="progress-indicator__title"
-          >
+          <Typography.Title level={5} className='progress-indicator__title'>
             {title}
           </Typography.Title>
         )}
         {subtitle && (
-          <Typography.Text 
-            type="secondary" 
-            className="progress-indicator__subtitle"
+          <Typography.Text
+            type='secondary'
+            className='progress-indicator__subtitle'
           >
             {subtitle}
           </Typography.Text>
@@ -171,10 +130,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   }
 
   return (
-    <div className={`progress-indicator progress-indicator--${type} progress-indicator--${size} ${className}`}>
+    <div
+      className={`progress-indicator progress-indicator--${type} progress-indicator--${size} ${className}`}
+    >
       {renderHeader()}
-      
-      <div className="progress-indicator__content">
+
+      <div className='progress-indicator__content'>
         <Progress
           percent={percent}
           type={type}
@@ -184,14 +145,14 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           strokeColor={strokeColor}
           trailColor={trailColor}
           format={format || defaultFormat}
-          className="progress-indicator__progress"
+          className='progress-indicator__progress'
         />
-        
+
         {(title || subtitle) && showInfo && (
-          <div className="progress-indicator__info">
-            <Space size="small" align="center">
+          <div className='progress-indicator__info'>
+            <Space size='small' align='center'>
               {getStatusIcon()}
-              <Typography.Text className="progress-indicator__status-text">
+              <Typography.Text className='progress-indicator__status-text'>
                 {status === 'active' && 'In Progress'}
                 {status === 'success' && 'Completed'}
                 {status === 'exception' && 'Failed'}

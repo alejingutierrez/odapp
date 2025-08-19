@@ -15,9 +15,13 @@ const baseQuery = fetchBaseQuery({
 })
 
 // Enhanced base query with error handling and token refresh
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth = async (
+  args: unknown,
+  api: unknown,
+  extraOptions: unknown
+) => {
   let result = await baseQuery(args, api, extraOptions)
-  
+
   if (result.error && result.error.status === 401) {
     // Try to refresh token
     const refreshResult = await baseQuery(
@@ -31,14 +35,14 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
       api,
       extraOptions
     )
-    
+
     if (refreshResult.data) {
       // Store the new token
       api.dispatch({
         type: 'auth/setCredentials',
         payload: refreshResult.data,
       })
-      
+
       // Retry the original query
       result = await baseQuery(args, api, extraOptions)
     } else {
@@ -46,7 +50,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
       api.dispatch({ type: 'auth/logout' })
     }
   }
-  
+
   return result
 }
 

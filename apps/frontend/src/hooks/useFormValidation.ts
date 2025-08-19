@@ -1,11 +1,19 @@
 import { useCallback, useState } from 'react'
-import { useForm, UseFormProps, UseFormReturn, FieldValues, Path, PathValue } from 'react-hook-form'
+import {
+  useForm,
+  UseFormProps,
+  UseFormReturn,
+  FieldValues,
+  Path,
+  PathValue,
+} from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { debounce } from 'lodash-es'
 
 // Enhanced form validation hook
-export interface UseFormValidationOptions<T extends FieldValues> extends UseFormProps<T> {
+export interface UseFormValidationOptions<T extends FieldValues>
+  extends UseFormProps<T> {
   schema: yup.Schema<T>
   realTimeValidation?: boolean
   debounceMs?: number
@@ -13,8 +21,12 @@ export interface UseFormValidationOptions<T extends FieldValues> extends UseForm
   onValidationSuccess?: () => void
 }
 
-export interface UseFormValidationReturn<T extends FieldValues> extends UseFormReturn<T> {
-  validateField: (field: Path<T>, value: PathValue<T, Path<T>>) => Promise<boolean>
+export interface UseFormValidationReturn<T extends FieldValues>
+  extends UseFormReturn<T> {
+  validateField: (
+    field: Path<T>,
+    value: PathValue<T, Path<T>>
+  ) => Promise<boolean>
   validateForm: () => Promise<boolean>
   isFieldValid: (field: Path<T>) => boolean
   getFieldError: (field: Path<T>) => string | undefined
@@ -27,12 +39,14 @@ export interface UseFormValidationReturn<T extends FieldValues> extends UseFormR
 export const useFormValidation = <T extends FieldValues>({
   schema,
   realTimeValidation = true,
-  debounceMs = 300,
+
   onValidationError,
   onValidationSuccess,
   ...formOptions
 }: UseFormValidationOptions<T>): UseFormValidationReturn<T> => {
-  const [fieldValidationStates, setFieldValidationStates] = useState<Record<string, boolean>>({})
+  const [fieldValidationStates, setFieldValidationStates] = useState<
+    Record<string, boolean>
+  >({})
 
   const form = useForm<T>({
     resolver: yupResolver(schema),
@@ -45,41 +59,20 @@ export const useFormValidation = <T extends FieldValues>({
     formState: { errors, isValid },
     setError,
     clearErrors,
-    trigger,
     getValues,
   } = form
-
-  // Debounced field validation
-  const debouncedValidateField = useCallback(
-    debounce(async (field: Path<T>, value: PathValue<T, Path<T>>) => {
-      try {
-        await schema.validateAt(field as string, { [field]: value })
-        setFieldValidationStates(prev => ({ ...prev, [field]: true }))
-        clearErrors(field)
-        return true
-      } catch (error) {
-        if (error instanceof yup.ValidationError) {
-          setFieldValidationStates(prev => ({ ...prev, [field]: false }))
-          setError(field, { type: 'validation', message: error.message })
-          return false
-        }
-        return false
-      }
-    }, debounceMs),
-    [schema, debounceMs, setError, clearErrors]
-  )
 
   // Validate individual field
   const validateField = useCallback(
     async (field: Path<T>, value: PathValue<T, Path<T>>): Promise<boolean> => {
       try {
         await schema.validateAt(field as string, { [field]: value })
-        setFieldValidationStates(prev => ({ ...prev, [field]: true }))
+        setFieldValidationStates((prev) => ({ ...prev, [field]: true }))
         clearErrors(field)
         return true
       } catch (error) {
         if (error instanceof yup.ValidationError) {
-          setFieldValidationStates(prev => ({ ...prev, [field]: false }))
+          setFieldValidationStates((prev) => ({ ...prev, [field]: false }))
           setError(field, { type: 'validation', message: error.message })
           return false
         }
@@ -94,28 +87,31 @@ export const useFormValidation = <T extends FieldValues>({
     try {
       const values = getValues()
       await schema.validate(values, { abortEarly: false })
-      
+
       if (onValidationSuccess) {
         onValidationSuccess()
       }
-      
+
       return true
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const errorMap: Record<string, string> = {}
-        
-        error.inner.forEach(err => {
+
+        error.inner.forEach((err) => {
           if (err.path) {
             errorMap[err.path] = err.message
-            setError(err.path as Path<T>, { type: 'validation', message: err.message })
+            setError(err.path as Path<T>, {
+              type: 'validation',
+              message: err.message,
+            })
           }
         })
-        
+
         if (onValidationError) {
           onValidationError(errorMap)
         }
       }
-      
+
       return false
     }
   }, [schema, getValues, setError, onValidationError, onValidationSuccess])
@@ -123,7 +119,11 @@ export const useFormValidation = <T extends FieldValues>({
   // Check if field is valid
   const isFieldValid = useCallback(
     (field: Path<T>): boolean => {
-      return !errors[field] && (fieldValidationStates[field] === true || fieldValidationStates[field] === undefined)
+      return (
+        !errors[field] &&
+        (fieldValidationStates[field] === true ||
+          fieldValidationStates[field] === undefined)
+      )
     },
     [errors, fieldValidationStates]
   )
@@ -140,7 +140,7 @@ export const useFormValidation = <T extends FieldValues>({
   const clearFieldError = useCallback(
     (field: Path<T>) => {
       clearErrors(field)
-      setFieldValidationStates(prev => ({ ...prev, [field]: true }))
+      setFieldValidationStates((prev) => ({ ...prev, [field]: true }))
     },
     [clearErrors]
   )
@@ -149,7 +149,7 @@ export const useFormValidation = <T extends FieldValues>({
   const setFieldError = useCallback(
     (field: Path<T>, error: string) => {
       setError(field, { type: 'manual', message: error })
-      setFieldValidationStates(prev => ({ ...prev, [field]: false }))
+      setFieldValidationStates((prev) => ({ ...prev, [field]: false }))
     },
     [setError]
   )
@@ -173,29 +173,30 @@ export const useFormValidation = <T extends FieldValues>({
 // Hook for dynamic form arrays with validation
 export interface UseDynamicFormArrayOptions<T extends FieldValues> {
   name: Path<T>
-  schema: yup.Schema<any>
-  defaultValue?: any
+  schema: yup.Schema<unknown>
+  defaultValue?: unknown
   maxItems?: number
   minItems?: number
 }
 
 export const useDynamicFormArray = <T extends FieldValues>({
-  name,
   schema,
   defaultValue = {},
   maxItems = 10,
   minItems = 0,
 }: UseDynamicFormArrayOptions<T>) => {
-  const [validationStates, setValidationStates] = useState<Record<number, boolean>>({})
+  const [validationStates, setValidationStates] = useState<
+    Record<number, boolean>
+  >({})
 
   const validateItem = useCallback(
-    async (index: number, value: any): Promise<boolean> => {
+    async (index: number, value: unknown): Promise<boolean> => {
       try {
         await schema.validate(value)
-        setValidationStates(prev => ({ ...prev, [index]: true }))
+        setValidationStates((prev) => ({ ...prev, [index]: true }))
         return true
       } catch (error) {
-        setValidationStates(prev => ({ ...prev, [index]: false }))
+        setValidationStates((prev) => ({ ...prev, [index]: false }))
         return false
       }
     },
@@ -249,8 +250,10 @@ export const useConditionalValidation = <T extends FieldValues>({
   const updateSchema = useCallback(
     (values: T) => {
       const shouldUseMainSchema = condition(values)
-      const newSchema = shouldUseMainSchema ? schema : (alternativeSchema || yup.object().shape({}))
-      
+      const newSchema = shouldUseMainSchema
+        ? schema
+        : alternativeSchema || yup.object().shape({})
+
       if (newSchema !== currentSchema) {
         setCurrentSchema(newSchema)
       }
@@ -266,7 +269,7 @@ export const useConditionalValidation = <T extends FieldValues>({
 
 // Hook for async validation
 export interface UseAsyncValidationOptions {
-  validator: (value: any) => Promise<boolean>
+  validator: (value: unknown) => Promise<boolean>
   errorMessage: string
   debounceMs?: number
 }
@@ -283,7 +286,7 @@ export const useAsyncValidation = ({
   } | null>(null)
 
   const debouncedValidate = useCallback(
-    debounce(async (value: any) => {
+    debounce(async (value: unknown) => {
       if (!value) {
         setValidationResult(null)
         setIsValidating(false)
@@ -291,7 +294,7 @@ export const useAsyncValidation = ({
       }
 
       setIsValidating(true)
-      
+
       try {
         const isValid = await validator(value)
         setValidationResult({
@@ -311,7 +314,7 @@ export const useAsyncValidation = ({
   )
 
   const validate = useCallback(
-    (value: any) => {
+    (value: unknown) => {
       if (value) {
         setIsValidating(true)
       }
@@ -343,12 +346,12 @@ export const useFormPersistence = <T extends FieldValues>({
     (data: T) => {
       try {
         const dataToSave = { ...data }
-        
+
         // Remove excluded fields
-        exclude.forEach(field => {
+        exclude.forEach((field) => {
           delete dataToSave[field]
         })
-        
+
         storage.setItem(key, JSON.stringify(dataToSave))
       } catch (error) {
         console.warn('Failed to save form data:', error)

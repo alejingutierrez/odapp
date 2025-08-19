@@ -1,6 +1,5 @@
 import React from 'react'
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd'
-import { designTokens } from '../../../config/theme'
 import './Button.css'
 
 export interface ButtonProps extends Omit<AntButtonProps, 'type'> {
@@ -79,7 +78,7 @@ export const Button: React.FC<ButtonProps> = ({
       {iconPosition === 'end' && icon && (
         <>
           {children}
-          <span className="oda-button__icon-end">{icon}</span>
+          <span className='oda-button__icon-end'>{icon}</span>
         </>
       )}
       {iconPosition === 'start' && children}

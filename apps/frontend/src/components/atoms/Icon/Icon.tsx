@@ -5,7 +5,14 @@ import './Icon.css'
 export interface IconProps {
   name: keyof typeof AntIcons
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'white'
+  color?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'white'
   spin?: boolean
   rotate?: number
   className?: string
@@ -23,7 +30,9 @@ export const Icon: React.FC<IconProps> = ({
   onClick,
   style,
 }) => {
-  const IconComponent = AntIcons[name] as React.ComponentType<any>
+  const IconComponent = AntIcons[name] as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >
 
   if (!IconComponent) {
     console.warn(`Icon "${name}" not found in Ant Design icons`)
@@ -53,43 +62,43 @@ export const Icon: React.FC<IconProps> = ({
 
 // Commonly used icons as separate components for better DX
 export const SearchIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="SearchOutlined" {...props} />
+  <Icon name='SearchOutlined' {...props} />
 )
 
 export const EditIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="EditOutlined" {...props} />
+  <Icon name='EditOutlined' {...props} />
 )
 
 export const DeleteIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="DeleteOutlined" {...props} />
+  <Icon name='DeleteOutlined' {...props} />
 )
 
 export const PlusIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="PlusOutlined" {...props} />
+  <Icon name='PlusOutlined' {...props} />
 )
 
 export const MinusIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="MinusOutlined" {...props} />
+  <Icon name='MinusOutlined' {...props} />
 )
 
 export const CloseIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="CloseOutlined" {...props} />
+  <Icon name='CloseOutlined' {...props} />
 )
 
 export const CheckIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="CheckOutlined" {...props} />
+  <Icon name='CheckOutlined' {...props} />
 )
 
 export const WarningIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="WarningOutlined" {...props} />
+  <Icon name='WarningOutlined' {...props} />
 )
 
 export const InfoIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="InfoCircleOutlined" {...props} />
+  <Icon name='InfoCircleOutlined' {...props} />
 )
 
 export const LoadingIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="LoadingOutlined" spin {...props} />
+  <Icon name='LoadingOutlined' spin {...props} />
 )
 
 Icon.displayName = 'Icon'

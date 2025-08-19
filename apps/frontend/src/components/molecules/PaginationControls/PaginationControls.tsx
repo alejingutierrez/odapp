@@ -31,9 +31,8 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onShowSizeChange,
   disabled = false,
   size = 'default',
-  className = ''
+  className = '',
 }) => {
-  const totalPages = Math.ceil(total / pageSize)
   const startItem = (current - 1) * pageSize + 1
   const endItem = Math.min(current * pageSize, total)
 
@@ -47,10 +46,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   }
 
   const renderTotal = (totalCount: number, range: [number, number]) => (
-    <Typography.Text 
-      type="secondary" 
-      className="pagination-controls__total"
-    >
+    <Typography.Text type='secondary' className='pagination-controls__total'>
       Showing {range[0]}-{range[1]} of {totalCount.toLocaleString()} items
     </Typography.Text>
   )
@@ -59,45 +55,46 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
     if (!showSizeChanger) return null
 
     return (
-      <Space size="small" className="pagination-controls__size-selector">
-        <Typography.Text type="secondary">Show:</Typography.Text>
+      <Space size='small' className='pagination-controls__size-selector'>
+        <Typography.Text type='secondary'>Show:</Typography.Text>
         <Select
           value={pageSize}
           onChange={(value) => handleShowSizeChange(1, value)}
           size={size}
           disabled={disabled}
-          className="pagination-controls__size-select"
+          className='pagination-controls__size-select'
         >
-          {pageSizeOptions.map(option => (
+          {pageSizeOptions.map((option) => (
             <Select.Option key={option} value={option}>
               {option}
             </Select.Option>
           ))}
         </Select>
-        <Typography.Text type="secondary">per page</Typography.Text>
+        <Typography.Text type='secondary'>per page</Typography.Text>
       </Space>
     )
   }
 
   if (total === 0) {
     return (
-      <div className={`pagination-controls pagination-controls--empty ${className}`}>
-        <Typography.Text type="secondary">
-          No items to display
-        </Typography.Text>
+      <div
+        className={`pagination-controls pagination-controls--empty ${className}`}
+      >
+        <Typography.Text type='secondary'>No items to display</Typography.Text>
       </div>
     )
   }
 
   return (
     <div className={`pagination-controls ${className}`}>
-      <div className="pagination-controls__info">
+      <div className='pagination-controls__info'>
         {showTotal && (
-          <Typography.Text 
-            type="secondary" 
-            className="pagination-controls__summary"
+          <Typography.Text
+            type='secondary'
+            className='pagination-controls__summary'
           >
-            Showing {startItem.toLocaleString()}-{endItem.toLocaleString()} of {total.toLocaleString()} items
+            Showing {startItem.toLocaleString()}-{endItem.toLocaleString()} of{' '}
+            {total.toLocaleString()} items
           </Typography.Text>
         )}
         {renderPageSizeSelector()}
@@ -114,7 +111,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         onChange={handleChange}
         disabled={disabled}
         size={size}
-        className="pagination-controls__pagination"
+        className='pagination-controls__pagination'
       />
     </div>
   )

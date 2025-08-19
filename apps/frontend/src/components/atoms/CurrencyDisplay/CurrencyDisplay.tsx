@@ -1,25 +1,25 @@
-import React, { CSSProperties } from 'react';
-import { Typography, theme } from 'antd';
-import { DollarOutlined, EuroOutlined, PoundOutlined } from '@ant-design/icons';
+import React, { CSSProperties } from 'react'
+import { Typography, theme } from 'antd'
+import { DollarOutlined, EuroOutlined, PoundOutlined } from '@ant-design/icons'
 
-const { Text } = Typography;
-const { useToken } = theme;
+const { Text } = Typography
+const { useToken } = theme
 
-export type CurrencyVariant = 'default' | 'compact' | 'large';
-export type CurrencyTheme = 'default' | 'success' | 'danger' | 'warning';
+export type CurrencyVariant = 'default' | 'compact' | 'large'
+export type CurrencyTheme = 'default' | 'success' | 'danger' | 'warning'
 
 export interface CurrencyDisplayProps {
-  amount: number;
-  currency?: string;
-  locale?: string;
-  showSymbol?: boolean;
-  showIcon?: boolean;
-  precision?: number;
-  colorize?: boolean;
-  variant?: CurrencyVariant;
-  theme?: CurrencyTheme;
-  prefix?: string;
-  suffix?: string;
+  amount: number
+  currency?: string
+  locale?: string
+  showSymbol?: boolean
+  showIcon?: boolean
+  precision?: number
+  colorize?: boolean
+  variant?: CurrencyVariant
+  theme?: CurrencyTheme
+  prefix?: string
+  suffix?: string
 }
 
 export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
@@ -36,9 +36,9 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   suffix,
   ...props
 }) => {
-  const { token } = useToken();
-  const isNegative = amount < 0;
-  const absoluteAmount = Math.abs(amount);
+  const { token } = useToken()
+  const isNegative = amount < 0
+  const absoluteAmount = Math.abs(amount)
 
   const formatCurrency = () => {
     if (showSymbol) {
@@ -47,48 +47,52 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
         currency,
         minimumFractionDigits: precision,
         maximumFractionDigits: precision,
-      }).format(absoluteAmount);
+      }).format(absoluteAmount)
     }
 
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits: precision,
       maximumFractionDigits: precision,
-    }).format(absoluteAmount);
-  };
+    }).format(absoluteAmount)
+  }
 
   const getCurrencyIcon = () => {
-    if (!showIcon) return null;
-    
+    if (!showIcon) return null
+
     switch (currency.toUpperCase()) {
       case 'USD':
-        return <DollarOutlined className="currency-icon" />;
+        return <DollarOutlined className='currency-icon' />
       case 'EUR':
-        return <EuroOutlined className="currency-icon" />;
+        return <EuroOutlined className='currency-icon' />
       case 'GBP':
-        return <PoundOutlined className="currency-icon" />;
+        return <PoundOutlined className='currency-icon' />
       default:
-        return <DollarOutlined className="currency-icon" />;
+        return <DollarOutlined className='currency-icon' />
     }
-  };
+  }
 
   const getThemeColor = () => {
     if (themeOverride) {
       switch (themeOverride) {
-        case 'success': return token.colorSuccess;
-        case 'danger': return token.colorError;
-        case 'warning': return token.colorWarning;
-        default: return undefined;
+        case 'success':
+          return token.colorSuccess
+        case 'danger':
+          return token.colorError
+        case 'warning':
+          return token.colorWarning
+        default:
+          return undefined
       }
     }
-    
-    if (!colorize) return undefined;
-    if (amount > 0) return 'success';
-    if (amount < 0) return 'danger';
-    return undefined;
-  };
 
-  const formattedAmount = formatCurrency();
-  const displayAmount = isNegative ? `-${formattedAmount}` : formattedAmount;
+    if (!colorize) return undefined
+    if (amount > 0) return 'success'
+    if (amount < 0) return 'danger'
+    return undefined
+  }
+
+  const formattedAmount = formatCurrency()
+  const displayAmount = isNegative ? `-${formattedAmount}` : formattedAmount
 
   const getContainerStyle = (): CSSProperties => {
     const baseStyle: CSSProperties = {
@@ -97,14 +101,14 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
       gap: variant === 'compact' ? '2px' : '4px',
       fontVariantNumeric: 'tabular-nums',
       fontWeight: variant === 'large' ? 600 : 500,
-    };
-
-    if (colorize || themeOverride) {
-      baseStyle.color = isNegative ? token.colorError : token.colorSuccess;
     }
 
-    return baseStyle;
-  };
+    if (colorize || themeOverride) {
+      baseStyle.color = isNegative ? token.colorError : token.colorSuccess
+    }
+
+    return baseStyle
+  }
 
   const getIconStyle = (): CSSProperties => ({
     fontSize: {
@@ -113,15 +117,15 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
       default: '12px',
     }[variant],
     opacity: 0.7,
-  });
+  })
 
   const getAmountStyle = (): CSSProperties => ({
     fontSize: {
       compact: '12px',
-      large: '18px', 
+      large: '18px',
       default: '14px',
     }[variant],
-  });
+  })
 
   return (
     <span style={getContainerStyle()}>
@@ -129,8 +133,8 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
       {getCurrencyIcon() && (
         <span style={getIconStyle()}>{getCurrencyIcon()}</span>
       )}
-      <Text 
-        type={getThemeColor() as any} 
+      <Text
+        type={getThemeColor() as 'success' | 'danger' | 'warning' | undefined}
         style={getAmountStyle()}
         {...props}
       >
@@ -138,5 +142,5 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
       </Text>
       {suffix && <span style={{ marginLeft: 2 }}>{suffix}</span>}
     </span>
-  );
-};
+  )
+}

@@ -1,13 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  Alert,
-  Result,
-} from 'antd'
+import { Form, Input, Button, Typography, Alert, Result } from 'antd'
 import {
   LockOutlined,
   EyeInvisibleOutlined,
@@ -36,15 +29,15 @@ const ResetPassword: React.FC = () => {
   if (!token) {
     return (
       <Result
-        status="error"
-        title="Invalid Reset Link"
-        subTitle="The password reset link is invalid or has expired. Please request a new one."
+        status='error'
+        title='Invalid Reset Link'
+        subTitle='The password reset link is invalid or has expired. Please request a new one.'
         extra={[
-          <Button key="forgot" type="primary">
-            <Link to="/auth/forgot-password">Request New Link</Link>
+          <Button key='forgot' type='primary'>
+            <Link to='/auth/forgot-password'>Request New Link</Link>
           </Button>,
-          <Button key="login">
-            <Link to="/auth/login">Back to Login</Link>
+          <Button key='login'>
+            <Link to='/auth/login'>Back to Login</Link>
           </Button>,
         ]}
       />
@@ -54,12 +47,12 @@ const ResetPassword: React.FC = () => {
   const handleSubmit = async (values: ResetPasswordFormData) => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       // TODO: Implement reset password API call
       console.log('Reset password values:', { ...values, token })
       setIsSuccess(true)
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.message || 'Failed to reset password. Please try again.')
     } finally {
       setIsLoading(false)
@@ -70,10 +63,14 @@ const ResetPassword: React.FC = () => {
     return (
       <Result
         icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-        title="Password Reset Successful"
-        subTitle="Your password has been successfully reset. You can now sign in with your new password."
+        title='Password Reset Successful'
+        subTitle='Your password has been successfully reset. You can now sign in with your new password.'
         extra={[
-          <Button key="login" type="primary" onClick={() => navigate('/auth/login')}>
+          <Button
+            key='login'
+            type='primary'
+            onClick={() => navigate('/auth/login')}
+          >
             Sign In Now
           </Button>,
         ]}
@@ -87,16 +84,14 @@ const ResetPassword: React.FC = () => {
         <Title level={3} style={{ margin: 0 }}>
           Reset Password
         </Title>
-        <Text type="secondary">
-          Enter your new password below
-        </Text>
+        <Text type='secondary'>Enter your new password below</Text>
       </div>
 
       {error && (
         <Alert
-          message="Reset Failed"
+          message='Reset Failed'
           description={error}
-          type="error"
+          type='error'
           showIcon
           closable
           onClose={() => setError(null)}
@@ -106,28 +101,29 @@ const ResetPassword: React.FC = () => {
 
       <Form
         form={form}
-        name="resetPassword"
-        layout="vertical"
+        name='resetPassword'
+        layout='vertical'
         onFinish={handleSubmit}
-        autoComplete="off"
-        size="large"
+        autoComplete='off'
+        size='large'
       >
         <Form.Item
-          name="password"
-          label="New Password"
+          name='password'
+          label='New Password'
           rules={[
             { required: true, message: 'Please input your new password!' },
             { min: 8, message: 'Password must be at least 8 characters!' },
             {
               pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-              message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number!',
+              message:
+                'Password must contain at least one uppercase letter, one lowercase letter, and one number!',
             },
           ]}
         >
           <Input.Password
             prefix={<LockOutlined />}
-            placeholder="Enter your new password"
-            autoComplete="new-password"
+            placeholder='Enter your new password'
+            autoComplete='new-password'
             iconRender={(visible) =>
               visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
             }
@@ -135,8 +131,8 @@ const ResetPassword: React.FC = () => {
         </Form.Item>
 
         <Form.Item
-          name="confirmPassword"
-          label="Confirm New Password"
+          name='confirmPassword'
+          label='Confirm New Password'
           dependencies={['password']}
           rules={[
             { required: true, message: 'Please confirm your new password!' },
@@ -152,8 +148,8 @@ const ResetPassword: React.FC = () => {
         >
           <Input.Password
             prefix={<LockOutlined />}
-            placeholder="Confirm your new password"
-            autoComplete="new-password"
+            placeholder='Confirm your new password'
+            autoComplete='new-password'
             iconRender={(visible) =>
               visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
             }
@@ -162,11 +158,11 @@ const ResetPassword: React.FC = () => {
 
         <Form.Item>
           <Button
-            type="primary"
-            htmlType="submit"
+            type='primary'
+            htmlType='submit'
             loading={isLoading}
             block
-            size="large"
+            size='large'
           >
             Reset Password
           </Button>
@@ -174,8 +170,8 @@ const ResetPassword: React.FC = () => {
 
         <Form.Item>
           <div style={{ textAlign: 'center' }}>
-            <Link to="/auth/login">
-              <Text type="secondary" underline>
+            <Link to='/auth/login'>
+              <Text type='secondary' underline>
                 Back to Login
               </Text>
             </Link>

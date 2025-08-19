@@ -9,13 +9,17 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export const useAuth = () => {
   const auth = useAppSelector((state) => state.auth)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...auth,
-    login: (credentials: { email: string; password: string; rememberMe?: boolean }) =>
-      dispatch({ type: 'auth/login', payload: credentials }),
+    login: (credentials: {
+      email: string
+      password: string
+      rememberMe?: boolean
+    }) => dispatch({ type: 'auth/login', payload: credentials }),
     logout: () => dispatch({ type: 'auth/logout' }),
-    updateProfile: (updates: any) => dispatch({ type: 'auth/updateProfile', payload: updates }),
+    updateProfile: (updates: Record<string, unknown>) =>
+      dispatch({ type: 'auth/updateProfile', payload: updates }),
     clearError: () => dispatch({ type: 'auth/clearError' }),
   }
 }
@@ -23,7 +27,7 @@ export const useAuth = () => {
 export const useUI = () => {
   const ui = useAppSelector((state) => state.ui)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...ui,
     toggleSidebar: () => dispatch({ type: 'ui/toggleSidebar' }),
@@ -31,11 +35,11 @@ export const useUI = () => {
       dispatch({ type: 'ui/setSidebarCollapsed', payload: collapsed }),
     setTheme: (theme: 'light' | 'dark' | 'auto') =>
       dispatch({ type: 'ui/setTheme', payload: theme }),
-    openModal: (modalId: string, data?: any) =>
+    openModal: (modalId: string, data?: Record<string, unknown>) =>
       dispatch({ type: 'ui/openModal', payload: { modalId, data } }),
     closeModal: (modalId: string) =>
       dispatch({ type: 'ui/closeModal', payload: modalId }),
-    addNotification: (notification: any) =>
+    addNotification: (notification: Record<string, unknown>) =>
       dispatch({ type: 'ui/addNotification', payload: notification }),
     setLoading: (key: string, loading: boolean) =>
       dispatch({ type: 'ui/setLoading', payload: { key, loading } }),
@@ -45,18 +49,18 @@ export const useUI = () => {
 export const useProducts = () => {
   const products = useAppSelector((state) => state.products)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...products,
-    setProducts: (products: any[]) =>
+    setProducts: (products: Record<string, unknown>[]) =>
       dispatch({ type: 'products/setProducts', payload: products }),
-    addProduct: (product: any) =>
+    addProduct: (product: Record<string, unknown>) =>
       dispatch({ type: 'products/addProduct', payload: product }),
-    updateProduct: (id: string, changes: any) =>
+    updateProduct: (id: string, changes: Record<string, unknown>) =>
       dispatch({ type: 'products/updateProduct', payload: { id, changes } }),
-    setSelectedProduct: (product: any) =>
+    setSelectedProduct: (product: Record<string, unknown>) =>
       dispatch({ type: 'products/setSelectedProduct', payload: product }),
-    setFilters: (filters: any) =>
+    setFilters: (filters: Record<string, unknown>) =>
       dispatch({ type: 'products/setFilters', payload: filters }),
     clearFilters: () => dispatch({ type: 'products/clearFilters' }),
   }
@@ -65,60 +69,91 @@ export const useProducts = () => {
 export const useInventory = () => {
   const inventory = useAppSelector((state) => state.inventory)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...inventory,
-    setInventoryItems: (items: any[]) =>
+    setInventoryItems: (items: Record<string, unknown>[]) =>
       dispatch({ type: 'inventory/setInventoryItems', payload: items }),
-    updateInventoryQuantity: (id: string, quantity: number, reserved?: number) =>
-      dispatch({ type: 'inventory/updateInventoryQuantity', payload: { id, quantity, reserved } }),
-    setSelectedItem: (item: any) =>
+    updateInventoryQuantity: (
+      id: string,
+      quantity: number,
+      reserved?: number
+    ) =>
+      dispatch({
+        type: 'inventory/updateInventoryQuantity',
+        payload: { id, quantity, reserved },
+      }),
+    setSelectedItem: (item: Record<string, unknown>) =>
       dispatch({ type: 'inventory/setSelectedItem', payload: item }),
-    setFilters: (filters: any) =>
+    setFilters: (filters: Record<string, unknown>) =>
       dispatch({ type: 'inventory/setFilters', payload: filters }),
     acknowledgeAlert: (id: string, acknowledgedBy: string) =>
-      dispatch({ type: 'inventory/acknowledgeAlert', payload: { id, acknowledgedBy } }),
+      dispatch({
+        type: 'inventory/acknowledgeAlert',
+        payload: { id, acknowledgedBy },
+      }),
   }
 }
 
 export const useOrders = () => {
   const orders = useAppSelector((state) => state.orders)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...orders,
-    setOrders: (orders: any[]) =>
+    setOrders: (orders: Record<string, unknown>[]) =>
       dispatch({ type: 'orders/setOrders', payload: orders }),
-    addOrder: (order: any) =>
+    addOrder: (order: Record<string, unknown>) =>
       dispatch({ type: 'orders/addOrder', payload: order }),
-    updateOrderStatus: (id: string, status: any, timestamp?: string) =>
-      dispatch({ type: 'orders/updateOrderStatus', payload: { id, status, timestamp } }),
-    setSelectedOrder: (order: any) =>
+    updateOrderStatus: (
+      id: string,
+      status: Record<string, unknown>,
+      timestamp?: string
+    ) =>
+      dispatch({
+        type: 'orders/updateOrderStatus',
+        payload: { id, status, timestamp },
+      }),
+    setSelectedOrder: (order: Record<string, unknown>) =>
       dispatch({ type: 'orders/setSelectedOrder', payload: order }),
-    setFilters: (filters: any) =>
+    setFilters: (filters: Record<string, unknown>) =>
       dispatch({ type: 'orders/setFilters', payload: filters }),
-    updateTrackingInfo: (id: string, trackingNumber: string, trackingUrl?: string, carrier?: string) =>
-      dispatch({ type: 'orders/updateTrackingInfo', payload: { id, trackingNumber, trackingUrl, carrier } }),
+    updateTrackingInfo: (
+      id: string,
+      trackingNumber: string,
+      trackingUrl?: string,
+      carrier?: string
+    ) =>
+      dispatch({
+        type: 'orders/updateTrackingInfo',
+        payload: { id, trackingNumber, trackingUrl, carrier },
+      }),
   }
 }
 
 export const useCustomers = () => {
   const customers = useAppSelector((state) => state.customers)
   const dispatch = useAppDispatch()
-  
+
   return {
     ...customers,
-    setCustomers: (customers: any[]) =>
+    setCustomers: (customers: Record<string, unknown>[]) =>
       dispatch({ type: 'customers/setCustomers', payload: customers }),
-    addCustomer: (customer: any) =>
+    addCustomer: (customer: Record<string, unknown>) =>
       dispatch({ type: 'customers/addCustomer', payload: customer }),
-    updateCustomer: (id: string, changes: any) =>
+    updateCustomer: (id: string, changes: Record<string, unknown>) =>
       dispatch({ type: 'customers/updateCustomer', payload: { id, changes } }),
-    setSelectedCustomer: (customer: any) =>
+    setSelectedCustomer: (customer: Record<string, unknown>) =>
       dispatch({ type: 'customers/setSelectedCustomer', payload: customer }),
-    setFilters: (filters: any) =>
+    setFilters: (filters: Record<string, unknown>) =>
       dispatch({ type: 'customers/setFilters', payload: filters }),
-    addCustomerAddress: (customerId: string, address: any) =>
-      dispatch({ type: 'customers/addCustomerAddress', payload: { customerId, address } }),
+    addCustomerAddress: (
+      customerId: string,
+      address: Record<string, unknown>
+    ) =>
+      dispatch({
+        type: 'customers/addCustomerAddress',
+        payload: { customerId, address },
+      }),
   }
 }

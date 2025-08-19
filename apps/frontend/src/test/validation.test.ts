@@ -6,7 +6,6 @@ import {
   sanitizeString,
   sanitizeHtml,
   createRealTimeValidator,
-  useFormValidation,
   zodToYup,
 } from '../utils/validation'
 import {
@@ -23,16 +22,22 @@ describe('Validation Utils', () => {
     describe('common schemas', () => {
       it('should validate email correctly', async () => {
         const { email } = validationSchemas.common
-        
-        await expect(email.validate('test@example.com')).resolves.toBe('test@example.com')
-        await expect(email.validate('invalid-email')).rejects.toThrow('Invalid email format')
+
+        await expect(email.validate('test@example.com')).resolves.toBe(
+          'test@example.com'
+        )
+        await expect(email.validate('invalid-email')).rejects.toThrow(
+          'Invalid email format'
+        )
         await expect(email.validate('')).rejects.toThrow('Email is required')
       })
 
       it('should validate strong password', async () => {
         const { password } = validationSchemas.common
-        
-        await expect(password.validate('StrongPass123!')).resolves.toBe('StrongPass123!')
+
+        await expect(password.validate('StrongPass123!')).resolves.toBe(
+          'StrongPass123!'
+        )
         await expect(password.validate('weak')).rejects.toThrow()
         await expect(password.validate('NoNumbers!')).rejects.toThrow()
         await expect(password.validate('nonumbers123!')).rejects.toThrow()
@@ -40,24 +45,28 @@ describe('Validation Utils', () => {
 
       it('should validate phone number', async () => {
         const { phone } = validationSchemas.common
-        
+
         await expect(phone.validate('+1234567890')).resolves.toBe('+1234567890')
-        await expect(phone.validate('(555) 123-4567')).resolves.toBe('(555) 123-4567')
+        await expect(phone.validate('(555) 123-4567')).resolves.toBe(
+          '(555) 123-4567'
+        )
         await expect(phone.validate('invalid-phone')).rejects.toThrow()
       })
 
       it('should validate SKU format', async () => {
         const { sku } = validationSchemas.common
-        
+
         await expect(sku.validate('PROD-123-ABC')).resolves.toBe('PROD-123-ABC')
         await expect(sku.validate('SIMPLE123')).resolves.toBe('SIMPLE123')
-        await expect(sku.validate('invalid-sku!')).rejects.toThrow('Invalid SKU format')
+        await expect(sku.validate('invalid-sku!')).rejects.toThrow(
+          'Invalid SKU format'
+        )
         await expect(sku.validate('')).rejects.toThrow('SKU is required')
       })
 
       it('should validate hex color', async () => {
         const { hexColor } = validationSchemas.common
-        
+
         await expect(hexColor.validate('#FF0000')).resolves.toBe('#FF0000')
         await expect(hexColor.validate('#f00')).resolves.toBe('#f00')
         await expect(hexColor.validate('red')).rejects.toThrow()
@@ -68,15 +77,21 @@ describe('Validation Utils', () => {
     describe('product schemas', () => {
       it('should validate product name', async () => {
         const { name } = validationSchemas.product
-        
-        await expect(name.validate('Valid Product Name')).resolves.toBe('Valid Product Name')
-        await expect(name.validate('')).rejects.toThrow('Product name is required')
-        await expect(name.validate('a'.repeat(256))).rejects.toThrow('Product name must be less than 255 characters')
+
+        await expect(name.validate('Valid Product Name')).resolves.toBe(
+          'Valid Product Name'
+        )
+        await expect(name.validate('')).rejects.toThrow(
+          'Product name is required'
+        )
+        await expect(name.validate('a'.repeat(256))).rejects.toThrow(
+          'Product name must be less than 255 characters'
+        )
       })
 
       it('should validate product variant', async () => {
         const { variant } = validationSchemas.product
-        
+
         const validVariant = {
           sku: 'PROD-123',
           size: 'M',
@@ -84,11 +99,11 @@ describe('Validation Utils', () => {
           price: 29.99,
           inventoryQuantity: 10,
         }
-        
+
         await expect(variant.validate(validVariant)).resolves.toEqual(
           expect.objectContaining(validVariant)
         )
-        
+
         const invalidVariant = {
           sku: '',
           size: '',
@@ -96,23 +111,23 @@ describe('Validation Utils', () => {
           price: -10,
           inventoryQuantity: -5,
         }
-        
+
         await expect(variant.validate(invalidVariant)).rejects.toThrow()
       })
 
       it('should validate product image', async () => {
         const { image } = validationSchemas.product
-        
+
         const validImage = {
           url: 'https://example.com/image.jpg',
           altText: 'Product image',
           position: 0,
         }
-        
+
         await expect(image.validate(validImage)).resolves.toEqual(
           expect.objectContaining(validImage)
         )
-        
+
         await expect(image.validate({ url: 'invalid-url' })).rejects.toThrow()
       })
     })
@@ -120,16 +135,18 @@ describe('Validation Utils', () => {
     describe('customer schemas', () => {
       it('should validate customer name', async () => {
         const { firstName, lastName } = validationSchemas.customer
-        
+
         await expect(firstName.validate('John')).resolves.toBe('John')
         await expect(lastName.validate('Doe')).resolves.toBe('Doe')
-        await expect(firstName.validate('')).rejects.toThrow('First name is required')
+        await expect(firstName.validate('')).rejects.toThrow(
+          'First name is required'
+        )
         await expect(lastName.validate('a'.repeat(51))).rejects.toThrow()
       })
 
       it('should validate customer address', async () => {
         const { address } = validationSchemas.customer
-        
+
         const validAddress = {
           firstName: 'John',
           lastName: 'Doe',
@@ -138,11 +155,11 @@ describe('Validation Utils', () => {
           country: 'US',
           zip: '10001',
         }
-        
+
         await expect(address.validate(validAddress)).resolves.toEqual(
           expect.objectContaining(validAddress)
         )
-        
+
         const invalidAddress = {
           firstName: '',
           lastName: '',
@@ -151,7 +168,7 @@ describe('Validation Utils', () => {
           country: 'USA', // Should be 2 characters
           zip: '',
         }
-        
+
         await expect(address.validate(invalidAddress)).rejects.toThrow()
       })
     })
@@ -159,26 +176,28 @@ describe('Validation Utils', () => {
     describe('auth schemas', () => {
       it('should validate login form', async () => {
         const { login } = validationSchemas.auth
-        
+
         const validLogin = {
           email: 'user@example.com',
           password: 'password123',
           rememberMe: true,
         }
-        
+
         await expect(login.validate(validLogin)).resolves.toEqual(
           expect.objectContaining(validLogin)
         )
-        
-        await expect(login.validate({
-          email: 'invalid-email',
-          password: '',
-        })).rejects.toThrow()
+
+        await expect(
+          login.validate({
+            email: 'invalid-email',
+            password: '',
+          })
+        ).rejects.toThrow()
       })
 
       it('should validate registration form', async () => {
         const { register } = validationSchemas.auth
-        
+
         const validRegistration = {
           email: 'user@example.com',
           password: 'StrongPass123!',
@@ -187,51 +206,61 @@ describe('Validation Utils', () => {
           lastName: 'Doe',
           acceptTerms: true,
         }
-        
+
         await expect(register.validate(validRegistration)).resolves.toEqual(
           expect.objectContaining(validRegistration)
         )
-        
+
         // Test password mismatch
-        await expect(register.validate({
-          ...validRegistration,
-          confirmPassword: 'DifferentPassword123!',
-        })).rejects.toThrow('Passwords must match')
-        
+        await expect(
+          register.validate({
+            ...validRegistration,
+            confirmPassword: 'DifferentPassword123!',
+          })
+        ).rejects.toThrow('Passwords must match')
+
         // Test terms not accepted
-        await expect(register.validate({
-          ...validRegistration,
-          acceptTerms: false,
-        })).rejects.toThrow('You must accept the terms and conditions')
+        await expect(
+          register.validate({
+            ...validRegistration,
+            acceptTerms: false,
+          })
+        ).rejects.toThrow('You must accept the terms and conditions')
       })
     })
 
     describe('file validation', () => {
       it('should validate image files', async () => {
         const { image } = validationSchemas.file
-        
+
         const validImageFile = {
           size: 1024 * 1024, // 1MB
           type: 'image/jpeg',
         }
-        
-        await expect(image.validate(validImageFile)).resolves.toBe(validImageFile)
-        
+
+        await expect(image.validate(validImageFile)).resolves.toBe(
+          validImageFile
+        )
+
         // Test file too large
         const largeFile = {
           size: 10 * 1024 * 1024, // 10MB
           type: 'image/jpeg',
         }
-        
-        await expect(image.validate(largeFile)).rejects.toThrow('File size must be less than 5MB')
-        
+
+        await expect(image.validate(largeFile)).rejects.toThrow(
+          'File size must be less than 5MB'
+        )
+
         // Test invalid file type
         const invalidFile = {
           size: 1024,
           type: 'application/pdf',
         }
-        
-        await expect(image.validate(invalidFile)).rejects.toThrow('Only image files are allowed')
+
+        await expect(image.validate(invalidFile)).rejects.toThrow(
+          'Only image files are allowed'
+        )
       })
     })
   })
@@ -239,14 +268,18 @@ describe('Validation Utils', () => {
   describe('Sanitization functions', () => {
     it('should sanitize strings correctly', () => {
       expect(sanitizeString('  Hello World  ')).toBe('Hello World')
-      expect(sanitizeString('<script>alert("xss")</script>')).toBe('alert("xss")')
+      expect(sanitizeString('<script>alert("xss")</script>')).toBe(
+        'alert("xss")'
+      )
       expect(sanitizeString('Normal text')).toBe('Normal text')
     })
 
     it('should sanitize HTML correctly', () => {
       expect(sanitizeHtml('<p>Valid HTML</p>')).toBe('<p>Valid HTML</p>')
       expect(sanitizeHtml('<script>alert("xss")</script>')).toBe('')
-      expect(sanitizeHtml('<div onclick="alert()">Click me</div>')).toBe('<div>Click me</div>')
+      expect(sanitizeHtml('<div onclick="alert()">Click me</div>')).toBe(
+        '<div>Click me</div>'
+      )
       expect(sanitizeHtml('javascript:alert("xss")')).toBe('alert("xss")')
     })
   })
@@ -257,40 +290,49 @@ describe('Validation Utils', () => {
         name: yup.string().required('Name is required'),
         email: yup.string().email('Invalid email'),
       })
-      
+
       const validator = createRealTimeValidator(schema)
-      
+
       // Valid data
       const validResult = await validator.validate({
         name: 'John Doe',
         email: 'john@example.com',
       })
-      
+
       expect(validResult.isValid).toBe(true)
       expect(validResult.errors).toEqual([])
-      
+
       // Invalid data
       const invalidResult = await validator.validate({
         name: '',
         email: 'invalid-email',
       })
-      
+
       expect(invalidResult.isValid).toBe(false)
       expect(invalidResult.errors.length).toBeGreaterThan(0)
     })
 
     it('should validate individual fields', async () => {
       const schema = yup.object({
-        email: yup.string().email('Invalid email').required('Email is required'),
+        email: yup
+          .string()
+          .email('Invalid email')
+          .required('Email is required'),
       })
-      
+
       const validator = createRealTimeValidator(schema)
-      
-      const validField = await validator.validateField('email', 'test@example.com')
+
+      const validField = await validator.validateField(
+        'email',
+        'test@example.com'
+      )
       expect(validField.isValid).toBe(true)
       expect(validField.error).toBeNull()
-      
-      const invalidField = await validator.validateField('email', 'invalid-email')
+
+      const invalidField = await validator.validateField(
+        'email',
+        'invalid-email'
+      )
       expect(invalidField.isValid).toBe(false)
       expect(invalidField.error).toBe('Invalid email')
     })
@@ -300,7 +342,7 @@ describe('Validation Utils', () => {
     it('should convert basic Zod schemas to Yup', () => {
       const zodString = z.string().email().min(5).max(50)
       const yupSchema = zodToYup(zodString)
-      
+
       expect(yupSchema).toBeDefined()
       // Note: This is a simplified test as the conversion is basic
     })
@@ -311,7 +353,7 @@ describe('Validation Utils', () => {
         age: z.number(),
         active: z.boolean(),
       })
-      
+
       const yupSchema = zodToYup(zodObject)
       expect(yupSchema).toBeDefined()
     })
@@ -323,7 +365,10 @@ describe('Form Validation Hooks', () => {
     const testSchema = yup.object({
       name: yup.string().required('Name is required'),
       email: yup.string().email('Invalid email').required('Email is required'),
-      age: yup.number().min(18, 'Must be at least 18').required('Age is required'),
+      age: yup
+        .number()
+        .min(18, 'Must be at least 18')
+        .required('Age is required'),
     })
 
     it('should initialize with default values', () => {
@@ -365,7 +410,7 @@ describe('Form Validation Hooks', () => {
 
     it('should handle validation errors', async () => {
       const onValidationError = vi.fn()
-      
+
       const { result } = renderHook(() =>
         useFormValidationHook({
           schema: testSchema,
@@ -459,7 +504,8 @@ describe('Form Validation Hooks', () => {
     it('should update schema based on condition', () => {
       const { result } = renderHook(() =>
         useConditionalValidation({
-          condition: (values: any) => values.type === 'detailed',
+          condition: (values: Record<string, unknown>) =>
+            values.type === 'detailed',
           schema: extendedSchema,
           alternativeSchema: baseSchema,
         })
@@ -478,7 +524,7 @@ describe('Form Validation Hooks', () => {
   describe('useAsyncValidation', () => {
     it('should handle async validation', async () => {
       const mockValidator = vi.fn().mockResolvedValue(true)
-      
+
       const { result } = renderHook(() =>
         useAsyncValidation({
           validator: mockValidator,
@@ -495,7 +541,7 @@ describe('Form Validation Hooks', () => {
 
       // Wait for debounce and validation
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 150))
+        await new Promise((resolve) => setTimeout(resolve, 150))
       })
 
       expect(mockValidator).toHaveBeenCalledWith('test-value')
@@ -505,7 +551,7 @@ describe('Form Validation Hooks', () => {
 
     it('should handle validation errors', async () => {
       const mockValidator = vi.fn().mockResolvedValue(false)
-      
+
       const { result } = renderHook(() =>
         useAsyncValidation({
           validator: mockValidator,
@@ -519,7 +565,7 @@ describe('Form Validation Hooks', () => {
       })
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 150))
+        await new Promise((resolve) => setTimeout(resolve, 150))
       })
 
       expect(result.current.validationResult?.isValid).toBe(false)
@@ -532,7 +578,7 @@ describe('Form Validation Hooks', () => {
       getItem: vi.fn(),
       setItem: vi.fn(),
       removeItem: vi.fn(),
-    } as any
+    } as Storage
 
     beforeEach(() => {
       vi.clearAllMocks()
@@ -547,7 +593,7 @@ describe('Form Validation Hooks', () => {
       )
 
       const formData = { name: 'John', email: 'john@example.com' }
-      
+
       act(() => {
         result.current.saveFormData(formData)
       })
@@ -570,7 +616,7 @@ describe('Form Validation Hooks', () => {
       )
 
       const loadedData = result.current.loadFormData()
-      
+
       expect(mockStorage.getItem).toHaveBeenCalledWith('test-form')
       expect(loadedData).toEqual(savedData)
     })
@@ -584,12 +630,12 @@ describe('Form Validation Hooks', () => {
         })
       )
 
-      const formData = { 
-        name: 'John', 
-        email: 'john@example.com', 
-        password: 'secret123' 
+      const formData = {
+        name: 'John',
+        email: 'john@example.com',
+        password: 'secret123',
       }
-      
+
       act(() => {
         result.current.saveFormData(formData)
       })

@@ -1,17 +1,24 @@
 import React from 'react'
 import { Tooltip as AntTooltip, TooltipProps as AntTooltipProps } from 'antd'
-import { designTokens } from '../../../config/theme'
 import './Tooltip.css'
 
 export interface TooltipProps extends Omit<AntTooltipProps, 'placement'> {
   /** Content to display in tooltip */
   content: React.ReactNode
   /** Positioning of tooltip */
-  placement?: 
-    | 'top' | 'topLeft' | 'topRight'
-    | 'bottom' | 'bottomLeft' | 'bottomRight'
-    | 'left' | 'leftTop' | 'leftBottom'
-    | 'right' | 'rightTop' | 'rightBottom'
+  placement?:
+    | 'top'
+    | 'topLeft'
+    | 'topRight'
+    | 'bottom'
+    | 'bottomLeft'
+    | 'bottomRight'
+    | 'left'
+    | 'leftTop'
+    | 'leftBottom'
+    | 'right'
+    | 'rightTop'
+    | 'rightBottom'
   /** Delay before showing tooltip (ms) */
   showDelay?: number
   /** Delay before hiding tooltip (ms) */

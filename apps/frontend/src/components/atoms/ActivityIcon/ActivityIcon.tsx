@@ -22,18 +22,44 @@ import {
   SettingOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './ActivityIcon.css'
 
-export type ActivityType = 
-  | 'call' | 'email' | 'meeting' | 'message' | 'chat'
-  | 'visit' | 'purchase' | 'order' | 'return' | 'refund'
-  | 'note' | 'task' | 'appointment' | 'reminder'
-  | 'like' | 'share' | 'view' | 'comment' | 'review'
-  | 'edit' | 'delete' | 'create' | 'update'
-  | 'download' | 'upload' | 'export' | 'import'
-  | 'login' | 'logout' | 'register' | 'settings'
-  | 'support' | 'feedback' | 'complaint' | 'inquiry'
+export type ActivityType =
+  | 'call'
+  | 'email'
+  | 'meeting'
+  | 'message'
+  | 'chat'
+  | 'visit'
+  | 'purchase'
+  | 'order'
+  | 'return'
+  | 'refund'
+  | 'note'
+  | 'task'
+  | 'appointment'
+  | 'reminder'
+  | 'like'
+  | 'share'
+  | 'view'
+  | 'comment'
+  | 'review'
+  | 'edit'
+  | 'delete'
+  | 'create'
+  | 'update'
+  | 'download'
+  | 'upload'
+  | 'export'
+  | 'import'
+  | 'login'
+  | 'logout'
+  | 'register'
+  | 'settings'
+  | 'support'
+  | 'feedback'
+  | 'complaint'
+  | 'inquiry'
 
 export interface ActivityIconProps {
   /** Type of activity */
@@ -69,45 +95,45 @@ const ACTIVITY_ICONS: Record<ActivityType, React.ReactNode> = {
   meeting: <VideoCameraOutlined />,
   message: <MessageOutlined />,
   chat: <MessageOutlined />,
-  
+
   // Customer interactions
   visit: <UserOutlined />,
   purchase: <ShoppingCartOutlined />,
   order: <ShoppingCartOutlined />,
   return: <ShoppingCartOutlined />,
   refund: <ShoppingCartOutlined />,
-  
+
   // Tasks and notes
   note: <FileTextOutlined />,
   task: <FileTextOutlined />,
   appointment: <CalendarOutlined />,
   reminder: <BellOutlined />,
-  
+
   // Social interactions
   like: <HeartOutlined />,
   share: <ShareAltOutlined />,
   view: <EyeOutlined />,
   comment: <MessageOutlined />,
   review: <FileTextOutlined />,
-  
+
   // CRUD operations
   edit: <EditOutlined />,
   delete: <DeleteOutlined />,
   create: <EditOutlined />,
   update: <EditOutlined />,
-  
+
   // File operations
   download: <DownloadOutlined />,
   upload: <UploadOutlined />,
   export: <DownloadOutlined />,
   import: <UploadOutlined />,
-  
+
   // Authentication
   login: <LoginOutlined />,
   logout: <LogoutOutlined />,
   register: <UserOutlined />,
   settings: <SettingOutlined />,
-  
+
   // Support
   support: <QuestionCircleOutlined />,
   feedback: <MessageOutlined />,
@@ -122,45 +148,45 @@ const ACTIVITY_COLORS: Record<ActivityType, string> = {
   meeting: '#1890ff',
   message: '#1890ff',
   chat: '#1890ff',
-  
+
   // Customer interactions - Green
   visit: '#52c41a',
   purchase: '#52c41a',
   order: '#52c41a',
   return: '#faad14',
   refund: '#faad14',
-  
+
   // Tasks and notes - Purple
   note: '#722ed1',
   task: '#722ed1',
   appointment: '#722ed1',
   reminder: '#fa8c16',
-  
+
   // Social interactions - Pink/Red
   like: '#eb2f96',
   share: '#13c2c2',
   view: '#1890ff',
   comment: '#722ed1',
   review: '#722ed1',
-  
+
   // CRUD operations - Orange
   edit: '#fa8c16',
   delete: '#ff4d4f',
   create: '#52c41a',
   update: '#fa8c16',
-  
+
   // File operations - Cyan
   download: '#13c2c2',
   upload: '#13c2c2',
   export: '#13c2c2',
   import: '#13c2c2',
-  
+
   // Authentication - Gray
   login: '#52c41a',
   logout: '#ff4d4f',
   register: '#1890ff',
   settings: '#8c8c8c',
-  
+
   // Support - Yellow/Orange
   support: '#faad14',
   feedback: '#1890ff',
@@ -197,7 +223,7 @@ export const ActivityIcon: React.FC<ActivityIconProps> = ({
 
   const getIconSize = (): number => {
     if (typeof size === 'number') return size
-    
+
     const sizes = {
       small: 14,
       medium: 16,
@@ -209,7 +235,7 @@ export const ActivityIcon: React.FC<ActivityIconProps> = ({
   const getIconColor = (): string => {
     if (disabled) return '#d9d9d9'
     if (color) return color
-    
+
     const variantColors = {
       default: ACTIVITY_COLORS[type] || '#8c8c8c',
       primary: '#1890ff',
@@ -218,20 +244,20 @@ export const ActivityIcon: React.FC<ActivityIconProps> = ({
       error: '#ff4d4f',
       info: '#13c2c2',
     }
-    
+
     return variantColors[variant]
   }
 
   const getBackgroundColor = (): string => {
     if (backgroundColor) return backgroundColor
-    
+
     const iconColor = getIconColor()
     // Convert hex to rgba with low opacity
     const hex = iconColor.replace('#', '')
     const r = parseInt(hex.substr(0, 2), 16)
     const g = parseInt(hex.substr(2, 2), 16)
     const b = parseInt(hex.substr(4, 2), 16)
-    
+
     return `rgba(${r}, ${g}, ${b}, 0.1)`
   }
 
@@ -252,8 +278,10 @@ export const ActivityIcon: React.FC<ActivityIconProps> = ({
   }
 
   const renderIcon = () => {
-    const icon = customIcon || ACTIVITY_ICONS[type] || <QuestionCircleOutlined />
-    
+    const icon = customIcon || ACTIVITY_ICONS[type] || (
+      <QuestionCircleOutlined />
+    )
+
     return (
       <span
         className={iconClasses}
@@ -275,7 +303,7 @@ export const ActivityIcon: React.FC<ActivityIconProps> = ({
 
   if (tooltip) {
     return (
-      <Tooltip title={tooltip} placement="top">
+      <Tooltip title={tooltip} placement='top'>
         {renderIcon()}
       </Tooltip>
     )

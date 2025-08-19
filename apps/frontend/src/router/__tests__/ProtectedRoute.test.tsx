@@ -8,7 +8,7 @@ import authReducer from '../../store/slices/authSlice'
 import uiReducer from '../../store/slices/uiSlice'
 
 // Mock store factory
-const createMockStore = (authState: any) => {
+const createMockStore = (authState: Record<string, unknown>) => {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -65,13 +65,14 @@ const createMockStore = (authState: any) => {
 
 const TestComponent = () => <div>Protected Content</div>
 
-const renderWithProviders = (component: React.ReactElement, authState: any = {}) => {
+const renderWithProviders = (
+  component: React.ReactElement,
+  authState: Record<string, unknown> = {}
+) => {
   const store = createMockStore(authState)
   return render(
     <Provider store={store}>
-      <BrowserRouter>
-        {component}
-      </BrowserRouter>
+      <BrowserRouter>{component}</BrowserRouter>
     </Provider>
   )
 }
@@ -104,10 +105,10 @@ describe('ProtectedRoute', () => {
       <ProtectedRoute>
         <TestComponent />
       </ProtectedRoute>,
-      { 
+      {
         isAuthenticated: true,
         user: { id: '1', email: 'test@example.com' },
-        token: 'mock-token'
+        token: 'mock-token',
       }
     )
 
@@ -116,7 +117,7 @@ describe('ProtectedRoute', () => {
 
   it('should use custom fallback path when provided', () => {
     renderWithProviders(
-      <ProtectedRoute fallbackPath="/custom-login">
+      <ProtectedRoute fallbackPath='/custom-login'>
         <TestComponent />
       </ProtectedRoute>,
       { isAuthenticated: false }

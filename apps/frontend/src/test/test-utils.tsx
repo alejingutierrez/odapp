@@ -1,14 +1,12 @@
 import React from 'react'
-import { render, RenderOptions, waitFor } from '@testing-library/react'
+import { render, RenderOptions } from '@testing-library/react'
 import { act } from '@testing-library/react'
-import { expect } from 'vitest'
 import { ConfigProvider } from 'antd'
 import { theme } from '../config/theme'
 
 // Timeout configuration for test utilities
 const TEST_TIMEOUT = 60000 // 1 minute
 const POLLING_INTERVAL = 100 // 100ms between checks
-const MAX_ATTEMPTS = 50 // Maximum attempts for polling
 
 // Helper para envolver operaciones asíncronas en act() con timeout
 export const waitForAsync = async (
@@ -16,14 +14,17 @@ export const waitForAsync = async (
   timeout: number = TEST_TIMEOUT
 ) => {
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(`Operation timed out after ${timeout}ms`)), timeout)
+    setTimeout(
+      () => reject(new Error(`Operation timed out after ${timeout}ms`)),
+      timeout
+    )
   })
 
   await Promise.race([
     act(async () => {
       await callback()
     }),
-    timeoutPromise
+    timeoutPromise,
   ])
 }
 
@@ -33,7 +34,7 @@ export const waitForElement = async (
   timeout: number = TEST_TIMEOUT
 ): Promise<Element> => {
   const startTime = Date.now()
-  
+
   return new Promise((resolve, reject) => {
     const checkElement = () => {
       const element = callback()
@@ -41,16 +42,16 @@ export const waitForElement = async (
         resolve(element)
         return
       }
-      
+
       const elapsed = Date.now() - startTime
       if (elapsed >= timeout) {
         reject(new Error(`Element not found after ${timeout}ms`))
         return
       }
-      
+
       setTimeout(checkElement, POLLING_INTERVAL)
     }
-    
+
     checkElement()
   })
 }
@@ -61,7 +62,7 @@ export const waitForCondition = async (
   timeout: number = TEST_TIMEOUT
 ): Promise<void> => {
   const startTime = Date.now()
-  
+
   return new Promise((resolve, reject) => {
     const checkCondition = async () => {
       try {
@@ -70,19 +71,19 @@ export const waitForCondition = async (
           resolve()
           return
         }
-        
+
         const elapsed = Date.now() - startTime
         if (elapsed >= timeout) {
           reject(new Error(`Condition not met after ${timeout}ms`))
           return
         }
-        
+
         setTimeout(checkCondition, POLLING_INTERVAL)
       } catch (error) {
         reject(error)
       }
     }
-    
+
     checkCondition()
   })
 }
@@ -99,12 +100,10 @@ export const cleanupDOM = () => {
 }
 
 // Wrapper component for providers
-const AllTheProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <ConfigProvider theme={theme}>
-      {children}
-    </ConfigProvider>
-  )
+const AllTheProviders: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return <ConfigProvider theme={theme}>{children}</ConfigProvider>
 }
 
 // Custom render function that includes providers
@@ -121,8 +120,8 @@ export { customRender as render }
 
 // Export timeout constants for use in tests
 export const TEST_TIMEOUTS = {
-  SHORT: 5000,    // 5 seconds
-  MEDIUM: 15000,  // 15 seconds
-  LONG: 30000,    // 30 seconds
+  SHORT: 5000, // 5 seconds
+  MEDIUM: 15000, // 15 seconds
+  LONG: 30000, // 30 seconds
   VERY_LONG: 60000, // 1 minute
 } as const

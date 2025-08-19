@@ -1,7 +1,6 @@
 import React from 'react'
 import { Tooltip, Tag } from 'antd'
 import { InfoCircleOutlined, CalculatorOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './TaxRateDisplay.css'
 
 export interface TaxBreakdown {
@@ -77,27 +76,29 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
     if (!showBreakdown || breakdown.length === 0) return null
 
     return (
-      <div className="oda-tax-rate-display__breakdown">
-        <div className="oda-tax-rate-display__breakdown-header">
-          <CalculatorOutlined className="oda-tax-rate-display__breakdown-icon" />
+      <div className='oda-tax-rate-display__breakdown'>
+        <div className='oda-tax-rate-display__breakdown-header'>
+          <CalculatorOutlined className='oda-tax-rate-display__breakdown-icon' />
           <span>Tax Breakdown</span>
-          {region && <span className="oda-tax-rate-display__region">({region})</span>}
+          {region && (
+            <span className='oda-tax-rate-display__region'>({region})</span>
+          )}
         </div>
-        <div className="oda-tax-rate-display__breakdown-list">
+        <div className='oda-tax-rate-display__breakdown-list'>
           {breakdown.map((tax, index) => (
-            <div key={index} className="oda-tax-rate-display__breakdown-item">
-              <div className="oda-tax-rate-display__breakdown-name">
+            <div key={index} className='oda-tax-rate-display__breakdown-item'>
+              <div className='oda-tax-rate-display__breakdown-name'>
                 <span>{tax.name}</span>
-                <Tag size="small" color={getTaxTypeColor(tax.type)}>
+                <Tag size='small' color={getTaxTypeColor(tax.type)}>
                   {tax.type.toUpperCase()}
                 </Tag>
               </div>
-              <div className="oda-tax-rate-display__breakdown-values">
-                <span className="oda-tax-rate-display__breakdown-rate">
+              <div className='oda-tax-rate-display__breakdown-values'>
+                <span className='oda-tax-rate-display__breakdown-rate'>
                   {formatPercentage(tax.rate)}
                 </span>
                 {tax.amount > 0 && (
-                  <span className="oda-tax-rate-display__breakdown-amount">
+                  <span className='oda-tax-rate-display__breakdown-amount'>
                     {formatAmount(tax.amount)}
                   </span>
                 )}
@@ -105,23 +106,23 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
             </div>
           ))}
         </div>
-        <div className="oda-tax-rate-display__breakdown-total">
-          <div className="oda-tax-rate-display__breakdown-name">
+        <div className='oda-tax-rate-display__breakdown-total'>
+          <div className='oda-tax-rate-display__breakdown-name'>
             <strong>Total Tax</strong>
           </div>
-          <div className="oda-tax-rate-display__breakdown-values">
-            <strong className="oda-tax-rate-display__breakdown-rate">
+          <div className='oda-tax-rate-display__breakdown-values'>
+            <strong className='oda-tax-rate-display__breakdown-rate'>
               {formatPercentage(rate)}
             </strong>
             {amount && (
-              <strong className="oda-tax-rate-display__breakdown-amount">
+              <strong className='oda-tax-rate-display__breakdown-amount'>
                 {formatAmount(amount)}
               </strong>
             )}
           </div>
         </div>
         {inclusive && (
-          <div className="oda-tax-rate-display__breakdown-note">
+          <div className='oda-tax-rate-display__breakdown-note'>
             Tax included in price
           </div>
         )}
@@ -146,14 +147,18 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
 
     const exemptTooltip = exemptReason ? (
       <div>
-        <div><strong>Tax Exempt</strong></div>
+        <div>
+          <strong>Tax Exempt</strong>
+        </div>
         <div>{exemptReason}</div>
       </div>
-    ) : 'Tax Exempt'
+    ) : (
+      'Tax Exempt'
+    )
 
     return (
       <Tooltip title={exemptTooltip}>
-        <Tag color="gold" className="oda-tax-rate-display__exempt-tag">
+        <Tag color='gold' className='oda-tax-rate-display__exempt-tag'>
           EXEMPT
         </Tag>
       </Tooltip>
@@ -165,7 +170,7 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
       {exempt ? (
         renderExemptDisplay()
       ) : (
-        <Tag color="blue" className="oda-tax-rate-display__badge">
+        <Tag color='blue' className='oda-tax-rate-display__badge'>
           {formatPercentage(rate)}
         </Tag>
       )}
@@ -177,16 +182,20 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
       {exempt ? (
         renderExemptDisplay()
       ) : (
-        <span className="oda-tax-rate-display__compact-content">
-          {label && <span className="oda-tax-rate-display__label">{label}: </span>}
-          <span className="oda-tax-rate-display__rate">{formatPercentage(rate)}</span>
+        <span className='oda-tax-rate-display__compact-content'>
+          {label && (
+            <span className='oda-tax-rate-display__label'>{label}: </span>
+          )}
+          <span className='oda-tax-rate-display__rate'>
+            {formatPercentage(rate)}
+          </span>
           {amount && (
-            <span className="oda-tax-rate-display__amount">
+            <span className='oda-tax-rate-display__amount'>
               ({formatAmount(amount)})
             </span>
           )}
           {inclusive && (
-            <span className="oda-tax-rate-display__inclusive">incl.</span>
+            <span className='oda-tax-rate-display__inclusive'>incl.</span>
           )}
         </span>
       )}
@@ -195,33 +204,31 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
 
   const renderDetailedVariant = () => (
     <div className={displayClasses} onClick={onClick}>
-      <div className="oda-tax-rate-display__detailed-content">
-        <div className="oda-tax-rate-display__main">
-          <div className="oda-tax-rate-display__rate-section">
+      <div className='oda-tax-rate-display__detailed-content'>
+        <div className='oda-tax-rate-display__main'>
+          <div className='oda-tax-rate-display__rate-section'>
             {label && (
-              <span className="oda-tax-rate-display__label">{label}</span>
+              <span className='oda-tax-rate-display__label'>{label}</span>
             )}
             {exempt ? (
               renderExemptDisplay()
             ) : (
-              <span className="oda-tax-rate-display__rate">
+              <span className='oda-tax-rate-display__rate'>
                 {formatPercentage(rate)}
               </span>
             )}
           </div>
           {amount && !exempt && (
-            <div className="oda-tax-rate-display__amount-section">
-              <span className="oda-tax-rate-display__amount">
+            <div className='oda-tax-rate-display__amount-section'>
+              <span className='oda-tax-rate-display__amount'>
                 {formatAmount(amount)}
               </span>
             </div>
           )}
         </div>
-        {region && (
-          <div className="oda-tax-rate-display__region">{region}</div>
-        )}
+        {region && <div className='oda-tax-rate-display__region'>{region}</div>}
         {inclusive && !exempt && (
-          <div className="oda-tax-rate-display__inclusive-note">
+          <div className='oda-tax-rate-display__inclusive-note'>
             Tax included in price
           </div>
         )}
@@ -231,32 +238,28 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
 
   const renderDefaultVariant = () => (
     <div className={displayClasses} onClick={onClick}>
-      <div className="oda-tax-rate-display__content">
-        {label && (
-          <span className="oda-tax-rate-display__label">{label}</span>
-        )}
+      <div className='oda-tax-rate-display__content'>
+        {label && <span className='oda-tax-rate-display__label'>{label}</span>}
         {exempt ? (
           renderExemptDisplay()
         ) : (
           <>
-            <span className="oda-tax-rate-display__rate">
+            <span className='oda-tax-rate-display__rate'>
               {formatPercentage(rate)}
             </span>
             {amount && (
-              <span className="oda-tax-rate-display__amount">
+              <span className='oda-tax-rate-display__amount'>
                 {formatAmount(amount)}
               </span>
             )}
             {showBreakdown && breakdown.length > 0 && (
-              <InfoCircleOutlined className="oda-tax-rate-display__info-icon" />
+              <InfoCircleOutlined className='oda-tax-rate-display__info-icon' />
             )}
           </>
         )}
       </div>
       {inclusive && !exempt && (
-        <div className="oda-tax-rate-display__inclusive-indicator">
-          incl.
-        </div>
+        <div className='oda-tax-rate-display__inclusive-indicator'>incl.</div>
       )}
     </div>
   )
@@ -278,7 +281,7 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
 
   if (showBreakdown && breakdown.length > 0 && !exempt) {
     return (
-      <Tooltip title={renderBreakdownTooltip()} placement="top">
+      <Tooltip title={renderBreakdownTooltip()} placement='top'>
         {content}
       </Tooltip>
     )

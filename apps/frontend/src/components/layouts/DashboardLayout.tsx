@@ -37,16 +37,12 @@ import { AppDispatch } from '../../store'
 import {
   selectSidebarCollapsed,
   selectTheme,
-  selectNotifications,
   selectUnreadNotificationCount,
   toggleSidebar,
   setSidebarCollapsed,
   setTheme,
 } from '../../store/slices/uiSlice'
-import {
-  selectCurrentUser,
-  logoutUser,
-} from '../../store/slices/authSlice'
+import { selectCurrentUser, logoutUser } from '../../store/slices/authSlice'
 
 import { Breadcrumbs } from '../common/Breadcrumbs'
 import { NotificationCenter } from '../common/NotificationCenter'
@@ -182,7 +178,6 @@ export const DashboardLayout: React.FC = () => {
   // Redux state
   const collapsed = useSelector(selectSidebarCollapsed)
   const currentTheme = useSelector(selectTheme)
-  const notifications = useSelector(selectNotifications)
   const unreadCount = useSelector(selectUnreadNotificationCount)
   const currentUser = useSelector(selectCurrentUser)
 
@@ -192,16 +187,15 @@ export const DashboardLayout: React.FC = () => {
 
   // Responsive behavior
   const isMobile = !screens.md
-  const isTablet = screens.md && !screens.lg
 
   // Hooks for enhanced functionality
-  const { isHighContrast, prefersReducedMotion, announceToScreenReader } = useAccessibility()
+  const { announceToScreenReader } = useAccessibility()
   const { trackEvent } = useRouteAnalytics()
   const { trackUserTiming } = usePerformanceMonitoring()
   useDocumentTitle()
-  
+
   // WebSocket for real-time updates
-  const { isConnected: wsConnected } = useWebSocket()
+  useWebSocket()
 
   // Auto-collapse sidebar on mobile
   useEffect(() => {
@@ -220,30 +214,30 @@ export const DashboardLayout: React.FC = () => {
   const getOpenKeys = () => {
     const path = location.pathname
     const segments = path.split('/').filter(Boolean)
-    
+
     if (segments.length > 1) {
       return [`/${segments[0]}`]
     }
-    
+
     return []
   }
 
   // Handle menu click
   const handleMenuClick = ({ key }: { key: string }) => {
     const startTime = performance.now()
-    
+
     navigate(key)
-    
+
     // Track navigation analytics
     trackEvent('navigation', { destination: key, source: 'sidebar' })
-    
+
     // Track performance
     trackUserTiming('navigation', startTime)
-    
+
     // Announce navigation to screen readers
     const pageName = key.split('/').pop() || 'page'
     announceToScreenReader(`Navigating to ${pageName}`)
-    
+
     // Close mobile drawer after navigation
     if (isMobile) {
       setMobileDrawerOpen(false)
@@ -281,10 +275,16 @@ export const DashboardLayout: React.FC = () => {
       key: 'theme',
       icon: currentTheme === 'dark' ? <SunOutlined /> : <MoonOutlined />,
       label: (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <span>Dark Mode</span>
           <Switch
-            size="small"
+            size='small'
             checked={currentTheme === 'dark'}
             onChange={handleThemeToggle}
           />
@@ -317,11 +317,23 @@ export const DashboardLayout: React.FC = () => {
         }}
       >
         {collapsed && !isMobile ? (
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: token.colorPrimary }}>
+          <div
+            style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: token.colorPrimary,
+            }}
+          >
             O
           </div>
         ) : (
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: token.colorPrimary }}>
+          <div
+            style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: token.colorPrimary,
+            }}
+          >
             Oda
           </div>
         )}
@@ -329,16 +341,16 @@ export const DashboardLayout: React.FC = () => {
 
       {/* Menu */}
       <Menu
-        id="navigation"
-        mode="inline"
+        id='navigation'
+        mode='inline'
         theme={currentTheme === 'dark' ? 'dark' : 'light'}
         selectedKeys={getSelectedKeys()}
         defaultOpenKeys={getOpenKeys()}
         items={menuItems}
         onClick={handleMenuClick}
         style={{ flex: 1, borderRight: 0 }}
-        role="navigation"
-        aria-label="Main navigation menu"
+        role='navigation'
+        aria-label='Main navigation menu'
       />
     </div>
   )
@@ -346,10 +358,10 @@ export const DashboardLayout: React.FC = () => {
   return (
     <ThemeProvider>
       {/* Skip Links for Accessibility */}
-      <div className="skip-links">
-        <a 
-          href="#main-content" 
-          className="skip-link"
+      <div className='skip-links'>
+        <a
+          href='#main-content'
+          className='skip-link'
           style={{
             position: 'absolute',
             top: '-40px',
@@ -370,9 +382,9 @@ export const DashboardLayout: React.FC = () => {
         >
           Skip to main content
         </a>
-        <a 
-          href="#navigation" 
-          className="skip-link"
+        <a
+          href='#navigation'
+          className='skip-link'
           style={{
             position: 'absolute',
             top: '-40px',
@@ -405,10 +417,11 @@ export const DashboardLayout: React.FC = () => {
             width={256}
             collapsedWidth={80}
             style={{
-              background: currentTheme === 'dark' ? token.colorBgContainer : '#fff',
+              background:
+                currentTheme === 'dark' ? token.colorBgContainer : '#fff',
             }}
-            role="navigation"
-            aria-label="Main navigation"
+            role='navigation'
+            aria-label='Main navigation'
           >
             {sidebarContent}
           </Sider>
@@ -417,8 +430,8 @@ export const DashboardLayout: React.FC = () => {
         {/* Mobile Drawer */}
         {isMobile && (
           <Drawer
-            title="Navigation"
-            placement="left"
+            title='Navigation'
+            placement='left'
             onClose={() => setMobileDrawerOpen(false)}
             open={mobileDrawerOpen}
             bodyStyle={{ padding: 0 }}
@@ -443,7 +456,7 @@ export const DashboardLayout: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {/* Sidebar toggle */}
               <Button
-                type="text"
+                type='text'
                 icon={
                   isMobile ? (
                     <MenuUnfoldOutlined />
@@ -469,9 +482,9 @@ export const DashboardLayout: React.FC = () => {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {/* Notifications */}
-              <Badge count={unreadCount} size="small">
+              <Badge count={unreadCount} size='small'>
                 <Button
-                  type="text"
+                  type='text'
                   icon={<BellOutlined />}
                   onClick={() => setNotificationDrawerOpen(true)}
                   style={{ fontSize: '16px' }}
@@ -480,7 +493,7 @@ export const DashboardLayout: React.FC = () => {
 
               {/* Language selector */}
               <Button
-                type="text"
+                type='text'
                 icon={<GlobalOutlined />}
                 style={{ fontSize: '16px' }}
               />
@@ -488,14 +501,21 @@ export const DashboardLayout: React.FC = () => {
               {/* User menu */}
               <Dropdown
                 menu={{ items: userMenuItems }}
-                placement="bottomRight"
+                placement='bottomRight'
                 trigger={['click']}
               >
-                <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    gap: '8px',
+                  }}
+                >
                   <Avatar
                     src={currentUser?.avatar}
                     icon={<UserOutlined />}
-                    size="small"
+                    size='small'
                   />
                   {!isMobile && (
                     <span style={{ fontSize: '14px' }}>
@@ -509,9 +529,9 @@ export const DashboardLayout: React.FC = () => {
 
           {/* Content */}
           <Content
-            id="main-content"
-            role="main"
-            aria-label="Main content"
+            id='main-content'
+            role='main'
+            aria-label='Main content'
             tabIndex={-1}
             style={{
               margin: '16px',

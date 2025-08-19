@@ -184,7 +184,7 @@ describe('authSlice', () => {
           expiresIn: 3600,
         }
 
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: true,
           json: async () => mockResponse,
         })
@@ -204,13 +204,16 @@ describe('authSlice', () => {
 
       it('should handle login failure', async () => {
         const errorMessage = 'Invalid credentials'
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: false,
           json: async () => ({ message: errorMessage }),
         })
 
         const store = createTestStore()
-        const credentials = { email: 'test@example.com', password: 'wrong-password' }
+        const credentials = {
+          email: 'test@example.com',
+          password: 'wrong-password',
+        }
 
         await store.dispatch(loginUser(credentials))
 
@@ -223,7 +226,9 @@ describe('authSlice', () => {
       })
 
       it('should handle network error', async () => {
-        ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+        ;(fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+          new Error('Network error')
+        )
 
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
@@ -238,7 +243,7 @@ describe('authSlice', () => {
 
     describe('logoutUser', () => {
       it('should handle successful logout', async () => {
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: true,
         })
 
@@ -257,7 +262,7 @@ describe('authSlice', () => {
       })
 
       it('should clear state even if server logout fails', async () => {
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: false,
         })
 
@@ -284,7 +289,7 @@ describe('authSlice', () => {
           expiresIn: 3600,
         }
 
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: true,
           json: async () => mockResponse,
         })
@@ -302,7 +307,7 @@ describe('authSlice', () => {
       })
 
       it('should clear credentials if refresh fails', async () => {
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: false,
         })
 
@@ -325,7 +330,7 @@ describe('authSlice', () => {
     describe('updateUserProfile', () => {
       it('should handle successful profile update', async () => {
         const updatedUser = { ...mockUser, firstName: 'Jane' }
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: true,
           json: async () => updatedUser,
         })
@@ -346,7 +351,7 @@ describe('authSlice', () => {
 
       it('should handle profile update failure', async () => {
         const errorMessage = 'Update failed'
-        ;(fetch as any).mockResolvedValueOnce({
+        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
           ok: false,
           json: async () => ({ message: errorMessage }),
         })
@@ -370,38 +375,41 @@ describe('authSlice', () => {
     it('should select current user', () => {
       const store = createTestStore({ user: mockUser })
       const state = store.getState()
-      
+
       expect(selectCurrentUser(state)).toEqual(mockUser)
     })
 
     it('should select token', () => {
       const store = createTestStore({ token: 'test-token' })
       const state = store.getState()
-      
+
       expect(selectToken(state)).toBe('test-token')
     })
 
     it('should select authentication status', () => {
       const store = createTestStore({ isAuthenticated: true })
       const state = store.getState()
-      
+
       expect(selectIsAuthenticated(state)).toBe(true)
     })
 
     it('should select permissions', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
       const state = store.getState()
-      
+
       expect(selectPermissions(state)).toEqual(mockUser.permissions)
     })
 
     it('should check if user has specific permission', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
       const state = store.getState()
-      
+
       const hasReadPermission = selectHasPermission('products', 'read')(state)
-      const hasDeletePermission = selectHasPermission('products', 'delete')(state)
-      
+      const hasDeletePermission = selectHasPermission(
+        'products',
+        'delete'
+      )(state)
+
       expect(hasReadPermission).toBe(true)
       expect(hasDeletePermission).toBe(false)
     })
@@ -409,11 +417,11 @@ describe('authSlice', () => {
     it('should check if session is valid', () => {
       const futureExpiry = Date.now() + 3600000 // 1 hour from now
       const pastExpiry = Date.now() - 3600000 // 1 hour ago
-      
+
       const validStore = createTestStore({ sessionExpiry: futureExpiry })
       const expiredStore = createTestStore({ sessionExpiry: pastExpiry })
       const noExpiryStore = createTestStore({ sessionExpiry: null })
-      
+
       expect(selectIsSessionValid(validStore.getState())).toBe(true)
       expect(selectIsSessionValid(expiredStore.getState())).toBe(false)
       expect(selectIsSessionValid(noExpiryStore.getState())).toBe(false)

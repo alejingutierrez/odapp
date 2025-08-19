@@ -1,19 +1,19 @@
 import React from 'react'
-import { Badge, Tag, Tooltip } from 'antd'
-import { 
-  FireOutlined, 
-  StarOutlined, 
+import { Tag, Tooltip } from 'antd'
+import {
+  FireOutlined,
+  StarOutlined,
   ThunderboltOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
 } from '@ant-design/icons'
 import './ProductBadge.css'
 
-export type BadgeType = 
-  | 'sale' 
-  | 'new' 
-  | 'featured' 
+export type BadgeType =
+  | 'sale'
+  | 'new'
+  | 'featured'
   | 'bestseller'
   | 'limited'
   | 'out-of-stock'
@@ -38,53 +38,53 @@ const badgeConfig = {
   sale: {
     color: 'red',
     icon: FireOutlined,
-    defaultText: 'Sale'
+    defaultText: 'Sale',
   },
   new: {
     color: 'green',
     icon: StarOutlined,
-    defaultText: 'New'
+    defaultText: 'New',
   },
   featured: {
     color: 'gold',
     icon: StarOutlined,
-    defaultText: 'Featured'
+    defaultText: 'Featured',
   },
   bestseller: {
     color: 'purple',
     icon: ThunderboltOutlined,
-    defaultText: 'Bestseller'
+    defaultText: 'Bestseller',
   },
   limited: {
     color: 'orange',
     icon: ExclamationCircleOutlined,
-    defaultText: 'Limited'
+    defaultText: 'Limited',
   },
   'out-of-stock': {
     color: 'default',
     icon: ExclamationCircleOutlined,
-    defaultText: 'Out of Stock'
+    defaultText: 'Out of Stock',
   },
   'low-stock': {
     color: 'orange',
     icon: ExclamationCircleOutlined,
-    defaultText: 'Low Stock'
+    defaultText: 'Low Stock',
   },
   'in-stock': {
     color: 'green',
     icon: CheckCircleOutlined,
-    defaultText: 'In Stock'
+    defaultText: 'In Stock',
   },
   'pre-order': {
     color: 'blue',
     icon: ClockCircleOutlined,
-    defaultText: 'Pre-Order'
+    defaultText: 'Pre-Order',
   },
   discontinued: {
     color: 'default',
     icon: ExclamationCircleOutlined,
-    defaultText: 'Discontinued'
-  }
+    defaultText: 'Discontinued',
+  },
 } as const
 
 export const ProductBadge: React.FC<ProductBadgeProps> = ({
@@ -96,14 +96,14 @@ export const ProductBadge: React.FC<ProductBadgeProps> = ({
   size = 'default',
   animated = false,
   tooltip,
-  className = ''
+  className = '',
 }) => {
   const config = badgeConfig[type]
   const IconComponent = config.icon
 
   const getBadgeText = () => {
     if (text) return text
-    
+
     switch (type) {
       case 'sale':
         return discount ? `-${discount}%` : config.defaultText
@@ -148,11 +148,7 @@ export const ProductBadge: React.FC<ProductBadgeProps> = ({
   )
 
   if (tooltip) {
-    return (
-      <Tooltip title={tooltip}>
-        {badgeContent}
-      </Tooltip>
-    )
+    return <Tooltip title={tooltip}>{badgeContent}</Tooltip>
   }
 
   return badgeContent

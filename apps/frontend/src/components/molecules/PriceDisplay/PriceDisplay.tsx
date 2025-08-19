@@ -30,28 +30,28 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   taxIncluded = true,
   size = 'default',
   layout = 'horizontal',
-  className = ''
+  className = '',
 }) => {
   const formatPrice = (amount: number) => {
     if (showCurrency) {
       return new Intl.NumberFormat(locale, {
         style: 'currency',
-        currency: currency
+        currency: currency,
       }).format(amount)
     }
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount)
   }
 
   const hasDiscount = compareAtPrice && compareAtPrice > price
   const discountAmount = hasDiscount ? compareAtPrice - price : 0
-  const discountPercentage = hasDiscount ? Math.round((discountAmount / compareAtPrice) * 100) : 0
+  const discountPercentage = hasDiscount
+    ? Math.round((discountAmount / compareAtPrice) * 100)
+    : 0
 
   const taxAmount = showTax && taxRate > 0 ? price * (taxRate / 100) : 0
-  const priceWithTax = taxIncluded ? price : price + taxAmount
-  const priceWithoutTax = taxIncluded ? price - taxAmount : price
 
   const getSizeClass = () => {
     switch (size) {
@@ -65,8 +65,8 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   }
 
   const renderMainPrice = () => (
-    <Typography.Text 
-      strong 
+    <Typography.Text
+      strong
       className={`price-display__current ${getSizeClass()}`}
     >
       {formatPrice(price)}
@@ -77,9 +77,9 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
     if (!hasDiscount || !showDiscount) return null
 
     return (
-      <Typography.Text 
-        delete 
-        type="secondary"
+      <Typography.Text
+        delete
+        type='secondary'
         className={`price-display__compare ${getSizeClass()}`}
       >
         {formatPrice(compareAtPrice)}
@@ -91,15 +91,15 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
     if (!hasDiscount || !showDiscount) return null
 
     return (
-      <Space size="small" className="price-display__discount">
-        <Typography.Text 
-          type="success" 
+      <Space size='small' className='price-display__discount'>
+        <Typography.Text
+          type='success'
           className={`price-display__discount-badge ${getSizeClass()}`}
         >
           <TagOutlined /> -{discountPercentage}%
         </Typography.Text>
-        <Typography.Text 
-          type="success" 
+        <Typography.Text
+          type='success'
           className={`price-display__savings ${getSizeClass()}`}
         >
           Save {formatPrice(discountAmount)}
@@ -111,14 +111,16 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   const renderTaxInfo = () => {
     if (!showTax || taxRate === 0) return null
 
-    const taxText = taxIncluded 
+    const taxText = taxIncluded
       ? `Incl. tax (${taxRate}%): ${formatPrice(taxAmount)}`
       : `+ tax (${taxRate}%): ${formatPrice(taxAmount)}`
 
     return (
-      <Tooltip title={`Price ${taxIncluded ? 'including' : 'excluding'} ${taxRate}% tax`}>
-        <Typography.Text 
-          type="secondary" 
+      <Tooltip
+        title={`Price ${taxIncluded ? 'including' : 'excluding'} ${taxRate}% tax`}
+      >
+        <Typography.Text
+          type='secondary'
           className={`price-display__tax ${getSizeClass()}`}
         >
           {taxText}
@@ -130,7 +132,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   if (layout === 'vertical') {
     return (
       <div className={`price-display price-display--vertical ${className}`}>
-        <div className="price-display__main">
+        <div className='price-display__main'>
           {renderMainPrice()}
           {renderComparePrice()}
         </div>
@@ -141,8 +143,8 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   }
 
   return (
-    <Space 
-      size="small" 
+    <Space
+      size='small'
       className={`price-display price-display--horizontal ${className}`}
       wrap
     >

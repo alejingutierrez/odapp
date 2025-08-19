@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Space, Tooltip } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { Label, Typography } from '../../atoms'
+import { Label } from '../../atoms'
 import './FormField.css'
 
 export interface FormFieldProps {
@@ -28,12 +28,12 @@ export const FormField: React.FC<FormFieldProps> = ({
   help,
   tooltip,
   children,
-  layout = 'vertical',
+
   labelCol,
   wrapperCol,
   className = '',
   validateStatus,
-  hasFeedback = false
+  hasFeedback = false,
 }) => {
   const getValidateStatus = () => {
     if (validateStatus) return validateStatus
@@ -53,11 +53,11 @@ export const FormField: React.FC<FormFieldProps> = ({
     if (!label) return undefined
 
     const labelContent = (
-      <Space size="small">
+      <Space size='small'>
         <Label required={required}>{label}</Label>
         {tooltip && (
           <Tooltip title={tooltip}>
-            <QuestionCircleOutlined className="form-field__tooltip-icon" />
+            <QuestionCircleOutlined className='form-field__tooltip-icon' />
           </Tooltip>
         )}
       </Space>

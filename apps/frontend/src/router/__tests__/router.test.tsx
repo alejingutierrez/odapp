@@ -30,7 +30,7 @@ jest.mock('../../pages/NotFound', () => {
   return {
     NotFoundPage: function NotFound() {
       return <div>404 Not Found</div>
-    }
+    },
   }
 })
 
@@ -41,12 +41,12 @@ jest.mock('../../components/layouts/DashboardLayout', () => {
       return (
         <div>
           <div>Dashboard Layout</div>
-          <div data-testid="outlet">
+          <div data-testid='outlet'>
             {/* Outlet content would be rendered here */}
           </div>
         </div>
       )
-    }
+    },
   }
 })
 
@@ -56,34 +56,42 @@ jest.mock('../../components/layouts/AuthLayout', () => {
       return (
         <div>
           <div>Auth Layout</div>
-          <div data-testid="outlet">
+          <div data-testid='outlet'>
             {/* Outlet content would be rendered here */}
           </div>
         </div>
       )
-    }
+    },
   }
 })
 
 // Mock route guards
 jest.mock('../ProtectedRoute', () => {
   return {
-    ProtectedRoute: function ProtectedRoute({ children }: { children: React.ReactNode }) {
+    ProtectedRoute: function ProtectedRoute({
+      children,
+    }: {
+      children: React.ReactNode
+    }) {
       return <div>{children}</div>
-    }
+    },
   }
 })
 
 jest.mock('../PublicRoute', () => {
   return {
-    PublicRoute: function PublicRoute({ children }: { children: React.ReactNode }) {
+    PublicRoute: function PublicRoute({
+      children,
+    }: {
+      children: React.ReactNode
+    }) {
       return <div>{children}</div>
-    }
+    },
   }
 })
 
 // Mock store factory
-const createMockStore = (authState: any = {}) => {
+const createMockStore = (authState: Record<string, unknown> = {}) => {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -138,7 +146,10 @@ const createMockStore = (authState: any = {}) => {
   })
 }
 
-const renderWithRouter = (initialEntries: string[] = ['/'], authState: any = {}) => {
+const renderWithRouter = (
+  initialEntries: string[] = ['/'],
+  authState: Record<string, unknown> = {}
+) => {
   const store = createMockStore(authState)
   const testRouter = createMemoryRouter(router.routes, {
     initialEntries,
@@ -175,16 +186,22 @@ describe('Router Configuration', () => {
       '/products/categories',
     ]
 
-    routes.forEach(route => {
+    routes.forEach((route) => {
       // Each route should be defined in the router configuration
-      expect(router.routes.some(r => 
-        r.path === '/' && r.children?.some(child => 
-          child.path === route.substring(1) || 
-          child.children?.some(grandchild => 
-            grandchild.path === route.split('/').slice(2).join('/')
-          )
+      expect(
+        router.routes.some(
+          (r) =>
+            r.path === '/' &&
+            r.children?.some(
+              (child) =>
+                child.path === route.substring(1) ||
+                child.children?.some(
+                  (grandchild) =>
+                    grandchild.path === route.split('/').slice(2).join('/')
+                )
+            )
         )
-      )).toBeTruthy()
+      ).toBeTruthy()
     })
   })
 
@@ -196,21 +213,23 @@ describe('Router Configuration', () => {
       '/auth/reset-password',
     ]
 
-    authRoutes.forEach(route => {
-      expect(router.routes.some(r => 
-        r.path === '/auth' && r.children?.some(child => 
-          child.path === route.split('/')[2]
+    authRoutes.forEach((route) => {
+      expect(
+        router.routes.some(
+          (r) =>
+            r.path === '/auth' &&
+            r.children?.some((child) => child.path === route.split('/')[2])
         )
-      )).toBeTruthy()
+      ).toBeTruthy()
     })
   })
 
   it('should redirect analytics index to sales', () => {
     // The analytics route should have a redirect from index to sales
     const analyticsRoute = router.routes
-      .find(r => r.path === '/')
-      ?.children?.find(c => c.path === 'analytics')
+      .find((r) => r.path === '/')
+      ?.children?.find((c) => c.path === 'analytics')
 
-    expect(analyticsRoute?.children?.some(c => c.index === true)).toBeTruthy()
+    expect(analyticsRoute?.children?.some((c) => c.index === true)).toBeTruthy()
   })
 })

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Rate, InputNumber, Tooltip } from 'antd'
-import { StarFilled, StarOutlined, HeartFilled, HeartOutlined } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
+import { StarFilled } from '@ant-design/icons'
 import './RatingInput.css'
 
 export type RatingType = 'star' | 'numeric' | 'emoji' | 'heart' | 'thumbs'
@@ -113,7 +112,7 @@ export const RatingInput: React.FC<RatingInputProps> = ({
 
   const renderStarRating = () => {
     const customCharacter = character || <StarFilled />
-    
+
     return (
       <Rate
         value={value}
@@ -123,7 +122,7 @@ export const RatingInput: React.FC<RatingInputProps> = ({
         disabled={disabled}
         allowClear={allowClear}
         character={customCharacter}
-        className="oda-rating-input__stars"
+        className='oda-rating-input__stars'
         style={{ color }}
       />
     )
@@ -139,7 +138,7 @@ export const RatingInput: React.FC<RatingInputProps> = ({
         disabled={disabled}
         allowClear={allowClear}
         character={<HeartFilled />}
-        className="oda-rating-input__hearts"
+        className='oda-rating-input__hearts'
         style={{ color: color || '#eb2f96' }}
       />
     )
@@ -156,32 +155,34 @@ export const RatingInput: React.FC<RatingInputProps> = ({
         precision={precision}
         disabled={disabled}
         size={size === 'large' ? 'middle' : size}
-        className="oda-rating-input__numeric"
+        className='oda-rating-input__numeric'
       />
     )
   }
 
   const renderEmojiRating = () => {
     const displayValue = hoverValue !== null ? hoverValue : value
-    const currentEmoji = emojiRatings.find(e => e.value === Math.round(displayValue))
-    
+    const currentEmoji = emojiRatings.find(
+      (e) => e.value === Math.round(displayValue)
+    )
+
     return (
-      <div className="oda-rating-input__emoji-container">
-        <div className="oda-rating-input__emoji-display">
+      <div className='oda-rating-input__emoji-container'>
+        <div className='oda-rating-input__emoji-display'>
           {currentEmoji && (
-            <span 
-              className="oda-rating-input__emoji-current"
+            <span
+              className='oda-rating-input__emoji-current'
               style={{ color: currentEmoji.color }}
             >
               {currentEmoji.emoji}
             </span>
           )}
         </div>
-        <div className="oda-rating-input__emoji-options">
+        <div className='oda-rating-input__emoji-options'>
           {emojiRatings.map((emoji) => (
             <Tooltip key={emoji.value} title={emoji.label}>
               <button
-                type="button"
+                type='button'
                 className={`oda-rating-input__emoji-option ${
                   Math.round(displayValue) === emoji.value ? 'active' : ''
                 }`}
@@ -202,9 +203,9 @@ export const RatingInput: React.FC<RatingInputProps> = ({
 
   const renderThumbsRating = () => {
     return (
-      <div className="oda-rating-input__thumbs-container">
+      <div className='oda-rating-input__thumbs-container'>
         <button
-          type="button"
+          type='button'
           className={`oda-rating-input__thumb ${value === 1 ? 'active' : ''}`}
           onClick={() => handleChange(value === 1 ? 0 : 1)}
           disabled={disabled}
@@ -212,7 +213,7 @@ export const RatingInput: React.FC<RatingInputProps> = ({
           👍
         </button>
         <button
-          type="button"
+          type='button'
           className={`oda-rating-input__thumb ${value === -1 ? 'active' : ''}`}
           onClick={() => handleChange(value === -1 ? 0 : -1)}
           disabled={disabled}
@@ -241,24 +242,28 @@ export const RatingInput: React.FC<RatingInputProps> = ({
   const renderValue = () => {
     if (!showValue) return null
 
-    let displayValue = value
+    const displayValue = value
     if (type === 'emoji') {
-      const currentEmoji = emojiRatings.find(e => e.value === Math.round(value))
+      const currentEmoji = emojiRatings.find(
+        (e) => e.value === Math.round(value)
+      )
       return (
-        <span className="oda-rating-input__value">
+        <span className='oda-rating-input__value'>
           {currentEmoji?.label || `${value}/${max}`}
         </span>
       )
     }
 
     if (type === 'thumbs') {
-      if (value === 1) return <span className="oda-rating-input__value">Positive</span>
-      if (value === -1) return <span className="oda-rating-input__value">Negative</span>
-      return <span className="oda-rating-input__value">No rating</span>
+      if (value === 1)
+        return <span className='oda-rating-input__value'>Positive</span>
+      if (value === -1)
+        return <span className='oda-rating-input__value'>Negative</span>
+      return <span className='oda-rating-input__value'>No rating</span>
     }
 
     return (
-      <span className="oda-rating-input__value">
+      <span className='oda-rating-input__value'>
         {displayValue.toFixed(precision)}/{max}
       </span>
     )
@@ -273,16 +278,12 @@ export const RatingInput: React.FC<RatingInputProps> = ({
 
     if (!tooltipText) return null
 
-    return (
-      <div className="oda-rating-input__tooltip">
-        {tooltipText}
-      </div>
-    )
+    return <div className='oda-rating-input__tooltip'>{tooltipText}</div>
   }
 
   const content = (
     <div className={ratingClasses}>
-      <div className="oda-rating-input__component">
+      <div className='oda-rating-input__component'>
         {renderRatingComponent()}
       </div>
       {renderValue()}

@@ -38,11 +38,11 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
   showAvailability = true,
   layout = 'horizontal',
   disabled = false,
-  className = ''
+  className = '',
 }) => {
   const [showChart, setShowChart] = useState(false)
 
-  const handleSizeChange = (e: any) => {
+  const handleSizeChange = (e: { target: { value: string } }) => {
     const size = e.target.value
     onChange?.(size)
   }
@@ -78,37 +78,37 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
       {
         title: 'Size',
         dataIndex: 'label',
-        key: 'label'
+        key: 'label',
       },
       {
         title: 'Chest (cm)',
         dataIndex: ['measurements', 'chest'],
         key: 'chest',
-        render: (value: number) => value ? `${value} cm` : '-'
+        render: (value: number) => (value ? `${value} cm` : '-'),
       },
       {
         title: 'Waist (cm)',
         dataIndex: ['measurements', 'waist'],
         key: 'waist',
-        render: (value: number) => value ? `${value} cm` : '-'
+        render: (value: number) => (value ? `${value} cm` : '-'),
       },
       {
         title: 'Hips (cm)',
         dataIndex: ['measurements', 'hips'],
         key: 'hips',
-        render: (value: number) => value ? `${value} cm` : '-'
+        render: (value: number) => (value ? `${value} cm` : '-'),
       },
       {
         title: 'Length (cm)',
         dataIndex: ['measurements', 'length'],
         key: 'length',
-        render: (value: number) => value ? `${value} cm` : '-'
-      }
+        render: (value: number) => (value ? `${value} cm` : '-'),
+      },
     ]
 
     return (
       <Modal
-        title="Size Chart"
+        title='Size Chart'
         open={showChart}
         onCancel={() => setShowChart(false)}
         footer={null}
@@ -117,9 +117,9 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
         <Table
           dataSource={sizes}
           columns={columns}
-          rowKey="value"
+          rowKey='value'
           pagination={false}
-          size="small"
+          size='small'
         />
       </Modal>
     )
@@ -130,7 +130,7 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
     const isAvailable = size.available
 
     return (
-      <div key={size.value} className="size-selector__option-wrapper">
+      <div key={size.value} className='size-selector__option-wrapper'>
         <Radio.Button
           value={size.value}
           disabled={disabled || !isAvailable}
@@ -142,19 +142,21 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
         >
           {size.label}
         </Radio.Button>
-        
+
         {showFitRecommendations && size.fitRecommendation && (
-          <div 
-            className="size-selector__fit-indicator"
-            style={{ backgroundColor: getFitRecommendationColor(size.fitRecommendation) }}
+          <div
+            className='size-selector__fit-indicator'
+            style={{
+              backgroundColor: getFitRecommendationColor(
+                size.fitRecommendation
+              ),
+            }}
             title={getFitRecommendationText(size.fitRecommendation)}
           />
         )}
-        
+
         {!isAvailable && showAvailability && (
-          <div className="size-selector__unavailable-overlay">
-            Out of Stock
-          </div>
+          <div className='size-selector__unavailable-overlay'>Out of Stock</div>
         )}
       </div>
     )
@@ -162,25 +164,25 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
 
   return (
     <div className={`size-selector size-selector--${layout} ${className}`}>
-      <div className="size-selector__header">
-        <Typography.Text strong className="size-selector__label">
+      <div className='size-selector__header'>
+        <Typography.Text strong className='size-selector__label'>
           Size
         </Typography.Text>
-        
-        <Space size="small">
+
+        <Space size='small'>
           {showFitRecommendations && (
-            <Tooltip title="Color indicators show fit recommendations">
-              <InfoCircleOutlined className="size-selector__info-icon" />
+            <Tooltip title='Color indicators show fit recommendations'>
+              <InfoCircleOutlined className='size-selector__info-icon' />
             </Tooltip>
           )}
-          
+
           {showSizeChart && (
             <Button
-              type="link"
-              size="small"
+              type='link'
+              size='small'
               icon={<RuleOutlined />}
               onClick={() => setShowChart(true)}
-              className="size-selector__chart-button"
+              className='size-selector__chart-button'
             >
               Size Chart
             </Button>
@@ -192,37 +194,42 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
         value={selectedSize}
         onChange={handleSizeChange}
         disabled={disabled}
-        className="size-selector__group"
+        className='size-selector__group'
       >
         {sizes.map(renderSizeOption)}
       </Radio.Group>
 
       {showFitRecommendations && (
-        <div className="size-selector__legend">
-          <Space size="small">
-            <Typography.Text type="secondary" className="size-selector__legend-title">
+        <div className='size-selector__legend'>
+          <Space size='small'>
+            <Typography.Text
+              type='secondary'
+              className='size-selector__legend-title'
+            >
               Fit guide:
             </Typography.Text>
-            <div className="size-selector__legend-item">
-              <div 
-                className="size-selector__legend-dot"
+            <div className='size-selector__legend-item'>
+              <div
+                className='size-selector__legend-dot'
                 style={{ backgroundColor: getFitRecommendationColor('tight') }}
               />
-              <Typography.Text type="secondary">Runs small</Typography.Text>
+              <Typography.Text type='secondary'>Runs small</Typography.Text>
             </div>
-            <div className="size-selector__legend-item">
-              <div 
-                className="size-selector__legend-dot"
-                style={{ backgroundColor: getFitRecommendationColor('perfect') }}
+            <div className='size-selector__legend-item'>
+              <div
+                className='size-selector__legend-dot'
+                style={{
+                  backgroundColor: getFitRecommendationColor('perfect'),
+                }}
               />
-              <Typography.Text type="secondary">True to size</Typography.Text>
+              <Typography.Text type='secondary'>True to size</Typography.Text>
             </div>
-            <div className="size-selector__legend-item">
-              <div 
-                className="size-selector__legend-dot"
+            <div className='size-selector__legend-item'>
+              <div
+                className='size-selector__legend-dot'
                 style={{ backgroundColor: getFitRecommendationColor('loose') }}
               />
-              <Typography.Text type="secondary">Runs large</Typography.Text>
+              <Typography.Text type='secondary'>Runs large</Typography.Text>
             </div>
           </Space>
         </div>

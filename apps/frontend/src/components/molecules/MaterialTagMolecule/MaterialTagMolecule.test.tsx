@@ -1,5 +1,5 @@
 // React import removed as not needed for these tests
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, beforeEach, expect } from 'vitest'
 import { MaterialTagMolecule, type MaterialInfo } from './MaterialTagMolecule'
@@ -15,14 +15,14 @@ describe('MaterialTagMolecule', () => {
       score: 75,
       recyclable: true,
       organic: false,
-      certifications: ['OEKO-TEX']
+      certifications: ['OEKO-TEX'],
     },
     properties: {
       breathable: true,
       waterResistant: false,
       stretchable: false,
-      wrinkleResistant: true
-    }
+      wrinkleResistant: true,
+    },
   }
 
   beforeEach(() => {
@@ -37,10 +37,10 @@ describe('MaterialTagMolecule', () => {
   it('calls onClick when tag is clicked', async () => {
     const user = userEvent.setup()
     render(<MaterialTagMolecule material={mockMaterial} />)
-    
+
     const tag = screen.getByText('Cotton').closest('.ant-tag')
     expect(tag).toBeInTheDocument()
-    
+
     await user.click(tag!)
     // Modal should open
     expect(screen.getByText('Cotton - Material Details')).toBeInTheDocument()
@@ -55,18 +55,18 @@ describe('MaterialTagMolecule', () => {
   it('shows close button in modal and can be clicked', async () => {
     const user = userEvent.setup()
     render(<MaterialTagMolecule material={mockMaterial} />)
-    
+
     // Open modal first
     const tag = screen.getByText('Cotton').closest('.ant-tag')
     await user.click(tag!)
-    
+
     // Verify modal is open
     expect(screen.getByText('Cotton - Material Details')).toBeInTheDocument()
-    
+
     // Verify close button exists and is clickable
     const closeButton = screen.getByRole('button', { name: /close/i })
     expect(closeButton).toBeInTheDocument()
-    
+
     // Click the close button (we don't need to verify the modal closes completely)
     await user.click(closeButton)
   })
@@ -76,17 +76,17 @@ describe('MaterialTagMolecule', () => {
       ...mockMaterial,
       sustainability: {
         ...mockMaterial.sustainability,
-        score: 90
-      }
+        score: 90,
+      },
     }
-    
+
     render(<MaterialTagMolecule material={highScoreMaterial} />)
     expect(screen.getByText('90')).toBeInTheDocument()
   })
 
   it('applies custom className', () => {
     const { container } = render(
-      <MaterialTagMolecule material={mockMaterial} className="custom-class" />
+      <MaterialTagMolecule material={mockMaterial} className='custom-class' />
     )
     expect(container.querySelector('.custom-class')).toBeInTheDocument()
   })
@@ -97,10 +97,10 @@ describe('MaterialTagMolecule', () => {
       sustainability: {
         ...mockMaterial.sustainability,
         organic: true,
-        recyclable: true
-      }
+        recyclable: true,
+      },
     }
-    
+
     render(<MaterialTagMolecule material={sustainableMaterial} />)
     expect(screen.getByTestId('leaf-icon')).toBeInTheDocument()
     expect(screen.getByTestId('recycling-icon')).toBeInTheDocument()
@@ -108,18 +108,20 @@ describe('MaterialTagMolecule', () => {
 
   it('renders with texture features', () => {
     render(<MaterialTagMolecule material={mockMaterial} showTexture={true} />)
-    const texturePreview = document.querySelector('.material-tag__texture-preview')
+    const texturePreview = document.querySelector(
+      '.material-tag__texture-preview'
+    )
     expect(texturePreview).toBeInTheDocument()
   })
 
   it('renders with care information', async () => {
     const user = userEvent.setup()
     render(<MaterialTagMolecule material={mockMaterial} showCareInfo={true} />)
-    
+
     // Open modal to see care information
     const tag = screen.getByText('Cotton').closest('.ant-tag')
     await user.click(tag!)
-    
+
     expect(screen.getByText('Care Instructions')).toBeInTheDocument()
     expect(screen.getByText('Machine wash cold')).toBeInTheDocument()
   })

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, Button, Tag, Tooltip, Progress, Image } from 'antd'
+import { Card, Button, Tooltip, Progress, Image } from 'antd'
 import {
   FileOutlined,
   FilePdfOutlined,
@@ -14,7 +14,6 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons'
-import { designTokens } from '../../../config/theme'
 import './FilePreview.css'
 
 export interface FileMetadata {
@@ -78,11 +77,17 @@ const FILE_TYPE_ICONS: Record<string, React.ReactNode> = {
   'text/plain': <FileTextOutlined />,
   'text/csv': <FileExcelOutlined />,
   'application/vnd.ms-excel': <FileExcelOutlined />,
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': <FileExcelOutlined />,
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': (
+    <FileExcelOutlined />
+  ),
   'application/msword': <FileWordOutlined />,
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': <FileWordOutlined />,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
+    <FileWordOutlined />
+  ),
   'application/vnd.ms-powerpoint': <FilePptOutlined />,
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': <FilePptOutlined />,
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': (
+    <FilePptOutlined />
+  ),
   'application/zip': <FileZipOutlined />,
   'application/x-zip-compressed': <FileZipOutlined />,
 }
@@ -142,23 +147,21 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
     if (isImage() && (thumbnailUrl || url) && !imageError) {
       return (
-        <div className="oda-file-preview__thumbnail">
+        <div className='oda-file-preview__thumbnail'>
           <Image
             src={thumbnailUrl || url}
             alt={file.name}
             preview={false}
             onError={() => setImageError(true)}
-            className="oda-file-preview__image"
+            className='oda-file-preview__image'
           />
         </div>
       )
     }
 
     return (
-      <div className="oda-file-preview__icon-container">
-        <span className="oda-file-preview__icon">
-          {getFileIcon()}
-        </span>
+      <div className='oda-file-preview__icon-container'>
+        <span className='oda-file-preview__icon'>{getFileIcon()}</span>
       </div>
     )
   }
@@ -167,30 +170,30 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
     if (!showMetadata) return null
 
     return (
-      <div className="oda-file-preview__metadata">
-        <div className="oda-file-preview__basic-info">
-          <span className="oda-file-preview__size">{formatFileSize(file.size)}</span>
+      <div className='oda-file-preview__metadata'>
+        <div className='oda-file-preview__basic-info'>
+          <span className='oda-file-preview__size'>
+            {formatFileSize(file.size)}
+          </span>
           {file.dimensions && (
-            <span className="oda-file-preview__dimensions">
+            <span className='oda-file-preview__dimensions'>
               {file.dimensions.width} × {file.dimensions.height}
             </span>
           )}
           {file.pages && (
-            <span className="oda-file-preview__pages">
-              {file.pages} pages
-            </span>
+            <span className='oda-file-preview__pages'>{file.pages} pages</span>
           )}
         </div>
-        
+
         {(file.uploadedBy || file.uploadedAt) && (
-          <div className="oda-file-preview__upload-info">
+          <div className='oda-file-preview__upload-info'>
             {file.uploadedBy && (
-              <span className="oda-file-preview__uploaded-by">
+              <span className='oda-file-preview__uploaded-by'>
                 by {file.uploadedBy}
               </span>
             )}
             {file.uploadedAt && (
-              <span className="oda-file-preview__uploaded-at">
+              <span className='oda-file-preview__uploaded-at'>
                 {file.uploadedAt.toLocaleDateString()}
               </span>
             )}
@@ -205,15 +208,15 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
     if (showPreview && onPreview) {
       actions.push(
-        <Tooltip key="preview" title="Preview">
+        <Tooltip key='preview' title='Preview'>
           <Button
-            type="text"
+            type='text'
             icon={<EyeOutlined />}
             onClick={(e) => {
               e.stopPropagation()
               onPreview()
             }}
-            size="small"
+            size='small'
           />
         </Tooltip>
       )
@@ -221,15 +224,15 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
     if (showDownload && onDownload) {
       actions.push(
-        <Tooltip key="download" title="Download">
+        <Tooltip key='download' title='Download'>
           <Button
-            type="text"
+            type='text'
             icon={<DownloadOutlined />}
             onClick={(e) => {
               e.stopPropagation()
               onDownload()
             }}
-            size="small"
+            size='small'
           />
         </Tooltip>
       )
@@ -237,16 +240,16 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
     if (showDelete && onDelete) {
       actions.push(
-        <Tooltip key="delete" title="Delete">
+        <Tooltip key='delete' title='Delete'>
           <Button
-            type="text"
+            type='text'
             danger
             icon={<DeleteOutlined />}
             onClick={(e) => {
               e.stopPropagation()
               onDelete()
             }}
-            size="small"
+            size='small'
           />
         </Tooltip>
       )
@@ -254,25 +257,21 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
     if (actions.length === 0) return null
 
-    return (
-      <div className="oda-file-preview__actions">
-        {actions}
-      </div>
-    )
+    return <div className='oda-file-preview__actions'>{actions}</div>
   }
 
   const renderProgress = () => {
     if (!uploading || uploadProgress === undefined) return null
 
     return (
-      <div className="oda-file-preview__progress">
+      <div className='oda-file-preview__progress'>
         <Progress
           percent={uploadProgress}
-          size="small"
+          size='small'
           showInfo={false}
-          strokeColor="#0ea5e9"
+          strokeColor='#0ea5e9'
         />
-        <span className="oda-file-preview__progress-text">
+        <span className='oda-file-preview__progress-text'>
           Uploading... {uploadProgress}%
         </span>
       </div>
@@ -283,9 +282,9 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
     if (!error) return null
 
     return (
-      <div className="oda-file-preview__error">
-        <InfoCircleOutlined className="oda-file-preview__error-icon" />
-        <span className="oda-file-preview__error-text">{error}</span>
+      <div className='oda-file-preview__error'>
+        <InfoCircleOutlined className='oda-file-preview__error-icon' />
+        <span className='oda-file-preview__error-text'>{error}</span>
       </div>
     )
   }
@@ -295,14 +294,14 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       className={previewClasses}
       onClick={onClick}
       hoverable={!!onClick}
-      size="small"
+      size='small'
       bodyStyle={{ padding: size === 'small' ? '8px' : '12px' }}
     >
-      <div className="oda-file-preview__content">
+      <div className='oda-file-preview__content'>
         {renderThumbnail()}
-        <div className="oda-file-preview__info">
-          <div className="oda-file-preview__header">
-            <h4 className="oda-file-preview__name" title={file.name}>
+        <div className='oda-file-preview__info'>
+          <div className='oda-file-preview__header'>
+            <h4 className='oda-file-preview__name' title={file.name}>
               {file.name}
             </h4>
             {renderActions()}
@@ -317,15 +316,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
   const renderListVariant = () => (
     <div className={previewClasses} onClick={onClick}>
-      <div className="oda-file-preview__list-content">
-        <div className="oda-file-preview__list-icon">
-          {getFileIcon()}
-        </div>
-        <div className="oda-file-preview__list-info">
-          <span className="oda-file-preview__name" title={file.name}>
+      <div className='oda-file-preview__list-content'>
+        <div className='oda-file-preview__list-icon'>{getFileIcon()}</div>
+        <div className='oda-file-preview__list-info'>
+          <span className='oda-file-preview__name' title={file.name}>
             {file.name}
           </span>
-          <span className="oda-file-preview__size">
+          <span className='oda-file-preview__size'>
             {formatFileSize(file.size)}
           </span>
         </div>
@@ -338,13 +335,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
   const renderGridVariant = () => (
     <div className={previewClasses} onClick={onClick}>
-      <div className="oda-file-preview__grid-content">
+      <div className='oda-file-preview__grid-content'>
         {renderThumbnail()}
-        <div className="oda-file-preview__grid-info">
-          <span className="oda-file-preview__name" title={file.name}>
+        <div className='oda-file-preview__grid-info'>
+          <span className='oda-file-preview__name' title={file.name}>
             {file.name}
           </span>
-          <span className="oda-file-preview__size">
+          <span className='oda-file-preview__size'>
             {formatFileSize(file.size)}
           </span>
         </div>

@@ -1,23 +1,23 @@
-import React from 'react';
-import { Card, Statistic, StatisticProps } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import React from 'react'
+import { Card, Statistic } from 'antd'
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons'
 
-export type TrendType = 'up' | 'down' | 'neutral';
+export type TrendType = 'up' | 'down' | 'neutral'
 
 export interface MetricCardProps {
-  title: string;
-  value: string | number;
-  trend?: TrendType;
-  trendValue?: string | number;
-  trendLabel?: string;
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-  precision?: number;
-  loading?: boolean;
-  bordered?: boolean;
-  size?: 'small' | 'default';
-  extra?: React.ReactNode;
-  onClick?: () => void;
+  title: string
+  value: string | number
+  trend?: TrendType
+  trendValue?: string | number
+  trendLabel?: string
+  prefix?: React.ReactNode
+  suffix?: React.ReactNode
+  precision?: number
+  loading?: boolean
+  bordered?: boolean
+  size?: 'small' | 'default'
+  extra?: React.ReactNode
+  onClick?: () => void
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -38,35 +38,37 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   const getTrendColor = () => {
     switch (trend) {
       case 'up':
-        return '#3f8600';
+        return '#3f8600'
       case 'down':
-        return '#cf1322';
+        return '#cf1322'
       default:
-        return '#666';
+        return '#666'
     }
-  };
+  }
 
   const getTrendIcon = () => {
     switch (trend) {
       case 'up':
-        return <ArrowUpOutlined />;
+        return <ArrowUpOutlined />
       case 'down':
-        return <ArrowDownOutlined />;
+        return <ArrowDownOutlined />
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   const cardStyle = {
     cursor: onClick ? 'pointer' : undefined,
     transition: 'all 0.3s',
-  };
+  }
 
-  const hoverStyle = onClick ? {
-    ':hover': {
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    }
-  } : {};
+  const hoverStyle = onClick
+    ? {
+        ':hover': {
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        },
+      }
+    : {}
 
   return (
     <Card
@@ -94,7 +96,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           fontWeight: 600,
         }}
       />
-      
+
       {trend && trendValue && (
         <div
           style={{
@@ -112,5 +114,5 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
       )}
     </Card>
-  );
-};
+  )
+}

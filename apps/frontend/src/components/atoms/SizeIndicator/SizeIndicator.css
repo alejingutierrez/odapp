@@ -1,0 +1,278 @@
+/* SizeIndicator Component Styles */
+.oda-size-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  overflow: hidden;
+}
+
+/* Variant Styles */
+.oda-size-indicator--default {
+  padding: 8px 12px;
+}
+
+.oda-size-indicator--compact {
+  min-width: 32px;
+  height: 32px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.oda-size-indicator--detailed {
+  min-width: 60px;
+  height: 48px;
+  padding: 10px 16px;
+  font-size: 16px;
+}
+
+/* Shape Styles */
+.oda-size-indicator--square {
+  border-radius: 4px;
+}
+
+.oda-size-indicator--circle {
+  border-radius: 50%;
+  width: 40px;
+  min-width: 40px;
+}
+
+.oda-size-indicator--circle.oda-size-indicator--compact {
+  width: 32px;
+  min-width: 32px;
+}
+
+.oda-size-indicator--circle.oda-size-indicator--detailed {
+  width: 48px;
+  min-width: 48px;
+}
+
+.oda-size-indicator--rounded {
+  border-radius: 20px;
+}
+
+.oda-size-indicator--rounded.oda-size-indicator--compact {
+  border-radius: 16px;
+}
+
+.oda-size-indicator--rounded.oda-size-indicator--detailed {
+  border-radius: 24px;
+}
+
+/* Clickable State */
+.oda-size-indicator--clickable {
+  cursor: pointer;
+}
+
+.oda-size-indicator--clickable:hover {
+  border-color: #0ea5e9;
+  background: #f0f9ff;
+  color: #0ea5e9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.oda-size-indicator--clickable:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Selected State */
+.oda-size-indicator--selected {
+  border-color: #0ea5e9;
+  background: #0ea5e9;
+  color: white;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
+}
+
+.oda-size-indicator--selected:hover {
+  border-color: #0284c7;
+  background: #0284c7;
+  color: white;
+}
+
+/* Disabled State */
+.oda-size-indicator--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+.oda-size-indicator--disabled:hover {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  color: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Unavailable State */
+.oda-size-indicator--unavailable {
+  position: relative;
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+.oda-size-indicator--unavailable:hover {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  color: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+.oda-size-indicator__unavailable-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 2px;
+  background: #ef4444;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  z-index: 1;
+}
+
+.oda-size-indicator__unavailable-overlay::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -10%;
+  right: -10%;
+  height: 4px;
+  background: white;
+  z-index: -1;
+}
+
+/* Text Styles */
+.oda-size-indicator__text {
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Size Chart Styles */
+.oda-size-chart {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.oda-size-chart--compact {
+  gap: 6px;
+}
+
+.oda-size-chart--detailed {
+  gap: 12px;
+}
+
+/* Size Guide Styles */
+.oda-size-guide {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.oda-size-guide__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.oda-size-guide__table th,
+.oda-size-guide__table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.oda-size-guide__table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+.oda-size-guide__table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.oda-size-guide__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.oda-size-guide__size {
+  font-weight: 600;
+  color: #0ea5e9;
+}
+
+/* Focus States */
+.oda-size-indicator:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Animation for selection */
+.oda-size-indicator--selected {
+  animation: oda-size-selected 0.3s ease-out;
+}
+
+@keyframes oda-size-selected {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .oda-size-chart {
+    gap: 6px;
+  }
+  
+  .oda-size-indicator--detailed {
+    min-width: 50px;
+    height: 40px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .oda-size-guide__table th,
+  .oda-size-guide__table td {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Special handling for numeric sizes */
+.oda-size-indicator[data-numeric="true"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Special handling for long size names */
+.oda-size-indicator--detailed .oda-size-indicator__text {
+  max-width: 100px;
+}

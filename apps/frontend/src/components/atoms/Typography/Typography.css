@@ -1,0 +1,482 @@
+/* Typography Component Styles */
+
+/* Title Styles */
+.oda-title {
+  margin: 0;
+  line-height: 1.2;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.oda-title--level-1 {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.oda-title--level-2 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.oda-title--level-3 {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.oda-title--level-4 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.oda-title--level-5 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Title Colors */
+.oda-title--default {
+  color: #111827;
+}
+
+.oda-title--secondary {
+  color: #6b7280;
+}
+
+.oda-title--primary {
+  color: #0ea5e9;
+}
+
+.oda-title--success {
+  color: #22c55e;
+}
+
+.oda-title--warning {
+  color: #f59e0b;
+}
+
+.oda-title--error {
+  color: #ef4444;
+}
+
+/* Title Weights */
+.oda-title--light {
+  font-weight: 300;
+}
+
+.oda-title--normal {
+  font-weight: 400;
+}
+
+.oda-title--medium {
+  font-weight: 500;
+}
+
+.oda-title--semibold {
+  font-weight: 600;
+}
+
+.oda-title--bold {
+  font-weight: 700;
+}
+
+/* Title Alignment */
+.oda-title--left {
+  text-align: left;
+}
+
+.oda-title--center {
+  text-align: center;
+}
+
+.oda-title--right {
+  text-align: right;
+}
+
+/* Text Styles */
+.oda-text {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Text Sizes */
+.oda-text--xs {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.oda-text--sm {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.oda-text--base {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.oda-text--lg {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.oda-text--xl {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+/* Text Colors */
+.oda-text--default {
+  color: #374151;
+}
+
+.oda-text--secondary {
+  color: #6b7280;
+}
+
+.oda-text--primary {
+  color: #0ea5e9;
+}
+
+.oda-text--success {
+  color: #22c55e;
+}
+
+.oda-text--warning {
+  color: #f59e0b;
+}
+
+.oda-text--error {
+  color: #ef4444;
+}
+
+.oda-text--white {
+  color: #ffffff;
+}
+
+/* Text Weights */
+.oda-text--light {
+  font-weight: 300;
+}
+
+.oda-text--normal {
+  font-weight: 400;
+}
+
+.oda-text--medium {
+  font-weight: 500;
+}
+
+.oda-text--semibold {
+  font-weight: 600;
+}
+
+.oda-text--bold {
+  font-weight: 700;
+}
+
+/* Text Alignment */
+.oda-text--left {
+  text-align: left;
+}
+
+.oda-text--center {
+  text-align: center;
+}
+
+.oda-text--right {
+  text-align: right;
+}
+
+/* Text Transform */
+.oda-text--none {
+  text-transform: none;
+}
+
+.oda-text--uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.oda-text--lowercase {
+  text-transform: lowercase;
+}
+
+.oda-text--capitalize {
+  text-transform: capitalize;
+}
+
+/* Paragraph Styles */
+.oda-paragraph {
+  margin: 0 0 16px 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.oda-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraph Sizes */
+.oda-paragraph--sm {
+  font-size: 14px;
+}
+
+.oda-paragraph--base {
+  font-size: 16px;
+}
+
+.oda-paragraph--lg {
+  font-size: 18px;
+}
+
+/* Paragraph Colors */
+.oda-paragraph--default {
+  color: #374151;
+}
+
+.oda-paragraph--secondary {
+  color: #6b7280;
+}
+
+.oda-paragraph--primary {
+  color: #0ea5e9;
+}
+
+.oda-paragraph--success {
+  color: #22c55e;
+}
+
+.oda-paragraph--warning {
+  color: #f59e0b;
+}
+
+.oda-paragraph--error {
+  color: #ef4444;
+}
+
+/* Paragraph Weights */
+.oda-paragraph--light {
+  font-weight: 300;
+}
+
+.oda-paragraph--normal {
+  font-weight: 400;
+}
+
+.oda-paragraph--medium {
+  font-weight: 500;
+}
+
+.oda-paragraph--semibold {
+  font-weight: 600;
+}
+
+/* Paragraph Alignment */
+.oda-paragraph--left {
+  text-align: left;
+}
+
+.oda-paragraph--center {
+  text-align: center;
+}
+
+.oda-paragraph--right {
+  text-align: right;
+}
+
+.oda-paragraph--justify {
+  text-align: justify;
+}
+
+/* Paragraph Spacing */
+.oda-paragraph--tight {
+  line-height: 1.25;
+}
+
+.oda-paragraph--normal {
+  line-height: 1.5;
+}
+
+.oda-paragraph--relaxed {
+  line-height: 1.625;
+}
+
+.oda-paragraph--loose {
+  line-height: 2;
+}
+
+/* Link Styles */
+.oda-link {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+/* Link Sizes */
+.oda-link--xs {
+  font-size: 12px;
+}
+
+.oda-link--sm {
+  font-size: 14px;
+}
+
+.oda-link--base {
+  font-size: 16px;
+}
+
+.oda-link--lg {
+  font-size: 18px;
+}
+
+/* Link Colors */
+.oda-link--primary {
+  color: #0ea5e9;
+}
+
+.oda-link--primary:hover {
+  color: #0284c7;
+}
+
+.oda-link--secondary {
+  color: #6b7280;
+}
+
+.oda-link--secondary:hover {
+  color: #374151;
+}
+
+.oda-link--success {
+  color: #22c55e;
+}
+
+.oda-link--success:hover {
+  color: #16a34a;
+}
+
+.oda-link--warning {
+  color: #f59e0b;
+}
+
+.oda-link--warning:hover {
+  color: #d97706;
+}
+
+.oda-link--error {
+  color: #ef4444;
+}
+
+.oda-link--error:hover {
+  color: #dc2626;
+}
+
+/* Link Weights */
+.oda-link--normal {
+  font-weight: 400;
+}
+
+.oda-link--medium {
+  font-weight: 500;
+}
+
+.oda-link--semibold {
+  font-weight: 600;
+}
+
+.oda-link--bold {
+  font-weight: 700;
+}
+
+/* Link Underlines */
+.oda-link--underline-none {
+  text-decoration: none;
+}
+
+.oda-link--underline-hover {
+  text-decoration: none;
+}
+
+.oda-link--underline-hover:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.oda-link--underline-always {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* External Link */
+.oda-link--external .oda-link__external-icon {
+  margin-left: 4px;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* Code Styles */
+.oda-code {
+  font-family: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  color: #374151;
+}
+
+/* Inline Code */
+.oda-code--inline {
+  padding: 2px 6px;
+  font-size: 0.875em;
+  line-height: 1.4;
+}
+
+/* Block Code */
+.oda-code--block {
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+  background: #1f2937;
+  color: #f9fafb;
+  border: none;
+  border-radius: 8px;
+}
+
+.oda-code--block code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Code Sizes */
+.oda-code--xs {
+  font-size: 10px;
+}
+
+.oda-code--sm {
+  font-size: 12px;
+}
+
+.oda-code--base {
+  font-size: 14px;
+}
+
+/* Focus States */
+.oda-link:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Selection Styles */
+.oda-title::selection,
+.oda-text::selection,
+.oda-paragraph::selection,
+.oda-link::selection,
+.oda-code::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: inherit;
+}

@@ -1,0 +1,113 @@
+/* Tooltip Component Styles */
+.oda-tooltip {
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+/* Variant Styles */
+.oda-tooltip--default .ant-tooltip-inner {
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  border: none;
+}
+
+.oda-tooltip--info .ant-tooltip-inner {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.oda-tooltip--warning .ant-tooltip-inner {
+  background: #f59e0b;
+  color: white;
+  border: none;
+}
+
+.oda-tooltip--error .ant-tooltip-inner {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.oda-tooltip--success .ant-tooltip-inner {
+  background: #22c55e;
+  color: white;
+  border: none;
+}
+
+/* Rich Content Support */
+.oda-tooltip--rich .ant-tooltip-inner {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.oda-tooltip--rich .ant-tooltip-inner h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.oda-tooltip--rich .ant-tooltip-inner p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.oda-tooltip--rich .ant-tooltip-inner p:last-child {
+  margin-bottom: 0;
+}
+
+.oda-tooltip--rich .ant-tooltip-inner ul,
+.oda-tooltip--rich .ant-tooltip-inner ol {
+  margin: 0 0 8px 0;
+  padding-left: 16px;
+}
+
+.oda-tooltip--rich .ant-tooltip-inner li {
+  margin-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Arrow Styles */
+.oda-tooltip .ant-tooltip-arrow {
+  width: 8px;
+  height: 8px;
+}
+
+.oda-tooltip--info .ant-tooltip-arrow::before {
+  background: #3b82f6;
+}
+
+.oda-tooltip--warning .ant-tooltip-arrow::before {
+  background: #f59e0b;
+}
+
+.oda-tooltip--error .ant-tooltip-arrow::before {
+  background: #ef4444;
+}
+
+.oda-tooltip--success .ant-tooltip-arrow::before {
+  background: #22c55e;
+}
+
+/* Animation */
+.oda-tooltip {
+  animation-duration: 0.2s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-tooltip {
+    font-size: 13px;
+    max-width: 250px !important;
+  }
+  
+  .oda-tooltip--rich .ant-tooltip-inner {
+    padding: 10px 12px;
+  }
+}

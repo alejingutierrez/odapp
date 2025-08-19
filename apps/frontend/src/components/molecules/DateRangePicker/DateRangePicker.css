@@ -1,0 +1,147 @@
+.date-range-picker {
+  width: 100%;
+}
+
+.date-range-picker__input-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.date-range-picker__picker {
+  flex: 1;
+}
+
+.date-range-picker__clear-btn {
+  flex-shrink: 0;
+  color: var(--ant-color-text-tertiary);
+  font-size: 12px;
+}
+
+.date-range-picker__clear-btn:hover {
+  color: var(--ant-color-error);
+}
+
+.date-range-picker__selection-info {
+  margin-bottom: 12px;
+}
+
+.date-range-picker__duration-tag,
+.date-range-picker__preset-tag {
+  font-size: 11px;
+  margin: 0;
+}
+
+.date-range-picker__presets {
+  padding: 12px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 6px;
+  border: 1px solid var(--ant-color-border-secondary);
+}
+
+.date-range-picker__presets-label {
+  font-size: 12px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.date-range-picker__presets-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.date-range-picker__preset-btn {
+  font-size: 11px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 4px;
+}
+
+.date-range-picker__presets-more {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--ant-color-border-secondary);
+}
+
+.date-range-picker__preset-dropdown {
+  font-size: 12px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .date-range-picker__input-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .date-range-picker__picker {
+    width: 100%;
+  }
+  
+  .date-range-picker__presets-buttons {
+    justify-content: center;
+  }
+  
+  .date-range-picker__preset-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .date-range-picker__presets-buttons {
+    flex-direction: column;
+  }
+  
+  .date-range-picker__preset-btn {
+    width: 100%;
+  }
+}
+
+/* Animation */
+.date-range-picker__selection-info {
+  animation: fadeIn 0.3s ease;
+}
+
+.date-range-picker__presets {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states */
+.date-range-picker__preset-btn:focus {
+  outline: 2px solid var(--ant-color-primary-border);
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.date-range-picker--loading .date-range-picker__picker {
+  opacity: 0.6;
+  pointer-events: none;
+}

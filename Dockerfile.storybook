@@ -1,0 +1,57 @@
+# Multi-stage Dockerfile for Storybook
+FROM node:20-alpine AS base
+
+# Set working directory
+WORKDIR /app
+
+# Copy standalone package.json for Storybook
+COPY apps/frontend/package.storybook.json ./package.json
+
+# Install dependencies using npm
+RUN npm install
+
+# Copy source code
+COPY apps/frontend/src ./src
+COPY apps/frontend/.storybook ./.storybook
+COPY apps/frontend/tsconfig.json ./tsconfig.json
+COPY apps/frontend/vite.config.ts ./vite.config.ts
+
+# Development stage
+FROM base AS development
+EXPOSE 6006
+CMD ["npm", "run", "storybook"]
+
+# Build stage
+FROM base AS builder
+RUN npm run build-storybook
+
+# Production stage
+FROM nginx:alpine AS production
+COPY --from=builder /app/storybook-static /usr/share/nginx/html
+
+# Create nginx config for Storybook
+RUN echo 'server { \
+    listen 80; \
+    server_name localhost; \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    \
+    location / { \
+        try_files $uri $uri/ /index.html; \
+    } \
+    \
+    # Enable gzip compression \
+    gzip on; \
+    gzip_vary on; \
+    gzip_min_length 1024; \
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json; \
+    \
+    # Cache static assets \
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ { \
+        expires 1y; \
+        add_header Cache-Control "public, immutable"; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

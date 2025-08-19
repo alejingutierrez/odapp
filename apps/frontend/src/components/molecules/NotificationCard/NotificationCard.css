@@ -1,0 +1,111 @@
+.notification-card {
+  margin-bottom: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.notification-card__icon {
+  font-size: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.notification-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-card__title {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notification-card__message {
+  margin-bottom: 0 !important;
+  font-size: 13px;
+  color: var(--ant-color-text-secondary);
+  line-height: 1.4;
+}
+
+.notification-card__close {
+  flex-shrink: 0;
+  margin-left: 8px;
+  opacity: 0.6;
+}
+
+.notification-card__close:hover {
+  opacity: 1;
+}
+
+.notification-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.notification-card__timestamp {
+  flex: 1;
+}
+
+.notification-card__time {
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary);
+}
+
+.notification-card__actions {
+  flex-shrink: 0;
+}
+
+/* Type variants */
+.notification-card--success {
+  border-left: 4px solid var(--ant-color-success);
+  background: var(--ant-color-success-bg);
+}
+
+.notification-card--info {
+  border-left: 4px solid var(--ant-color-info);
+  background: var(--ant-color-info-bg);
+}
+
+.notification-card--warning {
+  border-left: 4px solid var(--ant-color-warning);
+  background: var(--ant-color-warning-bg);
+}
+
+.notification-card--error {
+  border-left: 4px solid var(--ant-color-error);
+  background: var(--ant-color-error-bg);
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .notification-card__footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .notification-card__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

@@ -1,0 +1,279 @@
+/* Quantity Counter Component Styles */
+.oda-quantity-counter {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Default Variant */
+.oda-quantity-counter__default {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.oda-quantity-counter__input {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-align: center;
+  font-weight: 600;
+}
+
+.oda-quantity-counter__input .ant-input-number-input {
+  text-align: center;
+  padding: 0 8px;
+}
+
+.oda-quantity-counter__button {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: #f8fafc;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oda-quantity-counter__button:hover:not(:disabled) {
+  background: #0ea5e9;
+  color: white;
+}
+
+.oda-quantity-counter__button:disabled {
+  background: #f3f4f6;
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.oda-quantity-counter__button--decrement {
+  border-right: 1px solid #e5e7eb;
+}
+
+.oda-quantity-counter__button--increment {
+  border-left: 1px solid #e5e7eb;
+}
+
+.oda-quantity-counter__unit-label {
+  padding: 0 12px;
+  font-size: 14px;
+  color: #6b7280;
+  background: #f8fafc;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+}
+
+/* Compact Variant */
+.oda-quantity-counter--compact .oda-quantity-counter__compact {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.oda-quantity-counter--compact .oda-quantity-counter__button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+.oda-quantity-counter--compact .oda-quantity-counter__input {
+  width: 80px;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+}
+
+/* Inline Variant */
+.oda-quantity-counter__inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oda-quantity-counter__label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.oda-quantity-counter__value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  min-width: 40px;
+  text-align: center;
+}
+
+.oda-quantity-counter__unit {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 2px;
+}
+
+.oda-quantity-counter--inline .oda-quantity-counter__button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+
+/* Stepper Variant */
+.oda-quantity-counter__stepper {
+  display: flex;
+}
+
+.oda-quantity-counter--stepper .oda-quantity-counter__input {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+}
+
+.oda-quantity-counter--stepper .ant-input-number-handler-wrap {
+  border-left: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.oda-quantity-counter--stepper .ant-input-number-handler {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+}
+
+.oda-quantity-counter--stepper .ant-input-number-handler:hover {
+  background: #0ea5e9;
+  color: white;
+}
+
+/* Size Variants */
+.oda-quantity-counter--small .oda-quantity-counter__input {
+  height: 32px;
+  font-size: 14px;
+}
+
+.oda-quantity-counter--small .oda-quantity-counter__button {
+  height: 32px;
+  width: 32px;
+  font-size: 12px;
+}
+
+.oda-quantity-counter--medium .oda-quantity-counter__input {
+  height: 40px;
+  font-size: 16px;
+}
+
+.oda-quantity-counter--medium .oda-quantity-counter__button {
+  height: 40px;
+  width: 40px;
+  font-size: 14px;
+}
+
+.oda-quantity-counter--large .oda-quantity-counter__input {
+  height: 48px;
+  font-size: 18px;
+}
+
+.oda-quantity-counter--large .oda-quantity-counter__button {
+  height: 48px;
+  width: 48px;
+  font-size: 16px;
+}
+
+/* Stock Info */
+.oda-quantity-counter__stock {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Bulk Entry */
+.oda-quantity-counter__bulk-toggle {
+  font-size: 12px;
+  padding: 0;
+  height: auto;
+  color: #0ea5e9;
+}
+
+.oda-quantity-counter--bulk .oda-quantity-counter__input {
+  background: #fef3c7;
+  border-color: #f59e0b !important;
+}
+
+/* Error State */
+.oda-quantity-counter--error .oda-quantity-counter__input {
+  border-color: #ef4444 !important;
+}
+
+.oda-quantity-counter--error .oda-quantity-counter__default {
+  border-color: #ef4444;
+}
+
+.oda-quantity-counter__error {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+/* Disabled State */
+.oda-quantity-counter--disabled .oda-quantity-counter__input {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.oda-quantity-counter--disabled .oda-quantity-counter__default {
+  border-color: #e5e7eb;
+  background: #f3f4f6;
+}
+
+.oda-quantity-counter--disabled .oda-quantity-counter__unit-label {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* Focus States */
+.oda-quantity-counter__input:focus-within {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1) !important;
+}
+
+.oda-quantity-counter__default:focus-within {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+/* Animation */
+.oda-quantity-counter__button,
+.oda-quantity-counter__input,
+.oda-quantity-counter__default {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-quantity-counter--large .oda-quantity-counter__input {
+    height: 44px;
+    font-size: 16px;
+  }
+  
+  .oda-quantity-counter--large .oda-quantity-counter__button {
+    height: 44px;
+    width: 44px;
+    font-size: 15px;
+  }
+  
+  .oda-quantity-counter--medium .oda-quantity-counter__input {
+    height: 38px;
+    font-size: 15px;
+  }
+  
+  .oda-quantity-counter--medium .oda-quantity-counter__button {
+    height: 38px;
+    width: 38px;
+  }
+}

@@ -1,0 +1,52 @@
+import React from 'react';
+import { Button, ButtonProps, Tooltip } from 'antd';
+
+export type IconButtonSize = 'small' | 'middle' | 'large';
+export type IconButtonVariant = 'primary' | 'dashed' | 'text' | 'link' | 'outlined' | 'solid' | 'filled';
+
+export interface IconButtonProps extends Omit<ButtonProps, 'size' | 'type' | 'variant'> {
+  icon: React.ReactNode;
+  tooltip?: string;
+  size?: IconButtonSize;
+  variant?: IconButtonVariant;
+  circular?: boolean;
+}
+
+export const IconButton: React.FC<IconButtonProps> = ({
+  icon,
+  tooltip,
+  size = 'middle',
+  variant = 'default',
+  circular = false,
+  style,
+  ...props
+}) => {
+  const buttonStyle = {
+    ...style,
+    ...(circular && {
+      borderRadius: '50%',
+      aspectRatio: '1',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }),
+  };
+
+  const button = (
+    <Button
+      type={variant === 'outlined' ? 'default' : variant === 'solid' ? 'primary' : variant === 'filled' ? 'primary' : variant as any}
+      size={size}
+      icon={icon}
+      style={buttonStyle}
+      {...props}
+    />
+  );
+
+  return tooltip ? (
+    <Tooltip title={tooltip}>
+      {button}
+    </Tooltip>
+  ) : (
+    button
+  );
+};

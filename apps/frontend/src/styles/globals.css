@@ -1,0 +1,282 @@
+/* Import Ant Design CSS */
+@import 'antd/dist/reset.css';
+
+/* Import accessibility styles */
+@import './accessibility.css';
+
+/* Import our atomic design system styles */
+@import '../components/atoms/Button/Button.css';
+@import '../components/atoms/Input/Input.css';
+@import '../components/atoms/Label/Label.css';
+@import '../components/atoms/Icon/Icon.css';
+@import '../components/atoms/Badge/Badge.css';
+@import '../components/atoms/Avatar/Avatar.css';
+@import '../components/atoms/Typography/Typography.css';
+@import '../components/atoms/ColorSwatch/ColorSwatch.css';
+@import '../components/atoms/SizeIndicator/SizeIndicator.css';
+@import '../components/atoms/MaterialTag/MaterialTag.css';
+@import '../components/atoms/Spinner/Spinner.css';
+@import '../components/atoms/Divider/Divider.css';
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background-color: #fafafa;
+  color: #374151;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* CSS Custom Properties for Design Tokens */
+:root {
+  /* Colors */
+  --oda-primary-50: #f0f9ff;
+  --oda-primary-100: #e0f2fe;
+  --oda-primary-200: #bae6fd;
+  --oda-primary-300: #7dd3fc;
+  --oda-primary-400: #38bdf8;
+  --oda-primary-500: #0ea5e9;
+  --oda-primary-600: #0284c7;
+  --oda-primary-700: #0369a1;
+  --oda-primary-800: #075985;
+  --oda-primary-900: #0c4a6e;
+
+  /* Neutral Colors */
+  --oda-neutral-50: #fafafa;
+  --oda-neutral-100: #f5f5f5;
+  --oda-neutral-200: #e5e5e5;
+  --oda-neutral-300: #d4d4d4;
+  --oda-neutral-400: #a3a3a3;
+  --oda-neutral-500: #737373;
+  --oda-neutral-600: #525252;
+  --oda-neutral-700: #404040;
+  --oda-neutral-800: #262626;
+  --oda-neutral-900: #171717;
+
+  /* Status Colors */
+  --oda-success: #22c55e;
+  --oda-warning: #f59e0b;
+  --oda-error: #ef4444;
+  --oda-info: #3b82f6;
+
+  /* Typography */
+  --oda-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --oda-font-family-mono: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Font Sizes */
+  --oda-text-xs: 12px;
+  --oda-text-sm: 14px;
+  --oda-text-base: 16px;
+  --oda-text-lg: 18px;
+  --oda-text-xl: 20px;
+  --oda-text-2xl: 24px;
+  --oda-text-3xl: 30px;
+  --oda-text-4xl: 36px;
+  --oda-text-5xl: 48px;
+
+  /* Spacing */
+  --oda-space-1: 4px;
+  --oda-space-2: 8px;
+  --oda-space-3: 12px;
+  --oda-space-4: 16px;
+  --oda-space-5: 20px;
+  --oda-space-6: 24px;
+  --oda-space-8: 32px;
+  --oda-space-10: 40px;
+  --oda-space-12: 48px;
+  --oda-space-16: 64px;
+  --oda-space-20: 80px;
+  --oda-space-24: 96px;
+
+  /* Border Radius */
+  --oda-radius-sm: 4px;
+  --oda-radius-base: 6px;
+  --oda-radius-md: 8px;
+  --oda-radius-lg: 12px;
+  --oda-radius-xl: 16px;
+  --oda-radius-2xl: 24px;
+  --oda-radius-full: 9999px;
+
+  /* Shadows */
+  --oda-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --oda-shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --oda-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --oda-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --oda-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Z-Index Scale */
+  --oda-z-dropdown: 1000;
+  --oda-z-sticky: 1020;
+  --oda-z-fixed: 1030;
+  --oda-z-modal-backdrop: 1040;
+  --oda-z-modal: 1050;
+  --oda-z-popover: 1060;
+  --oda-z-tooltip: 1070;
+  --oda-z-toast: 1080;
+}
+
+/* Ant Design customizations */
+.ant-layout {
+  background: var(--oda-neutral-50);
+}
+
+.ant-layout-content {
+  background: #fff;
+  border-radius: var(--oda-radius-md);
+  box-shadow: var(--oda-shadow-sm);
+}
+
+/* Utility Classes */
+.oda-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.oda-focus-visible {
+  outline: 2px solid var(--oda-primary-500);
+  outline-offset: 2px;
+}
+
+/* Animation Classes */
+.oda-fade-in {
+  animation: oda-fade-in 0.3s ease-out;
+}
+
+.oda-slide-up {
+  animation: oda-slide-up 0.3s ease-out;
+}
+
+.oda-scale-in {
+  animation: oda-scale-in 0.2s ease-out;
+}
+
+@keyframes oda-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes oda-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes oda-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Custom utility classes */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--oda-space-2); }
+.mb-2 { margin-bottom: var(--oda-space-4); }
+.mb-3 { margin-bottom: var(--oda-space-6); }
+.mb-4 { margin-bottom: var(--oda-space-8); }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--oda-space-2); }
+.mt-2 { margin-top: var(--oda-space-4); }
+.mt-3 { margin-top: var(--oda-space-6); }
+.mt-4 { margin-top: var(--oda-space-8); }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--oda-space-2); }
+.p-2 { padding: var(--oda-space-4); }
+.p-3 { padding: var(--oda-space-6); }
+.p-4 { padding: var(--oda-space-8); }
+
+/* Responsive Design Utilities */
+@media (max-width: 640px) {
+  :root {
+    --oda-text-base: 14px;
+    --oda-text-lg: 16px;
+    --oda-text-xl: 18px;
+    --oda-text-2xl: 20px;
+    --oda-text-3xl: 24px;
+    --oda-text-4xl: 28px;
+    --oda-text-5xl: 32px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .oda-no-print {
+    display: none !important;
+  }
+  
+  .oda-print-only {
+    display: block !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --oda-primary-500: #0066cc;
+    --oda-neutral-600: #000000;
+    --oda-neutral-400: #666666;
+  }
+}

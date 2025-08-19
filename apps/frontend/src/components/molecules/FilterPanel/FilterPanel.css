@@ -1,0 +1,140 @@
+.filter-panel {
+  background: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.filter-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--ant-color-bg-layout);
+  border-bottom: 1px solid var(--ant-color-border);
+}
+
+.filter-panel__icon {
+  color: var(--ant-color-primary);
+  font-size: 16px;
+}
+
+.filter-panel__title {
+  margin: 0 !important;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filter-panel__badge .ant-badge-count {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.filter-panel__clear {
+  color: var(--ant-color-text-secondary);
+  font-size: 12px;
+  padding: 0;
+}
+
+.filter-panel__clear:hover {
+  color: var(--ant-color-error);
+}
+
+.filter-panel__header-divider {
+  margin: 0;
+}
+
+.filter-panel__content {
+  padding: 0;
+}
+
+.filter-panel__collapse {
+  background: transparent;
+}
+
+.filter-panel__collapse .ant-collapse-item {
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+}
+
+.filter-panel__collapse .ant-collapse-item:last-child {
+  border-bottom: none;
+}
+
+.filter-panel__collapse .ant-collapse-header {
+  padding: 12px 16px !important;
+  font-weight: 500;
+}
+
+.filter-panel__collapse .ant-collapse-content-box {
+  padding: 0 16px 16px 16px !important;
+}
+
+.filter-panel__section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.filter-panel__section-content {
+  padding-top: 8px;
+}
+
+.filter-panel__divider {
+  margin: 16px 0 12px 0;
+}
+
+.filter-panel__actions {
+  padding: 0 16px 16px 16px;
+}
+
+.filter-panel__main-collapse {
+  background: transparent;
+}
+
+.filter-panel__main-collapse .ant-collapse-item {
+  border: none;
+}
+
+.filter-panel__main-collapse .ant-collapse-header {
+  padding: 0 !important;
+  background: transparent;
+}
+
+.filter-panel__main-collapse .ant-collapse-content {
+  background: transparent;
+  border: none;
+}
+
+.filter-panel__main-collapse .ant-collapse-content-box {
+  padding: 0 !important;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .filter-panel__header {
+    padding: 8px 12px;
+  }
+  
+  .filter-panel__collapse .ant-collapse-header {
+    padding: 8px 12px !important;
+  }
+  
+  .filter-panel__collapse .ant-collapse-content-box {
+    padding: 0 12px 12px 12px !important;
+  }
+  
+  .filter-panel__actions {
+    padding: 0 12px 12px 12px;
+  }
+}
+
+/* Animation */
+.filter-panel__collapse .ant-collapse-content {
+  transition: all 0.3s ease;
+}
+
+.filter-panel__clear {
+  transition: color 0.2s ease;
+}

@@ -1,0 +1,1211 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String?  @unique
+  firstName String?
+  lastName  String?
+  avatar    String?
+  phone     String?
+  
+  // Authentication
+  passwordHash String
+  emailVerified Boolean @default(false)
+  emailVerifiedAt DateTime?
+  
+  // Security
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret String?
+  lastLoginAt DateTime?
+  loginAttempts Int @default(0)
+  lockedUntil DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  
+  // Relations
+  roles UserRole[]
+  sessions UserSession[]
+  auditLogs AuditLog[]
+  backupCodes UserBackupCode[]
+  
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([deletedAt])
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  permissions Json   // Array of permission strings
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  users UserRole[]
+  
+  @@map("roles")
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  
+  assignedAt DateTime @default(now())
+  assignedBy String?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model UserSession {
+  id           String    @id @default(cuid())
+  userId       String
+  token        String    @unique
+  refreshToken String?   @unique
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+  ipAddress    String?
+  userAgent    String?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
+  @@index([token])
+  @@index([refreshToken])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// PRODUCT CATALOG
+// ============================================================================
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+  parentId    String?
+  sortOrder   Int     @default(0)
+  isActive    Boolean @default(true)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+  
+  @@map("categories")
+  @@index([slug])
+  @@index([parentId])
+  @@index([isActive])
+}
+
+model Collection {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+  
+  // Collection rules (for automatic product inclusion)
+  rules Json? // Conditions for automatic product inclusion
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  products CollectionProduct[]
+  
+  @@map("collections")
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  shortDescription String?
+  
+  // Product details
+  sku         String?  @unique
+  barcode     String?  @unique
+  brand       String?
+  material    String?
+  careInstructions String?
+  
+  // Pricing
+  price         Decimal  @db.Decimal(10, 2)
+  compareAtPrice Decimal? @db.Decimal(10, 2)
+  costPrice     Decimal? @db.Decimal(10, 2)
+  
+  // Status
+  status      ProductStatus @default(DRAFT)
+  isActive    Boolean       @default(true)
+  isFeatured  Boolean       @default(false)
+  
+  // Inventory tracking
+  trackQuantity Boolean @default(true)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Shopify integration
+  shopifyId       String? @unique
+  shopifyHandle   String?
+  lastSyncedAt    DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  
+  // Relations
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  
+  variants    ProductVariant[]
+  images      ProductImage[]
+  attributes  ProductAttribute[]
+  collections CollectionProduct[]
+  inventory   InventoryItem[]
+  orderItems  OrderItem[]
+  
+  @@map("products")
+  @@index([slug])
+  @@index([sku])
+  @@index([barcode])
+  @@index([status])
+  @@index([isActive])
+  @@index([categoryId])
+  @@index([shopifyId])
+  @@index([deletedAt])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  
+  // Variant details
+  name      String?
+  sku       String? @unique
+  barcode   String? @unique
+  
+  // Variant options (size, color, etc.)
+  option1Name  String?
+  option1Value String?
+  option2Name  String?
+  option2Value String?
+  option3Name  String?
+  option3Value String?
+  
+  // Pricing
+  price         Decimal  @db.Decimal(10, 2)
+  compareAtPrice Decimal? @db.Decimal(10, 2)
+  costPrice     Decimal? @db.Decimal(10, 2)
+  
+  // Physical properties
+  weight       Decimal? @db.Decimal(8, 3)
+  dimensions   Json?    // {length, width, height}
+  
+  // Status
+  isActive Boolean @default(true)
+  
+  // Shopify integration
+  shopifyId    String? @unique
+  lastSyncedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory InventoryItem[]
+  orderItems OrderItem[]
+  
+  @@map("product_variants")
+  @@index([productId])
+  @@index([sku])
+  @@index([barcode])
+  @@index([isActive])
+  @@index([shopifyId])
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String
+  
+  url       String
+  altText   String?
+  sortOrder Int     @default(0)
+  
+  // Image metadata
+  width    Int?
+  height   Int?
+  fileSize Int?
+  mimeType String?
+  
+  // Shopify integration
+  shopifyId String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@map("product_images")
+  @@index([productId])
+  @@index([sortOrder])
+}
+
+model ProductAttribute {
+  id        String @id @default(cuid())
+  productId String
+  
+  name  String
+  value String
+  
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId, name])
+  @@map("product_attributes")
+}
+
+model CollectionProduct {
+  id           String @id @default(cuid())
+  collectionId String
+  productId    String
+  sortOrder    Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([collectionId, productId])
+  @@map("collection_products")
+}
+
+// ============================================================================
+// INVENTORY MANAGEMENT
+// ============================================================================
+
+model Location {
+  id          String  @id @default(cuid())
+  name        String
+  code        String  @unique
+  type        LocationType
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  postalCode  String?
+  phone       String?
+  email       String?
+  isActive    Boolean @default(true)
+  isDefault   Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  inventory InventoryItem[]
+  transfersFrom InventoryTransfer[] @relation("TransferFrom")
+  transfersTo   InventoryTransfer[] @relation("TransferTo")
+  
+  @@map("locations")
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+}
+
+model InventoryItem {
+  id        String @id @default(cuid())
+  productId String?
+  variantId String?
+  locationId String
+  
+  // Quantities
+  quantity          Int @default(0)
+  reservedQuantity  Int @default(0)
+  availableQuantity Int @default(0) // Computed: quantity - reservedQuantity
+  
+  // Thresholds
+  lowStockThreshold Int @default(0)
+  
+  // Cost tracking
+  averageCost Decimal? @db.Decimal(10, 4)
+  lastCost    Decimal? @db.Decimal(10, 4)
+  
+  // Shopify integration
+  shopifyInventoryItemId String?
+  lastSyncedAt          DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  product  Product?        @relation(fields: [productId], references: [id])
+  variant  ProductVariant? @relation(fields: [variantId], references: [id])
+  location Location        @relation(fields: [locationId], references: [id])
+  
+  adjustments InventoryAdjustment[]
+  reservations InventoryReservation[]
+  
+  @@unique([productId, variantId, locationId])
+  @@map("inventory_items")
+  @@index([locationId])
+  @@index([quantity])
+  @@index([availableQuantity])
+  @@index([lowStockThreshold])
+}
+
+model InventoryAdjustment {
+  id              String @id @default(cuid())
+  inventoryItemId String
+  
+  // Adjustment details
+  type            AdjustmentType
+  quantityChange  Int
+  reason          String?
+  notes           String?
+  
+  // Cost impact
+  unitCost        Decimal? @db.Decimal(10, 4)
+  totalCostImpact Decimal? @db.Decimal(10, 2)
+  
+  // Reference
+  referenceType String? // 'order', 'transfer', 'manual', etc.
+  referenceId   String?
+  
+  // Audit
+  createdBy String?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  
+  @@map("inventory_adjustments")
+  @@index([inventoryItemId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model InventoryReservation {
+  id              String @id @default(cuid())
+  inventoryItemId String
+  
+  quantity    Int
+  reason      String
+  referenceId String? // Order ID, etc.
+  expiresAt   DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  
+  @@map("inventory_reservations")
+  @@index([inventoryItemId])
+  @@index([expiresAt])
+}
+
+model InventoryTransfer {
+  id             String @id @default(cuid())
+  fromLocationId String
+  toLocationId   String
+  
+  status      TransferStatus @default(PENDING)
+  notes       String?
+  
+  // Tracking
+  trackingNumber String?
+  shippedAt      DateTime?
+  receivedAt     DateTime?
+  
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  fromLocation Location @relation("TransferFrom", fields: [fromLocationId], references: [id])
+  toLocation   Location @relation("TransferTo", fields: [toLocationId], references: [id])
+  items        InventoryTransferItem[]
+  
+  @@map("inventory_transfers")
+  @@index([fromLocationId])
+  @@index([toLocationId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model InventoryTransferItem {
+  id         String @id @default(cuid())
+  transferId String
+  productId  String?
+  variantId  String?
+  
+  quantityRequested Int
+  quantityShipped   Int @default(0)
+  quantityReceived  Int @default(0)
+  
+  // Relations
+  transfer InventoryTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  
+  @@map("inventory_transfer_items")
+  @@index([transferId])
+}
+
+// ============================================================================
+// CUSTOMER MANAGEMENT (CRM/CDP)
+// ============================================================================
+
+model Customer {
+  id        String  @id @default(cuid())
+  email     String? @unique
+  phone     String?
+  firstName String?
+  lastName  String?
+  
+  // Demographics
+  dateOfBirth DateTime?
+  gender      Gender?
+  
+  // Preferences
+  language           String?
+  currency           String?
+  marketingOptIn     Boolean @default(false)
+  emailOptIn         Boolean @default(false)
+  smsOptIn           Boolean @default(false)
+  
+  // Customer status
+  status             CustomerStatus @default(ACTIVE)
+  customerSince      DateTime       @default(now())
+  lastOrderAt        DateTime?
+  
+  // Loyalty
+  loyaltyPoints      Int     @default(0)
+  loyaltyTier        String?
+  lifetimeValue      Decimal @default(0) @db.Decimal(10, 2)
+  totalSpent         Decimal @default(0) @db.Decimal(10, 2)
+  totalOrders        Int     @default(0)
+  averageOrderValue  Decimal @default(0) @db.Decimal(10, 2)
+  
+  // Shopify integration
+  shopifyId        String? @unique
+  lastSyncedAt     DateTime?
+  
+  // Metadata
+  tags             String[] // Array of tags for segmentation
+  notes            String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  
+  // Relations
+  addresses    CustomerAddress[]
+  orders       Order[]
+  segmentMembers CustomerSegmentMember[]
+  interactions CustomerInteraction[]
+  loyaltyTransactions LoyaltyTransaction[]
+  
+  @@map("customers")
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+  @@index([customerSince])
+  @@index([shopifyId])
+  @@index([deletedAt])
+}
+
+model CustomerAddress {
+  id         String  @id @default(cuid())
+  customerId String
+  
+  // Address details
+  firstName   String?
+  lastName    String?
+  company     String?
+  address1    String
+  address2    String?
+  city        String
+  state       String?
+  country     String
+  postalCode  String?
+  phone       String?
+  
+  // Address type
+  isDefault   Boolean @default(false)
+  type        AddressType @default(SHIPPING)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  billingOrders   Order[] @relation("BillingAddress")
+  shippingOrders  Order[] @relation("ShippingAddress")
+  
+  @@map("customer_addresses")
+  @@index([customerId])
+  @@index([type])
+}
+
+model CustomerSegment {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  
+  // Segment rules
+  rules       Json   // Conditions for automatic customer inclusion
+  isActive    Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  members CustomerSegmentMember[]
+  
+  @@map("customer_segments")
+  @@index([isActive])
+}
+
+model CustomerSegmentMember {
+  id         String @id @default(cuid())
+  customerId String
+  segmentId  String
+  
+  addedAt DateTime @default(now())
+  
+  // Relations
+  customer Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  segment  CustomerSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  
+  @@unique([customerId, segmentId])
+  @@map("customer_segment_members")
+}
+
+model CustomerInteraction {
+  id         String @id @default(cuid())
+  customerId String
+  
+  type        InteractionType
+  channel     String          // email, phone, chat, in-person, etc.
+  subject     String?
+  content     String?
+  outcome     String?
+  
+  // Metadata
+  metadata    Json?
+  
+  createdBy String?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@map("customer_interactions")
+  @@index([customerId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model LoyaltyTransaction {
+  id         String @id @default(cuid())
+  customerId String
+  
+  type        LoyaltyTransactionType
+  points      Int
+  description String?
+  
+  // Reference
+  referenceType String? // 'order', 'manual', 'promotion', etc.
+  referenceId   String?
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@map("loyalty_transactions")
+  @@index([customerId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ORDER MANAGEMENT
+// ============================================================================
+
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+  customerId  String?
+  
+  // Order details
+  status          OrderStatus @default(PENDING)
+  financialStatus FinancialStatus @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Pricing
+  subtotal        Decimal @db.Decimal(10, 2)
+  taxAmount       Decimal @db.Decimal(10, 2)
+  shippingAmount  Decimal @db.Decimal(10, 2)
+  discountAmount  Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal @db.Decimal(10, 2)
+  
+  // Currency
+  currency        String @default("USD")
+  
+  // Addresses
+  billingAddressId  String?
+  shippingAddressId String?
+  
+  // Shipping
+  shippingMethod  String?
+  trackingNumber  String?
+  trackingUrl     String?
+  
+  // Dates
+  orderDate       DateTime @default(now())
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  cancelledAt     DateTime?
+  
+  // Customer info (for guest orders)
+  guestEmail      String?
+  guestPhone      String?
+  
+  // Shopify integration
+  shopifyId       String? @unique
+  shopifyOrderNumber String?
+  lastSyncedAt    DateTime?
+  
+  // Metadata
+  notes           String?
+  tags            String[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  customer        Customer?        @relation(fields: [customerId], references: [id])
+  billingAddress  CustomerAddress? @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  shippingAddress CustomerAddress? @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  
+  items       OrderItem[]
+  payments    Payment[]
+  fulfillments Fulfillment[]
+  returns     Return[]
+  
+  @@map("orders")
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([status])
+  @@index([financialStatus])
+  @@index([fulfillmentStatus])
+  @@index([orderDate])
+  @@index([shopifyId])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String?
+  variantId String?
+  
+  // Item details
+  name        String
+  sku         String?
+  quantity    Int
+  price       Decimal @db.Decimal(10, 2)
+  totalPrice  Decimal @db.Decimal(10, 2)
+  
+  // Fulfillment
+  quantityFulfilled Int @default(0)
+  quantityReturned  Int @default(0)
+  
+  // Product snapshot (in case product is deleted)
+  productSnapshot Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?        @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+  
+  fulfillmentItems FulfillmentItem[]
+  returnItems      ReturnItem[]
+  
+  @@map("order_items")
+  @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
+}
+
+model Payment {
+  id      String @id @default(cuid())
+  orderId String
+  
+  // Payment details
+  amount          Decimal @db.Decimal(10, 2)
+  currency        String
+  status          PaymentStatus @default(PENDING)
+  method          PaymentMethod
+  
+  // Gateway details
+  gateway         String
+  gatewayTransactionId String?
+  
+  // Metadata
+  metadata        Json?
+  
+  processedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("payments")
+  @@index([orderId])
+  @@index([status])
+  @@index([method])
+}
+
+model Fulfillment {
+  id      String @id @default(cuid())
+  orderId String
+  
+  status         FulfillmentStatus @default(PENDING)
+  trackingNumber String?
+  trackingUrl    String?
+  carrier        String?
+  service        String?
+  
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  order Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items FulfillmentItem[]
+  
+  @@map("fulfillments")
+  @@index([orderId])
+  @@index([status])
+}
+
+model FulfillmentItem {
+  id            String @id @default(cuid())
+  fulfillmentId String
+  orderItemId   String
+  
+  quantity Int
+  
+  // Relations
+  fulfillment Fulfillment @relation(fields: [fulfillmentId], references: [id], onDelete: Cascade)
+  orderItem   OrderItem   @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  
+  @@map("fulfillment_items")
+  @@index([fulfillmentId])
+  @@index([orderItemId])
+}
+
+model Return {
+  id      String @id @default(cuid())
+  orderId String
+  
+  returnNumber String @unique
+  status       ReturnStatus @default(REQUESTED)
+  reason       String?
+  notes        String?
+  
+  // Refund details
+  refundAmount Decimal? @db.Decimal(10, 2)
+  refundedAt   DateTime?
+  
+  requestedAt DateTime @default(now())
+  approvedAt  DateTime?
+  receivedAt  DateTime?
+  processedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  order Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items ReturnItem[]
+  
+  @@map("returns")
+  @@index([orderId])
+  @@index([returnNumber])
+  @@index([status])
+}
+
+model ReturnItem {
+  id           String @id @default(cuid())
+  returnId     String
+  orderItemId  String
+  
+  quantity     Int
+  reason       String?
+  condition    ReturnCondition @default(UNOPENED)
+  
+  // Relations
+  return    Return    @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  
+  @@map("return_items")
+  @@index([returnId])
+  @@index([orderItemId])
+}
+
+// ============================================================================
+// SHOPIFY INTEGRATION
+// ============================================================================
+
+model ShopifySync {
+  id        String @id @default(cuid())
+  
+  // Sync details
+  type      SyncType
+  status    SyncStatus @default(PENDING)
+  direction SyncDirection
+  
+  // Progress tracking
+  totalItems     Int @default(0)
+  processedItems Int @default(0)
+  successItems   Int @default(0)
+  errorItems     Int @default(0)
+  
+  // Error handling
+  errors         Json?
+  lastError      String?
+  retryCount     Int @default(0)
+  maxRetries     Int @default(3)
+  
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+  nextRetryAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("shopify_syncs")
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ShopifyWebhook {
+  id        String @id @default(cuid())
+  
+  // Webhook details
+  topic     String
+  shopDomain String
+  
+  // Payload
+  payload   Json
+  headers   Json?
+  
+  // Processing
+  processed   Boolean @default(false)
+  processedAt DateTime?
+  error       String?
+  retryCount  Int @default(0)
+  
+  receivedAt DateTime @default(now())
+  
+  @@map("shopify_webhooks")
+  @@index([topic])
+  @@index([processed])
+  @@index([receivedAt])
+}
+
+// ============================================================================
+// AUDIT & MONITORING
+// ============================================================================
+
+model AuditLog {
+  id        String @id @default(cuid())
+  
+  // Action details
+  action    String
+  entity    String
+  entityId  String
+  
+  // Changes
+  oldValues Json?
+  newValues Json?
+  
+  // Context
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+  
+  @@map("audit_logs")
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model SystemHealth {
+  id        String @id @default(cuid())
+  
+  service   String
+  status    HealthStatus
+  message   String?
+  metadata  Json?
+  
+  checkedAt DateTime @default(now())
+  
+  @@map("system_health")
+  @@index([service])
+  @@index([status])
+  @@index([checkedAt])
+}
+
+model SmsVerificationCode {
+  id          String   @id @default(cuid())
+  phoneNumber String   @unique
+  code        String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  @@map("sms_verification_codes")
+  @@index([expiresAt])
+}
+
+model UserBackupCode {
+  id        String   @id @default(cuid())
+  userId    String
+  codeHash  String
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_backup_codes")
+  @@index([userId])
+  @@index([used])
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum LocationType {
+  WAREHOUSE
+  STORE
+  SUPPLIER
+  CUSTOMER
+}
+
+enum AdjustmentType {
+  INCREASE
+  DECREASE
+  SET
+}
+
+enum TransferStatus {
+  PENDING
+  SHIPPED
+  RECEIVED
+  CANCELLED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  BOTH
+}
+
+enum InteractionType {
+  EMAIL
+  PHONE
+  CHAT
+  MEETING
+  NOTE
+  COMPLAINT
+  COMPLIMENT
+}
+
+enum LoyaltyTransactionType {
+  EARNED
+  REDEEMED
+  EXPIRED
+  ADJUSTED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum FinancialStatus {
+  PENDING
+  AUTHORIZED
+  PARTIALLY_PAID
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  VOIDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  CASH
+  STORE_CREDIT
+  OTHER
+}
+
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  PROCESSED
+  REFUNDED
+}
+
+enum ReturnCondition {
+  UNOPENED
+  OPENED
+  USED
+  DAMAGED
+  DEFECTIVE
+}
+
+enum SyncType {
+  PRODUCTS
+  INVENTORY
+  ORDERS
+  CUSTOMERS
+  COLLECTIONS
+}
+
+enum SyncStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum SyncDirection {
+  TO_SHOPIFY
+  FROM_SHOPIFY
+  BIDIRECTIONAL
+}
+
+enum HealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+}

@@ -1,0 +1,106 @@
+.tab-navigation {
+  width: 100%;
+}
+
+.tab-navigation__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-navigation__icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.tab-navigation__text {
+  font-size: 14px;
+}
+
+.tab-navigation__badge {
+  margin-left: 4px;
+}
+
+.tab-navigation__badge .ant-badge-count {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+}
+
+/* Size variants */
+.tab-navigation.ant-tabs-small .tab-navigation__icon {
+  font-size: 12px;
+}
+
+.tab-navigation.ant-tabs-small .tab-navigation__text {
+  font-size: 12px;
+}
+
+.tab-navigation.ant-tabs-large .tab-navigation__icon {
+  font-size: 16px;
+}
+
+.tab-navigation.ant-tabs-large .tab-navigation__text {
+  font-size: 16px;
+}
+
+/* Card type styling */
+.tab-navigation.ant-tabs-card .ant-tabs-tab {
+  background: var(--ant-color-fill-quaternary);
+  border-color: var(--ant-color-border);
+}
+
+.tab-navigation.ant-tabs-card .ant-tabs-tab-active {
+  background: var(--ant-color-bg-container);
+  border-color: var(--ant-color-primary);
+}
+
+/* Vertical tabs */
+.tab-navigation.ant-tabs-left .tab-navigation__label,
+.tab-navigation.ant-tabs-right .tab-navigation__label {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .tab-navigation .ant-tabs-nav {
+    margin-bottom: 8px;
+  }
+  
+  .tab-navigation__text {
+    font-size: 12px;
+  }
+  
+  .tab-navigation__icon {
+    font-size: 12px;
+  }
+  
+  /* Hide text on very small screens, show only icons */
+  @media (max-width: 480px) {
+    .tab-navigation__text {
+      display: none;
+    }
+    
+    .tab-navigation__label {
+      gap: 0;
+    }
+  }
+}
+
+/* Animation enhancements */
+.tab-navigation .ant-tabs-tab {
+  transition: all 0.3s ease;
+}
+
+.tab-navigation .ant-tabs-tab:hover {
+  transform: translateY(-1px);
+}
+
+.tab-navigation .ant-tabs-tab-active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

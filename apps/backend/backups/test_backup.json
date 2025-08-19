@@ -1,0 +1,14 @@
+{
+  "name": "test_backup",
+  "file": "backups/test_backup.sql.gz",
+  "original_file": "backups/test_backup.sql",
+  "database": "oda_dev",
+  "host": "localhost:5433",
+  "size": 109629,
+  "compressed_size": 15334,
+  "compression_ratio": 13.98,
+  "created_at": "2025-08-14T16:40:18Z",
+  "created_by": "agutie04",
+  "environment": "development",
+  "version": "1.0.0"
+}

@@ -1,0 +1,220 @@
+/* Avatar Component Styles */
+.oda-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.oda-avatar {
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+}
+
+/* Variant Styles */
+.oda-avatar--circle {
+  border-radius: 50%;
+}
+
+.oda-avatar--square {
+  border-radius: 4px;
+}
+
+.oda-avatar--rounded {
+  border-radius: 8px;
+}
+
+/* Size Variations */
+.oda-avatar--xs {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+  line-height: 24px;
+}
+
+.oda-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+  line-height: 32px;
+}
+
+.oda-avatar--md {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  line-height: 40px;
+}
+
+.oda-avatar--lg {
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+  line-height: 48px;
+}
+
+.oda-avatar--xl {
+  width: 64px;
+  height: 64px;
+  font-size: 20px;
+  line-height: 64px;
+}
+
+.oda-avatar--2xl {
+  width: 80px;
+  height: 80px;
+  font-size: 24px;
+  line-height: 80px;
+}
+
+/* Status Indicator */
+.oda-avatar-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.oda-avatar--xs + .oda-avatar-status {
+  width: 8px;
+  height: 8px;
+  border-width: 1px;
+}
+
+.oda-avatar--sm + .oda-avatar-status {
+  width: 10px;
+  height: 10px;
+  border-width: 1px;
+}
+
+.oda-avatar--lg + .oda-avatar-status,
+.oda-avatar--xl + .oda-avatar-status,
+.oda-avatar--2xl + .oda-avatar-status {
+  width: 16px;
+  height: 16px;
+  border-width: 3px;
+}
+
+/* Status Colors */
+.oda-avatar-status--online {
+  background: #22c55e;
+}
+
+.oda-avatar-status--offline {
+  background: #6b7280;
+}
+
+.oda-avatar-status--away {
+  background: #f59e0b;
+}
+
+.oda-avatar-status--busy {
+  background: #ef4444;
+}
+
+/* Hover Effects */
+.oda-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar Group Styles */
+.oda-avatar-group {
+  display: flex;
+  align-items: center;
+}
+
+.oda-avatar-group .ant-avatar {
+  margin-left: -8px;
+  border: 2px solid white;
+  position: relative;
+  z-index: 1;
+}
+
+.oda-avatar-group .ant-avatar:first-child {
+  margin-left: 0;
+}
+
+.oda-avatar-group .ant-avatar:hover {
+  z-index: 2;
+  transform: scale(1.1);
+}
+
+.oda-avatar-group--xs .ant-avatar {
+  margin-left: -4px;
+}
+
+.oda-avatar-group--sm .ant-avatar {
+  margin-left: -6px;
+}
+
+.oda-avatar-group--lg .ant-avatar,
+.oda-avatar-group--xl .ant-avatar,
+.oda-avatar-group--2xl .ant-avatar {
+  margin-left: -12px;
+}
+
+/* More count indicator */
+.oda-avatar-group .ant-avatar-group-popover {
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  border: 2px solid white;
+}
+
+.oda-avatar-group .ant-avatar-group-popover:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Image Avatar Styles */
+.oda-avatar img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fallback Icon Styles */
+.oda-avatar .anticon {
+  font-size: 60%;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Animation for status changes */
+.oda-avatar-status {
+  animation: oda-status-pulse 2s infinite;
+}
+
+@keyframes oda-status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.oda-avatar-status--online {
+  animation: oda-status-online 2s infinite;
+}
+
+@keyframes oda-status-online {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Accessibility */
+.oda-avatar:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}

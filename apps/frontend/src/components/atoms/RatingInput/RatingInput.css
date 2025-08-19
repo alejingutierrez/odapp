@@ -1,0 +1,313 @@
+/* Rating Input Component Styles */
+.oda-rating-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.oda-rating-input__component {
+  display: flex;
+  align-items: center;
+}
+
+/* Size Variants */
+.oda-rating-input--small {
+  gap: 6px;
+}
+
+.oda-rating-input--small .oda-rating-input__stars,
+.oda-rating-input--small .oda-rating-input__hearts {
+  font-size: 16px;
+}
+
+.oda-rating-input--medium .oda-rating-input__stars,
+.oda-rating-input--medium .oda-rating-input__hearts {
+  font-size: 20px;
+}
+
+.oda-rating-input--large {
+  gap: 12px;
+}
+
+.oda-rating-input--large .oda-rating-input__stars,
+.oda-rating-input--large .oda-rating-input__hearts {
+  font-size: 24px;
+}
+
+/* Star Rating */
+.oda-rating-input__stars {
+  color: #fadb14;
+}
+
+.oda-rating-input__stars .ant-rate-star {
+  margin-right: 4px;
+  transition: all 0.2s ease;
+}
+
+.oda-rating-input__stars .ant-rate-star:hover {
+  transform: scale(1.1);
+}
+
+/* Heart Rating */
+.oda-rating-input__hearts {
+  color: #eb2f96;
+}
+
+.oda-rating-input__hearts .ant-rate-star {
+  margin-right: 4px;
+  transition: all 0.2s ease;
+}
+
+.oda-rating-input__hearts .ant-rate-star:hover {
+  transform: scale(1.1);
+}
+
+/* Numeric Rating */
+.oda-rating-input__numeric {
+  min-width: 80px;
+}
+
+.oda-rating-input--small .oda-rating-input__numeric {
+  min-width: 70px;
+}
+
+.oda-rating-input--large .oda-rating-input__numeric {
+  min-width: 90px;
+}
+
+/* Emoji Rating */
+.oda-rating-input__emoji-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.oda-rating-input__emoji-display {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oda-rating-input__emoji-current {
+  font-size: 32px;
+  transition: all 0.3s ease;
+  animation: emojiPulse 0.3s ease-out;
+}
+
+.oda-rating-input--small .oda-rating-input__emoji-current {
+  font-size: 24px;
+}
+
+.oda-rating-input--large .oda-rating-input__emoji-current {
+  font-size: 40px;
+}
+
+@keyframes emojiPulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.oda-rating-input__emoji-options {
+  display: flex;
+  gap: 8px;
+}
+
+.oda-rating-input__emoji-option {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.oda-rating-input--small .oda-rating-input__emoji-option {
+  font-size: 20px;
+}
+
+.oda-rating-input--large .oda-rating-input__emoji-option {
+  font-size: 28px;
+}
+
+.oda-rating-input__emoji-option:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.oda-rating-input__emoji-option.active {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.oda-rating-input__emoji-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+/* Thumbs Rating */
+.oda-rating-input__thumbs-container {
+  display: flex;
+  gap: 12px;
+}
+
+.oda-rating-input__thumb {
+  background: none;
+  border: 2px solid #d9d9d9;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oda-rating-input--small .oda-rating-input__thumb {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+.oda-rating-input--large .oda-rating-input__thumb {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+}
+
+.oda-rating-input__thumb:hover {
+  border-color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.1);
+  transform: scale(1.05);
+}
+
+.oda-rating-input__thumb.active {
+  border-color: #0ea5e9;
+  background: #0ea5e9;
+  color: white;
+  transform: scale(1.1);
+}
+
+.oda-rating-input__thumb:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+}
+
+/* Value Display */
+.oda-rating-input__value {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.oda-rating-input--small .oda-rating-input__value {
+  font-size: 12px;
+}
+
+.oda-rating-input--large .oda-rating-input__value {
+  font-size: 16px;
+}
+
+/* Tooltip */
+.oda-rating-input__tooltip {
+  font-size: 12px;
+  color: #8c8c8c;
+  font-style: italic;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* States */
+.oda-rating-input--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oda-rating-input--disabled .oda-rating-input__stars,
+.oda-rating-input--disabled .oda-rating-input__hearts {
+  pointer-events: none;
+}
+
+.oda-rating-input--readonly {
+  cursor: default;
+}
+
+.oda-rating-input--readonly .oda-rating-input__stars,
+.oda-rating-input--readonly .oda-rating-input__hearts {
+  pointer-events: none;
+}
+
+.oda-rating-input--readonly .oda-rating-input__emoji-option,
+.oda-rating-input--readonly .oda-rating-input__thumb {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* With Value Layout */
+.oda-rating-input--with-value {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.oda-rating-input--with-value.oda-rating-input--small {
+  gap: 2px;
+}
+
+.oda-rating-input--with-value.oda-rating-input--large {
+  gap: 6px;
+}
+
+/* Focus States */
+.oda-rating-input__emoji-option:focus-visible,
+.oda-rating-input__thumb:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Animation */
+.oda-rating-input__stars .ant-rate-star,
+.oda-rating-input__hearts .ant-rate-star,
+.oda-rating-input__emoji-option,
+.oda-rating-input__thumb {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-rating-input--large .oda-rating-input__emoji-current {
+    font-size: 36px;
+  }
+  
+  .oda-rating-input--large .oda-rating-input__emoji-option {
+    font-size: 24px;
+  }
+  
+  .oda-rating-input--large .oda-rating-input__thumb {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+  
+  .oda-rating-input__thumbs-container {
+    gap: 8px;
+  }
+}

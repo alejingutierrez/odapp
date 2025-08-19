@@ -1,0 +1,259 @@
+# ODA Platform - Development Environment
+# Complete Docker Compose setup for local development
+
+name: oda-dev
+
+services:
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: oda-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: oda_dev
+      POSTGRES_USER: oda_user
+      POSTGRES_PASSWORD: oda_password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U oda_user -d oda_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: oda-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis_password
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - oda-network
+    healthcheck:
+      test:
+        ['CMD', 'redis-cli', '-a', 'redis_password', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Search and Analytics
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: oda-elasticsearch-dev
+    restart: unless-stopped
+    environment:
+      - node.name=oda-es-node
+      - cluster.name=oda-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - oda-network
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: oda-kibana-dev
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - '5601:5601'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:5601/api/status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 35
+
+  # Message Queue
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: oda-rabbitmq-dev
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: oda_user
+      RABBITMQ_DEFAULT_PASS: oda_password
+      RABBITMQ_DEFAULT_VHOST: oda_vhost
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: oda-minio-dev
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: oda_minio_user
+      MINIO_ROOT_PASSWORD: oda_minio_password
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Email Testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: oda-mailhog-dev
+    restart: unless-stopped
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web UI
+    networks:
+      - oda-network
+
+  # Development Tools
+  storybook:
+    build:
+      context: .
+      dockerfile: Dockerfile.storybook
+      target: development
+    container_name: oda-storybook-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+    ports:
+      - '6006:6006'
+    volumes:
+      - ./apps/frontend/src:/app/src
+      - ./apps/frontend/.storybook:/app/.storybook
+      - ./packages:/app/packages
+    networks:
+      - oda-network
+
+  # Backend Development (Optional - can run locally)
+  backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: development
+    container_name: oda-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      API_PORT: 3001
+      API_HOST: 0.0.0.0
+      DATABASE_URL: postgresql://oda_user:oda_password@postgres:5432/oda_dev
+      REDIS_URL: redis://:redis_password@redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      RABBITMQ_URL: amqp://oda_user:oda_password@rabbitmq:5672/oda_vhost
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: oda_minio_user
+      S3_SECRET_KEY: oda_minio_password
+      S3_BUCKET_NAME: oda-assets
+      FRONTEND_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000,http://localhost:6006
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production-minimum-32-characters-long
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+      SMTP_USER: ''
+      SMTP_PASS: ''
+      SMTP_FROM: 'dev@oda.local'
+      SESSION_SECRET: your-session-secret-change-in-production-minimum-32-characters-long
+      ALLOWED_FILE_TYPES: image/jpeg,image/png,image/gif,application/pdf
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend/prisma:/app/apps/backend/prisma
+      - ./packages:/app/packages
+    networks:
+      - oda-network
+
+  # Frontend Development
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    container_name: oda-frontend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3001
+      VITE_WS_URL: ws://localhost:3001
+    depends_on:
+      backend-dev:
+        condition: service_started
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/frontend/src:/app/src
+      - ./apps/frontend/public:/app/public
+      - ./packages:/app/packages
+    networks:
+      - oda-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  oda-network:
+    driver: bridge
+    name: oda-network

@@ -1,0 +1,232 @@
+/* Unit Selector Component Styles */
+.oda-unit-selector {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oda-unit-selector__select {
+  min-width: 120px;
+}
+
+/* Option Styles */
+.oda-unit-selector__option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.oda-unit-selector__option-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.oda-unit-selector__option-name {
+  flex: 1;
+}
+
+.oda-unit-selector__option-symbol {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.oda-unit-selector__option-category {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* Conversion Display */
+.oda-unit-selector__conversion {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 4px;
+}
+
+.oda-unit-selector__conversion-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.oda-unit-selector__conversion-icon {
+  font-size: 12px;
+  color: #0ea5e9;
+}
+
+.oda-unit-selector__conversion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.oda-unit-selector__conversion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.oda-unit-selector__conversion-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0ea5e9;
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-unit-selector__conversion-name {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Convert Button */
+.oda-unit-selector__convert-button {
+  position: absolute;
+  top: 8px;
+  right: 32px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.oda-unit-selector__convert-button:hover {
+  color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.1);
+}
+
+/* With Conversion Layout */
+.oda-unit-selector--with-conversion {
+  min-width: 200px;
+}
+
+/* Group Headers */
+.oda-unit-selector .ant-select-item-group {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Selected Option */
+.oda-unit-selector .ant-select-item-option-selected {
+  background: #e0f2fe;
+}
+
+.oda-unit-selector .ant-select-item-option-selected .oda-unit-selector__option-main {
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.oda-unit-selector .ant-select-item-option-selected .oda-unit-selector__option-symbol {
+  color: #0ea5e9;
+}
+
+/* Hover Effects */
+.oda-unit-selector .ant-select-item-option:hover {
+  background: #f8fafc;
+}
+
+.oda-unit-selector__conversion-item:hover {
+  background: #f8fafc;
+  border-color: #0ea5e9;
+}
+
+.oda-unit-selector__conversion-item:hover .oda-unit-selector__conversion-value {
+  color: #0284c7;
+}
+
+/* Focus States */
+.oda-unit-selector__select:focus-within {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+/* Loading State */
+.oda-unit-selector .ant-select-arrow .anticon-loading {
+  color: #0ea5e9;
+}
+
+/* Empty State */
+.oda-unit-selector .ant-empty-description {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Animation */
+.oda-unit-selector__conversion {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.oda-unit-selector__conversion-item {
+  transition: all 0.2s ease;
+}
+
+.oda-unit-selector__convert-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-unit-selector {
+    width: 100%;
+  }
+  
+  .oda-unit-selector__select {
+    min-width: 100px;
+  }
+  
+  .oda-unit-selector--with-conversion {
+    min-width: 180px;
+  }
+  
+  .oda-unit-selector__conversion {
+    padding: 10px;
+  }
+  
+  .oda-unit-selector__conversion-item {
+    padding: 6px;
+  }
+  
+  .oda-unit-selector__option-main {
+    font-size: 15px;
+  }
+}

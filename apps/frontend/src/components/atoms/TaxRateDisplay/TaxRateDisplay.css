@@ -1,0 +1,278 @@
+/* Tax Rate Display Component Styles */
+.oda-tax-rate-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.oda-tax-rate-display--clickable {
+  cursor: pointer;
+}
+
+.oda-tax-rate-display--clickable:hover {
+  opacity: 0.8;
+}
+
+/* Size Variants */
+.oda-tax-rate-display--small {
+  font-size: 12px;
+  gap: 4px;
+}
+
+.oda-tax-rate-display--medium {
+  font-size: 14px;
+  gap: 6px;
+}
+
+.oda-tax-rate-display--large {
+  font-size: 16px;
+  gap: 8px;
+}
+
+/* Default Variant */
+.oda-tax-rate-display__content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.oda-tax-rate-display__label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.oda-tax-rate-display__rate {
+  font-weight: 600;
+  color: #374151;
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-tax-rate-display__amount {
+  color: #059669;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-tax-rate-display__info-icon {
+  color: #6b7280;
+  font-size: 12px;
+  cursor: help;
+}
+
+.oda-tax-rate-display__inclusive-indicator {
+  font-size: 10px;
+  color: #6b7280;
+  font-style: italic;
+  text-transform: lowercase;
+}
+
+/* Compact Variant */
+.oda-tax-rate-display--compact .oda-tax-rate-display__compact-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.oda-tax-rate-display--compact .oda-tax-rate-display__inclusive {
+  font-size: 10px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Detailed Variant */
+.oda-tax-rate-display--detailed {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.oda-tax-rate-display__detailed-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.oda-tax-rate-display__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.oda-tax-rate-display__rate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oda-tax-rate-display__amount-section {
+  text-align: right;
+}
+
+.oda-tax-rate-display__region {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.oda-tax-rate-display__inclusive-note {
+  font-size: 11px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Badge Variant */
+.oda-tax-rate-display--badge .oda-tax-rate-display__badge {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Exempt State */
+.oda-tax-rate-display--exempt .oda-tax-rate-display__exempt-tag {
+  margin: 0;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+/* Breakdown Tooltip */
+.oda-tax-rate-display__breakdown {
+  max-width: 300px;
+  padding: 4px 0;
+}
+
+.oda-tax-rate-display__breakdown-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: white;
+  font-size: 14px;
+}
+
+.oda-tax-rate-display__breakdown-icon {
+  font-size: 14px;
+}
+
+.oda-tax-rate-display__breakdown-region {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.oda-tax-rate-display__breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.oda-tax-rate-display__breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.oda-tax-rate-display__breakdown-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.oda-tax-rate-display__breakdown-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.oda-tax-rate-display__breakdown-rate {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-tax-rate-display__breakdown-amount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-tax-rate-display__breakdown-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 4px;
+}
+
+.oda-tax-rate-display__breakdown-total .oda-tax-rate-display__breakdown-rate,
+.oda-tax-rate-display__breakdown-total .oda-tax-rate-display__breakdown-amount {
+  color: white;
+  font-weight: 600;
+}
+
+.oda-tax-rate-display__breakdown-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* Hover Effects */
+.oda-tax-rate-display--clickable:hover .oda-tax-rate-display__rate {
+  color: #0ea5e9;
+}
+
+.oda-tax-rate-display--clickable:hover .oda-tax-rate-display__amount {
+  color: #047857;
+}
+
+/* Focus States */
+.oda-tax-rate-display--clickable:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Animation */
+.oda-tax-rate-display {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.oda-tax-rate-display__info-icon {
+  transition: color 0.2s ease;
+}
+
+.oda-tax-rate-display__info-icon:hover {
+  color: #0ea5e9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-tax-rate-display--detailed {
+    padding: 6px 10px;
+  }
+  
+  .oda-tax-rate-display__breakdown {
+    max-width: 250px;
+  }
+  
+  .oda-tax-rate-display--large {
+    font-size: 15px;
+  }
+}

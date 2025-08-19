@@ -1,0 +1,168 @@
+/* Button Component Styles */
+.oda-button {
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Variant Styles */
+.oda-button--primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+}
+
+.oda-button--primary:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
+  transform: translateY(-1px);
+}
+
+.oda-button--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+}
+
+.oda-button--secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.oda-button--secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.oda-button--danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.oda-button--danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.oda-button--ghost {
+  background: transparent;
+  color: #0ea5e9;
+  border: 1px solid #0ea5e9;
+}
+
+.oda-button--ghost:hover {
+  background: rgba(14, 165, 233, 0.05);
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.oda-button--text {
+  background: transparent;
+  color: #0ea5e9;
+  border: none;
+  box-shadow: none;
+}
+
+.oda-button--text:hover {
+  background: rgba(14, 165, 233, 0.05);
+  color: #0284c7;
+}
+
+.oda-button--link {
+  background: transparent;
+  color: #0ea5e9;
+  border: none;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.oda-button--link:hover {
+  color: #0284c7;
+  text-decoration-color: #0284c7;
+}
+
+/* Size Styles */
+.oda-button--small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.oda-button--medium {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.oda-button--large {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+/* Full Width */
+.oda-button--full-width {
+  width: 100%;
+}
+
+/* Icon Positioning */
+.oda-button__icon-end {
+  margin-left: 8px;
+}
+
+/* Loading State */
+.oda-button .ant-btn-loading-icon {
+  margin-right: 8px;
+}
+
+/* Disabled State */
+.oda-button:disabled,
+.oda-button.ant-btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus States */
+.oda-button:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Animation for ripple effect */
+.oda-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.oda-button:active::before {
+  width: 300px;
+  height: 300px;
+}

@@ -1,0 +1,506 @@
+/* ===== SPINNER COMPONENT STYLES ===== */
+
+/* CSS Custom Properties for theming */
+:root {
+  --oda-spinner-primary: #3b82f6;
+  --oda-spinner-secondary: #6b7280;
+  --oda-spinner-success: #10b981;
+  --oda-spinner-warning: #f59e0b;
+  --oda-spinner-error: #ef4444;
+  --oda-spinner-white: #ffffff;
+  --oda-spinner-default: #9ca3af;
+  
+  /* Size tokens */
+  --oda-spinner-size-xs: 12px;
+  --oda-spinner-size-sm: 16px;
+  --oda-spinner-size-md: 20px;
+  --oda-spinner-size-lg: 24px;
+  --oda-spinner-size-xl: 32px;
+  
+  /* Animation durations */
+  --oda-spinner-duration-fast: 0.8s;
+  --oda-spinner-duration-normal: 1.2s;
+  --oda-spinner-duration-slow: 1.6s;
+}
+
+/* Base Spinner Styles */
+.oda-spinner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+/* Size Variations */
+.oda-spinner--xs {
+  --spinner-size: var(--oda-spinner-size-xs);
+  gap: 4px;
+}
+
+.oda-spinner--sm {
+  --spinner-size: var(--oda-spinner-size-sm);
+  gap: 6px;
+}
+
+.oda-spinner--md {
+  --spinner-size: var(--oda-spinner-size-md);
+  gap: 8px;
+}
+
+.oda-spinner--lg {
+  --spinner-size: var(--oda-spinner-size-lg);
+  gap: 10px;
+}
+
+.oda-spinner--xl {
+  --spinner-size: var(--oda-spinner-size-xl);
+  gap: 12px;
+}
+
+/* Color Variations */
+.oda-spinner--default {
+  --spinner-color: var(--oda-spinner-default);
+}
+
+.oda-spinner--primary {
+  --spinner-color: var(--oda-spinner-primary);
+}
+
+.oda-spinner--secondary {
+  --spinner-color: var(--oda-spinner-secondary);
+}
+
+.oda-spinner--success {
+  --spinner-color: var(--oda-spinner-success);
+}
+
+.oda-spinner--warning {
+  --spinner-color: var(--oda-spinner-warning);
+}
+
+.oda-spinner--error {
+  --spinner-color: var(--oda-spinner-error);
+}
+
+.oda-spinner--white {
+  --spinner-color: var(--oda-spinner-white);
+}
+
+/* Layout Modifiers */
+.oda-spinner--centered {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 60px;
+}
+
+.oda-spinner--with-text {
+  gap: 8px;
+}
+
+/* Spinner Text */
+.oda-spinner__text {
+  font-size: 0.875rem;
+  color: var(--spinner-color, var(--oda-spinner-secondary));
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.oda-spinner--xs .oda-spinner__text {
+  font-size: 0.75rem;
+}
+
+.oda-spinner--sm .oda-spinner__text {
+  font-size: 0.8125rem;
+}
+
+.oda-spinner--lg .oda-spinner__text {
+  font-size: 0.9375rem;
+}
+
+.oda-spinner--xl .oda-spinner__text {
+  font-size: 1rem;
+}
+
+/* Spinner Content (for wrapping children) */
+.oda-spinner__content {
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Overlay Styles */
+.oda-spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: oda-spinner-overlay-fade-in 0.2s ease-out;
+}
+
+@keyframes oda-spinner-overlay-fade-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* ===== SPINNER VARIANTS ===== */
+
+/* Spin Variant (Default) */
+.oda-spinner__spin {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  color: var(--spinner-color);
+}
+
+.oda-spinner__svg {
+  width: 100%;
+  height: 100%;
+  animation: oda-spinner-rotate var(--oda-spinner-duration-normal) linear infinite;
+}
+
+.oda-spinner__svg circle {
+  animation: oda-spinner-dash var(--oda-spinner-duration-slow) ease-in-out infinite;
+}
+
+@keyframes oda-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes oda-spinner-dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* Dots Variant */
+.oda-spinner__dots {
+  display: flex;
+  gap: calc(var(--spinner-size) * 0.2);
+  align-items: center;
+  height: var(--spinner-size);
+}
+
+.oda-spinner__dot {
+  width: calc(var(--spinner-size) * 0.3);
+  height: calc(var(--spinner-size) * 0.3);
+  border-radius: 50%;
+  background: var(--spinner-color);
+  animation: oda-spinner-dots var(--oda-spinner-duration-normal) ease-in-out infinite;
+}
+
+.oda-spinner__dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.oda-spinner__dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.oda-spinner__dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes oda-spinner-dots {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Pulse Variant */
+.oda-spinner__pulse {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border-radius: 50%;
+  background: var(--spinner-color);
+  animation: oda-spinner-pulse var(--oda-spinner-duration-slow) ease-in-out infinite;
+}
+
+@keyframes oda-spinner-pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+}
+
+/* Bars Variant */
+.oda-spinner__bars {
+  display: flex;
+  gap: calc(var(--spinner-size) * 0.1);
+  align-items: center;
+  height: var(--spinner-size);
+}
+
+.oda-spinner__bar {
+  width: calc(var(--spinner-size) * 0.15);
+  height: var(--spinner-size);
+  background: var(--spinner-color);
+  border-radius: calc(var(--spinner-size) * 0.05);
+  animation: oda-spinner-bars var(--oda-spinner-duration-normal) ease-in-out infinite;
+}
+
+.oda-spinner__bar:nth-child(1) {
+  animation-delay: -0.3s;
+}
+
+.oda-spinner__bar:nth-child(2) {
+  animation-delay: -0.15s;
+}
+
+.oda-spinner__bar:nth-child(3) {
+  animation-delay: 0s;
+}
+
+.oda-spinner__bar:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+@keyframes oda-spinner-bars {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.6;
+  }
+  20% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* Ring Variant */
+.oda-spinner__ring {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border: calc(var(--spinner-size) * 0.1) solid transparent;
+  border-top-color: var(--spinner-color);
+  border-radius: 50%;
+  animation: oda-spinner-ring var(--oda-spinner-duration-normal) linear infinite;
+}
+
+.oda-spinner__ring-inner {
+  width: 100%;
+  height: 100%;
+  border: calc(var(--spinner-size) * 0.05) solid transparent;
+  border-bottom-color: var(--spinner-color);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: oda-spinner-ring var(--oda-spinner-duration-fast) linear infinite reverse;
+}
+
+@keyframes oda-spinner-ring {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bounce Variant */
+.oda-spinner__bounce {
+  display: flex;
+  gap: calc(var(--spinner-size) * 0.1);
+  align-items: center;
+  height: var(--spinner-size);
+}
+
+.oda-spinner__bounce-dot {
+  width: calc(var(--spinner-size) * 0.4);
+  height: calc(var(--spinner-size) * 0.4);
+  border-radius: 50%;
+  background: var(--spinner-color);
+  animation: oda-spinner-bounce var(--oda-spinner-duration-normal) ease-in-out infinite;
+}
+
+.oda-spinner__bounce-dot:nth-child(1) {
+  animation-delay: -0.16s;
+}
+
+.oda-spinner__bounce-dot:nth-child(2) {
+  animation-delay: 0s;
+}
+
+@keyframes oda-spinner-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8) translateY(0);
+    opacity: 0.7;
+  }
+  40% {
+    transform: scale(1.2) translateY(-25%);
+    opacity: 1;
+  }
+}
+
+/* ===== COMPONENT STYLES ===== */
+
+/* Loading Button */
+.oda-loading-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.oda-loading-button--loading {
+  pointer-events: none;
+}
+
+.oda-loading-button--loading .oda-loading-button__text {
+  opacity: 0.7;
+}
+
+.oda-loading-button--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.oda-loading-button__text {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Page Loader */
+.oda-page-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Inline Loader */
+.oda-inline-loader {
+  vertical-align: middle;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .oda-spinner-overlay {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(2px);
+  }
+  
+  .oda-page-loader {
+    padding: 1.5rem;
+  }
+  
+  /* Reduce spinner sizes on mobile */
+  .oda-spinner--xl {
+    --spinner-size: var(--oda-spinner-size-lg);
+  }
+  
+  .oda-spinner--lg {
+    --spinner-size: var(--oda-spinner-size-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .oda-page-loader {
+    padding: 1rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Ensure proper focus management */
+.oda-spinner:focus {
+  outline: 2px solid var(--spinner-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Screen reader support */
+.oda-spinner[role="status"] {
+  /* Ensures proper announcement */
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .oda-spinner {
+    --spinner-color: currentColor;
+  }
+  
+  .oda-spinner-overlay {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: none;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .oda-spinner__svg,
+  .oda-spinner__dot,
+  .oda-spinner__pulse,
+  .oda-spinner__bar,
+  .oda-spinner__ring,
+  .oda-spinner__ring-inner,
+  .oda-spinner__bounce-dot {
+    animation-duration: 3s;
+    animation-timing-function: linear;
+  }
+  
+  .oda-spinner-overlay {
+    animation: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .oda-spinner-overlay {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  
+  .oda-spinner__text {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* GPU acceleration for animations */
+.oda-spinner__svg,
+.oda-spinner__dot,
+.oda-spinner__pulse,
+.oda-spinner__bar,
+.oda-spinner__ring,
+.oda-spinner__ring-inner,
+.oda-spinner__bounce-dot {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Optimize overlay rendering */
+.oda-spinner-overlay {
+  will-change: opacity, backdrop-filter;
+  contain: layout style paint;
+}

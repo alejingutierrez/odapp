@@ -1,0 +1,175 @@
+/* Input Component Styles */
+.oda-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.oda-input-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.oda-input-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.oda-input {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Variant Styles */
+.oda-input--outlined {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+}
+
+.oda-input--outlined:hover {
+  border-color: #9ca3af;
+}
+
+.oda-input--outlined:focus,
+.oda-input--outlined.ant-input-focused {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.oda-input--filled {
+  background: #f9fafb;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.oda-input--filled:hover {
+  background: #f3f4f6;
+}
+
+.oda-input--filled:focus,
+.oda-input--filled.ant-input-focused {
+  background: white;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.oda-input--borderless {
+  border: none;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.oda-input--borderless:focus,
+.oda-input--borderless.ant-input-focused {
+  box-shadow: none;
+  border-bottom: 2px solid #0ea5e9;
+}
+
+/* Full Width */
+.oda-input--full-width {
+  width: 100%;
+}
+
+/* Error State */
+.oda-input--error {
+  border-color: #ef4444 !important;
+}
+
+.oda-input--error:hover {
+  border-color: #dc2626 !important;
+}
+
+.oda-input--error:focus,
+.oda-input--error.ant-input-focused {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Helper Text */
+.oda-input-helper {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.oda-input-helper--error {
+  color: #ef4444;
+}
+
+/* Size Variations */
+.oda-input.ant-input-sm {
+  height: 32px;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.oda-input.ant-input-lg {
+  height: 48px;
+  padding: 12px 16px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+/* Disabled State */
+.oda-input:disabled,
+.oda-input.ant-input-disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Placeholder Styles */
+.oda-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Prefix and Suffix */
+.oda-input .ant-input-prefix,
+.oda-input .ant-input-suffix {
+  color: #6b7280;
+}
+
+.oda-input:focus .ant-input-prefix,
+.oda-input.ant-input-focused .ant-input-prefix {
+  color: #0ea5e9;
+}
+
+/* TextArea Specific */
+.oda-input.ant-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.oda-input.ant-input[data-auto-size="true"] {
+  resize: none;
+}
+
+/* Search Input */
+.oda-input.ant-input-search .ant-input-search-button {
+  border-radius: 0 8px 8px 0;
+  border-left: none;
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+.oda-input.ant-input-search .ant-input-search-button:hover {
+  background: #0284c7;
+  border-color: #0284c7;
+}
+
+/* Password Input */
+.oda-input.ant-input-password .ant-input-suffix {
+  cursor: pointer;
+}
+
+.oda-input.ant-input-password .ant-input-suffix:hover {
+  color: #0ea5e9;
+}

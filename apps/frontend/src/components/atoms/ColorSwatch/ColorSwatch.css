@@ -1,0 +1,225 @@
+/* ColorSwatch Component Styles */
+.oda-color-swatch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+/* Size Variations */
+.oda-color-swatch--xs {
+  width: 16px;
+  height: 16px;
+}
+
+.oda-color-swatch--sm {
+  width: 24px;
+  height: 24px;
+}
+
+.oda-color-swatch--md {
+  width: 32px;
+  height: 32px;
+}
+
+.oda-color-swatch--lg {
+  width: 40px;
+  height: 40px;
+}
+
+.oda-color-swatch--xl {
+  width: 48px;
+  height: 48px;
+}
+
+/* Border Styles */
+.oda-color-swatch--bordered {
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.oda-color-swatch--bordered.oda-color-swatch--selected {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+/* Clickable State */
+.oda-color-swatch--clickable {
+  cursor: pointer;
+}
+
+.oda-color-swatch--clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.oda-color-swatch--clickable:active {
+  transform: scale(1.05);
+}
+
+/* Selected State */
+.oda-color-swatch--selected {
+  transform: scale(1.1);
+  z-index: 1;
+}
+
+.oda-color-swatch--selected::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid #0ea5e9;
+  border-radius: 50%;
+  animation: oda-swatch-pulse 1.5s ease-in-out infinite;
+}
+
+/* Disabled State */
+.oda-color-swatch--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+.oda-color-swatch--disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Check Icon */
+.oda-color-swatch__check {
+  font-size: 60%;
+  font-weight: bold;
+  z-index: 2;
+}
+
+.oda-color-swatch__check--light {
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.oda-color-swatch__check--dark {
+  color: #374151;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Size-specific check icons */
+.oda-color-swatch--xs .oda-color-swatch__check {
+  font-size: 8px;
+}
+
+.oda-color-swatch--sm .oda-color-swatch__check {
+  font-size: 10px;
+}
+
+.oda-color-swatch--md .oda-color-swatch__check {
+  font-size: 12px;
+}
+
+.oda-color-swatch--lg .oda-color-swatch__check {
+  font-size: 14px;
+}
+
+.oda-color-swatch--xl .oda-color-swatch__check {
+  font-size: 16px;
+}
+
+/* Color Palette Styles */
+.oda-color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.oda-color-palette--xs {
+  gap: 4px;
+}
+
+.oda-color-palette--sm {
+  gap: 6px;
+}
+
+.oda-color-palette--md {
+  gap: 8px;
+}
+
+.oda-color-palette--lg {
+  gap: 10px;
+}
+
+.oda-color-palette--xl {
+  gap: 12px;
+}
+
+/* Focus States */
+.oda-color-swatch:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Animation for selection */
+@keyframes oda-swatch-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Special handling for white/light colors */
+.oda-color-swatch[style*="rgb(255, 255, 255)"],
+.oda-color-swatch[style*="#ffffff"],
+.oda-color-swatch[style*="#fff"] {
+  border: 2px solid #e5e7eb !important;
+}
+
+/* Special handling for transparent/no color */
+.oda-color-swatch--no-color {
+  background: linear-gradient(45deg, #ff6b6b 25%, transparent 25%),
+              linear-gradient(-45deg, #ff6b6b 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #ff6b6b 75%),
+              linear-gradient(-45deg, transparent 75%, #ff6b6b 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+}
+
+.oda-color-swatch--no-color::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: white;
+  border-radius: 50%;
+}
+
+.oda-color-swatch--no-color .oda-color-swatch__check {
+  color: #ef4444;
+  z-index: 3;
+}
+
+/* Hover effects for palette */
+.oda-color-palette .oda-color-swatch:not(.oda-color-swatch--selected):not(.oda-color-swatch--disabled):hover {
+  transform: scale(1.15);
+  z-index: 2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .oda-color-palette {
+    gap: 6px;
+  }
+  
+  .oda-color-swatch--lg {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .oda-color-swatch--xl {
+    width: 40px;
+    height: 40px;
+  }
+}

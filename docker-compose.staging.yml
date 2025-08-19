@@ -1,0 +1,218 @@
+# ODA Platform - Staging Environment
+# Docker Compose configuration for staging deployment
+
+name: oda-staging
+
+services:
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: oda-postgres-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-oda_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-oda_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - '${POSTGRES_PORT:-5434}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - oda-network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-oda_user} -d ${POSTGRES_DB:-oda_staging}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: oda-redis-staging
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - '${REDIS_PORT:-6381}:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - oda-network
+    healthcheck:
+      test:
+        ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Search and Analytics
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: oda-elasticsearch-staging
+    restart: unless-stopped
+    environment:
+      - node.name=oda-es-node-staging
+      - cluster.name=oda-cluster-staging
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - '9201:9200'
+      - '9301:9300'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - oda-network
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: oda-kibana-staging
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=kibana-staging
+      - SERVER_HOST=0.0.0.0
+    ports:
+      - '5602:5601'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:5601/api/status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Message Queue
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: oda-rabbitmq-staging
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-oda_user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-oda_staging_password}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-oda_vhost}
+    ports:
+      - '5673:5672'
+      - '15673:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: oda-minio-staging
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-oda_minio_user}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-oda_minio_staging_password}
+    ports:
+      - '9002:9000'
+      - '9003:9001'
+    volumes:
+      - minio_data:/data
+    networks:
+      - oda-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Email Testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: oda-mailhog-staging
+    restart: unless-stopped
+    ports:
+      - '1026:1025'
+      - '8026:8025'
+    networks:
+      - oda-network
+
+  # Application Services
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: development
+    container_name: oda-backend-staging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: staging
+      API_PORT: ${API_PORT:-3001}
+      API_HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-oda_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-oda_staging}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      FRONTEND_URL: ${FRONTEND_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    ports:
+      - '${API_PORT:-3002}:3001'
+    networks:
+      - oda-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    container_name: oda-frontend-staging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: staging
+    depends_on:
+      - backend
+    ports:
+      - '${FRONTEND_HTTP_PORT:-3102}:80'
+    networks:
+      - oda-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+  elasticsearch_data:
+  rabbitmq_data:
+  minio_data:
+
+networks:
+  oda-network:
+    driver: bridge

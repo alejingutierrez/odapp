@@ -1,0 +1,146 @@
+/* Icon Component Styles */
+.oda-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Size Variations */
+.oda-icon--xs {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.oda-icon--sm {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.oda-icon--md {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.oda-icon--lg {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.oda-icon--xl {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.oda-icon--2xl {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+/* Color Variations */
+.oda-icon--default {
+  color: #6b7280;
+}
+
+.oda-icon--primary {
+  color: #0ea5e9;
+}
+
+.oda-icon--secondary {
+  color: #6b7280;
+}
+
+.oda-icon--success {
+  color: #22c55e;
+}
+
+.oda-icon--warning {
+  color: #f59e0b;
+}
+
+.oda-icon--error {
+  color: #ef4444;
+}
+
+.oda-icon--white {
+  color: #ffffff;
+}
+
+/* Clickable State */
+.oda-icon--clickable {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.oda-icon--clickable:hover {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0ea5e9;
+}
+
+.oda-icon--clickable:active {
+  background: rgba(14, 165, 233, 0.2);
+  transform: scale(0.95);
+}
+
+/* Color-specific hover states for clickable icons */
+.oda-icon--primary.oda-icon--clickable:hover {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0284c7;
+}
+
+.oda-icon--success.oda-icon--clickable:hover {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.oda-icon--warning.oda-icon--clickable:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.oda-icon--error.oda-icon--clickable:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+/* Disabled State */
+.oda-icon:disabled,
+.oda-icon[aria-disabled="true"] {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.oda-icon--clickable:disabled:hover,
+.oda-icon--clickable[aria-disabled="true"]:hover {
+  background: transparent;
+  color: #d1d5db;
+  transform: none;
+}
+
+/* Animation for spinning icons */
+.oda-icon[class*="anticon-spin"] {
+  animation: oda-icon-spin 1s linear infinite;
+}
+
+@keyframes oda-icon-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Focus states for accessibility */
+.oda-icon--clickable:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}

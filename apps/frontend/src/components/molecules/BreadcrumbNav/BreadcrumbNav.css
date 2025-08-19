@@ -1,0 +1,80 @@
+.breadcrumb-nav {
+  padding: 8px 0;
+}
+
+.breadcrumb-nav__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.breadcrumb-nav__icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.breadcrumb-nav__title {
+  font-size: 14px;
+}
+
+.breadcrumb-nav__link--disabled {
+  color: var(--ant-color-text-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.breadcrumb-nav__text {
+  color: var(--ant-color-text-secondary);
+}
+
+.breadcrumb-nav__text--clickable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-nav__text--clickable:hover {
+  color: var(--ant-color-primary);
+}
+
+.breadcrumb-nav__text--disabled {
+  color: var(--ant-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.breadcrumb-nav__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.breadcrumb-nav__ellipsis:hover {
+  background-color: var(--ant-color-fill-tertiary);
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .breadcrumb-nav {
+    font-size: 12px;
+  }
+  
+  .breadcrumb-nav__title {
+    font-size: 12px;
+  }
+  
+  .breadcrumb-nav__icon {
+    font-size: 10px;
+  }
+  
+  /* Hide icons on very small screens */
+  @media (max-width: 480px) {
+    .breadcrumb-nav__icon {
+      display: none;
+    }
+  }
+}

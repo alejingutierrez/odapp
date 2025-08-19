@@ -1,0 +1,52 @@
+# Multi-stage build for backend
+# Multi-stage build for backend
+FROM node:18-slim AS base
+
+# Install OpenSSL for Prisma compatibility and set query engine type
+RUN apt-get update && apt-get install -y openssl
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+RUN corepack enable pnpm
+
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/backend/package.json ./apps/backend/
+COPY packages ./packages
+RUN pnpm install --no-frozen-lockfile
+
+FROM base AS development
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN pnpm --filter @oda/backend db:generate
+EXPOSE 3001
+CMD ["pnpm", "--filter", "@oda/backend", "dev"]
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Build workspace packages so their dist outputs are available at runtime
+RUN pnpm -w --recursive --filter ./packages/** build \
+  && pnpm --filter @oda/backend db:generate
+
+FROM base AS runner
+WORKDIR /app/apps/backend
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+
+# Copy backend source, prisma schema, and node_modules links
+COPY --from=builder /app/apps/backend/src ./src
+COPY --from=builder /app/apps/backend/prisma ./prisma
+COPY --from=builder /app/node_modules /app/node_modules
+# Ensure workspace packages exist for symlinked modules
+COPY --from=builder /app/packages /app/packages
+COPY --from=builder /app/apps/backend/node_modules ./node_modules
+COPY --from=builder /app/apps/backend/package.json ./package.json
+
+RUN mkdir -p logs && chown -R nodejs:nodejs logs
+
+USER nodejs
+EXPOSE 3001
+ENV NODE_ENV=production
+CMD ["node", "--import", "tsx/esm", "src/index.ts"]

@@ -1,0 +1,200 @@
+/* Badge Component Styles */
+.oda-badge {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Size Variations */
+.oda-badge--small .ant-badge-count {
+  height: 16px;
+  min-width: 16px;
+  font-size: 10px;
+  line-height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+}
+
+.oda-badge--medium .ant-badge-count {
+  height: 20px;
+  min-width: 20px;
+  font-size: 12px;
+  line-height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+}
+
+.oda-badge--large .ant-badge-count {
+  height: 24px;
+  min-width: 24px;
+  font-size: 14px;
+  line-height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+}
+
+/* Variant Styles */
+.oda-badge--default .ant-badge-count {
+  background: #6b7280;
+  color: white;
+}
+
+.oda-badge--primary .ant-badge-count {
+  background: #0ea5e9;
+  color: white;
+}
+
+.oda-badge--success .ant-badge-count {
+  background: #22c55e;
+  color: white;
+}
+
+.oda-badge--warning .ant-badge-count {
+  background: #f59e0b;
+  color: white;
+}
+
+.oda-badge--error .ant-badge-count {
+  background: #ef4444;
+  color: white;
+}
+
+.oda-badge--info .ant-badge-count {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Dot Styles */
+.oda-badge .ant-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid white;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.oda-badge--small .ant-badge-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.oda-badge--large .ant-badge-dot {
+  width: 10px;
+  height: 10px;
+}
+
+/* Status Badge Styles */
+.oda-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.oda-status-badge--small {
+  padding: 2px 6px;
+  font-size: 10px;
+  gap: 4px;
+}
+
+.oda-status-badge--large {
+  padding: 6px 12px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+/* Status Badge Variants */
+.oda-status-badge--active {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.oda-status-badge--inactive {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
+.oda-status-badge--pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.oda-status-badge--success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.oda-status-badge--warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.oda-status-badge--error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.oda-status-badge__text {
+  font-weight: 500;
+}
+
+/* Count Badge Styles */
+.oda-count-badge {
+  display: inline-block;
+}
+
+.oda-count-badge .ant-badge-count {
+  font-weight: 600;
+  border: 1px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover Effects */
+.oda-badge:hover .ant-badge-count {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+.oda-status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+/* Animation for new badges */
+.oda-badge .ant-badge-count {
+  animation: oda-badge-appear 0.3s ease-out;
+}
+
+@keyframes oda-badge-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse animation for important badges */
+.oda-badge--error .ant-badge-count,
+.oda-badge--warning .ant-badge-count {
+  animation: oda-badge-pulse 2s infinite;
+}
+
+@keyframes oda-badge-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

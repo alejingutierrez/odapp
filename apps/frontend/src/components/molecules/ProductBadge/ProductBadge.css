@@ -1,0 +1,108 @@
+.product-badge {
+  position: absolute;
+  z-index: 10;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Position variants */
+.product-badge--top-left {
+  top: 8px;
+  left: 8px;
+}
+
+.product-badge--top-right {
+  top: 8px;
+  right: 8px;
+}
+
+.product-badge--bottom-left {
+  bottom: 8px;
+  left: 8px;
+}
+
+.product-badge--bottom-right {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* Size variants */
+.product-badge--small {
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.product-badge--small .anticon {
+  font-size: 8px;
+}
+
+.product-badge--large {
+  font-size: 14px;
+  padding: 6px 12px;
+}
+
+.product-badge--large .anticon {
+  font-size: 12px;
+}
+
+/* Animation */
+.product-badge--animated {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+/* Special badge styles */
+.product-badge.ant-tag-red {
+  background: linear-gradient(135deg, #ff4d4f, #ff7875);
+  border-color: #ff4d4f;
+  color: white;
+}
+
+.product-badge.ant-tag-green {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+  border-color: #52c41a;
+  color: white;
+}
+
+.product-badge.ant-tag-gold {
+  background: linear-gradient(135deg, #faad14, #ffc53d);
+  border-color: #faad14;
+  color: white;
+}
+
+.product-badge.ant-tag-purple {
+  background: linear-gradient(135deg, #722ed1, #9254de);
+  border-color: #722ed1;
+  color: white;
+}
+
+.product-badge.ant-tag-orange {
+  background: linear-gradient(135deg, #fa8c16, #ffa940);
+  border-color: #fa8c16;
+  color: white;
+}
+
+.product-badge.ant-tag-blue {
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  border-color: #1890ff;
+  color: white;
+}
+
+/* Hover effects */
+.product-badge:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}

@@ -1,0 +1,44 @@
+.form-field {
+  margin-bottom: 16px;
+}
+
+.form-field__tooltip-icon {
+  color: var(--ant-color-text-tertiary);
+  cursor: help;
+  font-size: 12px;
+}
+
+.form-field__tooltip-icon:hover {
+  color: var(--ant-color-primary);
+}
+
+.form-field .ant-form-item-label {
+  padding-bottom: 4px;
+}
+
+.form-field .ant-form-item-explain-error {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-field .ant-form-item-explain-warning {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--ant-color-warning);
+}
+
+/* Compact form field variant */
+.form-field--compact {
+  margin-bottom: 12px;
+}
+
+.form-field--compact .ant-form-item-label {
+  padding-bottom: 2px;
+}
+
+/* Inline form field variant */
+.form-field--inline {
+  display: inline-block;
+  margin-right: 16px;
+  margin-bottom: 0;
+}

@@ -1,0 +1,349 @@
+/* Divider Component Styles */
+.oda-divider {
+  margin: 16px 0;
+  border-color: #e5e7eb;
+}
+
+/* Variant Styles */
+.oda-divider--solid {
+  border-style: solid;
+}
+
+.oda-divider--dashed {
+  border-style: dashed;
+}
+
+.oda-divider--dotted {
+  border-style: dotted;
+}
+
+.oda-divider--gradient {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+}
+
+.oda-divider--gradient.ant-divider-vertical {
+  width: 1px;
+  height: auto;
+  background: linear-gradient(180deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+}
+
+/* Thickness Styles */
+.oda-divider--thin {
+  border-width: 1px;
+}
+
+.oda-divider--medium {
+  border-width: 2px;
+}
+
+.oda-divider--thick {
+  border-width: 3px;
+}
+
+.oda-divider--gradient.oda-divider--medium {
+  height: 2px;
+}
+
+.oda-divider--gradient.oda-divider--thick {
+  height: 3px;
+}
+
+.oda-divider--gradient.oda-divider--medium.ant-divider-vertical {
+  width: 2px;
+}
+
+.oda-divider--gradient.oda-divider--thick.ant-divider-vertical {
+  width: 3px;
+}
+
+/* Spacing Styles */
+.oda-divider--tight {
+  margin: 8px 0;
+}
+
+.oda-divider--normal {
+  margin: 16px 0;
+}
+
+.oda-divider--loose {
+  margin: 24px 0;
+}
+
+.oda-divider.ant-divider-vertical.oda-divider--tight {
+  margin: 0 8px;
+}
+
+.oda-divider.ant-divider-vertical.oda-divider--normal {
+  margin: 0 16px;
+}
+
+.oda-divider.ant-divider-vertical.oda-divider--loose {
+  margin: 0 24px;
+}
+
+/* Color Styles */
+.oda-divider--default {
+  border-color: #e5e7eb;
+}
+
+.oda-divider--light {
+  border-color: #f3f4f6;
+}
+
+.oda-divider--primary {
+  border-color: #0ea5e9;
+}
+
+.oda-divider--secondary {
+  border-color: #6b7280;
+}
+
+.oda-divider--gradient.oda-divider--primary {
+  background: linear-gradient(90deg, transparent 0%, #0ea5e9 50%, transparent 100%);
+}
+
+.oda-divider--gradient.oda-divider--secondary {
+  background: linear-gradient(90deg, transparent 0%, #6b7280 50%, transparent 100%);
+}
+
+.oda-divider--gradient.oda-divider--primary.ant-divider-vertical {
+  background: linear-gradient(180deg, transparent 0%, #0ea5e9 50%, transparent 100%);
+}
+
+.oda-divider--gradient.oda-divider--secondary.ant-divider-vertical {
+  background: linear-gradient(180deg, transparent 0%, #6b7280 50%, transparent 100%);
+}
+
+/* Text Divider Styles */
+.oda-divider.ant-divider-with-text {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.oda-divider.ant-divider-with-text::before,
+.oda-divider.ant-divider-with-text::after {
+  border-top-color: inherit;
+  border-top-width: inherit;
+  border-top-style: inherit;
+}
+
+/* Section Divider Styles */
+.oda-section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 32px 0;
+  position: relative;
+}
+
+.oda-section-divider::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.oda-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.oda-section-divider--left {
+  justify-content: flex-start;
+}
+
+.oda-section-divider--left::before {
+  display: none;
+}
+
+.oda-section-divider--right {
+  justify-content: flex-end;
+}
+
+.oda-section-divider--right::after {
+  display: none;
+}
+
+.oda-section-divider--centered {
+  justify-content: center;
+}
+
+/* Section Divider Content */
+.oda-section-divider__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  background: white;
+  z-index: 1;
+}
+
+.oda-section-divider--left .oda-section-divider__content {
+  align-items: flex-start;
+  padding-left: 0;
+}
+
+.oda-section-divider--right .oda-section-divider__content {
+  align-items: flex-end;
+  padding-right: 0;
+}
+
+.oda-section-divider__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.oda-section-divider__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
+
+.oda-section-divider__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Size Variations */
+.oda-section-divider--small {
+  margin: 16px 0;
+}
+
+.oda-section-divider--small .oda-section-divider__icon {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.oda-section-divider--small .oda-section-divider__title {
+  font-size: 16px;
+}
+
+.oda-section-divider--small .oda-section-divider__subtitle {
+  font-size: 12px;
+}
+
+.oda-section-divider--medium {
+  margin: 32px 0;
+}
+
+.oda-section-divider--large {
+  margin: 48px 0;
+}
+
+.oda-section-divider--large .oda-section-divider__icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+
+.oda-section-divider--large .oda-section-divider__title {
+  font-size: 24px;
+}
+
+.oda-section-divider--large .oda-section-divider__subtitle {
+  font-size: 16px;
+}
+
+/* Spacer Styles */
+.oda-spacer {
+  flex-shrink: 0;
+}
+
+.oda-spacer--vertical {
+  width: 100%;
+}
+
+.oda-spacer--horizontal {
+  height: 100%;
+  display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .oda-section-divider {
+    margin: 24px 0;
+  }
+  
+  .oda-section-divider--large {
+    margin: 32px 0;
+  }
+  
+  .oda-section-divider__content {
+    padding: 0 12px;
+  }
+  
+  .oda-section-divider__title {
+    font-size: 16px;
+  }
+  
+  .oda-section-divider--large .oda-section-divider__title {
+    font-size: 20px;
+  }
+}
+
+/* Animation for section dividers */
+.oda-section-divider {
+  animation: oda-section-appear 0.5s ease-out;
+}
+
+@keyframes oda-section-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .oda-divider--default {
+    border-color: #374151;
+  }
+  
+  .oda-divider--light {
+    border-color: #4b5563;
+  }
+  
+  .oda-section-divider::before,
+  .oda-section-divider::after {
+    background: #374151;
+  }
+  
+  .oda-section-divider__content {
+    background: #111827;
+  }
+  
+  .oda-section-divider__icon {
+    background: #374151;
+    color: #9ca3af;
+  }
+  
+  .oda-section-divider__title {
+    color: #f9fafb;
+  }
+  
+  .oda-section-divider__subtitle {
+    color: #9ca3af;
+  }
+}

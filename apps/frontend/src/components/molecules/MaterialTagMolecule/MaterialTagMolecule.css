@@ -1,0 +1,149 @@
+.material-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.material-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.material-tag__content {
+  display: flex;
+  align-items: center;
+}
+
+.material-tag__texture-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--ant-color-border);
+  flex-shrink: 0;
+}
+
+.material-tag__name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.material-tag__sustainability {
+  display: flex;
+  align-items: center;
+}
+
+.material-tag__sustainability-score {
+  width: 20px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: white;
+}
+
+.material-tag__info-icon {
+  font-size: 10px;
+  color: var(--ant-color-text-tertiary);
+  cursor: pointer;
+}
+
+.material-tag__info-icon:hover {
+  color: var(--ant-color-primary);
+}
+
+/* Size variants */
+.material-tag--small .material-tag__texture-preview {
+  width: 12px;
+  height: 12px;
+}
+
+.material-tag--small .material-tag__name {
+  font-size: 10px;
+}
+
+.material-tag--small .material-tag__sustainability-score {
+  width: 16px;
+  height: 12px;
+  font-size: 8px;
+}
+
+.material-tag--large .material-tag__texture-preview {
+  width: 20px;
+  height: 20px;
+}
+
+.material-tag--large .material-tag__name {
+  font-size: 14px;
+}
+
+.material-tag--large .material-tag__sustainability-score {
+  width: 24px;
+  height: 20px;
+  font-size: 10px;
+}
+
+/* Modal content */
+.material-tag__modal-content {
+  padding: 8px 0;
+}
+
+.material-tag__section {
+  margin-bottom: 20px;
+}
+
+.material-tag__section:last-child {
+  margin-bottom: 0;
+}
+
+.material-tag__section .ant-typography-title {
+  margin-bottom: 8px !important;
+  font-size: 14px !important;
+  color: var(--ant-color-text);
+}
+
+.material-tag__care-list {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.material-tag__care-list li {
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.material-tag__care-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Interactive states */
+.material-tag[style*="cursor: pointer"]:hover {
+  border-color: var(--ant-color-primary-border);
+  background: var(--ant-color-primary-bg);
+}
+
+/* Accessibility */
+.material-tag[style*="cursor: pointer"]:focus {
+  outline: 2px solid var(--ant-color-primary-border);
+  outline-offset: 2px;
+}
+
+/* Animation */
+.material-tag__sustainability-score {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

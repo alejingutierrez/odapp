@@ -1,0 +1,72 @@
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-indicator__content {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator__icon {
+  font-size: 14px;
+}
+
+.status-indicator__icon--success {
+  color: var(--ant-color-success);
+}
+
+.status-indicator__icon--processing {
+  color: var(--ant-color-primary);
+}
+
+.status-indicator__icon--warning {
+  color: var(--ant-color-warning);
+}
+
+.status-indicator__icon--error {
+  color: var(--ant-color-error);
+}
+
+.status-indicator__icon--pending,
+.status-indicator__icon--cancelled,
+.status-indicator__icon--draft,
+.status-indicator__icon--default {
+  color: var(--ant-color-text-tertiary);
+}
+
+.status-indicator__icon--spinning {
+  animation: spin 1s linear infinite;
+}
+
+.status-indicator__text--small {
+  font-size: 12px;
+}
+
+.status-indicator__text--large {
+  font-size: 16px;
+}
+
+.status-indicator__badge--animated .ant-badge-status-dot {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}

@@ -1,0 +1,193 @@
+/* Activity Icon Component Styles */
+.oda-activity-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1;
+}
+
+/* Size Variants */
+.oda-activity-icon--small {
+  font-size: 14px;
+}
+
+.oda-activity-icon--medium {
+  font-size: 16px;
+}
+
+.oda-activity-icon--large {
+  font-size: 20px;
+}
+
+/* Background Variants */
+.oda-activity-icon--with-background {
+  border-radius: 50%;
+  padding: 6px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.oda-activity-icon--small.oda-activity-icon--with-background {
+  padding: 4px;
+}
+
+.oda-activity-icon--large.oda-activity-icon--with-background {
+  padding: 8px;
+}
+
+/* Interactive States */
+.oda-activity-icon--clickable {
+  cursor: pointer;
+}
+
+.oda-activity-icon--clickable:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.oda-activity-icon--clickable:active {
+  transform: scale(0.95);
+}
+
+.oda-activity-icon--clickable.oda-activity-icon--with-background:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active State */
+.oda-activity-icon--active {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.oda-activity-icon--active.oda-activity-icon--with-background {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+/* Disabled State */
+.oda-activity-icon--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Variant Colors */
+.oda-activity-icon--primary {
+  color: #1890ff;
+}
+
+.oda-activity-icon--success {
+  color: #52c41a;
+}
+
+.oda-activity-icon--warning {
+  color: #faad14;
+}
+
+.oda-activity-icon--error {
+  color: #ff4d4f;
+}
+
+.oda-activity-icon--info {
+  color: #13c2c2;
+}
+
+/* Focus States */
+.oda-activity-icon--clickable:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.oda-activity-icon--clickable.oda-activity-icon--with-background:focus-visible {
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+/* Animation for pulse effect */
+.oda-activity-icon--active.oda-activity-icon--pulse {
+  animation: activityPulse 2s ease-in-out infinite;
+}
+
+@keyframes activityPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Specific activity type styling */
+.oda-activity-icon[data-activity="call"] {
+  color: #1890ff;
+}
+
+.oda-activity-icon[data-activity="email"] {
+  color: #1890ff;
+}
+
+.oda-activity-icon[data-activity="meeting"] {
+  color: #1890ff;
+}
+
+.oda-activity-icon[data-activity="purchase"] {
+  color: #52c41a;
+}
+
+.oda-activity-icon[data-activity="order"] {
+  color: #52c41a;
+}
+
+.oda-activity-icon[data-activity="return"] {
+  color: #faad14;
+}
+
+.oda-activity-icon[data-activity="refund"] {
+  color: #faad14;
+}
+
+.oda-activity-icon[data-activity="like"] {
+  color: #eb2f96;
+}
+
+.oda-activity-icon[data-activity="share"] {
+  color: #13c2c2;
+}
+
+.oda-activity-icon[data-activity="delete"] {
+  color: #ff4d4f;
+}
+
+.oda-activity-icon[data-activity="create"] {
+  color: #52c41a;
+}
+
+.oda-activity-icon[data-activity="login"] {
+  color: #52c41a;
+}
+
+.oda-activity-icon[data-activity="logout"] {
+  color: #ff4d4f;
+}
+
+.oda-activity-icon[data-activity="complaint"] {
+  color: #ff4d4f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-activity-icon--large {
+    font-size: 18px;
+  }
+  
+  .oda-activity-icon--large.oda-activity-icon--with-background {
+    padding: 6px;
+  }
+  
+  .oda-activity-icon--clickable:hover {
+    transform: scale(1.05);
+  }
+}

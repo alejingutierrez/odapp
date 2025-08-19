@@ -1,0 +1,384 @@
+/* Trend Indicator Component Styles */
+.oda-trend-indicator {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.oda-trend-indicator--clickable {
+  cursor: pointer;
+}
+
+.oda-trend-indicator--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Size Variants */
+.oda-trend-indicator--small {
+  font-size: 12px;
+}
+
+.oda-trend-indicator--medium {
+  font-size: 14px;
+}
+
+.oda-trend-indicator--large {
+  font-size: 16px;
+}
+
+/* Direction Variants */
+.oda-trend-indicator--up {
+  border-left: 4px solid #52c41a;
+}
+
+.oda-trend-indicator--down {
+  border-left: 4px solid #ff4d4f;
+}
+
+.oda-trend-indicator--stable {
+  border-left: 4px solid #1890ff;
+}
+
+/* Hot Indicator */
+.oda-trend-indicator--hot {
+  border-left: 4px solid #ff4d4f;
+  background: linear-gradient(135deg, #fff2f0 0%, #ffffff 100%);
+}
+
+.oda-trend-indicator--hot::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff4d4f, #ff7875, #ff4d4f);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.3;
+  animation: hotPulse 2s ease-in-out infinite;
+}
+
+@keyframes hotPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Category Variants */
+.oda-trend-indicator--fashion {
+  border-color: #eb2f96;
+}
+
+.oda-trend-indicator--color {
+  border-color: #722ed1;
+}
+
+.oda-trend-indicator--style {
+  border-color: #13c2c2;
+}
+
+.oda-trend-indicator--seasonal {
+  border-color: #faad14;
+}
+
+.oda-trend-indicator--celebrity {
+  border-color: #f759ab;
+}
+
+.oda-trend-indicator--social {
+  border-color: #1890ff;
+}
+
+/* Card Variant */
+.oda-trend-indicator__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.oda-trend-indicator__title-section {
+  flex: 1;
+}
+
+.oda-trend-indicator__title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  line-height: 1.3;
+}
+
+.oda-trend-indicator--small .oda-trend-indicator__title {
+  font-size: 14px;
+}
+
+.oda-trend-indicator--large .oda-trend-indicator__title {
+  font-size: 18px;
+}
+
+.oda-trend-indicator__category {
+  font-size: 12px;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.oda-trend-indicator__score-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.oda-trend-indicator__hot-icon {
+  color: #ff4d4f;
+  font-size: 18px;
+  animation: hotFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes hotFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.oda-trend-indicator__score {
+  font-size: 24px;
+  font-weight: 700;
+  color: #262626;
+  font-variant-numeric: tabular-nums;
+}
+
+.oda-trend-indicator--small .oda-trend-indicator__score {
+  font-size: 20px;
+}
+
+.oda-trend-indicator--large .oda-trend-indicator__score {
+  font-size: 28px;
+}
+
+/* Progress Section */
+.oda-trend-indicator__progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.oda-trend-indicator__progress-section .ant-progress {
+  flex: 1;
+}
+
+.oda-trend-indicator__direction {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.oda-trend-indicator__direction .anticon {
+  font-size: 16px;
+}
+
+.oda-trend-indicator--up .oda-trend-indicator__direction {
+  color: #52c41a;
+}
+
+.oda-trend-indicator--down .oda-trend-indicator__direction {
+  color: #ff4d4f;
+}
+
+.oda-trend-indicator--stable .oda-trend-indicator__direction {
+  color: #1890ff;
+}
+
+.oda-trend-indicator__velocity {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Metrics Section */
+.oda-trend-indicator__metrics {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.oda-trend-indicator__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.oda-trend-indicator__metric-icon {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.oda-trend-indicator__metric span {
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Forecast Section */
+.oda-trend-indicator__forecast {
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.oda-trend-indicator__forecast-direction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 2px;
+}
+
+.oda-trend-indicator__forecast-confidence {
+  font-size: 11px;
+  color: #8c8c8c;
+}
+
+/* Tags Section */
+.oda-trend-indicator__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.oda-trend-indicator__tag {
+  font-size: 11px;
+  color: #1890ff;
+  background: #e6f7ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Compact Variant */
+.oda-trend-indicator--compact {
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.oda-trend-indicator__compact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oda-trend-indicator__compact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.oda-trend-indicator__score-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f6ffed;
+  color: #52c41a;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.oda-trend-indicator--down .oda-trend-indicator__score-badge {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
+.oda-trend-indicator--stable .oda-trend-indicator__score-badge {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+/* Minimal Variant */
+.oda-trend-indicator--minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.oda-trend-indicator__minimal-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.oda-trend-indicator__minimal-score {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Tooltip */
+.oda-trend-indicator__tooltip {
+  max-width: 250px;
+}
+
+.oda-trend-indicator__tooltip-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.oda-trend-indicator__tooltip-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.oda-trend-indicator__tooltip-forecast {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-trend-indicator__metrics {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .oda-trend-indicator__metric {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .oda-trend-indicator__tags {
+    justify-content: center;
+  }
+  
+  .oda-trend-indicator--large .oda-trend-indicator__title {
+    font-size: 16px;
+  }
+  
+  .oda-trend-indicator--large .oda-trend-indicator__score {
+    font-size: 24px;
+  }
+}

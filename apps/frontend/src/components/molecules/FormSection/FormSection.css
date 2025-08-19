@@ -1,0 +1,176 @@
+.form-section {
+  margin-bottom: 24px;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+  background: var(--ant-color-bg-container);
+}
+
+.form-section--static {
+  padding: 16px;
+}
+
+.form-section--collapsible .form-section__collapse {
+  background: transparent;
+}
+
+.form-section--collapsible .form-section__collapse .ant-collapse-item {
+  border: none;
+  background: transparent;
+}
+
+.form-section--collapsible .form-section__collapse .ant-collapse-header {
+  padding: 16px !important;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--ant-color-border);
+}
+
+.form-section--collapsible .form-section__collapse .ant-collapse-content {
+  border: none;
+  background: transparent;
+}
+
+.form-section--collapsible .form-section__collapse .ant-collapse-content-box {
+  padding: 16px !important;
+}
+
+.form-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.form-section__title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-section__title {
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ant-color-text);
+}
+
+.form-section__title--required {
+  position: relative;
+}
+
+.form-section__required-indicator {
+  color: var(--ant-color-error);
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.form-section__description {
+  display: block;
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.form-section__validation-summary {
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.form-section__validation-text {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.form-section__content {
+  margin-top: 16px;
+}
+
+.form-section--static .form-section__content {
+  margin-top: 12px;
+}
+
+.form-section__content--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.form-section__expand-icon {
+  color: var(--ant-color-text-secondary);
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+/* Validation status styling */
+.form-section--error {
+  border-color: var(--ant-color-error-border);
+}
+
+.form-section--error .form-section__collapse .ant-collapse-header {
+  background: var(--ant-color-error-bg);
+  border-color: var(--ant-color-error-border);
+}
+
+.form-section--warning {
+  border-color: var(--ant-color-warning-border);
+}
+
+.form-section--warning .form-section__collapse .ant-collapse-header {
+  background: var(--ant-color-warning-bg);
+  border-color: var(--ant-color-warning-border);
+}
+
+.form-section--success {
+  border-color: var(--ant-color-success-border);
+}
+
+.form-section--success .form-section__collapse .ant-collapse-header {
+  background: var(--ant-color-success-bg);
+  border-color: var(--ant-color-success-border);
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .form-section__header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .form-section__validation-summary {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .form-section--collapsible .form-section__collapse .ant-collapse-header {
+    padding: 12px !important;
+  }
+  
+  .form-section--collapsible .form-section__collapse .ant-collapse-content-box {
+    padding: 12px !important;
+  }
+  
+  .form-section--static {
+    padding: 12px;
+  }
+}
+
+/* Animation */
+.form-section__content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states */
+.form-section__collapse .ant-collapse-header:focus {
+  outline: 2px solid var(--ant-color-primary-border);
+  outline-offset: 2px;
+}

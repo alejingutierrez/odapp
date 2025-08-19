@@ -1,0 +1,96 @@
+.variant-selector {
+  display: flex;
+  gap: 16px;
+}
+
+.variant-selector--vertical {
+  flex-direction: column;
+}
+
+.variant-selector--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.variant-selector__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.variant-selector__label {
+  font-size: 14px;
+  color: var(--ant-color-text);
+  margin-bottom: 4px;
+}
+
+.variant-selector__size-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.variant-selector__size-option {
+  min-width: 40px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.variant-selector__size-option--unavailable {
+  opacity: 0.5;
+  position: relative;
+}
+
+.variant-selector__size-option--unavailable::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: var(--ant-color-text-tertiary);
+  transform: rotate(-45deg);
+}
+
+.variant-selector__color-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variant-selector__material-select {
+  min-width: 150px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .variant-selector--horizontal {
+    flex-direction: column;
+  }
+  
+  .variant-selector__size-group {
+    justify-content: flex-start;
+  }
+  
+  .variant-selector__color-group {
+    justify-content: flex-start;
+  }
+}
+
+/* Compact variant */
+.variant-selector--compact .variant-selector__group {
+  gap: 6px;
+}
+
+.variant-selector--compact .variant-selector__label {
+  font-size: 12px;
+}
+
+.variant-selector--compact .variant-selector__size-option {
+  min-width: 32px;
+  height: 28px;
+}

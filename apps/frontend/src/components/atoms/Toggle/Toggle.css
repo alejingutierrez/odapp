@@ -1,0 +1,193 @@
+/* Toggle Component Styles */
+.oda-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: inherit;
+}
+
+.oda-toggle--label-top,
+.oda-toggle--label-bottom {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.oda-toggle--label-left {
+  flex-direction: row-reverse;
+}
+
+.oda-toggle__label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oda-toggle__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.oda-toggle__description {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+.oda-toggle__switch {
+  flex-shrink: 0;
+}
+
+.oda-toggle__content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.oda-toggle__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.oda-toggle__text {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Size Variants */
+.oda-toggle--small .oda-toggle__label {
+  font-size: 13px;
+}
+
+.oda-toggle--small .oda-toggle__description {
+  font-size: 11px;
+}
+
+.oda-toggle--small {
+  gap: 8px;
+}
+
+.oda-toggle--large .oda-toggle__label {
+  font-size: 16px;
+}
+
+.oda-toggle--large .oda-toggle__description {
+  font-size: 14px;
+}
+
+.oda-toggle--large {
+  gap: 16px;
+}
+
+.oda-toggle--large .oda-toggle__content {
+  font-size: 14px;
+}
+
+.oda-toggle--large .oda-toggle__text {
+  font-size: 12px;
+}
+
+.oda-toggle--large .oda-toggle__icon {
+  font-size: 12px;
+}
+
+/* Color Variants */
+.oda-toggle--primary .ant-switch-checked {
+  background-color: #0ea5e9;
+}
+
+.oda-toggle--success .ant-switch-checked {
+  background-color: #22c55e;
+}
+
+.oda-toggle--warning .ant-switch-checked {
+  background-color: #f59e0b;
+}
+
+.oda-toggle--danger .ant-switch-checked {
+  background-color: #ef4444;
+}
+
+/* Custom Color Support */
+.oda-toggle[style*="--toggle-color"] .ant-switch-checked {
+  background-color: var(--toggle-color);
+}
+
+/* Loading State */
+.oda-toggle--loading .oda-toggle__label {
+  opacity: 0.6;
+}
+
+.oda-toggle--loading .oda-toggle__description {
+  opacity: 0.5;
+}
+
+/* Hover Effects */
+.oda-toggle:hover .oda-toggle__label {
+  color: #1f2937;
+}
+
+.oda-toggle--primary:hover .ant-switch-checked {
+  background-color: #0284c7;
+}
+
+.oda-toggle--success:hover .ant-switch-checked {
+  background-color: #16a34a;
+}
+
+.oda-toggle--warning:hover .ant-switch-checked {
+  background-color: #d97706;
+}
+
+.oda-toggle--danger:hover .ant-switch-checked {
+  background-color: #dc2626;
+}
+
+/* Focus States */
+.oda-toggle .ant-switch:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Disabled State */
+.oda-toggle .ant-switch-disabled + .oda-toggle__label-container .oda-toggle__label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.oda-toggle .ant-switch-disabled + .oda-toggle__label-container .oda-toggle__description {
+  opacity: 0.4;
+}
+
+/* Animation */
+.oda-toggle .ant-switch {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.oda-toggle__label,
+.oda-toggle__description {
+  transition: color 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oda-toggle {
+    gap: 10px;
+  }
+  
+  .oda-toggle--large {
+    gap: 12px;
+  }
+  
+  .oda-toggle--label-top,
+  .oda-toggle--label-bottom {
+    gap: 6px;
+  }
+}

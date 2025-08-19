@@ -3,13 +3,13 @@ import { Response } from 'express'
 /**
  * Standard API response format
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: {
     code: string
     message: string
-    details?: any
+    details?: unknown
     timestamp: string
     requestId?: string
   }
@@ -24,7 +24,7 @@ export interface ApiResponse<T = any> {
     }
     version?: string
     timestamp?: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -58,7 +58,7 @@ export const createPaginationMeta = (
   total: number
 ): PaginationMeta => {
   const totalPages = Math.ceil(total / limit)
-  
+
   return {
     page,
     limit,
@@ -132,7 +132,7 @@ export const sendError = (
   code: string,
   message: string,
   statusCode: number = 500,
-  details?: any,
+  details?: unknown,
   requestId?: string
 ): Response => {
   const response: ApiResponse = {
@@ -154,7 +154,7 @@ export const sendError = (
  */
 export const sendValidationError = (
   res: Response,
-  errors: any[],
+  errors: unknown[],
   requestId?: string
 ): Response => {
   return sendError(
@@ -193,14 +193,7 @@ export const sendUnauthorized = (
   message: string = 'Authentication required',
   requestId?: string
 ): Response => {
-  return sendError(
-    res,
-    'UNAUTHORIZED',
-    message,
-    401,
-    undefined,
-    requestId
-  )
+  return sendError(res, 'UNAUTHORIZED', message, 401, undefined, requestId)
 }
 
 /**
@@ -211,14 +204,7 @@ export const sendForbidden = (
   message: string = 'Insufficient permissions',
   requestId?: string
 ): Response => {
-  return sendError(
-    res,
-    'FORBIDDEN',
-    message,
-    403,
-    undefined,
-    requestId
-  )
+  return sendError(res, 'FORBIDDEN', message, 403, undefined, requestId)
 }
 
 /**
@@ -229,14 +215,7 @@ export const sendConflict = (
   message: string,
   requestId?: string
 ): Response => {
-  return sendError(
-    res,
-    'CONFLICT',
-    message,
-    409,
-    undefined,
-    requestId
-  )
+  return sendError(res, 'CONFLICT', message, 409, undefined, requestId)
 }
 
 /**
@@ -265,12 +244,5 @@ export const sendInternalError = (
   message: string = 'Internal server error',
   requestId?: string
 ): Response => {
-  return sendError(
-    res,
-    'INTERNAL_ERROR',
-    message,
-    500,
-    undefined,
-    requestId
-  )
+  return sendError(res, 'INTERNAL_ERROR', message, 500, undefined, requestId)
 }

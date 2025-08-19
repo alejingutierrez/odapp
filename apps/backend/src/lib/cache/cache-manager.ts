@@ -14,7 +14,7 @@ export interface CacheOptions {
   namespace?: string
 }
 
-export interface CacheEntry<T = any> {
+export interface CacheEntry<T = unknown> {
   data: T
   timestamp: number
   ttl: number
@@ -96,19 +96,19 @@ export class CacheManager {
       if (useRedisCache && redisClient.isReady()) {
         const client = redisClient.getClient()
         const redisValue = await client.get(namespacedKey)
-        
+
         if (redisValue) {
           const redisEntry: CacheEntry<T> = JSON.parse(redisValue)
-          
+
           if (!this.isExpired(redisEntry)) {
             this.stats.redisHits++
             this.stats.totalHits++
-            
+
             // Promote to memory cache
             if (useMemoryCache) {
               this.memoryCache.set(namespacedKey, redisEntry)
             }
-            
+
             this.updateStats()
             logger.debug('Cache hit (Redis)', { key: namespacedKey })
             return redisEntry.data
@@ -223,15 +223,20 @@ export class CacheManager {
       for (const tag of tags) {
         const taggedKeys = this.tagMap.get(tag)
         if (taggedKeys) {
-          taggedKeys.forEach(key => keysToInvalidate.add(key))
+          taggedKeys.forEach((key) => keysToInvalidate.add(key))
         }
       }
 
       // Remove keys from both caches
-      const deletePromises = Array.from(keysToInvalidate).map(key => this.del(key))
+      const deletePromises = Array.from(keysToInvalidate).map((key) =>
+        this.del(key)
+      )
       await Promise.all(deletePromises)
 
-      logger.info('Cache invalidated by tags', { tags, keysCount: keysToInvalidate.size })
+      logger.info('Cache invalidated by tags', {
+        tags,
+        keysCount: keysToInvalidate.size,
+      })
     } catch (error) {
       logger.error('Cache invalidation error', { tags, error })
       throw error
@@ -246,7 +251,7 @@ export class CacheManager {
       if (namespace) {
         // Clear specific namespace
         const pattern = `${namespace}:*`
-        
+
         // Clear memory cache
         for (const key of this.memoryCache.keys()) {
           if (key.startsWith(`${namespace}:`)) {
@@ -265,7 +270,7 @@ export class CacheManager {
       } else {
         // Clear all caches
         this.memoryCache.clear()
-        
+
         if (redisClient.isReady()) {
           const client = redisClient.getClient()
           await client.flushDb()
@@ -310,14 +315,16 @@ export class CacheManager {
   /**
    * Warm cache with frequently accessed data
    */
-  async warmCache(warmupData: Array<{ key: string; value: any; options?: CacheOptions }>): Promise<void> {
+  async warmCache(
+    warmupData: Array<{ key: string; value: unknown; options?: CacheOptions }>
+  ): Promise<void> {
     try {
       const warmupPromises = warmupData.map(({ key, value, options }) =>
         this.set(key, value, options)
       )
-      
+
       await Promise.all(warmupPromises)
-      
+
       logger.info('Cache warmed up', { itemsCount: warmupData.length })
     } catch (error) {
       logger.error('Cache warmup error', { error })

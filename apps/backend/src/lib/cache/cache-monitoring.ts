@@ -1,4 +1,4 @@
-import { cacheManager, CacheStats } from './cache-manager.js'
+import { cacheManager } from './cache-manager.js'
 import { redisClient } from './redis-client.js'
 import logger from '../logger.js'
 
@@ -67,7 +67,7 @@ export class CacheMonitoring {
     }
 
     this.monitoringInterval = setInterval(() => {
-      this.collectMetrics().catch(error => {
+      this.collectMetrics().catch((error) => {
         logger.error('Cache metrics collection failed', { error })
       })
     }, this.monitoringIntervalMs)
@@ -102,14 +102,20 @@ export class CacheMonitoring {
         memory: {
           hits: cacheStats.memoryHits,
           misses: cacheStats.memoryMisses,
-          hitRate: this.calculateHitRate(cacheStats.memoryHits, cacheStats.memoryMisses),
+          hitRate: this.calculateHitRate(
+            cacheStats.memoryHits,
+            cacheStats.memoryMisses
+          ),
           size: cacheStats.memorySize,
           itemCount: 0, // Would need to be tracked separately
         },
         redis: {
           hits: cacheStats.redisHits,
           misses: cacheStats.redisMisses,
-          hitRate: this.calculateHitRate(cacheStats.redisHits, cacheStats.redisMisses),
+          hitRate: this.calculateHitRate(
+            cacheStats.redisHits,
+            cacheStats.redisMisses
+          ),
           size: redisInfo.used_memory || 0,
           keyCount: redisInfo.db0_keys || 0,
           memoryUsage: redisInfo.used_memory_rss || 0,
@@ -147,7 +153,7 @@ export class CacheMonitoring {
   /**
    * Get Redis server information
    */
-  private async getRedisInfo(): Promise<Record<string, any>> {
+  private async getRedisInfo(): Promise<Record<string, unknown>> {
     try {
       if (!redisClient.isReady()) {
         return {}
@@ -155,11 +161,11 @@ export class CacheMonitoring {
 
       const client = redisClient.getClient()
       const info = await client.info()
-      
+
       // Parse Redis INFO response
-      const parsed: Record<string, any> = {}
+      const parsed: Record<string, unknown> = {}
       const lines = info.split('\r\n')
-      
+
       for (const line of lines) {
         if (line.includes(':')) {
           const [key, value] = line.split(':')
@@ -180,7 +186,7 @@ export class CacheMonitoring {
    */
   trackOperation(duration: number, success: boolean): void {
     this.queryCount++
-    
+
     if (!success) {
       this.errorCount++
     }
@@ -190,7 +196,7 @@ export class CacheMonitoring {
     }
 
     this.responseTimeTracker.push(duration)
-    
+
     // Keep only recent response times (last 1000)
     if (this.responseTimeTracker.length > 1000) {
       this.responseTimeTracker = this.responseTimeTracker.slice(-1000)
@@ -201,7 +207,9 @@ export class CacheMonitoring {
    * Get current metrics
    */
   getCurrentMetrics(): CacheMetrics | null {
-    return this.metrics.length > 0 ? this.metrics[this.metrics.length - 1] : null
+    return this.metrics.length > 0
+      ? this.metrics[this.metrics.length - 1]
+      : null
   }
 
   /**
@@ -298,7 +306,7 @@ export class CacheMonitoring {
 
   private addMetrics(metrics: CacheMetrics): void {
     this.metrics.push(metrics)
-    
+
     // Keep only recent metrics
     if (this.metrics.length > this.maxMetricsHistory) {
       this.metrics = this.metrics.slice(-this.maxMetricsHistory)
@@ -307,7 +315,7 @@ export class CacheMonitoring {
 
   private addAlert(alert: CacheAlert): void {
     this.alerts.push(alert)
-    
+
     // Keep only recent alerts
     if (this.alerts.length > this.maxAlertsHistory) {
       this.alerts = this.alerts.slice(-this.maxAlertsHistory)

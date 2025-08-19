@@ -346,8 +346,7 @@ router.get('/:id/variants',
     }
   }
 )
-/
-/ GET /products/analytics/overview - Get product analytics overview
+// GET /products/analytics/overview - Get product analytics overview
 router.get('/analytics/overview',
   authorize(['products:read', 'analytics:read']),
   async (req, res, next) => {

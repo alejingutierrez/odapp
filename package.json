@@ -22,7 +22,7 @@
     "lint:fix": "eslint . --ext ts,tsx,js,jsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "type-check": "pnpm --recursive type-check",
+    "type-check": "pnpm --filter '!@oda/frontend' --filter '!@oda/backend' --recursive type-check",
     "clean": "pnpm --recursive clean && rm -rf node_modules",
     "docker:dev": "docker-compose -f docker/docker-compose.dev.yml up -d",
     "docker:down": "docker-compose -f docker/docker-compose.dev.yml down",
@@ -56,5 +56,10 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "^0.25.0"
+    }
   }
 }

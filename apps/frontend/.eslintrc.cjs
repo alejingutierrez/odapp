@@ -6,4 +6,5 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint'],
+  ignorePatterns: ['vitest.config.ts'],
 }

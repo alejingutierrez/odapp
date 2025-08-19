@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
 import { vi } from 'vitest'
 import React from 'react'
 
@@ -9,9 +10,11 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  // Clean up any pending timers
+  // Clean up any pending timers and mocks
+  cleanup()
   vi.clearAllTimers()
   vi.clearAllMocks()
+  vi.restoreAllMocks()
 })
 
 // Global error handler for tests
@@ -22,9 +25,9 @@ console.error = vi.fn().mockImplementation((...args) => {
   if (
     typeof message === 'string' &&
     (message.includes('Warning: ReactDOM.render is no longer supported') ||
-     message.includes('Warning: findDOMNode') ||
-     message.includes('Warning: componentWillReceiveProps') ||
-     message.includes('Warning: componentWillUpdate'))
+      message.includes('Warning: findDOMNode') ||
+      message.includes('Warning: componentWillReceiveProps') ||
+      message.includes('Warning: componentWillUpdate'))
   ) {
     return
   }
@@ -49,52 +52,75 @@ vi.mock('../config/env', () => ({
 
 // Mock Ant Design icons with dynamic proxy
 vi.mock('@ant-design/icons', () => {
-  const iconMocks = new Proxy({}, {
-    get: (target, prop) => {
-      if (typeof prop === 'string' && prop.endsWith('Outlined')) {
-        return vi.fn(() => {
-          const iconName = prop.replace('Outlined', '').toLowerCase()
-          const testId = iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-          return React.createElement('span', { 
-            'data-testid': testId,
-            'aria-label': prop
-          }, '🔸')
-        })
-      }
-      if (typeof prop === 'string' && prop.endsWith('Filled')) {
-        return vi.fn(() => {
-          const iconName = prop.replace('Filled', '').toLowerCase()
-          const testId = iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-          return React.createElement('span', { 
-            'data-testid': testId,
-            'aria-label': prop
-          }, '🔹')
-        })
-      }
-      if (typeof prop === 'string' && prop.endsWith('TwoTone')) {
-        return vi.fn(() => {
-          const iconName = prop.replace('TwoTone', '').toLowerCase()
-          const testId = iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-          return React.createElement('span', { 
-            'data-testid': testId,
-            'aria-label': prop
-          }, '🔷')
-        })
-      }
-      // Default fallback for any other icon patterns
-      if (typeof prop === 'string') {
-        return vi.fn(() => {
-          const testId = prop.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-          return React.createElement('span', { 
-            'data-testid': testId,
-            'aria-label': prop
-          }, '🔸')
-        })
-      }
-      return undefined
+  const iconMocks = new Proxy(
+    {},
+    {
+      get: (target, prop) => {
+        if (typeof prop === 'string' && prop.endsWith('Outlined')) {
+          return vi.fn(() => {
+            const iconName = prop.replace('Outlined', '').toLowerCase()
+            const testId =
+              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
+            return React.createElement(
+              'span',
+              {
+                'data-testid': testId,
+                'aria-label': prop,
+              },
+              '🔸'
+            )
+          })
+        }
+        if (typeof prop === 'string' && prop.endsWith('Filled')) {
+          return vi.fn(() => {
+            const iconName = prop.replace('Filled', '').toLowerCase()
+            const testId =
+              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
+            return React.createElement(
+              'span',
+              {
+                'data-testid': testId,
+                'aria-label': prop,
+              },
+              '🔹'
+            )
+          })
+        }
+        if (typeof prop === 'string' && prop.endsWith('TwoTone')) {
+          return vi.fn(() => {
+            const iconName = prop.replace('TwoTone', '').toLowerCase()
+            const testId =
+              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
+            return React.createElement(
+              'span',
+              {
+                'data-testid': testId,
+                'aria-label': prop,
+              },
+              '🔷'
+            )
+          })
+        }
+        // Default fallback for any other icon patterns
+        if (typeof prop === 'string') {
+          return vi.fn(() => {
+            const testId =
+              prop.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
+            return React.createElement(
+              'span',
+              {
+                'data-testid': testId,
+                'aria-label': prop,
+              },
+              '🔸'
+            )
+          })
+        }
+        return undefined
+      },
     }
-  })
-  
+  )
+
   return iconMocks
 })
 
@@ -161,10 +187,10 @@ console.warn = vi.fn().mockImplementation((...args) => {
   if (
     typeof message === 'string' &&
     (message.includes('findDOMNode') ||
-     message.includes('destroyInactiveTabPane') ||
-     message.includes('strokeWidth') ||
-     message.includes('overlayStyle') ||
-     message.includes('overlayClassName'))
+      message.includes('destroyInactiveTabPane') ||
+      message.includes('strokeWidth') ||
+      message.includes('overlayStyle') ||
+      message.includes('overlayClassName'))
   ) {
     return
   }
@@ -194,4 +220,10 @@ const sessionStorageMock = {
 }
 Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock,
+})
+
+afterAll(() => {
+  // Restore original console methods
+  console.error = originalError
+  console.warn = originalWarn
 })

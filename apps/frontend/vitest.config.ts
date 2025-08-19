@@ -13,7 +13,7 @@ export default defineConfig({
     testTimeout: 60000, // 1 minuto por test
     hookTimeout: 30000, // 30 segundos para hooks
     teardownTimeout: 10000, // 10 segundos para cleanup
-    
+
     // Configuración para estabilidad y rendimiento
     pool: 'forks',
     poolOptions: {
@@ -22,11 +22,11 @@ export default defineConfig({
         isolate: true,
       },
     },
-    
+
     // Configuración para evitar tests colgados
     bail: 1, // Parar en el primer fallo
     retry: 1, // Reintentar una vez si falla
-    
+
     // Excluir archivos del sistema
     exclude: [
       '**/node_modules/**',
@@ -34,10 +34,10 @@ export default defineConfig({
       '**/coverage/**',
       '**/storybook-static/**',
     ],
-    
+
     // Configuración para reportes
     reporters: ['verbose'],
-    
+
     // Configuración para coverage
     coverage: {
       provider: 'v8',
@@ -67,6 +67,10 @@ export default defineConfig({
       '@/utils': resolve(__dirname, './src/utils'),
       '@/types': resolve(__dirname, './src/types'),
       '@/assets': resolve(__dirname, './src/assets'),
+      '@ant-design/icons': resolve(
+        __dirname,
+        './src/test/__mocks__/antd-icons.ts'
+      ),
     },
   },
 })

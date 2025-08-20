@@ -7,21 +7,18 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    // Use absolute path to ensure setup file resolves correctly when running from monorepo root
+    setupFiles: [resolve(__dirname, './src/test/setup.ts')],
     css: true,
     // Timeouts más estrictos para evitar tests colgados
     testTimeout: 60000, // 1 minuto por test
     hookTimeout: 30000, // 30 segundos para hooks
     teardownTimeout: 10000, // 10 segundos para cleanup
 
-    // Configuración para estabilidad y rendimiento
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-        isolate: true,
-      },
-    },
+    // Worker pool configuration
+    // Using threads improves compatibility in containerized environments
+    // where spawning separate Node.js processes may hang the test runner
+    pool: 'threads',
 
     // Configuración para evitar tests colgados
     bail: 1, // Parar en el primer fallo

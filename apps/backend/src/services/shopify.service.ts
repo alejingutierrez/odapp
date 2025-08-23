@@ -18,25 +18,7 @@ import {
 } from '../types/shopify'
 import { WebSocketService } from './websocket.service'
 
-// Type definitions to replace 'any' usage
-interface InventoryItemWithProduct {
-  id: string
-  product: {
-    id: string
-    variants: Array<{
-      id: string
-      sku?: string
-    }>
-  }
-}
-
-interface WebhookEventData {
-  type: string
-  id: string
-  shop_domain: string
-  created_at: string
-}
-
+// Type definitions for Shopify integration
 interface ShopifyCustomerWithId extends ShopifyCustomer {
   id: number
 }

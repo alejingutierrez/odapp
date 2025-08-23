@@ -1,19 +1,19 @@
-import js from '@eslint/js';
-import typescript from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
-import importPlugin from 'eslint-plugin-import';
-import prettier from 'eslint-config-prettier';
+import js from '@eslint/js'
+import typescript from '@typescript-eslint/eslint-plugin'
+import typescriptParser from '@typescript-eslint/parser'
+import react from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import importPlugin from 'eslint-plugin-import'
+import prettier from 'eslint-config-prettier'
 
 export default [
   // Base configuration for all files
   js.configs.recommended,
-  
+
   // Prettier config to disable conflicting rules
   prettier,
-  
+
   // TypeScript files configuration
   {
     files: ['**/*.{ts,tsx}'],
@@ -91,16 +91,19 @@ export default [
     },
     rules: {
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_', 
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_'
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      
+
       // React rules
       'react/jsx-uses-react': 'off', // Not needed in React 17+
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
@@ -110,11 +113,11 @@ export default [
       'react/jsx-no-duplicate-props': 'error',
       'react/jsx-no-undef': 'error',
       'react/jsx-uses-vars': 'error',
-      
+
       // React Hooks rules
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      
+
       // Accessibility rules
       'jsx-a11y/alt-text': 'error',
       'jsx-a11y/anchor-has-content': 'error',
@@ -124,7 +127,7 @@ export default [
       'jsx-a11y/aria-unsupported-elements': 'error',
       'jsx-a11y/role-has-required-aria-props': 'error',
       'jsx-a11y/role-supports-aria-props': 'error',
-      
+
       // Import rules
       'import/order': [
         'warn',
@@ -148,18 +151,16 @@ export default [
       'import/named': 'off', // TypeScript handles this
       'import/default': 'off', // TypeScript handles this
       'import/namespace': 'off', // TypeScript handles this
-      
+
       // General rules
       'no-console': 'warn',
       'no-debugger': 'error',
       'no-unused-vars': 'off', // Using TypeScript version instead
       'prefer-const': 'error',
       'no-var': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'warn', // Allow but warn about non-null assertions
-      '@typescript-eslint/no-explicit-any': 'warn', // Allow but warn about any
     },
   },
-  
+
   // JavaScript files configuration
   {
     files: ['**/*.{js,jsx}'],
@@ -241,11 +242,11 @@ export default [
       'react/jsx-no-duplicate-props': 'error',
       'react/jsx-no-undef': 'error',
       'react/jsx-uses-vars': 'error',
-      
+
       // React Hooks rules
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      
+
       // Accessibility rules
       'jsx-a11y/alt-text': 'error',
       'jsx-a11y/anchor-has-content': 'error',
@@ -255,7 +256,7 @@ export default [
       'jsx-a11y/aria-unsupported-elements': 'error',
       'jsx-a11y/role-has-required-aria-props': 'error',
       'jsx-a11y/role-supports-aria-props': 'error',
-      
+
       // Import rules
       'import/order': [
         'warn',
@@ -275,23 +276,30 @@ export default [
           },
         },
       ],
-      
-                // General rules
-          'no-console': 'warn',
-          'no-debugger': 'error',
-          'no-unused-vars': ['error', { 
-            argsIgnorePattern: '^_', 
-            varsIgnorePattern: '^_',
-            caughtErrorsIgnorePattern: '^_'
-          }],
-          'prefer-const': 'error',
-          'no-var': 'error',
+
+      // General rules
+      'no-console': 'warn',
+      'no-debugger': 'error',
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      'prefer-const': 'error',
+      'no-var': 'error',
     },
   },
-  
+
   // Configuration for test files
   {
-    files: ['**/*.test.{ts,tsx,js,jsx}', '**/*.spec.{ts,tsx,js,jsx}', '**/test/**/*.{ts,tsx,js,jsx}'],
+    files: [
+      '**/*.test.{ts,tsx,js,jsx}',
+      '**/*.spec.{ts,tsx,js,jsx}',
+      '**/test/**/*.{ts,tsx,js,jsx}',
+    ],
     languageOptions: {
       globals: {
         // Test globals
@@ -315,7 +323,7 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
-  
+
   // Configuration for configuration files
   {
     files: ['*.config.{js,ts}', '*.config.*.{js,ts}'],
@@ -325,17 +333,17 @@ export default [
       'import/order': 'off',
     },
   },
-  
+
   // Configuration for scripts and development files
   {
     files: [
-      '**/scripts/**/*', 
-      '**/seed.ts', 
-      '**/verify-*.{js,ts}', 
+      '**/scripts/**/*',
+      '**/seed.ts',
+      '**/verify-*.{js,ts}',
       '**/prisma/**/*',
       '**/config/**/*',
       '**/setup/**/*',
-      '**/migrations/**/*'
+      '**/migrations/**/*',
     ],
     rules: {
       'no-console': 'off',
@@ -344,7 +352,7 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
-  
+
   // Configuration for Storybook files
   {
     files: ['**/*.stories.{ts,tsx,js,jsx}'],
@@ -355,14 +363,14 @@ export default [
       'react/jsx-props-no-spreading': 'off',
     },
   },
-  
+
   // Configuration for utility and hook files
   {
     files: [
       '**/hooks/**/*.{ts,tsx}',
       '**/utils/**/*.{ts,tsx}',
       '**/lib/**/*.{ts,tsx}',
-      '**/services/**/*.{ts,tsx}'
+      '**/services/**/*.{ts,tsx}',
     ],
     rules: {
       'no-console': 'warn', // Allow but warn about console statements
@@ -371,33 +379,27 @@ export default [
       'import/order': 'off', // Disable import order for utility files
     },
   },
-  
+
   // Configuration for component files
   {
-    files: [
-      '**/components/**/*.{ts,tsx}',
-      '**/pages/**/*.{ts,tsx}'
-    ],
+    files: ['**/components/**/*.{ts,tsx}', '**/pages/**/*.{ts,tsx}'],
     rules: {
       'react/jsx-props-no-spreading': 'warn', // Allow but warn about prop spreading
       'no-console': 'warn', // Allow but warn about console statements
       'import/order': 'off', // Disable import order for component files
     },
   },
-  
+
   // Configuration for routes and middleware files
   {
-    files: [
-      '**/routes/**/*.{ts,tsx}',
-      '**/middleware/**/*.{ts,tsx}'
-    ],
+    files: ['**/routes/**/*.{ts,tsx}', '**/middleware/**/*.{ts,tsx}'],
     rules: {
       'no-console': 'warn', // Allow but warn about console statements
       '@typescript-eslint/no-non-null-assertion': 'warn', // Allow but warn about non-null assertions
       'import/order': 'off', // Disable import order for routes and middleware
     },
   },
-  
+
   // Configuration for build/dist files
   {
     files: ['**/dist/**/*', '**/build/**/*', '**/coverage/**/*'],
@@ -409,7 +411,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
     },
   },
-  
+
   // Configuration for generated files
   {
     files: ['**/*.d.ts', '**/*.js.map', '**/*.css.map'],
@@ -421,7 +423,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
     },
   },
-  
+
   // Configuration to ignore source map files and dist files completely
   {
     ignores: [
@@ -432,4 +434,4 @@ export default [
       '**/node_modules/**/*',
     ],
   },
-];
+]

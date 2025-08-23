@@ -16,13 +16,15 @@ export default defineConfig({
     hookTimeout: 30000, // 30 segundos para hooks
     teardownTimeout: 10000, // 10 segundos para cleanup
 
-      // Worker pool configuration
-      // Use separate processes to ensure tests exit cleanly in CI environments
-      pool: 'forks',
+    // Worker pool configuration
+    // Using forks caused tests to hang with React components.
+    // Switch back to the default threaded pool to ensure clean exits.
+    pool: 'threads',
 
     // Configuración para evitar tests colgados
-    bail: 1, // Parar en el primer fallo
-    retry: 1, // Reintentar una vez si falla
+    // Ejecutar todos los tests aunque alguno falle y evitar reintentos
+    bail: 0,
+    retry: 0,
 
     // Excluir archivos del sistema
     exclude: [

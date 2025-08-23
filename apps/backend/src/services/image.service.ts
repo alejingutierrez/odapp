@@ -3,7 +3,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { logger } from '../lib/logger.js'
-import { AppError } from '../lib/errors.js'
+import { ValidationError, NotFoundError } from '../lib/errors.js'
 
 export interface ImageProcessingOptions {
   width?: number
@@ -61,10 +61,10 @@ export class ImageService {
   private readonly baseUrl: string
   private readonly allowedMimeTypes = [
     'image/jpeg',
-    'image/jpg', 
+    'image/jpg',
     'image/png',
     'image/gif',
-    'image/webp'
+    'image/webp',
   ]
 
   // Standard image variants for products
@@ -73,13 +73,16 @@ export class ImageService {
     { name: 'small', width: 300, height: 300, quality: 85, format: 'webp' },
     { name: 'medium', width: 600, height: 600, quality: 90, format: 'webp' },
     { name: 'large', width: 1200, height: 1200, quality: 95, format: 'webp' },
-    { name: 'original', width: 2000, height: 2000, quality: 100, format: 'jpeg' }
+    {
+      name: 'original',
+      width: 2000,
+      height: 2000,
+      quality: 100,
+      format: 'jpeg',
+    },
   ]
 
-  constructor(
-    uploadDir = './uploads/images',
-    baseUrl = '/uploads/images'
-  ) {
+  constructor(uploadDir = './uploads/images', baseUrl = '/uploads/images') {
     this.uploadDir = uploadDir
     this.baseUrl = baseUrl
     this.ensureUploadDirectory()
@@ -102,10 +105,10 @@ export class ImageService {
       optimizeOriginal?: boolean
     } = {}
   ): Promise<ImageUploadResult> {
-    logger.info('Processing image upload', { 
+    logger.info('Processing image upload', {
       filename: file.originalname,
       size: file.size,
-      mimetype: file.mimetype 
+      mimetype: file.mimetype,
     })
 
     try {
@@ -120,9 +123,9 @@ export class ImageService {
 
       // Get image metadata
       const metadata = await sharp(file.buffer).metadata()
-      
+
       if (!metadata.width || !metadata.height) {
-        throw new AppError('Invalid image file', 400)
+        throw new ValidationError('Invalid image file')
       }
 
       // Save original file (optionally optimized)
@@ -130,7 +133,7 @@ export class ImageService {
       if (options.optimizeOriginal) {
         originalBuffer = await this.optimizeImage(file.buffer, {
           quality: 95,
-          format: metadata.format as any
+          format: metadata.format as 'jpeg' | 'png' | 'webp',
         })
       }
 
@@ -146,7 +149,8 @@ export class ImageService {
           imageId,
           variant
         )
-        processedVariants[variant.name] = `${this.baseUrl}/${path.basename(variantPath)}`
+        processedVariants[variant.name] =
+          `${this.baseUrl}/${path.basename(variantPath)}`
       }
 
       // Generate thumbnail if requested
@@ -155,7 +159,13 @@ export class ImageService {
         const thumbnailPath = await this.generateImageVariant(
           originalBuffer,
           imageId,
-          { name: 'thumb', width: 150, height: 150, quality: 80, format: 'webp' }
+          {
+            name: 'thumb',
+            width: 150,
+            height: 150,
+            quality: 80,
+            format: 'webp',
+          }
         )
         thumbnailUrl = `${this.baseUrl}/${path.basename(thumbnailPath)}`
       }
@@ -168,19 +178,22 @@ export class ImageService {
         height: metadata.height,
         fileSize: originalBuffer.length,
         mimeType: file.mimetype,
-        variants: processedVariants
+        variants: processedVariants,
       }
 
       logger.info('Image processed successfully', {
         imageId,
         originalSize: file.size,
         processedSize: originalBuffer.length,
-        variants: Object.keys(processedVariants)
+        variants: Object.keys(processedVariants),
       })
 
       return result
     } catch (error) {
-      logger.error('Failed to process image', { error, filename: file.originalname })
+      logger.error('Failed to process image', {
+        error,
+        filename: file.originalname,
+      })
       throw error
     }
   }
@@ -198,7 +211,9 @@ export class ImageService {
       // Download image
       const response = await fetch(imageUrl)
       if (!response.ok) {
-        throw new AppError(`Failed to download image: ${response.statusText}`, 400)
+        throw new ValidationError(
+          `Failed to download image: ${response.statusText}`
+        )
       }
 
       const buffer = Buffer.from(await response.arrayBuffer())
@@ -215,7 +230,8 @@ export class ImageService {
         destination: '',
         filename: '',
         path: '',
-        stream: null as any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stream: null as any,
       }
 
       return await this.uploadAndProcessImage(mockFile, options)
@@ -233,11 +249,10 @@ export class ImageService {
     const filename = `${imageId}_${variant.name}.${variant.format || 'webp'}`
     const outputPath = path.join(this.uploadDir, filename)
 
-    let processor = sharp(sourceBuffer)
-      .resize(variant.width, variant.height, {
-        fit: 'cover',
-        position: 'center'
-      })
+    let processor = sharp(sourceBuffer).resize(variant.width, variant.height, {
+      fit: 'cover',
+      position: 'center',
+    })
 
     // Apply format and quality
     if (variant.format === 'jpeg') {
@@ -263,7 +278,7 @@ export class ImageService {
     if (options.width || options.height) {
       processor = processor.resize(options.width, options.height, {
         fit: options.fit || 'cover',
-        background: options.background || { r: 255, g: 255, b: 255, alpha: 1 }
+        background: options.background || { r: 255, g: 255, b: 255, alpha: 1 },
       })
     }
 
@@ -288,7 +303,7 @@ export class ImageService {
     try {
       // Find all files with this image ID
       const files = await fs.readdir(this.uploadDir)
-      const imageFiles = files.filter(file => file.startsWith(imageId))
+      const imageFiles = files.filter((file) => file.startsWith(imageId))
 
       // Delete all variants
       await Promise.all(
@@ -303,7 +318,10 @@ export class ImageService {
         })
       )
 
-      logger.info('Image deleted successfully', { imageId, filesDeleted: imageFiles.length })
+      logger.info('Image deleted successfully', {
+        imageId,
+        filesDeleted: imageFiles.length,
+      })
     } catch (error) {
       logger.error('Failed to delete image', { error, imageId })
       throw error
@@ -313,23 +331,24 @@ export class ImageService {
   async getImageInfo(imageId: string): Promise<ProcessedImage | null> {
     try {
       const files = await fs.readdir(this.uploadDir)
-      const imageFiles = files.filter(file => file.startsWith(imageId))
+      const imageFiles = files.filter((file) => file.startsWith(imageId))
 
       if (imageFiles.length === 0) {
         return null
       }
 
       // Find original file
-      const originalFile = imageFiles.find(file => 
-        !file.includes('_') || file.includes('_original.')
-      ) || imageFiles[0]
+      const originalFile =
+        imageFiles.find(
+          (file) => !file.includes('_') || file.includes('_original.')
+        ) || imageFiles[0]
 
       const originalPath = path.join(this.uploadDir, originalFile)
       const metadata = await sharp(originalPath).metadata()
       const stats = await fs.stat(originalPath)
 
       // Build variants info
-      const variants: { [key: string]: any } = {}
+      const variants: { [key: string]: { url: string; width: number; height: number; fileSize: number; format: string } } = {}
       for (const file of imageFiles) {
         if (file === originalFile) continue
 
@@ -340,10 +359,10 @@ export class ImageService {
 
         variants[variantName] = {
           url: `${this.baseUrl}/${file}`,
-          width: variantMetadata.width,
-          height: variantMetadata.height,
+          width: variantMetadata.width || 0,
+          height: variantMetadata.height || 0,
           fileSize: variantStats.size,
-          format: variantMetadata.format
+          format: variantMetadata.format || 'unknown',
         }
       }
 
@@ -356,8 +375,8 @@ export class ImageService {
           originalHeight: metadata.height || 0,
           originalSize: stats.size,
           originalFormat: metadata.format || 'unknown',
-          mimeType: `image/${metadata.format}`
-        }
+          mimeType: `image/${metadata.format}`,
+        },
       }
     } catch (error) {
       logger.error('Failed to get image info', { error, imageId })
@@ -382,9 +401,9 @@ export class ImageService {
     const concurrency = 3
     for (let i = 0; i < files.length; i += concurrency) {
       const batch = files.slice(i, i + concurrency)
-      
+
       const batchResults = await Promise.allSettled(
-        batch.map(file => this.uploadAndProcessImage(file, options))
+        batch.map((file) => this.uploadAndProcessImage(file, options))
       )
 
       batchResults.forEach((result, index) => {
@@ -394,11 +413,11 @@ export class ImageService {
         } else {
           errors.push({
             file: file.originalname,
-            error: result.reason.message
+            error: result.reason.message,
           })
           logger.error('Failed to process image in batch', {
             filename: file.originalname,
-            error: result.reason
+            error: result.reason,
           })
         }
       })
@@ -407,7 +426,7 @@ export class ImageService {
     logger.info('Bulk image processing completed', {
       total: files.length,
       successful: results.length,
-      failed: errors.length
+      failed: errors.length,
     })
 
     if (errors.length > 0) {
@@ -420,21 +439,20 @@ export class ImageService {
   private validateImageFile(file: Express.Multer.File): void {
     // Check MIME type
     if (!this.allowedMimeTypes.includes(file.mimetype)) {
-      throw new AppError(
-        `Invalid file type. Allowed types: ${this.allowedMimeTypes.join(', ')}`,
-        400
-      )
+              throw new ValidationError(
+          `Invalid file type. Allowed types: ${this.allowedMimeTypes.join(', ')}`
+        )
     }
 
     // Check file size (10MB limit)
     const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
-      throw new AppError('File too large. Maximum size is 10MB', 400)
+      throw new ValidationError('File too large. Maximum size is 10MB')
     }
 
     // Check if file has content
     if (file.size === 0) {
-      throw new AppError('Empty file', 400)
+      throw new ValidationError('Empty file')
     }
   }
 
@@ -447,12 +465,14 @@ export class ImageService {
     try {
       // Find original image
       const files = await fs.readdir(this.uploadDir)
-      const originalFile = files.find(file => 
-        file.startsWith(imageId) && (!file.includes('_') || file.includes('_original.'))
+      const originalFile = files.find(
+        (file) =>
+          file.startsWith(imageId) &&
+          (!file.includes('_') || file.includes('_original.'))
       )
 
       if (!originalFile) {
-        throw new AppError('Original image not found', 404)
+        throw new NotFoundError('Original image')
       }
 
       const originalPath = path.join(this.uploadDir, originalFile)
@@ -466,12 +486,13 @@ export class ImageService {
           imageId,
           variant
         )
-        generatedVariants[variant.name] = `${this.baseUrl}/${path.basename(variantPath)}`
+        generatedVariants[variant.name] =
+          `${this.baseUrl}/${path.basename(variantPath)}`
       }
 
       logger.info('Image variants generated successfully', {
         imageId,
-        variants: Object.keys(generatedVariants)
+        variants: Object.keys(generatedVariants),
       })
 
       return generatedVariants

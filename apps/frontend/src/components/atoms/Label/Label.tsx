@@ -33,7 +33,7 @@ export const Label: React.FC<LabelProps> = ({
   return (
     <label htmlFor={htmlFor} className={labelClasses}>
       {children}
-      {required && <span className="oda-label__required">*</span>}
+      {required && <span className='oda-label__required'>*</span>}
     </label>
   )
 }

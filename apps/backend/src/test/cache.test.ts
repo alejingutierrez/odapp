@@ -1,14 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
-import { 
-  redisClient, 
-  initializeRedis, 
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import {
+  redisClient,
+  initializeRedis,
   shutdownRedis,
   cacheManager,
   CacheAsidePattern,
   WriteThroughPattern,
-  cacheWarming,
   cacheMonitoring,
-  CacheUtils
+  CacheUtils,
 } from '../lib/cache/index.js'
 
 describe('Cache System', () => {
@@ -20,7 +19,9 @@ describe('Cache System', () => {
       await initializeRedis()
       redisAvailable = true
     } catch (error) {
-      console.warn('Redis not available for testing, skipping Redis-dependent tests')
+      console.warn(
+        'Redis not available for testing, skipping Redis-dependent tests'
+      )
       redisAvailable = false
     }
   })
@@ -64,15 +65,15 @@ describe('Cache System', () => {
         return
       }
       const client = redisClient.getClient()
-      
+
       await client.set('test:key', 'test:value')
       const value = await client.get('test:key')
-      
+
       expect(value).toBe('test:value')
-      
+
       await client.del('test:key')
       const deletedValue = await client.get('test:key')
-      
+
       expect(deletedValue).toBeNull()
     })
   })
@@ -83,7 +84,9 @@ describe('Cache System', () => {
       const value = { id: '123', name: 'Test Product', price: 99.99 }
 
       await cacheManager.set(key, value, { useRedisCache: redisAvailable })
-      const cachedValue = await cacheManager.get(key, { useRedisCache: redisAvailable })
+      const cachedValue = await cacheManager.get(key, {
+        useRedisCache: redisAvailable,
+      })
 
       expect(cachedValue).toEqual(value)
     })
@@ -113,16 +116,16 @@ describe('Cache System', () => {
       const value = { id: '123', data: 'test' }
 
       // Set with very short TTL
-      await cacheManager.set(key, value, { 
+      await cacheManager.set(key, value, {
         ttl: 1, // 1 second
-        redisTtl: 1 
+        redisTtl: 1,
       })
 
       let cachedValue = await cacheManager.get(key)
       expect(cachedValue).toEqual(value)
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 1100))
+      await new Promise((resolve) => setTimeout(resolve, 1100))
 
       cachedValue = await cacheManager.get(key)
       expect(cachedValue).toBeNull()
@@ -132,13 +135,17 @@ describe('Cache System', () => {
       const key1 = 'test:tag1:123'
       const key2 = 'test:tag2:456'
       const key3 = 'test:tag3:789'
-      
+
       const value1 = { id: '123', category: 'electronics' }
       const value2 = { id: '456', category: 'electronics' }
       const value3 = { id: '789', category: 'clothing' }
 
-      await cacheManager.set(key1, value1, { tags: ['products', 'electronics'] })
-      await cacheManager.set(key2, value2, { tags: ['products', 'electronics'] })
+      await cacheManager.set(key1, value1, {
+        tags: ['products', 'electronics'],
+      })
+      await cacheManager.set(key2, value2, {
+        tags: ['products', 'electronics'],
+      })
       await cacheManager.set(key3, value3, { tags: ['products', 'clothing'] })
 
       // Verify all are cached
@@ -152,7 +159,7 @@ describe('Cache System', () => {
       // Electronics products should be invalidated
       expect(await cacheManager.get(key1)).toBeNull()
       expect(await cacheManager.get(key2)).toBeNull()
-      
+
       // Clothing product should still be cached
       expect(await cacheManager.get(key3)).toEqual(value3)
     })
@@ -188,15 +195,21 @@ describe('Cache System', () => {
         useMemoryCache: true,
         useRedisCache: true,
         memoryTtl: 60000,
-        redisTtl: 3600
+        redisTtl: 3600,
       })
 
       // First get should hit memory cache
-      const cachedValue1 = await cacheManager.get(key, { useMemoryCache: true, useRedisCache: false })
+      const cachedValue1 = await cacheManager.get(key, {
+        useMemoryCache: true,
+        useRedisCache: false,
+      })
       expect(cachedValue1).toEqual(value)
 
       // Get from Redis only should also work
-      const cachedValue2 = await cacheManager.get(key, { useMemoryCache: false, useRedisCache: true })
+      const cachedValue2 = await cacheManager.get(key, {
+        useMemoryCache: false,
+        useRedisCache: true,
+      })
       expect(cachedValue2).toEqual(value)
     })
 
@@ -208,8 +221,12 @@ describe('Cache System', () => {
       await cacheManager.set(key, value1, { namespace: 'products' })
       await cacheManager.set(key, value2, { namespace: 'customers' })
 
-      const productValue = await cacheManager.get(key, { namespace: 'products' })
-      const customerValue = await cacheManager.get(key, { namespace: 'customers' })
+      const productValue = await cacheManager.get(key, {
+        namespace: 'products',
+      })
+      const customerValue = await cacheManager.get(key, {
+        namespace: 'customers',
+      })
 
       expect(productValue).toEqual(value1)
       expect(customerValue).toEqual(value2)
@@ -221,7 +238,7 @@ describe('Cache System', () => {
       it('should load data on cache miss', async () => {
         const key = 'test:cache-aside:123'
         const expectedValue = { id: '123', name: 'Loaded Product' }
-        
+
         const loader = vi.fn().mockResolvedValue(expectedValue)
 
         const result = await CacheAsidePattern.get(key, { loader })
@@ -240,13 +257,15 @@ describe('Cache System', () => {
         const error = new Error('Loader failed')
         const loader = vi.fn().mockRejectedValue(error)
 
-        await expect(CacheAsidePattern.get(key, { loader })).rejects.toThrow('Loader failed')
+        await expect(CacheAsidePattern.get(key, { loader })).rejects.toThrow(
+          'Loader failed'
+        )
       })
 
       it('should invalidate cache entries', async () => {
         const key = 'test:cache-aside:invalidate'
         const value = { id: '123', data: 'test' }
-        
+
         await cacheManager.set(key, value)
         expect(await cacheManager.get(key)).toEqual(value)
 
@@ -259,8 +278,12 @@ describe('Cache System', () => {
       it('should write to both cache and data store', async () => {
         const key = 'test:write-through:123'
         const value = { id: '123', name: 'Test Product' }
-        const updatedValue = { id: '123', name: 'Test Product', updatedAt: new Date() }
-        
+        const updatedValue = {
+          id: '123',
+          name: 'Test Product',
+          updatedAt: new Date(),
+        }
+
         const writer = vi.fn().mockResolvedValue(updatedValue)
 
         const result = await WriteThroughPattern.write(key, value, { writer })
@@ -277,16 +300,18 @@ describe('Cache System', () => {
         const key = 'test:write-through:error'
         const value = { id: '123', data: 'test' }
         const error = new Error('Writer failed')
-        
+
         const writer = vi.fn().mockRejectedValue(error)
 
-        await expect(WriteThroughPattern.write(key, value, { writer })).rejects.toThrow('Writer failed')
+        await expect(
+          WriteThroughPattern.write(key, value, { writer })
+        ).rejects.toThrow('Writer failed')
       })
 
       it('should delete from both cache and data store', async () => {
         const key = 'test:write-through:delete'
         const value = { id: '123', data: 'test' }
-        
+
         await cacheManager.set(key, value)
         expect(await cacheManager.get(key)).toEqual(value)
 
@@ -302,8 +327,10 @@ describe('Cache System', () => {
   describe('Cache Utilities', () => {
     it('should generate proper cache keys', () => {
       expect(CacheUtils.generateKey('products', '123')).toBe('products:123')
-      expect(CacheUtils.generateKey('products', '123', 'variants')).toBe('products:123:variants')
-      
+      expect(CacheUtils.generateKey('products', '123', 'variants')).toBe(
+        'products:123:variants'
+      )
+
       expect(CacheUtils.productKey('123')).toBe('product:123')
       expect(CacheUtils.customerKey('456')).toBe('customer:456')
       expect(CacheUtils.orderKey('789')).toBe('order:789')
@@ -312,14 +339,17 @@ describe('Cache System', () => {
     it('should generate product list keys with filters', () => {
       const filters = { category: 'electronics', price: 'under-100' }
       const key = CacheUtils.productListKey(filters)
-      
+
       expect(key).toContain('products:list:')
       expect(key).toContain('category:electronics')
       expect(key).toContain('price:under-100')
     })
 
     it('should generate proper cache tags', () => {
-      const productTags = CacheUtils.getProductTags('123', 'electronics', ['summer', 'sale'])
+      const productTags = CacheUtils.getProductTags('123', 'electronics', [
+        'summer',
+        'sale',
+      ])
       expect(productTags).toContain('products')
       expect(productTags).toContain('product:123')
       expect(productTags).toContain('category:electronics')
@@ -355,14 +385,13 @@ describe('Cache System', () => {
       cacheMonitoring.trackOperation(150, true) // slow, successful
       cacheMonitoring.trackOperation(75, false) // fast, failed
 
-      const metrics = cacheMonitoring.getCurrentMetrics()
       // Metrics might not be available immediately, so we just check the method doesn't throw
       expect(() => cacheMonitoring.getHealthStatus()).not.toThrow()
     })
 
     it('should provide health status', () => {
       const health = cacheMonitoring.getHealthStatus()
-      
+
       expect(health).toBeDefined()
       expect(health.status).toMatch(/healthy|warning|critical/)
       expect(Array.isArray(health.issues)).toBe(true)
@@ -388,7 +417,7 @@ describe('Cache System', () => {
 
     it('should handle malformed cache data', async () => {
       const key = 'test:malformed:123'
-      
+
       // Manually set malformed data in Redis
       const client = redisClient.getClient()
       await client.set(`default:${key}`, 'invalid-json-data')
@@ -410,7 +439,7 @@ describe('Cache System', () => {
   describe('Performance', () => {
     it('should handle concurrent cache operations', async () => {
       const operations = []
-      
+
       // Create 100 concurrent cache operations
       for (let i = 0; i < 100; i++) {
         operations.push(
@@ -429,24 +458,24 @@ describe('Cache System', () => {
 
       const results = await Promise.all(getOperations)
       expect(results).toHaveLength(100)
-      expect(results.every(result => result !== null)).toBe(true)
+      expect(results.every((result) => result !== null)).toBe(true)
     })
 
     it('should handle large cache values', async () => {
       const key = 'test:large:123'
-      
+
       // Create a large object (1MB of data)
       const largeValue = {
         id: '123',
         data: 'x'.repeat(1024 * 1024), // 1MB string
         metadata: {
           size: '1MB',
-          created: new Date().toISOString()
-        }
+          created: new Date().toISOString(),
+        },
       }
 
       await expect(cacheManager.set(key, largeValue)).resolves.not.toThrow()
-      
+
       const cachedValue = await cacheManager.get(key)
       expect(cachedValue).toEqual(largeValue)
     })

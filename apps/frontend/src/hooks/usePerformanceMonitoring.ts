@@ -79,8 +79,10 @@ export const usePerformanceMonitoring = () => {
           // First Input Delay (FID)
           const fidObserver = new PerformanceObserver((list) => {
             const entries = list.getEntries()
-            entries.forEach((entry) => {
-              const fid = entry.processingStart - entry.startTime
+            entries.forEach((entry: PerformanceEntry & { processingStart?: number; startTime?: number }) => {
+              const fid = entry.processingStart && entry.startTime 
+                ? entry.processingStart - entry.startTime 
+                : 0
               console.log('FID:', fid, 'ms')
 
               // TODO: Send to monitoring service
@@ -95,9 +97,11 @@ export const usePerformanceMonitoring = () => {
           const clsObserver = new PerformanceObserver((list) => {
             const entries = list.getEntries()
             entries.forEach(
-              (entry: { hadRecentInput: boolean; value: number }) => {
+              (entry: PerformanceEntry & { hadRecentInput?: boolean; value?: number }) => {
                 if (!entry.hadRecentInput) {
-                  clsValue += entry.value
+                  if (entry.value) {
+                    clsValue += entry.value
+                  }
                 }
               }
             )

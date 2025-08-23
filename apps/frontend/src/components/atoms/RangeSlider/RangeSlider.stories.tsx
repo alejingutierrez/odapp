@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { RangeSlider } from './RangeSlider';
+import type { Meta, StoryObj } from '@storybook/react'
+import { RangeSlider } from './RangeSlider'
 
 const meta: Meta<typeof RangeSlider> = {
   title: 'Atoms/RangeSlider',
@@ -21,27 +21,24 @@ const meta: Meta<typeof RangeSlider> = {
     disabled: {
       control: 'boolean',
     },
-    range: {
-      control: 'boolean',
-    },
-  },
-};
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+  },
+}
+
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
     value: [20, 80],
   },
-};
+}
 
 export const Range: Story = {
   args: {
-    range: true,
     value: [20, 80],
   },
-};
+}
 
 export const WithMarks: Story = {
   args: {
@@ -53,7 +50,7 @@ export const WithMarks: Story = {
     },
     value: [26, 37],
   },
-};
+}
 
 export const WithStep: Story = {
   args: {
@@ -73,14 +70,13 @@ export const WithStep: Story = {
       100: '100',
     },
   },
-};
+}
 
 export const PriceRange: Story = {
   render: () => (
     <div style={{ width: '300px', padding: '20px' }}>
       <h4>Price Range</h4>
       <RangeSlider
-        range
         min={0}
         max={1000}
         value={[100, 500]}
@@ -94,14 +90,14 @@ export const PriceRange: Story = {
       />
     </div>
   ),
-};
+}
 
 export const Disabled: Story = {
   args: {
     disabled: true,
     value: [30, 70],
   },
-};
+}
 
 export const WithInputs: Story = {
   args: {
@@ -109,7 +105,7 @@ export const WithInputs: Story = {
     showInputs: true,
     showLabels: true,
   },
-};
+}
 
 export const WithRangeInfo: Story = {
   args: {
@@ -117,7 +113,7 @@ export const WithRangeInfo: Story = {
     showRange: true,
     showLabels: true,
   },
-};
+}
 
 export const WithFormatter: Story = {
   args: {
@@ -128,4 +124,4 @@ export const WithFormatter: Story = {
     parser: (value: string) => parseFloat(value.replace('$', '')),
     prefix: '$',
   },
-};
+}

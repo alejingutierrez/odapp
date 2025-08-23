@@ -2,7 +2,7 @@ import React from 'react'
 import { Badge as AntBadge, BadgeProps as AntBadgeProps } from 'antd'
 import './Badge.css'
 
-export interface BadgeProps extends Omit<AntBadgeProps, 'status'> {
+export interface BadgeProps extends Omit<AntBadgeProps, 'status' | 'variant' | 'size'> {
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
   size?: 'small' | 'medium' | 'large'
   dot?: boolean
@@ -45,11 +45,7 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   return (
-    <AntBadge
-      status={getAntStatus()}
-      className={badgeClasses}
-      {...props}
-    >
+    <AntBadge status={getAntStatus()} className={badgeClasses} {...props}>
       {children}
     </AntBadge>
   )
@@ -97,7 +93,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   return (
     <span className={statusClasses}>
       <Badge variant={getVariant()} dot />
-      {text && <span className="oda-status-badge__text">{text}</span>}
+      {text && <span className='oda-status-badge__text'>{text}</span>}
     </span>
   )
 }

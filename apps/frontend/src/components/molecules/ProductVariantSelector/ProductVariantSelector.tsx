@@ -161,7 +161,7 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
                 selected={selectedOptions.color === option.value}
                 disabled={(!option.available && showAvailability) || disabled}
                 onClick={() => handleOptionChange('color', option.value)}
-                size='medium'
+                size='md'
               />
             </Tooltip>
           ))}

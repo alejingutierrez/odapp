@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import { Result, Button, Typography, Collapse } from 'antd'
 import { BugOutlined, ReloadOutlined, HomeOutlined } from '@ant-design/icons'
 
@@ -80,22 +80,24 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div style={{ padding: '48px 24px', maxWidth: '800px', margin: '0 auto' }}>
+        <div
+          style={{ padding: '48px 24px', maxWidth: '800px', margin: '0 auto' }}
+        >
           <Result
-            status="error"
+            status='error'
             icon={<BugOutlined />}
-            title="Something went wrong"
-            subTitle="An unexpected error occurred. Please try refreshing the page or contact support if the problem persists."
+            title='Something went wrong'
+            subTitle='An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.'
             extra={[
-              <Button key="retry" type="primary" onClick={this.handleRetry}>
+              <Button key='retry' type='primary' onClick={this.handleRetry}>
                 <ReloadOutlined />
                 Try Again
               </Button>,
-              <Button key="reload" onClick={this.handleReload}>
+              <Button key='reload' onClick={this.handleReload}>
                 <ReloadOutlined />
                 Reload Page
               </Button>,
-              <Button key="home" onClick={this.handleGoHome}>
+              <Button key='home' onClick={this.handleGoHome}>
                 <HomeOutlined />
                 Go Home
               </Button>,
@@ -104,7 +106,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <div style={{ textAlign: 'left', marginTop: '24px' }}>
                 <Collapse ghost>
-                  <Panel header="Error Details (Development Only)" key="1">
+                  <Panel header='Error Details (Development Only)' key='1'>
                     <div style={{ marginBottom: '16px' }}>
                       <Text strong>Error Message:</Text>
                       <Paragraph
@@ -178,10 +180,10 @@ export const useErrorHandler = () => {
   return (error: Error, errorInfo?: ErrorInfo) => {
     // Log error
     console.error('Error caught by useErrorHandler:', error, errorInfo)
-    
+
     // TODO: Send to monitoring service
     // reportError(error, errorInfo)
-    
+
     // You could also dispatch to Redux store to show global error state
     // dispatch(addNotification({ type: 'error', message: error.message }))
   }

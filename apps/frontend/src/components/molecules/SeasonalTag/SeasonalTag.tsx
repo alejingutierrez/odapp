@@ -1,12 +1,12 @@
 import React from 'react'
 import { Tag, Tooltip, Space } from 'antd'
-import { 
-  SunOutlined, 
-  CloudOutlined, 
-  SnowflakeOutlined, 
-  LeafOutlined,
+import {
+  SunOutlined,
+  CloudOutlined,
+  StarOutlined,
+  EnvironmentOutlined,
   FireOutlined,
-  TrendingUpOutlined
+  RiseOutlined,
 } from '@ant-design/icons'
 import './SeasonalTag.css'
 
@@ -27,52 +27,52 @@ export interface SeasonalTagProps {
 
 const seasonConfig = {
   spring: {
-    icon: LeafOutlined,
+    icon: EnvironmentOutlined,
     color: '#52c41a',
     gradient: 'linear-gradient(135deg, #a8e6cf, #52c41a)',
-    name: 'Spring'
+    name: 'Spring',
   },
   summer: {
     icon: SunOutlined,
     color: '#faad14',
     gradient: 'linear-gradient(135deg, #ffd666, #faad14)',
-    name: 'Summer'
+    name: 'Summer',
   },
   autumn: {
     icon: CloudOutlined,
     color: '#fa8c16',
     gradient: 'linear-gradient(135deg, #ffb366, #fa8c16)',
-    name: 'Autumn'
+    name: 'Autumn',
   },
   winter: {
-    icon: SnowflakeOutlined,
+    icon: StarOutlined,
     color: '#1890ff',
     gradient: 'linear-gradient(135deg, #91d5ff, #1890ff)',
-    name: 'Winter'
-  }
+    name: 'Winter',
+  },
 } as const
 
 const trendConfig = {
   low: {
     icon: null,
     color: '#d9d9d9',
-    label: 'Low trend'
+    label: 'Low trend',
   },
   medium: {
-    icon: TrendingUpOutlined,
+    icon: RiseOutlined,
     color: '#faad14',
-    label: 'Medium trend'
+    label: 'Medium trend',
   },
   high: {
-    icon: TrendingUpOutlined,
+    icon: RiseOutlined,
     color: '#fa8c16',
-    label: 'High trend'
+    label: 'High trend',
   },
   trending: {
     icon: FireOutlined,
     color: '#ff4d4f',
-    label: 'Trending now'
-  }
+    label: 'Trending now',
+  },
 } as const
 
 export const SeasonalTag: React.FC<SeasonalTagProps> = ({
@@ -84,7 +84,7 @@ export const SeasonalTag: React.FC<SeasonalTagProps> = ({
   showIcon = true,
   animated = false,
   size = 'default',
-  className = ''
+  className = '',
 }) => {
   const seasonInfo = seasonConfig[season]
   const trendInfo = trendConfig[trendLevel]
@@ -93,15 +93,15 @@ export const SeasonalTag: React.FC<SeasonalTagProps> = ({
 
   const getDisplayText = () => {
     let text = seasonInfo.name
-    
+
     if (year) {
       text += ` ${year}`
     }
-    
+
     if (collection) {
       text += ` - ${collection}`
     }
-    
+
     return text
   }
 
@@ -109,7 +109,7 @@ export const SeasonalTag: React.FC<SeasonalTagProps> = ({
     if (!showTrendIndicator || !TrendIcon) return null
 
     return (
-      <TrendIcon 
+      <TrendIcon
         className={`seasonal-tag__trend-icon ${animated ? 'seasonal-tag__trend-icon--animated' : ''}`}
         style={{ color: trendInfo.color }}
       />
@@ -117,9 +117,9 @@ export const SeasonalTag: React.FC<SeasonalTagProps> = ({
   }
 
   const tagContent = (
-    <Space size="small" className="seasonal-tag__content">
-      {showIcon && <IconComponent className="seasonal-tag__season-icon" />}
-      <span className="seasonal-tag__text">{getDisplayText()}</span>
+    <Space size='small' className='seasonal-tag__content'>
+      {showIcon && <IconComponent className='seasonal-tag__season-icon' />}
+      <span className='seasonal-tag__text'>{getDisplayText()}</span>
       {renderTrendIndicator()}
     </Space>
   )
@@ -148,7 +148,7 @@ export const SeasonalTag: React.FC<SeasonalTagProps> = ({
         style={{
           background: seasonInfo.gradient,
           borderColor: seasonInfo.color,
-          color: 'white'
+          color: 'white',
         }}
       >
         {tagContent}

@@ -5,9 +5,7 @@ import app from '../index'
 describe('Basic API Infrastructure', () => {
   describe('Core Functionality', () => {
     it('should serve API root endpoint', async () => {
-      const response = await request(app)
-        .get('/api/v1')
-        .expect(200)
+      const response = await request(app).get('/api/v1').expect(200)
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body.data).toHaveProperty('message')
@@ -15,32 +13,32 @@ describe('Basic API Infrastructure', () => {
     })
 
     it('should set security headers', async () => {
-      const response = await request(app)
-        .get('/api/v1')
-        .expect(200)
+      const response = await request(app).get('/api/v1').expect(200)
 
-      expect(response.headers).toHaveProperty('x-content-type-options', 'nosniff')
+      expect(response.headers).toHaveProperty(
+        'x-content-type-options',
+        'nosniff'
+      )
       expect(response.headers).toHaveProperty('x-frame-options', 'DENY')
       expect(response.headers).not.toHaveProperty('x-powered-by')
     })
 
     it('should set request ID', async () => {
-      const response = await request(app)
-        .get('/api/v1')
-        .expect(200)
+      const response = await request(app).get('/api/v1').expect(200)
 
       expect(response.headers).toHaveProperty('x-request-id')
       expect(response.headers['x-request-id']).toMatch(/^[0-9a-f-]{36}$/)
     })
 
     it('should serve Swagger documentation', async () => {
-      const response = await request(app)
-        .get('/api-docs.json')
-        .expect(200)
+      const response = await request(app).get('/api-docs.json').expect(200)
 
       expect(response.body).toHaveProperty('openapi')
       expect(response.body).toHaveProperty('info')
-      expect(response.body.info).toHaveProperty('title', 'Oda Fashion Platform API')
+      expect(response.body.info).toHaveProperty(
+        'title',
+        'Oda Fashion Platform API'
+      )
     })
 
     it('should handle CORS', async () => {
@@ -54,9 +52,7 @@ describe('Basic API Infrastructure', () => {
     })
 
     it('should return liveness status', async () => {
-      const response = await request(app)
-        .get('/health/live')
-        .expect(200)
+      const response = await request(app).get('/health/live').expect(200)
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body.data).toHaveProperty('status', 'alive')
@@ -102,7 +98,9 @@ describe('Basic API Infrastructure', () => {
         .set('Accept', 'application/vnd.oda.v1+json')
         .expect(200)
 
-      expect(response.headers['content-type']).toMatch(/application\/vnd\.oda\.v1\+json/)
+      expect(response.headers['content-type']).toMatch(
+        /application\/vnd\.oda\.v1\+json/
+      )
     })
   })
 })

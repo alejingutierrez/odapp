@@ -11,7 +11,7 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
   {
     name: 'admin',
     description: 'System administrator with full access',
-    permissions: ['*'] // Wildcard permission for full access
+    permissions: ['*'], // Wildcard permission for full access
   },
   {
     name: 'manager',
@@ -27,13 +27,13 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
       'categories:read',
       'categories:write',
       'categories:delete',
-      
+
       // Inventory management
       'inventory:read',
       'inventory:write',
       'inventory:adjust',
       'inventory:transfer',
-      
+
       // Order management
       'orders:read',
       'orders:write',
@@ -41,31 +41,31 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
       'orders:fulfill',
       'orders:cancel',
       'orders:refund',
-      
+
       // Customer management
       'customers:read',
       'customers:write',
       'customers:delete',
       'customers:export',
-      
+
       // Analytics and reporting
       'analytics:read',
       'reports:read',
       'reports:export',
-      
+
       // Shopify integration
       'shopify:read',
       'shopify:sync',
       'shopify:configure',
-      
+
       // User management (limited)
       'users:read',
       'users:write',
-      
+
       // System monitoring
       'system:health',
-      'system:logs'
-    ]
+      'system:logs',
+    ],
   },
   {
     name: 'employee',
@@ -75,28 +75,28 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
       'products:read',
       'collections:read',
       'categories:read',
-      
+
       // Inventory management (limited)
       'inventory:read',
       'inventory:adjust',
-      
+
       // Order management
       'orders:read',
       'orders:write',
       'orders:process',
       'orders:fulfill',
-      
+
       // Customer management (limited)
       'customers:read',
       'customers:write',
-      
+
       // Basic analytics
       'analytics:read',
       'reports:read',
-      
+
       // Shopify sync (read-only)
-      'shopify:read'
-    ]
+      'shopify:read',
+    ],
   },
   {
     name: 'user',
@@ -109,14 +109,14 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
       'inventory:read',
       'orders:read',
       'customers:read',
-      
+
       // Basic analytics
       'analytics:read',
-      
+
       // Profile management
       'profile:read',
-      'profile:write'
-    ]
+      'profile:write',
+    ],
   },
   {
     name: 'viewer',
@@ -130,9 +130,9 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
       'customers:read',
       'analytics:read',
       'reports:read',
-      'shopify:read'
-    ]
-  }
+      'shopify:read',
+    ],
+  },
 ]
 
 /**
@@ -144,7 +144,7 @@ export async function seedRoles(): Promise<void> {
   for (const roleData of DEFAULT_ROLES) {
     try {
       const existingRole = await prisma.role.findUnique({
-        where: { name: roleData.name }
+        where: { name: roleData.name },
       })
 
       if (existingRole) {
@@ -153,8 +153,8 @@ export async function seedRoles(): Promise<void> {
           where: { name: roleData.name },
           data: {
             description: roleData.description,
-            permissions: roleData.permissions
-          }
+            permissions: roleData.permissions,
+          },
         })
         console.log(`Updated role: ${roleData.name}`)
       } else {
@@ -163,8 +163,8 @@ export async function seedRoles(): Promise<void> {
           data: {
             name: roleData.name,
             description: roleData.description,
-            permissions: roleData.permissions
-          }
+            permissions: roleData.permissions,
+          },
         })
         console.log(`Created role: ${roleData.name}`)
       }
@@ -185,18 +185,18 @@ export async function createDefaultAdmin(): Promise<void> {
       roles: {
         some: {
           role: {
-            name: 'admin'
-          }
-        }
-      }
-    }
+            name: 'admin',
+          },
+        },
+      },
+    },
   })
 
   if (adminCount === 0) {
     console.log('Creating default admin user...')
-    
+
     const { AuthService } = await import('./auth')
-    
+
     // Create admin user
     const adminUser = await prisma.user.create({
       data: {
@@ -205,21 +205,21 @@ export async function createDefaultAdmin(): Promise<void> {
         lastName: 'User',
         passwordHash: await AuthService.hashPassword('Admin123!'),
         emailVerified: true,
-        emailVerifiedAt: new Date()
-      }
+        emailVerifiedAt: new Date(),
+      },
     })
 
     // Assign admin role
     const adminRole = await prisma.role.findUnique({
-      where: { name: 'admin' }
+      where: { name: 'admin' },
     })
 
     if (adminRole) {
       await prisma.userRole.create({
         data: {
           userId: adminUser.id,
-          roleId: adminRole.id
-        }
+          roleId: adminRole.id,
+        },
       })
     }
 
@@ -232,9 +232,9 @@ export async function createDefaultAdmin(): Promise<void> {
  */
 export function getAllPermissions(): string[] {
   const permissions = new Set<string>()
-  
-  DEFAULT_ROLES.forEach(role => {
-    role.permissions.forEach(permission => {
+
+  DEFAULT_ROLES.forEach((role) => {
+    role.permissions.forEach((permission) => {
       if (permission !== '*') {
         permissions.add(permission)
       }
@@ -257,8 +257,8 @@ export function isValidPermission(permission: string): boolean {
  */
 export function getPermissionsByCategory(): Record<string, string[]> {
   const categories: Record<string, string[]> = {}
-  
-  getAllPermissions().forEach(permission => {
+
+  getAllPermissions().forEach((permission) => {
     const [category] = permission.split(':')
     if (!categories[category]) {
       categories[category] = []

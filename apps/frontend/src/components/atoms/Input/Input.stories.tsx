@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { Input, TextArea, Password, Search } from './Input'
-import { UserOutlined, LockOutlined, MailOutlined, SearchOutlined } from '@ant-design/icons'
+import { Input, TextArea, PasswordInput, SearchInput } from './Input'
+import {
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  SearchOutlined,
+} from '@ant-design/icons'
 
 const meta: Meta<typeof Input> = {
   title: 'Atoms/Input',
@@ -9,7 +14,8 @@ const meta: Meta<typeof Input> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Input component for text entry with labels, validation states, and various input types.',
+        component:
+          'Input component for text entry with labels, validation states, and various input types.',
       },
     },
   },
@@ -102,21 +108,24 @@ export const WithError: Story = {
 // Variant Stories
 export const Variants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
       <Input
-        label="Outlined (Default)"
-        variant="outlined"
-        placeholder="Outlined input"
+        label='Outlined (Default)'
+        variant='outlined'
+        placeholder='Outlined input'
       />
+      <Input label='Filled' variant='filled' placeholder='Filled input' />
       <Input
-        label="Filled"
-        variant="filled"
-        placeholder="Filled input"
-      />
-      <Input
-        label="Borderless"
-        variant="borderless"
-        placeholder="Borderless input"
+        label='Borderless'
+        variant='borderless'
+        placeholder='Borderless input'
       />
     </div>
   ),
@@ -125,22 +134,21 @@ export const Variants: Story = {
 // Size Stories
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
+      <Input label='Small' size='small' placeholder='Small input' />
       <Input
-        label="Small"
-        size="small"
-        placeholder="Small input"
+        label='Medium (Default)'
+        size='middle'
+        placeholder='Medium input'
       />
-      <Input
-        label="Medium (Default)"
-        size="middle"
-        placeholder="Medium input"
-      />
-      <Input
-        label="Large"
-        size="large"
-        placeholder="Large input"
-      />
+      <Input label='Large' size='large' placeholder='Large input' />
     </div>
   ),
 }
@@ -148,26 +156,22 @@ export const Sizes: Story = {
 // State Stories
 export const States: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
+      <Input label='Normal' placeholder='Normal state' />
+      <Input label='Focused' placeholder='Focused state' autoFocus />
+      <Input label='Disabled' placeholder='Disabled state' disabled />
       <Input
-        label="Normal"
-        placeholder="Normal state"
-      />
-      <Input
-        label="Focused"
-        placeholder="Focused state"
-        autoFocus
-      />
-      <Input
-        label="Disabled"
-        placeholder="Disabled state"
-        disabled
-      />
-      <Input
-        label="Read Only"
-        placeholder="Read only state"
+        label='Read Only'
+        placeholder='Read only state'
         readOnly
-        value="Read only value"
+        value='Read only value'
       />
     </div>
   ),
@@ -176,21 +180,28 @@ export const States: Story = {
 // With Icons
 export const WithIcons: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
       <Input
-        label="Username"
-        placeholder="Enter username"
+        label='Username'
+        placeholder='Enter username'
         prefix={<UserOutlined />}
       />
       <Input
-        label="Email"
-        placeholder="Enter email"
+        label='Email'
+        placeholder='Enter email'
         prefix={<MailOutlined />}
-        suffix="@company.com"
+        suffix='@company.com'
       />
       <Input
-        label="Search"
-        placeholder="Search..."
+        label='Search'
+        placeholder='Search...'
         prefix={<SearchOutlined />}
       />
     </div>
@@ -200,24 +211,31 @@ export const WithIcons: Story = {
 // Validation States
 export const ValidationStates: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
       <Input
-        label="Valid Input"
-        placeholder="Valid input"
-        value="valid@email.com"
-        helperText="This email is available"
+        label='Valid Input'
+        placeholder='Valid input'
+        value='valid@email.com'
+        helperText='This email is available'
       />
       <Input
-        label="Invalid Input"
-        placeholder="Invalid input"
-        value="invalid-email"
-        error="Please enter a valid email address"
+        label='Invalid Input'
+        placeholder='Invalid input'
+        value='invalid-email'
+        error='Please enter a valid email address'
       />
       <Input
-        label="Required Field"
-        placeholder="Required field"
+        label='Required Field'
+        placeholder='Required field'
         required
-        error="This field is required"
+        error='This field is required'
       />
     </div>
   ),
@@ -226,22 +244,29 @@ export const ValidationStates: Story = {
 // TextArea Stories
 export const TextAreaExamples: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '400px',
+      }}
+    >
       <TextArea
-        label="Description"
-        placeholder="Enter description..."
+        label='Description'
+        placeholder='Enter description...'
         rows={4}
       />
       <TextArea
-        label="Auto-resize TextArea"
-        placeholder="This textarea will auto-resize..."
+        label='Auto-resize TextArea'
+        placeholder='This textarea will auto-resize...'
         autoSize
       />
       <TextArea
-        label="Comments"
-        placeholder="Enter your comments..."
+        label='Comments'
+        placeholder='Enter your comments...'
         rows={3}
-        helperText="Maximum 500 characters"
+        helperText='Maximum 500 characters'
       />
     </div>
   ),
@@ -250,21 +275,28 @@ export const TextAreaExamples: Story = {
 // Password Input Stories
 export const PasswordExamples: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
-      <Password
-        label="Password"
-        placeholder="Enter password"
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
+      <PasswordInput
+        label='Password'
+        placeholder='Enter password'
         prefix={<LockOutlined />}
       />
-      <Password
-        label="Confirm Password"
-        placeholder="Confirm password"
-        helperText="Passwords must match"
+      <PasswordInput
+        label='Confirm Password'
+        placeholder='Confirm password'
+        helperText='Passwords must match'
       />
-      <Password
-        label="Current Password"
-        placeholder="Enter current password"
-        error="Incorrect password"
+      <PasswordInput
+        label='Current Password'
+        placeholder='Enter current password'
+        error='Incorrect password'
       />
     </div>
   ),
@@ -273,16 +305,23 @@ export const PasswordExamples: Story = {
 // Search Input Stories
 export const SearchExamples: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px' }}>
-      <Search
-        label="Search Products"
-        placeholder="Search for products..."
-        onSearch={(value) => console.log('Searching for:', value)}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '300px',
+      }}
+    >
+      <SearchInput
+        label='Search Products'
+        placeholder='Search for products...'
+        onSearch={(value: string) => console.log('Searching for:', value)}
       />
-      <Search
-        placeholder="Quick search..."
-        size="large"
-        onSearch={(value) => console.log('Quick search:', value)}
+      <SearchInput
+        placeholder='Quick search...'
+        size='large'
+        onSearch={(value: string) => console.log('Quick search:', value)}
       />
     </div>
   ),
@@ -294,39 +333,31 @@ export const FormLayout: Story = {
     <div style={{ maxWidth: '400px' }}>
       <h3>User Registration</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Input label='First Name' placeholder='Enter first name' required />
+        <Input label='Last Name' placeholder='Enter last name' required />
         <Input
-          label="First Name"
-          placeholder="Enter first name"
-          required
-        />
-        <Input
-          label="Last Name"
-          placeholder="Enter last name"
-          required
-        />
-        <Input
-          label="Email Address"
-          placeholder="Enter email"
-          type="email"
+          label='Email Address'
+          placeholder='Enter email'
+          type='email'
           required
           prefix={<MailOutlined />}
         />
-        <Password
-          label="Password"
-          placeholder="Create password"
+        <PasswordInput
+          label='Password'
+          placeholder='Create password'
           required
-          helperText="Must be at least 8 characters with numbers and symbols"
+          helperText='Must be at least 8 characters with numbers and symbols'
         />
-        <Password
-          label="Confirm Password"
-          placeholder="Confirm password"
+        <PasswordInput
+          label='Confirm Password'
+          placeholder='Confirm password'
           required
         />
         <TextArea
-          label="Bio (Optional)"
-          placeholder="Tell us about yourself..."
+          label='Bio (Optional)'
+          placeholder='Tell us about yourself...'
           rows={3}
-          helperText="Maximum 200 characters"
+          helperText='Maximum 200 characters'
         />
       </div>
     </div>
@@ -339,13 +370,13 @@ export const FullWidth: Story = {
     <div style={{ width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <Input
-          label="Full Width Input"
-          placeholder="This input takes full width"
+          label='Full Width Input'
+          placeholder='This input takes full width'
           fullWidth
         />
         <Input
-          label="Regular Width Input"
-          placeholder="This input has default width"
+          label='Regular Width Input'
+          placeholder='This input has default width'
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Rate, InputNumber, Tooltip } from 'antd'
-import { StarFilled } from '@ant-design/icons'
+import { StarFilled, HeartFilled } from '@ant-design/icons'
 import './RatingInput.css'
 
 export type RatingType = 'star' | 'numeric' | 'emoji' | 'heart' | 'thumbs'
@@ -154,7 +154,7 @@ export const RatingInput: React.FC<RatingInputProps> = ({
         step={step}
         precision={precision}
         disabled={disabled}
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         className='oda-rating-input__numeric'
       />
     )

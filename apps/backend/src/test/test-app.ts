@@ -1,5 +1,5 @@
 import express, { type Express } from 'express'
-import cors from 'cors'
+import * as cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
 
@@ -12,10 +12,12 @@ export function createTestApp(): Express {
 
   // Security middleware
   app.use(helmet())
-  app.use(cors({
-    origin: ['http://localhost:3000'],
-    credentials: true,
-  }))
+  app.use(
+    cors({
+      origin: ['http://localhost:3000'],
+      credentials: true,
+    })
+  )
 
   // General middleware
   app.use(compression())
@@ -51,7 +53,7 @@ export function createTestApp(): Express {
       err: Error,
       req: express.Request,
       res: express.Response,
-      next: express.NextFunction
+      _next: express.NextFunction
     ) => {
       console.error(err.stack)
       res.status(500).json({

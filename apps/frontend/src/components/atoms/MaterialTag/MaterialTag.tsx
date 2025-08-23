@@ -1,12 +1,22 @@
 import React from 'react'
 import { Tag as AntTag, Tooltip } from 'antd'
-import { InfoCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import {
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons'
 import './MaterialTag.css'
 
 export interface MaterialTagProps {
   material: string
   percentage?: number
-  certification?: 'organic' | 'recycled' | 'sustainable' | 'fair-trade' | 'gots' | 'oeko-tex'
+  certification?:
+    | 'organic'
+    | 'recycled'
+    | 'sustainable'
+    | 'fair-trade'
+    | 'gots'
+    | 'oeko-tex'
   variant?: 'default' | 'detailed' | 'compact' | 'minimal'
   color?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
   size?: 'small' | 'medium' | 'large'
@@ -46,17 +56,23 @@ export const MaterialTag: React.FC<MaterialTagProps> = ({
 
   const getCertificationIcon = () => {
     if (!certification || !showIcon) return null
-    
+
     switch (certification) {
       case 'organic':
       case 'gots':
       case 'fair-trade':
-        return <CheckCircleOutlined className="oda-material-tag__cert-icon oda-material-tag__cert-icon--success" />
+        return (
+          <CheckCircleOutlined className='oda-material-tag__cert-icon oda-material-tag__cert-icon--success' />
+        )
       case 'recycled':
       case 'sustainable':
-        return <InfoCircleOutlined className="oda-material-tag__cert-icon oda-material-tag__cert-icon--info" />
+        return (
+          <InfoCircleOutlined className='oda-material-tag__cert-icon oda-material-tag__cert-icon--info' />
+        )
       case 'oeko-tex':
-        return <ExclamationCircleOutlined className="oda-material-tag__cert-icon oda-material-tag__cert-icon--warning" />
+        return (
+          <ExclamationCircleOutlined className='oda-material-tag__cert-icon oda-material-tag__cert-icon--warning' />
+        )
       default:
         return null
     }
@@ -64,36 +80,37 @@ export const MaterialTag: React.FC<MaterialTagProps> = ({
 
   const getCertificationLabel = () => {
     if (!certification) return ''
-    
+
     const labels: Record<string, string> = {
-      'organic': 'Organic',
-      'recycled': 'Recycled',
-      'sustainable': 'Sustainable',
+      organic: 'Organic',
+      recycled: 'Recycled',
+      sustainable: 'Sustainable',
       'fair-trade': 'Fair Trade',
-      'gots': 'GOTS',
+      gots: 'GOTS',
       'oeko-tex': 'OEKO-TEX',
     }
-    
+
     return labels[certification] || certification
   }
 
   const formatMaterial = () => {
-    const materialName = material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()
-    
+    const materialName =
+      material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()
+
     if (variant === 'minimal') {
       return materialName
     }
-    
+
     if (showPercentage && percentage !== undefined) {
       return `${materialName} ${percentage}%`
     }
-    
+
     return materialName
   }
 
   const getTooltipContent = () => {
     if (variant === 'detailed') return null
-    
+
     let content = material
     if (percentage !== undefined) {
       content += ` (${percentage}%)`
@@ -118,13 +135,11 @@ export const MaterialTag: React.FC<MaterialTagProps> = ({
   }
 
   const tagContent = (
-    <div className="oda-material-tag__content">
+    <div className='oda-material-tag__content'>
       {getCertificationIcon()}
-      <span className="oda-material-tag__text">
-        {formatMaterial()}
-      </span>
+      <span className='oda-material-tag__text'>{formatMaterial()}</span>
       {variant === 'detailed' && certification && (
-        <span className="oda-material-tag__certification">
+        <span className='oda-material-tag__certification'>
           {getCertificationLabel()}
         </span>
       )}
@@ -145,7 +160,7 @@ export const MaterialTag: React.FC<MaterialTagProps> = ({
   const tooltipContent = getTooltipContent()
   if (tooltipContent && variant !== 'detailed') {
     return (
-      <Tooltip title={tooltipContent} placement="top">
+      <Tooltip title={tooltipContent} placement='top'>
         {tag}
       </Tooltip>
     )
@@ -198,11 +213,14 @@ export const MaterialComposition: React.FC<MaterialCompositionProps> = ({
     return b.percentage - a.percentage
   })
 
-  const totalPercentage = materials.reduce((sum, mat) => sum + (mat.percentage || 0), 0)
+  const totalPercentage = materials.reduce(
+    (sum, mat) => sum + (mat.percentage || 0),
+    0
+  )
 
   return (
     <div className={compositionClasses}>
-      <div className="oda-material-composition__tags">
+      <div className='oda-material-composition__tags'>
         {sortedMaterials.map(({ material, percentage, certification }) => (
           <MaterialTag
             key={material}
@@ -218,7 +236,7 @@ export const MaterialComposition: React.FC<MaterialCompositionProps> = ({
         ))}
       </div>
       {showPercentages && totalPercentage > 0 && totalPercentage !== 100 && (
-        <div className="oda-material-composition__total">
+        <div className='oda-material-composition__total'>
           Total: {totalPercentage}%
         </div>
       )}
@@ -254,23 +272,25 @@ export const CareInstructions: React.FC<CareInstructionsProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  const getCareText = (instruction: CareInstructionsProps['instructions'][0]) => {
+  const getCareText = (
+    instruction: CareInstructionsProps['instructions'][0]
+  ) => {
     const { type, temperature, method, warning } = instruction
-    
+
     let text = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')
-    
+
     if (temperature) {
       text += ` at ${temperature}°C`
     }
-    
+
     if (method) {
       text += ` (${method})`
     }
-    
+
     if (warning) {
       text = `⚠️ ${text}`
     }
-    
+
     return text
   }
 
@@ -280,7 +300,7 @@ export const CareInstructions: React.FC<CareInstructionsProps> = ({
         <MaterialTag
           key={`${instruction.type}-${index}`}
           material={getCareText(instruction)}
-          variant="compact"
+          variant='compact'
           color={instruction.warning ? 'warning' : 'info'}
           size={size}
           showIcon={false}

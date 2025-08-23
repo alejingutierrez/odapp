@@ -11,16 +11,16 @@ export const useDocumentTitle = (title?: string) => {
       if (title) return title
 
       const pathSegments = location.pathname.split('/').filter(Boolean)
-      
+
       if (pathSegments.length === 0) {
         return 'Dashboard'
       }
 
       // Convert path segments to readable titles
-      const titleParts = pathSegments.map(segment => {
+      const titleParts = pathSegments.map((segment) => {
         return segment
           .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
       })
 
@@ -35,18 +35,24 @@ export const useDocumentTitle = (title?: string) => {
 
     // Set meta description based on route
     const setMetaDescription = () => {
-      let description = 'Oda - Fashion ERP Platform for managing products, inventory, orders, and customers.'
+      let description =
+        'Oda - Fashion ERP Platform for managing products, inventory, orders, and customers.'
 
       if (location.pathname.includes('/products')) {
-        description = 'Manage your fashion product catalog, collections, and variants with Oda.'
+        description =
+          'Manage your fashion product catalog, collections, and variants with Oda.'
       } else if (location.pathname.includes('/inventory')) {
-        description = 'Track and manage inventory levels, stock adjustments, and transfers with Oda.'
+        description =
+          'Track and manage inventory levels, stock adjustments, and transfers with Oda.'
       } else if (location.pathname.includes('/orders')) {
-        description = 'Process and manage customer orders, returns, and fulfillment with Oda.'
+        description =
+          'Process and manage customer orders, returns, and fulfillment with Oda.'
       } else if (location.pathname.includes('/customers')) {
-        description = 'Manage customer relationships, segments, and loyalty programs with Oda.'
+        description =
+          'Manage customer relationships, segments, and loyalty programs with Oda.'
       } else if (location.pathname.includes('/analytics')) {
-        description = 'Analyze sales, products, customers, and inventory performance with Oda.'
+        description =
+          'Analyze sales, products, customers, and inventory performance with Oda.'
       } else if (location.pathname.includes('/shopify')) {
         description = 'Sync and manage your Shopify integration with Oda.'
       }
@@ -78,21 +84,27 @@ export const useDocumentTitle = (title?: string) => {
 
     // Set Open Graph tags
     const setOpenGraphTags = () => {
-      const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement('meta')
+      const ogTitle =
+        document.querySelector('meta[property="og:title"]') ||
+        document.createElement('meta')
       ogTitle.setAttribute('property', 'og:title')
       ogTitle.setAttribute('content', fullTitle)
       if (!document.head.contains(ogTitle)) {
         document.head.appendChild(ogTitle)
       }
 
-      const ogUrl = document.querySelector('meta[property="og:url"]') || document.createElement('meta')
+      const ogUrl =
+        document.querySelector('meta[property="og:url"]') ||
+        document.createElement('meta')
       ogUrl.setAttribute('property', 'og:url')
       ogUrl.setAttribute('content', window.location.href)
       if (!document.head.contains(ogUrl)) {
         document.head.appendChild(ogUrl)
       }
 
-      const ogType = document.querySelector('meta[property="og:type"]') || document.createElement('meta')
+      const ogType =
+        document.querySelector('meta[property="og:type"]') ||
+        document.createElement('meta')
       ogType.setAttribute('property', 'og:type')
       ogType.setAttribute('content', 'website')
       if (!document.head.contains(ogType)) {
@@ -101,7 +113,6 @@ export const useDocumentTitle = (title?: string) => {
     }
 
     setOpenGraphTags()
-
   }, [title, location.pathname])
 
   return {

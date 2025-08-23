@@ -1,20 +1,20 @@
-import React from 'react';
-import { Avatar as AntAvatar, AvatarProps as AntAvatarProps, Badge } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import React from 'react'
+import { Avatar as AntAvatar, AvatarProps as AntAvatarProps, Badge } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
 
-export type AvatarSize = 'small' | 'default' | 'large' | number;
-export type AvatarShape = 'circle' | 'square';
+export type AvatarSize = 'small' | 'default' | 'large' | number
+export type AvatarShape = 'circle' | 'square'
 
 export interface AvatarProps extends Omit<AntAvatarProps, 'size' | 'shape'> {
-  name?: string;
-  src?: string;
-  size?: AvatarSize;
-  shape?: AvatarShape;
-  showBadge?: boolean;
-  badgeCount?: number;
-  badgeColor?: string;
-  status?: 'online' | 'offline' | 'away' | 'busy';
-  fallbackIcon?: React.ReactNode;
+  name?: string
+  src?: string
+  size?: AvatarSize
+  shape?: AvatarShape
+  showBadge?: boolean
+  badgeCount?: number
+  badgeColor?: string
+  status?: 'online' | 'offline' | 'away' | 'busy'
+  fallbackIcon?: React.ReactNode
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
@@ -33,25 +33,25 @@ export const Avatar: React.FC<AvatarProps> = ({
   const getInitials = (fullName: string): string => {
     return fullName
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join('')
       .toUpperCase()
-      .slice(0, 2);
-  };
+      .slice(0, 2)
+  }
 
   const getStatusColor = () => {
     switch (status) {
       case 'online':
-        return '#52c41a';
+        return '#52c41a'
       case 'away':
-        return '#faad14';
+        return '#faad14'
       case 'busy':
-        return '#f5222d';
+        return '#f5222d'
       case 'offline':
       default:
-        return '#d9d9d9';
+        return '#d9d9d9'
     }
-  };
+  }
 
   const renderAvatar = () => (
     <AntAvatar
@@ -63,7 +63,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     >
       {!src && (name ? getInitials(name) : children)}
     </AntAvatar>
-  );
+  )
 
   if (showBadge || status) {
     return (
@@ -78,8 +78,8 @@ export const Avatar: React.FC<AvatarProps> = ({
       >
         {renderAvatar()}
       </Badge>
-    );
+    )
   }
 
-  return renderAvatar();
-};
+  return renderAvatar()
+}

@@ -1,10 +1,9 @@
 import { Router, type Request, type Response } from 'express'
-import { 
-  cacheManager, 
-  cacheMonitoring, 
+import {
+  cacheManager,
+  cacheMonitoring,
   cacheWarming,
   redisClient,
-  CacheUtils 
 } from '../lib/cache/index.js'
 import { authenticate, requirePermission } from '../middleware/auth.js'
 import { sendSuccess, sendError } from '../lib/api-response.js'
@@ -50,39 +49,49 @@ const router = Router()
  *                     metrics:
  *                       type: object
  */
-router.get('/health', authenticate, requirePermission('cache:read'), async (req: Request, res: Response) => {
-  try {
-    const health = cacheMonitoring.getHealthStatus()
-    
-    // Test Redis connection
-    let redisHealth = {
-      connected: false,
-      ping: null as string | null,
-      error: null as string | null
-    }
-
+router.get(
+  '/health',
+  authenticate,
+  requirePermission('cache:read'),
+  async (req: Request, res: Response) => {
     try {
-      redisHealth.connected = redisClient.isReady()
-      if (redisHealth.connected) {
-        redisHealth.ping = await redisClient.ping()
+      const health = cacheMonitoring.getHealthStatus()
+
+      // Test Redis connection
+      const redisHealth = {
+        connected: false,
+        ping: null as string | null,
+        error: null as string | null,
       }
+
+      try {
+        redisHealth.connected = redisClient.isReady()
+        if (redisHealth.connected) {
+          redisHealth.ping = await redisClient.ping()
+        }
+      } catch (error) {
+        redisHealth.error = (error as Error).message
+      }
+
+      const httpStatus = health.status === 'critical' ? 503 : 200
+
+      return sendSuccess(
+        res,
+        {
+          status: health.status,
+          issues: health.issues,
+          redis: redisHealth,
+          metrics: health.metrics,
+        },
+        undefined,
+        httpStatus
+      )
     } catch (error) {
-      redisHealth.error = (error as Error).message
+      logger.error('Cache health check failed', { error })
+      return sendError(res, 'INTERNAL_ERROR', 'Cache health check failed', 500)
     }
-
-    const httpStatus = health.status === 'critical' ? 503 : 200
-
-    return sendSuccess(res, {
-      status: health.status,
-      issues: health.issues,
-      redis: redisHealth,
-      metrics: health.metrics,
-    }, undefined, httpStatus)
-  } catch (error) {
-    logger.error('Cache health check failed', { error })
-    return sendError(res, 'INTERNAL_ERROR', 'Cache health check failed', 500)
   }
-})
+)
 
 /**
  * @swagger
@@ -96,21 +105,31 @@ router.get('/health', authenticate, requirePermission('cache:read'), async (req:
  *       200:
  *         description: Cache statistics
  */
-router.get('/stats', authenticate, requirePermission('cache:read'), async (req: Request, res: Response) => {
-  try {
-    const stats = cacheManager.getStats()
-    const metrics = await cacheMonitoring.collectMetrics()
-    
-    return sendSuccess(res, {
-      current: stats,
-      detailed: metrics,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to get cache stats', { error })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache statistics', 500)
+router.get(
+  '/stats',
+  authenticate,
+  requirePermission('cache:read'),
+  async (req: Request, res: Response) => {
+    try {
+      const stats = cacheManager.getStats()
+      const metrics = await cacheMonitoring.collectMetrics()
+
+      return sendSuccess(res, {
+        current: stats,
+        detailed: metrics,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to get cache stats', { error })
+      return sendError(
+        res,
+        'INTERNAL_ERROR',
+        'Failed to get cache statistics',
+        500
+      )
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -131,21 +150,31 @@ router.get('/stats', authenticate, requirePermission('cache:read'), async (req: 
  *       200:
  *         description: Cache metrics history
  */
-router.get('/metrics', authenticate, requirePermission('cache:read'), (req: Request, res: Response) => {
-  try {
-    const limit = parseInt(req.query.limit as string) || 100
-    const metrics = cacheMonitoring.getMetricsHistory(limit)
-    
-    return sendSuccess(res, {
-      metrics,
-      count: metrics.length,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to get cache metrics', { error })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache metrics', 500)
+router.get(
+  '/metrics',
+  authenticate,
+  requirePermission('cache:read'),
+  (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100
+      const metrics = cacheMonitoring.getMetricsHistory(limit)
+
+      return sendSuccess(res, {
+        metrics,
+        count: metrics.length,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to get cache metrics', { error })
+      return sendError(
+        res,
+        'INTERNAL_ERROR',
+        'Failed to get cache metrics',
+        500
+      )
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -166,21 +195,26 @@ router.get('/metrics', authenticate, requirePermission('cache:read'), (req: Requ
  *       200:
  *         description: Cache alerts
  */
-router.get('/alerts', authenticate, requirePermission('cache:read'), (req: Request, res: Response) => {
-  try {
-    const limit = parseInt(req.query.limit as string) || 50
-    const alerts = cacheMonitoring.getAlerts(limit)
-    
-    return sendSuccess(res, {
-      alerts,
-      count: alerts.length,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to get cache alerts', { error })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache alerts', 500)
+router.get(
+  '/alerts',
+  authenticate,
+  requirePermission('cache:read'),
+  (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50
+      const alerts = cacheMonitoring.getAlerts(limit)
+
+      return sendSuccess(res, {
+        alerts,
+        count: alerts.length,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to get cache alerts', { error })
+      return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache alerts', 500)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -194,22 +228,32 @@ router.get('/alerts', authenticate, requirePermission('cache:read'), (req: Reque
  *       200:
  *         description: Cache warming triggered
  */
-router.post('/warm', authenticate, requirePermission('cache:write'), async (req: Request, res: Response) => {
-  try {
-    // Trigger cache warming asynchronously
-    cacheWarming.warmCache().catch(error => {
-      logger.error('Cache warming failed', { error })
-    })
+router.post(
+  '/warm',
+  authenticate,
+  requirePermission('cache:write'),
+  async (req: Request, res: Response) => {
+    try {
+      // Trigger cache warming asynchronously
+      cacheWarming.warmCache().catch((error) => {
+        logger.error('Cache warming failed', { error })
+      })
 
-    return sendSuccess(res, {
-      message: 'Cache warming triggered',
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to trigger cache warming', { error })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to trigger cache warming', 500)
+      return sendSuccess(res, {
+        message: 'Cache warming triggered',
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to trigger cache warming', { error })
+      return sendError(
+        res,
+        'INTERNAL_ERROR',
+        'Failed to trigger cache warming',
+        500
+      )
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -229,22 +273,32 @@ router.post('/warm', authenticate, requirePermission('cache:write'), async (req:
  *       200:
  *         description: Cache cleared
  */
-router.delete('/clear', authenticate, requirePermission('cache:write'), async (req: Request, res: Response) => {
-  try {
-    const namespace = req.query.namespace as string | undefined
-    
-    await cacheManager.clear(namespace)
-    
-    return sendSuccess(res, {
-      message: namespace ? `Cache cleared for namespace: ${namespace}` : 'All cache cleared',
-      namespace,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to clear cache', { error, namespace: req.query.namespace })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to clear cache', 500)
+router.delete(
+  '/clear',
+  authenticate,
+  requirePermission('cache:write'),
+  async (req: Request, res: Response) => {
+    try {
+      const namespace = req.query.namespace as string | undefined
+
+      await cacheManager.clear(namespace)
+
+      return sendSuccess(res, {
+        message: namespace
+          ? `Cache cleared for namespace: ${namespace}`
+          : 'All cache cleared',
+        namespace,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to clear cache', {
+        error,
+        namespace: req.query.namespace,
+      })
+      return sendError(res, 'INTERNAL_ERROR', 'Failed to clear cache', 500)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -272,26 +326,34 @@ router.delete('/clear', authenticate, requirePermission('cache:write'), async (r
  *       200:
  *         description: Cache invalidated
  */
-router.post('/invalidate', authenticate, requirePermission('cache:write'), async (req: Request, res: Response) => {
-  try {
-    const { tags } = req.body
+router.post(
+  '/invalidate',
+  authenticate,
+  requirePermission('cache:write'),
+  async (req: Request, res: Response) => {
+    try {
+      const { tags } = req.body
 
-    if (!Array.isArray(tags) || tags.length === 0) {
-      return sendError(res, 'VALIDATION_ERROR', 'Tags array is required', 400)
+      if (!Array.isArray(tags) || tags.length === 0) {
+        return sendError(res, 'VALIDATION_ERROR', 'Tags array is required', 400)
+      }
+
+      await cacheManager.invalidateByTags(tags)
+
+      return sendSuccess(res, {
+        message: 'Cache invalidated by tags',
+        tags,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to invalidate cache by tags', {
+        error,
+        tags: req.body.tags,
+      })
+      return sendError(res, 'INTERNAL_ERROR', 'Failed to invalidate cache', 500)
     }
-
-    await cacheManager.invalidateByTags(tags)
-    
-    return sendSuccess(res, {
-      message: 'Cache invalidated by tags',
-      tags,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to invalidate cache by tags', { error, tags: req.body.tags })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to invalidate cache', 500)
   }
-})
+)
 
 /**
  * @swagger
@@ -320,28 +382,33 @@ router.post('/invalidate', authenticate, requirePermission('cache:write'), async
  *       404:
  *         description: Key not found
  */
-router.get('/key/:key', authenticate, requirePermission('cache:read'), async (req: Request, res: Response) => {
-  try {
-    const { key } = req.params
-    const namespace = (req.query.namespace as string) || 'default'
-    
-    const value = await cacheManager.get(key, { namespace })
-    
-    if (value === null) {
-      return sendError(res, 'NOT_FOUND', 'Cache key not found', 404)
-    }
+router.get(
+  '/key/:key',
+  authenticate,
+  requirePermission('cache:read'),
+  async (req: Request, res: Response) => {
+    try {
+      const { key } = req.params
+      const namespace = (req.query.namespace as string) || 'default'
 
-    return sendSuccess(res, {
-      key,
-      namespace,
-      value,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to get cache key', { error, key: req.params.key })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache key', 500)
+      const value = await cacheManager.get(key, { namespace })
+
+      if (value === null) {
+        return sendError(res, 'NOT_FOUND', 'Cache key not found', 404)
+      }
+
+      return sendSuccess(res, {
+        key,
+        namespace,
+        value,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to get cache key', { error, key: req.params.key })
+      return sendError(res, 'INTERNAL_ERROR', 'Failed to get cache key', 500)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -368,23 +435,28 @@ router.get('/key/:key', authenticate, requirePermission('cache:read'), async (re
  *       200:
  *         description: Key deleted
  */
-router.delete('/key/:key', authenticate, requirePermission('cache:write'), async (req: Request, res: Response) => {
-  try {
-    const { key } = req.params
-    const namespace = (req.query.namespace as string) || 'default'
-    
-    await cacheManager.del(key, namespace)
-    
-    return sendSuccess(res, {
-      message: 'Cache key deleted',
-      key,
-      namespace,
-      timestamp: Date.now(),
-    })
-  } catch (error) {
-    logger.error('Failed to delete cache key', { error, key: req.params.key })
-    return sendError(res, 'INTERNAL_ERROR', 'Failed to delete cache key', 500)
+router.delete(
+  '/key/:key',
+  authenticate,
+  requirePermission('cache:write'),
+  async (req: Request, res: Response) => {
+    try {
+      const { key } = req.params
+      const namespace = (req.query.namespace as string) || 'default'
+
+      await cacheManager.del(key, namespace)
+
+      return sendSuccess(res, {
+        message: 'Cache key deleted',
+        key,
+        namespace,
+        timestamp: Date.now(),
+      })
+    } catch (error) {
+      logger.error('Failed to delete cache key', { error, key: req.params.key })
+      return sendError(res, 'INTERNAL_ERROR', 'Failed to delete cache key', 500)
+    }
   }
-})
+)
 
 export default router

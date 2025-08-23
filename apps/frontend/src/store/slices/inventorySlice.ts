@@ -1,4 +1,8 @@
-import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createEntityAdapter,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import type { RootState } from '../index'
 
 // Types
@@ -136,27 +140,22 @@ export interface InventoryState {
 
 // Entity adapters
 const inventoryAdapter = createEntityAdapter<InventoryItem>({
-  selectId: (item) => item.id,
   sortComparer: (a, b) => b.lastUpdated.localeCompare(a.lastUpdated),
 })
 
 const locationsAdapter = createEntityAdapter<InventoryLocation>({
-  selectId: (location) => location.id,
   sortComparer: (a, b) => a.priority - b.priority,
 })
 
 const adjustmentsAdapter = createEntityAdapter<InventoryAdjustment>({
-  selectId: (adjustment) => adjustment.id,
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 })
 
 const transfersAdapter = createEntityAdapter<InventoryTransfer>({
-  selectId: (transfer) => transfer.id,
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 })
 
 const alertsAdapter = createEntityAdapter<InventoryAlert>({
-  selectId: (alert) => alert.id,
   sortComparer: (a, b) => {
     // Sort by severity first, then by creation date
     const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
@@ -277,7 +276,10 @@ const inventorySlice = createSlice({
       }
     },
 
-    setSelectedLocation: (state, action: PayloadAction<InventoryLocation | null>) => {
+    setSelectedLocation: (
+      state,
+      action: PayloadAction<InventoryLocation | null>
+    ) => {
       state.selectedLocation = action.payload
     },
 
@@ -292,12 +294,18 @@ const inventorySlice = createSlice({
 
     updateAdjustment: (
       state,
-      action: PayloadAction<{ id: string; changes: Partial<InventoryAdjustment> }>
+      action: PayloadAction<{
+        id: string
+        changes: Partial<InventoryAdjustment>
+      }>
     ) => {
       adjustmentsAdapter.updateOne(state.adjustments, action.payload)
     },
 
-    setSelectedAdjustment: (state, action: PayloadAction<InventoryAdjustment | null>) => {
+    setSelectedAdjustment: (
+      state,
+      action: PayloadAction<InventoryAdjustment | null>
+    ) => {
       state.selectedAdjustment = action.payload
     },
 
@@ -317,7 +325,10 @@ const inventorySlice = createSlice({
       transfersAdapter.updateOne(state.transfers, action.payload)
     },
 
-    setSelectedTransfer: (state, action: PayloadAction<InventoryTransfer | null>) => {
+    setSelectedTransfer: (
+      state,
+      action: PayloadAction<InventoryTransfer | null>
+    ) => {
       state.selectedTransfer = action.payload
     },
 
@@ -382,7 +393,10 @@ const inventorySlice = createSlice({
     // Loading actions
     setLoading: (
       state,
-      action: PayloadAction<{ key: keyof InventoryState['loading']; loading: boolean }>
+      action: PayloadAction<{
+        key: keyof InventoryState['loading']
+        loading: boolean
+      }>
     ) => {
       const { key, loading } = action.payload
       state.loading[key] = loading
@@ -405,7 +419,9 @@ const inventorySlice = createSlice({
     // Bulk actions
     bulkUpdateInventory: (
       state,
-      action: PayloadAction<Array<{ id: string; changes: Partial<InventoryItem> }>>
+      action: PayloadAction<
+        Array<{ id: string; changes: Partial<InventoryItem> }>
+      >
     ) => {
       inventoryAdapter.updateMany(state.items, action.payload)
     },
@@ -416,8 +432,8 @@ const inventorySlice = createSlice({
     ) => {
       const { ids, acknowledgedBy } = action.payload
       const timestamp = new Date().toISOString()
-      
-      ids.forEach(id => {
+
+      ids.forEach((id) => {
         const alert = state.alerts.entities[id]
         if (alert) {
           alert.acknowledged = true
@@ -486,7 +502,9 @@ export const {
   selectIds: selectLocationIds,
   selectEntities: selectLocationEntities,
   selectTotal: selectLocationsTotal,
-} = locationsAdapter.getSelectors((state: RootState) => state.inventory.locations)
+} = locationsAdapter.getSelectors(
+  (state: RootState) => state.inventory.locations
+)
 
 export const {
   selectAll: selectAllAdjustments,
@@ -494,7 +512,9 @@ export const {
   selectIds: selectAdjustmentIds,
   selectEntities: selectAdjustmentEntities,
   selectTotal: selectAdjustmentsTotal,
-} = adjustmentsAdapter.getSelectors((state: RootState) => state.inventory.adjustments)
+} = adjustmentsAdapter.getSelectors(
+  (state: RootState) => state.inventory.adjustments
+)
 
 export const {
   selectAll: selectAllTransfers,
@@ -502,7 +522,9 @@ export const {
   selectIds: selectTransferIds,
   selectEntities: selectTransferEntities,
   selectTotal: selectTransfersTotal,
-} = transfersAdapter.getSelectors((state: RootState) => state.inventory.transfers)
+} = transfersAdapter.getSelectors(
+  (state: RootState) => state.inventory.transfers
+)
 
 export const {
   selectAll: selectAllAlerts,
@@ -513,23 +535,32 @@ export const {
 } = alertsAdapter.getSelectors((state: RootState) => state.inventory.alerts)
 
 // Custom selectors
-export const selectSelectedItem = (state: RootState) => state.inventory.selectedItem
-export const selectSelectedLocation = (state: RootState) => state.inventory.selectedLocation
-export const selectSelectedAdjustment = (state: RootState) => state.inventory.selectedAdjustment
-export const selectSelectedTransfer = (state: RootState) => state.inventory.selectedTransfer
+export const selectSelectedItem = (state: RootState) =>
+  state.inventory.selectedItem
+export const selectSelectedLocation = (state: RootState) =>
+  state.inventory.selectedLocation
+export const selectSelectedAdjustment = (state: RootState) =>
+  state.inventory.selectedAdjustment
+export const selectSelectedTransfer = (state: RootState) =>
+  state.inventory.selectedTransfer
 
-export const selectInventoryFilters = (state: RootState) => state.inventory.filters
-export const selectInventoryPagination = (state: RootState) => state.inventory.pagination
-export const selectInventorySorting = (state: RootState) => state.inventory.sorting
-export const selectInventoryLoading = (state: RootState) => state.inventory.loading
+export const selectInventoryFilters = (state: RootState) =>
+  state.inventory.filters
+export const selectInventoryPagination = (state: RootState) =>
+  state.inventory.pagination
+export const selectInventorySorting = (state: RootState) =>
+  state.inventory.sorting
+export const selectInventoryLoading = (state: RootState) =>
+  state.inventory.loading
 export const selectInventoryError = (state: RootState) => state.inventory.error
-export const selectRealTimeUpdates = (state: RootState) => state.inventory.realTimeUpdates
+export const selectRealTimeUpdates = (state: RootState) =>
+  state.inventory.realTimeUpdates
 
 // Filtered inventory items selector
 export const selectFilteredInventoryItems = (state: RootState) => {
   const items = selectAllInventoryItems(state)
   const filters = selectInventoryFilters(state)
-  
+
   return items.filter((item) => {
     // Search filter
     if (filters.search) {
@@ -538,17 +569,23 @@ export const selectFilteredInventoryItems = (state: RootState) => {
         return false
       }
     }
-    
+
     // Location filter
-    if (filters.locations.length > 0 && !filters.locations.includes(item.locationId)) {
+    if (
+      filters.locations.length > 0 &&
+      !filters.locations.includes(item.locationId)
+    ) {
       return false
     }
-    
+
     // Product filter
-    if (filters.products.length > 0 && !filters.products.includes(item.productId)) {
+    if (
+      filters.products.length > 0 &&
+      !filters.products.includes(item.productId)
+    ) {
       return false
     }
-    
+
     // Stock status filter
     if (filters.stockStatus.length > 0) {
       const stockStatus = item.available > 0 ? 'in_stock' : 'out_of_stock'
@@ -557,7 +594,7 @@ export const selectFilteredInventoryItems = (state: RootState) => {
         return false
       }
     }
-    
+
     // Last updated filter
     if (filters.lastUpdated) {
       const [startDate, endDate] = filters.lastUpdated
@@ -566,27 +603,28 @@ export const selectFilteredInventoryItems = (state: RootState) => {
         return false
       }
     }
-    
+
     return true
   })
 }
 
 // Inventory by location selector
-export const selectInventoryByLocation = (locationId: string) => (state: RootState) => {
-  const items = selectAllInventoryItems(state)
-  return items.filter(item => item.locationId === locationId)
-}
+export const selectInventoryByLocation =
+  (locationId: string) => (state: RootState) => {
+    const items = selectAllInventoryItems(state)
+    return items.filter((item) => item.locationId === locationId)
+  }
 
 // Low stock items selector
 export const selectLowStockItems = (state: RootState) => {
   const items = selectAllInventoryItems(state)
   const locations = selectAllLocations(state)
-  const locationMap = new Map(locations.map(loc => [loc.id, loc]))
-  
-  return items.filter(item => {
+  const locationMap = new Map(locations.map((loc) => [loc.id, loc]))
+
+  return items.filter((item) => {
     const location = locationMap.get(item.locationId)
     if (!location) return false
-    
+
     const reorderPoint = location.settings.reorderPoint || 10
     return item.available <= reorderPoint
   })
@@ -595,32 +633,35 @@ export const selectLowStockItems = (state: RootState) => {
 // Out of stock items selector
 export const selectOutOfStockItems = (state: RootState) => {
   const items = selectAllInventoryItems(state)
-  return items.filter(item => item.available <= 0)
+  return items.filter((item) => item.available <= 0)
 }
 
 // Unacknowledged alerts selector
 export const selectUnacknowledgedAlerts = (state: RootState) => {
   const alerts = selectAllAlerts(state)
-  return alerts.filter(alert => !alert.acknowledged)
+  return alerts.filter((alert) => !alert.acknowledged)
 }
 
 // Critical alerts selector
 export const selectCriticalAlerts = (state: RootState) => {
   const alerts = selectAllAlerts(state)
-  return alerts.filter(alert => alert.severity === 'critical' && !alert.acknowledged)
+  return alerts.filter(
+    (alert) => alert.severity === 'critical' && !alert.acknowledged
+  )
 }
 
 // Pending adjustments selector
 export const selectPendingAdjustments = (state: RootState) => {
   const adjustments = selectAllAdjustments(state)
-  return adjustments.filter(adjustment => adjustment.status === 'pending')
+  return adjustments.filter((adjustment) => adjustment.status === 'pending')
 }
 
 // Active transfers selector
 export const selectActiveTransfers = (state: RootState) => {
   const transfers = selectAllTransfers(state)
-  return transfers.filter(transfer => 
-    transfer.status === 'pending' || transfer.status === 'in_transit'
+  return transfers.filter(
+    (transfer) =>
+      transfer.status === 'pending' || transfer.status === 'in_transit'
   )
 }
 

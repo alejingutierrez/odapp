@@ -1,12 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest'
 import { createServer } from 'http'
-import { Server as SocketIOServer } from 'socket.io'
 import { io as Client, Socket as ClientSocket } from 'socket.io-client'
-import jwt from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import { WebSocketService } from '../services/websocket.service'
 import { InventoryService } from '../services/inventory.service'
-import { logger } from '../lib/logger'
 
 // Mock dependencies
 vi.mock('../lib/logger')
@@ -26,10 +33,10 @@ describe('WebSocketService', () => {
     roles: [
       {
         role: {
-          name: 'inventory_manager'
-        }
-      }
-    ]
+          name: 'inventory_manager',
+        },
+      },
+    ],
   }
 
   const mockToken = jwt.sign(
@@ -41,19 +48,19 @@ describe('WebSocketService', () => {
     // Setup test server
     server = createServer()
     serverPort = 0 // Use random available port
-    
+
     // Mock Prisma
     prisma = {
       user: {
-        findUnique: vi.fn().mockResolvedValue(mockUser)
-      }
+        findUnique: vi.fn().mockResolvedValue(mockUser),
+      },
     } as any
 
     // Mock InventoryService
     inventoryService = {
       on: vi.fn(),
       updateStockLevel: vi.fn(),
-      createReservation: vi.fn().mockResolvedValue({ id: 'reservation-123' })
+      createReservation: vi.fn().mockResolvedValue({ id: 'reservation-123' }),
     } as any
 
     // Initialize WebSocket service
@@ -78,9 +85,9 @@ describe('WebSocketService', () => {
     // Create client connection
     clientSocket = Client(`http://localhost:${serverPort}`, {
       auth: {
-        token: mockToken
+        token: mockToken,
       },
-      transports: ['websocket']
+      transports: ['websocket'],
     })
 
     // Wait for connection
@@ -102,7 +109,7 @@ describe('WebSocketService', () => {
 
     it('should reject connection without token', async () => {
       const unauthorizedClient = Client(`http://localhost:${serverPort}`, {
-        transports: ['websocket']
+        transports: ['websocket'],
       })
 
       await new Promise<void>((resolve) => {
@@ -118,9 +125,9 @@ describe('WebSocketService', () => {
     it('should reject connection with invalid token', async () => {
       const unauthorizedClient = Client(`http://localhost:${serverPort}`, {
         auth: {
-          token: 'invalid-token'
+          token: 'invalid-token',
         },
-        transports: ['websocket']
+        transports: ['websocket'],
       })
 
       await new Promise<void>((resolve) => {
@@ -146,7 +153,7 @@ describe('WebSocketService', () => {
           expect(data).toMatchObject({
             socketId: expect.any(String),
             userId: mockUser.id,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -160,7 +167,7 @@ describe('WebSocketService', () => {
       clientSocket.disconnect()
 
       // Wait a bit for disconnection to be processed
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(webSocketService.isUserConnected(userId)).toBe(false)
     })
@@ -170,7 +177,7 @@ describe('WebSocketService', () => {
     it('should handle inventory subscription', async () => {
       const subscriptionData = {
         locationIds: ['location-1', 'location-2'],
-        productIds: ['product-1', 'product-2']
+        productIds: ['product-1', 'product-2'],
       }
 
       clientSocket.emit('subscribe:inventory', subscriptionData)
@@ -180,7 +187,7 @@ describe('WebSocketService', () => {
           expect(data).toMatchObject({
             locationIds: subscriptionData.locationIds,
             productIds: subscriptionData.productIds,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -189,20 +196,20 @@ describe('WebSocketService', () => {
 
     it('should handle order subscription', async () => {
       const subscriptionData = {
-        customerId: 'customer-123'
+        customerId: 'customer-123',
       }
 
       clientSocket.emit('subscribe:orders', subscriptionData)
 
       // Should not throw any errors
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
     })
 
     it('should handle notification subscription', async () => {
       clientSocket.emit('subscribe:notifications')
 
       // Should not throw any errors
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
     })
   })
 
@@ -211,7 +218,7 @@ describe('WebSocketService', () => {
       const updateData = {
         inventoryItemId: 'item-123',
         quantity: 100,
-        reason: 'Stock adjustment'
+        reason: 'Stock adjustment',
       }
 
       clientSocket.emit('inventory:update', updateData)
@@ -221,7 +228,7 @@ describe('WebSocketService', () => {
           expect(data).toMatchObject({
             inventoryItemId: updateData.inventoryItemId,
             quantity: updateData.quantity,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -240,7 +247,7 @@ describe('WebSocketService', () => {
         inventoryItemId: 'item-123',
         quantity: 10,
         reason: 'Order reservation',
-        referenceId: 'order-456'
+        referenceId: 'order-456',
       }
 
       clientSocket.emit('inventory:reserve', reservationData)
@@ -251,7 +258,7 @@ describe('WebSocketService', () => {
             reservationId: 'reservation-123',
             inventoryItemId: reservationData.inventoryItemId,
             quantity: reservationData.quantity,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -261,7 +268,7 @@ describe('WebSocketService', () => {
         inventoryItemId: reservationData.inventoryItemId,
         quantity: reservationData.quantity,
         reason: reservationData.reason,
-        referenceId: reservationData.referenceId
+        referenceId: reservationData.referenceId,
       })
     })
 
@@ -269,7 +276,7 @@ describe('WebSocketService', () => {
       const updateData = {
         inventoryItemId: 'item-123',
         quantity: 100,
-        reason: 'Stock adjustment'
+        reason: 'Stock adjustment',
       }
 
       // Mock service to throw error
@@ -284,7 +291,7 @@ describe('WebSocketService', () => {
           expect(data).toMatchObject({
             inventoryItemId: updateData.inventoryItemId,
             error: 'Insufficient stock',
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -301,16 +308,16 @@ describe('WebSocketService', () => {
         variantId: 'variant-1',
         oldQuantity: 50,
         newQuantity: 100,
-        reason: 'Stock adjustment'
+        reason: 'Stock adjustment',
       }
 
       // Subscribe to inventory updates
       clientSocket.emit('subscribe:inventory', {
         locationIds: ['location-1'],
-        productIds: ['product-1']
+        productIds: ['product-1'],
       })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Simulate inventory update broadcast
       webSocketService['broadcastInventoryUpdate'](updateData)
@@ -320,7 +327,7 @@ describe('WebSocketService', () => {
           expect(payload).toMatchObject({
             type: 'inventory:updated',
             data: updateData,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -335,15 +342,15 @@ describe('WebSocketService', () => {
         variantId: 'variant-1',
         currentQuantity: 5,
         threshold: 10,
-        productName: 'Test Product'
+        productName: 'Test Product',
       }
 
       // Subscribe to inventory updates
       clientSocket.emit('subscribe:inventory', {
-        locationIds: ['location-1']
+        locationIds: ['location-1'],
       })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Simulate low stock alert broadcast
       webSocketService['broadcastLowStockAlert'](alertData)
@@ -353,7 +360,7 @@ describe('WebSocketService', () => {
           expect(payload).toMatchObject({
             type: 'inventory:lowStock',
             data: alertData,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -368,7 +375,7 @@ describe('WebSocketService', () => {
       // Subscribe to order updates
       clientSocket.emit('subscribe:orders', { customerId })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Simulate order update broadcast
       webSocketService.broadcastOrderUpdate(orderId, status, customerId)
@@ -378,7 +385,7 @@ describe('WebSocketService', () => {
           expect(payload).toMatchObject({
             type: 'order:updated',
             data: { orderId, status, customerId },
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -393,7 +400,7 @@ describe('WebSocketService', () => {
       // Subscribe to inventory updates to receive sync status
       clientSocket.emit('subscribe:inventory', {})
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Simulate Shopify sync status broadcast
       webSocketService.broadcastShopifySyncStatus(syncType, status, progress)
@@ -403,7 +410,7 @@ describe('WebSocketService', () => {
           expect(payload).toMatchObject({
             type: 'shopify:syncStatus',
             data: { syncType, status, progress },
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -416,14 +423,18 @@ describe('WebSocketService', () => {
       const notificationType = 'test:notification'
       const notificationData = { message: 'Test notification' }
 
-      webSocketService.sendNotificationToUser(mockUser.id, notificationType, notificationData)
+      webSocketService.sendNotificationToUser(
+        mockUser.id,
+        notificationType,
+        notificationData
+      )
 
       await new Promise<void>((resolve) => {
         clientSocket.on('notification', (payload) => {
           expect(payload).toMatchObject({
             type: notificationType,
             data: notificationData,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })
@@ -441,7 +452,7 @@ describe('WebSocketService', () => {
           expect(payload).toMatchObject({
             type: notificationType,
             data: notificationData,
-            timestamp: expect.any(String)
+            timestamp: expect.any(String),
           })
           resolve()
         })

@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
+import { beforeEach, afterEach } from 'vitest'
 import { vi } from 'vitest'
 import React from 'react'
 
@@ -55,7 +56,7 @@ vi.mock('@ant-design/icons', () => {
   const iconMocks = new Proxy(
     {},
     {
-      get: (target, prop) => {
+      get: (_target, prop) => {
         if (typeof prop === 'string' && prop.endsWith('Outlined')) {
           return vi.fn(() => {
             const iconName = prop.replace('Outlined', '').toLowerCase()
@@ -174,7 +175,10 @@ global.FileReader = vi.fn().mockImplementation(() => ({
   result: '',
   onload: null,
   onerror: null,
-}))
+  EMPTY: 0,
+  LOADING: 1,
+  DONE: 2,
+})) as unknown as typeof FileReader
 
 // Mock URL.createObjectURL
 global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
@@ -222,8 +226,8 @@ Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock,
 })
 
-afterAll(() => {
-  // Restore original console methods
-  console.error = originalError
-  console.warn = originalWarn
-})
+// afterAll(() => {
+//   // Restore original console methods
+//   console.error = originalError
+//   console.warn = originalWarn
+// })

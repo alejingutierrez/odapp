@@ -23,8 +23,12 @@ const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
 
 // Products
 const ProductList = React.lazy(() => import('../pages/products/ProductList'))
-const ProductDetail = React.lazy(() => import('../pages/products/ProductDetail'))
-const ProductCreate = React.lazy(() => import('../pages/products/ProductCreate'))
+const ProductDetail = React.lazy(
+  () => import('../pages/products/ProductDetail')
+)
+const ProductCreate = React.lazy(
+  () => import('../pages/products/ProductCreate')
+)
 const ProductEdit = React.lazy(() => import('../pages/products/ProductEdit'))
 const Collections = React.lazy(() => import('../pages/products/Collections'))
 const Categories = React.lazy(() => import('../pages/products/Categories'))
@@ -44,16 +48,24 @@ const Fulfillment = React.lazy(() => import('../pages/orders/Fulfillment'))
 
 // Customers
 const CustomerList = React.lazy(() => import('../pages/customers/CustomerList'))
-const CustomerDetail = React.lazy(() => import('../pages/customers/CustomerDetail'))
+const CustomerDetail = React.lazy(
+  () => import('../pages/customers/CustomerDetail')
+)
 const Segments = React.lazy(() => import('../pages/customers/Segments'))
 const Loyalty = React.lazy(() => import('../pages/customers/Loyalty'))
-const Communications = React.lazy(() => import('../pages/customers/Communications'))
+const Communications = React.lazy(
+  () => import('../pages/customers/Communications')
+)
 
 // Analytics
 const SalesAnalytics = React.lazy(() => import('../pages/analytics/Sales'))
 const ProductAnalytics = React.lazy(() => import('../pages/analytics/Products'))
-const CustomerAnalytics = React.lazy(() => import('../pages/analytics/Customers'))
-const InventoryAnalytics = React.lazy(() => import('../pages/analytics/Inventory'))
+const CustomerAnalytics = React.lazy(
+  () => import('../pages/analytics/Customers')
+)
+const InventoryAnalytics = React.lazy(
+  () => import('../pages/analytics/Inventory')
+)
 const ShopifyAnalytics = React.lazy(() => import('../pages/analytics/Shopify'))
 
 // Billing
@@ -80,32 +92,34 @@ const GeneralSettings = React.lazy(() => import('../pages/settings/General'))
 const Users = React.lazy(() => import('../pages/settings/Users'))
 const Permissions = React.lazy(() => import('../pages/settings/Permissions'))
 const Integrations = React.lazy(() => import('../pages/settings/Integrations'))
-const NotificationSettings = React.lazy(() => import('../pages/settings/Notifications'))
+const NotificationSettings = React.lazy(
+  () => import('../pages/settings/Notifications')
+)
 const BackupSettings = React.lazy(() => import('../pages/settings/Backup'))
 
 // Loading component
 const PageLoader: React.FC = () => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '200px' 
-  }}>
-    <Spin size="large" />
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '200px',
+    }}
+  >
+    <Spin size='large' />
   </div>
 )
 
 // Wrapper component for lazy loaded pages
 const LazyWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary>
-    <Suspense fallback={<PageLoader />}>
-      {children}
-    </Suspense>
+    <Suspense fallback={<PageLoader />}>{children}</Suspense>
   </ErrorBoundary>
 )
 
 // Router configuration
-export const router = createBrowserRouter([
+export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
   // Public routes (auth pages)
   {
     path: '/auth',
@@ -363,7 +377,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/analytics/sales" replace />,
+            element: <Navigate to='/analytics/sales' replace />,
           },
           {
             path: 'sales',

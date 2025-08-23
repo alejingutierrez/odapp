@@ -53,7 +53,7 @@ const ResetPassword: React.FC = () => {
       console.log('Reset password values:', { ...values, token })
       setIsSuccess(true)
     } catch (error: unknown) {
-      setError(error.message || 'Failed to reset password. Please try again.')
+      setError((error as Error)?.message || 'Failed to reset password. Please try again.')
     } finally {
       setIsLoading(false)
     }

@@ -12,7 +12,16 @@ interface WebSocketConfig {
   reconnectDelay?: number
 }
 
-export const useWebSocket = (config: WebSocketConfig = {}) => {
+interface UseWebSocketReturn {
+  isConnected: boolean
+  connectionError: string | null
+  connect: () => void
+  disconnect: () => void
+  emit: (event: string, data?: unknown) => void
+  socket: Socket | null
+}
+
+export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn => {
   const dispatch = useDispatch<AppDispatch>()
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const token = useSelector(selectToken)
@@ -151,7 +160,7 @@ export const useWebSocket = (config: WebSocketConfig = {}) => {
             {
               label: 'View Product',
               action: 'navigate',
-              payload: `/products/${data.productId}`,
+              payload: { productId: data.productId },
             },
           ],
         })

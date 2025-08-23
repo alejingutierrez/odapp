@@ -1,7 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest'
 import { createServer } from 'http'
 import { io as Client, Socket as ClientSocket } from 'socket.io-client'
-import jwt from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import { WebSocketService } from '../services/websocket.service'
 import { InventoryService } from '../services/inventory.service'
@@ -24,10 +33,10 @@ describe('WebSocket Comprehensive Task Verification', () => {
     roles: [
       {
         role: {
-          name: 'inventory_manager'
-        }
-      }
-    ]
+          name: 'inventory_manager',
+        },
+      },
+    ],
   }
 
   const mockToken = jwt.sign(
@@ -39,19 +48,19 @@ describe('WebSocket Comprehensive Task Verification', () => {
     // Setup test server
     server = createServer()
     serverPort = 0 // Use random available port
-    
+
     // Mock Prisma
     prisma = {
       user: {
-        findUnique: vi.fn().mockResolvedValue(mockUser)
-      }
+        findUnique: vi.fn().mockResolvedValue(mockUser),
+      },
     } as any
 
     // Mock InventoryService
     inventoryService = {
       on: vi.fn(),
       updateStockLevel: vi.fn(),
-      createReservation: vi.fn().mockResolvedValue({ id: 'reservation-123' })
+      createReservation: vi.fn().mockResolvedValue({ id: 'reservation-123' }),
     } as any
 
     // Initialize WebSocket service
@@ -76,9 +85,9 @@ describe('WebSocket Comprehensive Task Verification', () => {
     // Create client connection
     clientSocket = Client(`http://localhost:${serverPort}`, {
       auth: {
-        token: mockToken
+        token: mockToken,
       },
-      transports: ['websocket']
+      transports: ['websocket'],
     })
 
     // Wait for connection
@@ -115,7 +124,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
 
       it('should reject connections without authentication', async () => {
         const unauthorizedClient = Client(`http://localhost:${serverPort}`, {
-          transports: ['websocket']
+          transports: ['websocket'],
         })
 
         await new Promise<void>((resolve) => {
@@ -131,7 +140,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
       it('should reject connections with invalid tokens', async () => {
         const unauthorizedClient = Client(`http://localhost:${serverPort}`, {
           auth: { token: 'invalid-token' },
-          transports: ['websocket']
+          transports: ['websocket'],
         })
 
         await new Promise<void>((resolve) => {
@@ -151,10 +160,10 @@ describe('WebSocket Comprehensive Task Verification', () => {
           include: {
             roles: {
               include: {
-                role: true
-              }
-            }
-          }
+                role: true,
+              },
+            },
+          },
         })
       })
     })
@@ -167,12 +176,14 @@ describe('WebSocket Comprehensive Task Verification', () => {
           productId: 'product-1',
           oldQuantity: 50,
           newQuantity: 100,
-          reason: 'Stock adjustment'
+          reason: 'Stock adjustment',
         }
 
         // Subscribe to inventory updates
-        clientSocket.emit('subscribe:inventory', { locationIds: ['location-1'] })
-        await new Promise(resolve => setTimeout(resolve, 100))
+        clientSocket.emit('subscribe:inventory', {
+          locationIds: ['location-1'],
+        })
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate inventory update
         webSocketService['broadcastInventoryUpdate'](updateData)
@@ -194,12 +205,14 @@ describe('WebSocket Comprehensive Task Verification', () => {
           productId: 'product-1',
           currentQuantity: 5,
           threshold: 10,
-          productName: 'Test Product'
+          productName: 'Test Product',
         }
 
         // Subscribe to inventory updates
-        clientSocket.emit('subscribe:inventory', { locationIds: ['location-1'] })
-        await new Promise(resolve => setTimeout(resolve, 100))
+        clientSocket.emit('subscribe:inventory', {
+          locationIds: ['location-1'],
+        })
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate low stock alert
         webSocketService['broadcastLowStockAlert'](alertData)
@@ -217,7 +230,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const reservationData = {
           inventoryItemId: 'item-123',
           quantity: 10,
-          reason: 'Order reservation'
+          reason: 'Order reservation',
         }
 
         clientSocket.emit('inventory:reserve', reservationData)
@@ -241,7 +254,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
 
         // Subscribe to order updates
         clientSocket.emit('subscribe:orders', { customerId })
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate order status update
         webSocketService.broadcastOrderUpdate(orderId, status, customerId)
@@ -252,7 +265,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
             expect(payload.data).toMatchObject({
               orderId,
               status,
-              customerId
+              customerId,
             })
             resolve()
           })
@@ -261,11 +274,11 @@ describe('WebSocket Comprehensive Task Verification', () => {
 
       it('should support order subscription by customer', async () => {
         const customerId = 'customer-789'
-        
+
         clientSocket.emit('subscribe:orders', { customerId })
-        
+
         // Should not throw any errors and should be subscribed
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
         // Subscription is successful if no errors are thrown
         expect(true).toBe(true)
       })
@@ -279,7 +292,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
 
         // Subscribe to inventory updates to receive sync status
         clientSocket.emit('subscribe:inventory', {})
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate sync progress
         webSocketService.broadcastShopifySyncStatus(syncType, status, progress)
@@ -290,7 +303,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
             expect(payload.data).toMatchObject({
               syncType,
               status,
-              progress
+              progress,
             })
             resolve()
           })
@@ -302,12 +315,12 @@ describe('WebSocket Comprehensive Task Verification', () => {
           syncId: 'sync-123',
           direction: 'push',
           total: 100,
-          processed: 50
+          processed: 50,
         }
 
         // Subscribe to inventory updates
         clientSocket.emit('subscribe:inventory', {})
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate product sync progress
         webSocketService.broadcastShopifyProductSync('progress', syncData)
@@ -325,15 +338,18 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const webhookType = 'orders/create'
         const webhookData = {
           id: 'order-123',
-          status: 'pending'
+          status: 'pending',
         }
 
         // Subscribe to order updates
         clientSocket.emit('subscribe:orders', {})
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         // Simulate webhook received
-        webSocketService.broadcastShopifyWebhookReceived(webhookType, webhookData)
+        webSocketService.broadcastShopifyWebhookReceived(
+          webhookType,
+          webhookData
+        )
 
         await new Promise<void>((resolve) => {
           clientSocket.on('shopify:webhook:received', (payload) => {
@@ -361,7 +377,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
               expect(payload.data).toMatchObject({
                 userId,
                 action,
-                metadata
+                metadata,
               })
               resolve()
             }
@@ -383,7 +399,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
               expect(payload.data).toMatchObject({
                 eventType,
                 message,
-                severity
+                severity,
               })
               resolve()
             }
@@ -397,7 +413,11 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const duration = '2 hours'
 
         // Simulate maintenance notification
-        webSocketService.broadcastMaintenanceNotification(message, scheduledTime, duration)
+        webSocketService.broadcastMaintenanceNotification(
+          message,
+          scheduledTime,
+          duration
+        )
 
         await new Promise<void>((resolve) => {
           clientSocket.on('notification', (payload) => {
@@ -405,7 +425,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
               expect(payload.data).toMatchObject({
                 message,
                 scheduledTime,
-                duration
+                duration,
               })
               resolve()
             }
@@ -419,7 +439,11 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const affectedUserId = 'user-789'
 
         // Simulate security alert
-        webSocketService.broadcastSecurityAlert(alertType, message, affectedUserId)
+        webSocketService.broadcastSecurityAlert(
+          alertType,
+          message,
+          affectedUserId
+        )
 
         // For this test, we'll check that the method exists and can be called
         // In a real scenario, this would be sent to specific users with admin permissions
@@ -448,7 +472,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
       it('should handle room-based subscriptions', async () => {
         const subscriptionData = {
           locationIds: ['location-1', 'location-2'],
-          productIds: ['product-1', 'product-2']
+          productIds: ['product-1', 'product-2'],
         }
 
         clientSocket.emit('subscribe:inventory', subscriptionData)
@@ -468,7 +492,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const updateData = {
           inventoryItemId: 'item-123',
           quantity: 100,
-          reason: 'Stock adjustment'
+          reason: 'Stock adjustment',
         }
 
         // Mock service to throw error
@@ -492,7 +516,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
         expect(webSocketService.isUserConnected(userId)).toBe(true)
 
         clientSocket.disconnect()
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(webSocketService.isUserConnected(userId)).toBe(false)
       })
@@ -503,7 +527,7 @@ describe('WebSocket Comprehensive Task Verification', () => {
         const updateData = {
           inventoryItemId: 'item-123',
           quantity: 100,
-          reason: 'Stock adjustment'
+          reason: 'Stock adjustment',
         }
 
         // User has inventory_manager role, should be allowed
@@ -522,9 +546,18 @@ describe('WebSocket Comprehensive Task Verification', () => {
   describe('Integration with Other Services', () => {
     it('should integrate with InventoryService events', () => {
       // Verify that WebSocketService listens to InventoryService events
-      expect(inventoryService.on).toHaveBeenCalledWith('inventory:updated', expect.any(Function))
-      expect(inventoryService.on).toHaveBeenCalledWith('inventory:lowStock', expect.any(Function))
-      expect(inventoryService.on).toHaveBeenCalledWith('inventory:reserved', expect.any(Function))
+      expect(inventoryService.on).toHaveBeenCalledWith(
+        'inventory:updated',
+        expect.any(Function)
+      )
+      expect(inventoryService.on).toHaveBeenCalledWith(
+        'inventory:lowStock',
+        expect.any(Function)
+      )
+      expect(inventoryService.on).toHaveBeenCalledWith(
+        'inventory:reserved',
+        expect.any(Function)
+      )
     })
 
     it('should provide singleton access for other services', () => {

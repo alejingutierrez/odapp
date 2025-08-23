@@ -175,7 +175,7 @@ export const FabricSwatch: React.FC<FabricSwatchProps> = ({
     return (
       <div className='oda-fabric-swatch__certifications'>
         {certifications.map((cert, index) => (
-          <Tag key={index} size='small' color='green'>
+          <Tag key={index} color='green'>
             {cert}
           </Tag>
         ))}

@@ -70,7 +70,6 @@ Para botones con estado de carga:
 
 ```tsx
 import { LoadingButton } from '@/components/atoms/Spinner'
-
 ;<LoadingButton loading={isLoading} size='sm'>
   Guardar cambios
 </LoadingButton>
@@ -82,7 +81,6 @@ Para páginas completas:
 
 ```tsx
 import { PageLoader } from '@/components/atoms/Spinner'
-
 ;<PageLoader text='Cargando dashboard...' variant='ring' minHeight='300px' />
 ```
 
@@ -92,7 +90,6 @@ Para uso en línea:
 
 ```tsx
 import { InlineLoader } from '@/components/atoms/Spinner'
-
 ;<span>
   Guardando <InlineLoader size='sm' />
 </span>

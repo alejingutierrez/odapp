@@ -6,6 +6,7 @@ import type {
   InventoryTransfer,
   InventoryAlert,
 } from '../slices/inventorySlice'
+// import type { EndpointBuilder } from '@reduxjs/toolkit/query'
 
 export interface InventoryQuery {
   page?: number
@@ -58,45 +59,42 @@ export interface CreateTransferRequest {
 export const inventoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Inventory items
-    getInventoryItems: builder.query<InventoryResponse, InventoryQuery>({
-      query: (params) => ({
+    getInventoryItems: builder.query({
+      query: (params: InventoryQuery) => ({
         url: 'inventory',
         params,
       }),
-      providesTags: (result) =>
+      providesTags: (result: InventoryResponse | undefined) =>
         result
           ? [
-              ...result.items.map(({ id }) => ({ type: 'Inventory' as const, id })),
+              ...result.items.map(({ id }: { id: string }) => ({
+                type: 'Inventory' as const,
+                id,
+              })),
               { type: 'Inventory', id: 'LIST' },
             ]
           : [{ type: 'Inventory', id: 'LIST' }],
     }),
 
-    getInventoryItem: builder.query<InventoryItem, string>({
-      query: (id) => `inventory/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Inventory', id }],
+    getInventoryItem: builder.query({
+      query: (id: string) => `inventory/${id}`,
+      providesTags: (_result: InventoryItem | undefined, _error: unknown, id: string) => [{ type: 'Inventory', id }],
     }),
 
-    updateInventoryItem: builder.mutation<
-      InventoryItem,
-      { id: string } & UpdateInventoryRequest
-    >({
-      query: ({ id, ...patch }) => ({
+    updateInventoryItem: builder.mutation({
+      query: ({ id, ...patch }: { id: string } & UpdateInventoryRequest) => ({
         url: `inventory/${id}`,
         method: 'PATCH',
         body: patch,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result: InventoryItem | undefined, _error: unknown, { id }: { id: string }) => [
         { type: 'Inventory', id },
         { type: 'Inventory', id: 'LIST' },
       ],
     }),
 
-    bulkUpdateInventory: builder.mutation<
-      void,
-      Array<{ id: string } & UpdateInventoryRequest>
-    >({
-      query: (updates) => ({
+    bulkUpdateInventory: builder.mutation({
+      query: (updates: Array<{ id: string } & UpdateInventoryRequest>) => ({
         url: 'inventory/bulk',
         method: 'PATCH',
         body: { updates },
@@ -104,25 +102,28 @@ export const inventoryApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Inventory', id: 'LIST' }],
     }),
 
-    // Locations
-    getLocations: builder.query<InventoryLocation[], void>({
+    // Inventory locations
+    getLocations: builder.query({
       query: () => 'inventory/locations',
-      providesTags: (result) =>
+      providesTags: (result: InventoryLocation[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Location' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({
+                type: 'Location' as const,
+                id,
+              })),
               { type: 'Location', id: 'LIST' },
             ]
           : [{ type: 'Location', id: 'LIST' }],
     }),
 
-    getLocation: builder.query<InventoryLocation, string>({
-      query: (id) => `inventory/locations/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Location', id }],
+    getLocation: builder.query({
+      query: (id: string) => `inventory/locations/${id}`,
+      providesTags: (_result: InventoryLocation | undefined, _error: unknown, id: string) => [{ type: 'Location', id }],
     }),
 
-    createLocation: builder.mutation<InventoryLocation, Partial<InventoryLocation>>({
-      query: (location) => ({
+    createLocation: builder.mutation({
+      query: (location: Partial<InventoryLocation>) => ({
         url: 'inventory/locations',
         method: 'POST',
         body: location,
@@ -130,51 +131,51 @@ export const inventoryApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Location', id: 'LIST' }],
     }),
 
-    updateLocation: builder.mutation<
-      InventoryLocation,
-      { id: string; changes: Partial<InventoryLocation> }
-    >({
-      query: ({ id, changes }) => ({
+    updateLocation: builder.mutation({
+      query: ({ id, changes }: { id: string; changes: Partial<InventoryLocation> }) => ({
         url: `inventory/locations/${id}`,
         method: 'PATCH',
         body: changes,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result: InventoryLocation | undefined, _error: unknown, { id }: { id: string }) => [
         { type: 'Location', id },
         { type: 'Location', id: 'LIST' },
       ],
     }),
 
-    deleteLocation: builder.mutation<void, string>({
-      query: (id) => ({
+    deleteLocation: builder.mutation({
+      query: (id: string) => ({
         url: `inventory/locations/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
         { type: 'Location', id },
         { type: 'Location', id: 'LIST' },
       ],
     }),
 
-    // Adjustments
-    getAdjustments: builder.query<InventoryAdjustment[], void>({
+    // Inventory adjustments
+    getAdjustments: builder.query({
       query: () => 'inventory/adjustments',
-      providesTags: (result) =>
+      providesTags: (result: InventoryAdjustment[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Adjustment' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({
+                type: 'Adjustment' as const,
+                id,
+              })),
               { type: 'Adjustment', id: 'LIST' },
             ]
           : [{ type: 'Adjustment', id: 'LIST' }],
     }),
 
-    getAdjustment: builder.query<InventoryAdjustment, string>({
-      query: (id) => `inventory/adjustments/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Adjustment', id }],
+    getAdjustment: builder.query({
+      query: (id: string) => `inventory/adjustments/${id}`,
+      providesTags: (_result: InventoryAdjustment | undefined, _error: unknown, id: string) => [{ type: 'Adjustment', id }],
     }),
 
-    createAdjustment: builder.mutation<InventoryAdjustment, CreateAdjustmentRequest>({
-      query: (adjustment) => ({
+    createAdjustment: builder.mutation({
+      query: (adjustment: CreateAdjustmentRequest) => ({
         url: 'inventory/adjustments',
         method: 'POST',
         body: adjustment,
@@ -185,49 +186,28 @@ export const inventoryApi = baseApi.injectEndpoints({
       ],
     }),
 
-    approveAdjustment: builder.mutation<InventoryAdjustment, string>({
-      query: (id) => ({
-        url: `inventory/adjustments/${id}/approve`,
-        method: 'POST',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Adjustment', id },
-        { type: 'Adjustment', id: 'LIST' },
-        { type: 'Inventory', id: 'LIST' },
-      ],
-    }),
-
-    rejectAdjustment: builder.mutation<InventoryAdjustment, { id: string; reason: string }>({
-      query: ({ id, reason }) => ({
-        url: `inventory/adjustments/${id}/reject`,
-        method: 'POST',
-        body: { reason },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Adjustment', id },
-        { type: 'Adjustment', id: 'LIST' },
-      ],
-    }),
-
-    // Transfers
-    getTransfers: builder.query<InventoryTransfer[], void>({
+    // Inventory transfers
+    getTransfers: builder.query({
       query: () => 'inventory/transfers',
-      providesTags: (result) =>
+      providesTags: (result: InventoryTransfer[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Transfer' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({
+                type: 'Transfer' as const,
+                id,
+              })),
               { type: 'Transfer', id: 'LIST' },
             ]
           : [{ type: 'Transfer', id: 'LIST' }],
     }),
 
-    getTransfer: builder.query<InventoryTransfer, string>({
-      query: (id) => `inventory/transfers/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Transfer', id }],
+    getTransfer: builder.query({
+      query: (id: string) => `inventory/transfers/${id}`,
+      providesTags: (_result: InventoryTransfer | undefined, _error: unknown, id: string) => [{ type: 'Transfer', id }],
     }),
 
-    createTransfer: builder.mutation<InventoryTransfer, CreateTransferRequest>({
-      query: (transfer) => ({
+    createTransfer: builder.mutation({
+      query: (transfer: CreateTransferRequest) => ({
         url: 'inventory/transfers',
         method: 'POST',
         body: transfer,
@@ -238,59 +218,39 @@ export const inventoryApi = baseApi.injectEndpoints({
       ],
     }),
 
-    completeTransfer: builder.mutation<
-      InventoryTransfer,
-      { id: string; receivedItems: Array<{ inventoryItemId: string; received: number }> }
-    >({
-      query: ({ id, receivedItems }) => ({
-        url: `inventory/transfers/${id}/complete`,
-        method: 'POST',
-        body: { receivedItems },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Transfer', id },
-        { type: 'Transfer', id: 'LIST' },
-        { type: 'Inventory', id: 'LIST' },
-      ],
-    }),
-
-    cancelTransfer: builder.mutation<InventoryTransfer, string>({
-      query: (id) => ({
-        url: `inventory/transfers/${id}/cancel`,
-        method: 'POST',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Transfer', id },
-        { type: 'Transfer', id: 'LIST' },
-        { type: 'Inventory', id: 'LIST' },
-      ],
-    }),
-
-    // Alerts
-    getAlerts: builder.query<InventoryAlert[], void>({
+    // Inventory alerts
+    getAlerts: builder.query({
       query: () => 'inventory/alerts',
-      providesTags: (result) =>
+      providesTags: (result: InventoryAlert[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Alert' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({
+                type: 'Alert' as const,
+                id,
+              })),
               { type: 'Alert', id: 'LIST' },
             ]
           : [{ type: 'Alert', id: 'LIST' }],
     }),
 
-    acknowledgeAlert: builder.mutation<InventoryAlert, string>({
-      query: (id) => ({
+    getAlert: builder.query({
+      query: (id: string) => `inventory/alerts/${id}`,
+      providesTags: (_result: InventoryAlert | undefined, _error: unknown, id: string) => [{ type: 'Alert', id }],
+    }),
+
+    acknowledgeAlert: builder.mutation({
+      query: (id: string) => ({
         url: `inventory/alerts/${id}/acknowledge`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
         { type: 'Alert', id },
         { type: 'Alert', id: 'LIST' },
       ],
     }),
 
-    bulkAcknowledgeAlerts: builder.mutation<void, string[]>({
-      query: (ids) => ({
+    bulkAcknowledgeAlerts: builder.mutation({
+      query: (ids: string[]) => ({
         url: 'inventory/alerts/bulk-acknowledge',
         method: 'POST',
         body: { ids },
@@ -299,27 +259,7 @@ export const inventoryApi = baseApi.injectEndpoints({
     }),
 
     // Analytics
-    getInventoryAnalytics: builder.query<
-      {
-        totalItems: number
-        lowStockItems: number
-        outOfStockItems: number
-        totalValue: number
-        locationBreakdown: Array<{
-          locationId: string
-          locationName: string
-          itemCount: number
-          totalValue: number
-        }>
-        alertsSummary: {
-          critical: number
-          high: number
-          medium: number
-          low: number
-        }
-      },
-      void
-    >({
+    getInventoryAnalytics: builder.query({
       query: () => 'inventory/analytics',
       providesTags: [{ type: 'Inventory', id: 'ANALYTICS' }],
     }),
@@ -339,14 +279,11 @@ export const {
   useGetAdjustmentsQuery,
   useGetAdjustmentQuery,
   useCreateAdjustmentMutation,
-  useApproveAdjustmentMutation,
-  useRejectAdjustmentMutation,
   useGetTransfersQuery,
   useGetTransferQuery,
   useCreateTransferMutation,
-  useCompleteTransferMutation,
-  useCancelTransferMutation,
   useGetAlertsQuery,
+  useGetAlertQuery,
   useAcknowledgeAlertMutation,
   useBulkAcknowledgeAlertsMutation,
   useGetInventoryAnalyticsQuery,

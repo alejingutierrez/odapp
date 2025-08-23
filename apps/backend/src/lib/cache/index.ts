@@ -2,8 +2,16 @@
 export { redisClient, initializeRedis, shutdownRedis } from './redis-client.js'
 
 // Cache manager
-export { cacheManager, type CacheOptions, type CacheEntry, type CacheStats } from './cache-manager.js'
-import { cacheManager as cacheManagerInstance, type CacheOptions as CacheOptionsType } from './cache-manager.js'
+export {
+  cacheManager,
+  type CacheOptions,
+  type CacheEntry,
+  type CacheStats,
+} from './cache-manager.js'
+import {
+  cacheManager as cacheManagerInstance,
+  type CacheOptions as CacheOptionsType,
+} from './cache-manager.js'
 
 // Cache patterns
 export {
@@ -16,7 +24,11 @@ export {
 } from './cache-patterns.js'
 
 // Cache warming
-export { cacheWarming, type WarmupConfig, type WarmupItem } from './cache-warming.js'
+export {
+  cacheWarming,
+  type WarmupConfig,
+  type WarmupItem,
+} from './cache-warming.js'
 
 // Cache monitoring
 export {
@@ -92,17 +104,21 @@ export const CacheUtils = {
   /**
    * Get cache tags for product
    */
-  getProductTags(productId: string, categoryId?: string, collectionIds: string[] = []): string[] {
+  getProductTags(
+    productId: string,
+    categoryId?: string,
+    collectionIds: string[] = []
+  ): string[] {
     const tags = ['products', `product:${productId}`]
-    
+
     if (categoryId) {
       tags.push(`category:${categoryId}`)
     }
-    
-    collectionIds.forEach(collectionId => {
+
+    collectionIds.forEach((collectionId) => {
       tags.push(`collection:${collectionId}`)
     })
-    
+
     return tags
   },
 
@@ -111,11 +127,11 @@ export const CacheUtils = {
    */
   getInventoryTags(productId: string, variantId?: string): string[] {
     const tags = ['inventory', `product:${productId}`]
-    
+
     if (variantId) {
       tags.push(`variant:${variantId}`)
     }
-    
+
     return tags
   },
 
@@ -124,36 +140,48 @@ export const CacheUtils = {
    */
   getCustomerTags(customerId: string, segmentIds: string[] = []): string[] {
     const tags = ['customers', `customer:${customerId}`]
-    
-    segmentIds.forEach(segmentId => {
+
+    segmentIds.forEach((segmentId) => {
       tags.push(`segment:${segmentId}`)
     })
-    
+
     return tags
   },
 
   /**
    * Get cache tags for order
    */
-  getOrderTags(orderId: string, customerId: string, productIds: string[] = []): string[] {
+  getOrderTags(
+    orderId: string,
+    customerId: string,
+    productIds: string[] = []
+  ): string[] {
     const tags = ['orders', `order:${orderId}`, `customer:${customerId}`]
-    
-    productIds.forEach(productId => {
+
+    productIds.forEach((productId) => {
       tags.push(`product:${productId}`)
     })
-    
+
     return tags
   },
 }
 
 // Cache decorators for common patterns
-export function Cacheable(options: CacheOptionsType & { keyGenerator?: (..._args: unknown[]) => string }) {
-  return function (target: Record<string, unknown>, propertyName: string, descriptor: PropertyDescriptor) {
+export function Cacheable(
+  options: CacheOptionsType & { keyGenerator?: (..._args: unknown[]) => string }
+) {
+  return function (
+    target: Record<string, unknown>,
+    propertyName: string,
+    descriptor: PropertyDescriptor
+  ) {
     const method = descriptor.value
 
     descriptor.value = async function (...args: unknown[]) {
-      const key = options.keyGenerator ? options.keyGenerator(...args) : `${(target as any).constructor.name}:${propertyName}:${JSON.stringify(args)}`
-      
+      const key = options.keyGenerator
+        ? options.keyGenerator(...args)
+        : `${(target as Record<string, string>).constructor.name}:${propertyName}:${JSON.stringify(args)}`
+
       const cached = await cacheManagerInstance.get(key, options)
       if (cached !== null) {
         return cached
@@ -161,7 +189,7 @@ export function Cacheable(options: CacheOptionsType & { keyGenerator?: (..._args
 
       const result = await method.apply(this, args)
       await cacheManagerInstance.set(key, result, options)
-      
+
       return result
     }
 
@@ -169,8 +197,16 @@ export function Cacheable(options: CacheOptionsType & { keyGenerator?: (..._args
   }
 }
 
-export function CacheEvict(options: { keys?: string[]; tags?: string[]; namespace?: string }) {
-  return function (target: Record<string, unknown>, propertyName: string, descriptor: PropertyDescriptor) {
+export function CacheEvict(options: {
+  keys?: string[]
+  tags?: string[]
+  namespace?: string
+}) {
+  return function (
+    target: Record<string, unknown>,
+    propertyName: string,
+    descriptor: PropertyDescriptor
+  ) {
     const method = descriptor.value
 
     descriptor.value = async function (...args: unknown[]) {
@@ -178,7 +214,9 @@ export function CacheEvict(options: { keys?: string[]; tags?: string[]; namespac
 
       // Evict specific keys
       if (options.keys) {
-        const evictPromises = options.keys.map(key => cacheManagerInstance.del(key, options.namespace))
+        const evictPromises = options.keys.map((key) =>
+          cacheManagerInstance.del(key, options.namespace)
+        )
         await Promise.all(evictPromises)
       }
 

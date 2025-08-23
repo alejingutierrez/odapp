@@ -116,13 +116,13 @@ export class CacheMonitoring {
             cacheStats.redisHits,
             cacheStats.redisMisses
           ),
-          size: redisInfo.used_memory || 0,
-          keyCount: redisInfo.db0_keys || 0,
-          memoryUsage: redisInfo.used_memory_rss || 0,
-          connectedClients: redisInfo.connected_clients || 0,
-          commandsProcessed: redisInfo.total_commands_processed || 0,
-          keyspaceHits: redisInfo.keyspace_hits || 0,
-          keyspaceMisses: redisInfo.keyspace_misses || 0,
+          size: (redisInfo.used_memory as number) || 0,
+          keyCount: (redisInfo.db0_keys as number) || 0,
+          memoryUsage: (redisInfo.used_memory_rss as number) || 0,
+          connectedClients: (redisInfo.connected_clients as number) || 0,
+          commandsProcessed: (redisInfo.total_commands_processed as number) || 0,
+          keyspaceHits: (redisInfo.keyspace_hits as number) || 0,
+          keyspaceMisses: (redisInfo.keyspace_misses as number) || 0,
         },
         overall: {
           totalHits: cacheStats.totalHits,
@@ -160,7 +160,7 @@ export class CacheMonitoring {
       }
 
       const client = redisClient.getClient()
-      const info = await client.info()
+      const info = await (client as { info: () => Promise<string> }).info()
 
       // Parse Redis INFO response
       const parsed: Record<string, unknown> = {}

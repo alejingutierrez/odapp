@@ -1,41 +1,39 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
-import { ShopifyService } from '../services/shopify.service';
-import { WebhookProcessor } from '../lib/webhook-processor';
-import { CircuitBreaker } from '../lib/circuit-breaker';
-import { RateLimiter } from '../lib/rate-limiter';
-import { RetryManager } from '../lib/retry-manager';
-import { SyncStatusManager } from '../lib/sync-status-manager';
-import { ConflictResolver } from '../lib/conflict-resolver';
-import { 
-  mockShopifyProduct, 
-  mockShopifyOrder, 
-  mockShopifyCustomer,
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { PrismaClient } from '@prisma/client'
+import { ShopifyService } from '../services/shopify.service'
+import { WebhookProcessor } from '../lib/webhook-processor'
+import { CircuitBreaker } from '../lib/circuit-breaker'
+import { RateLimiter } from '../lib/rate-limiter'
+import { RetryManager } from '../lib/retry-manager'
+import { SyncStatusManager } from '../lib/sync-status-manager'
+import { ConflictResolver } from '../lib/conflict-resolver'
+import {
+  mockShopifyProduct,
+  mockShopifyOrder,
   mockWebhookEvent,
-  mockSyncResult 
-} from './mocks/shopify-mocks';
+} from './mocks/shopify-mocks'
 
 // Mock external dependencies
-vi.mock('axios');
-vi.mock('@prisma/client');
-vi.mock('../lib/logger');
+vi.mock('axios')
+vi.mock('@prisma/client')
+vi.mock('../lib/logger')
 
 describe('Shopify Integration Tests', () => {
-  let prisma: PrismaClient;
-  let shopifyService: ShopifyService;
-  let webhookProcessor: WebhookProcessor;
+  let prisma: PrismaClient
+  let shopifyService: ShopifyService
+  let webhookProcessor: WebhookProcessor
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    
-    prisma = new PrismaClient() as any;
-    shopifyService = new ShopifyService(prisma, 'test-shop', 'test-token');
-    webhookProcessor = new WebhookProcessor(prisma);
-  });
+    vi.clearAllMocks()
+
+    prisma = new PrismaClient() as any
+    shopifyService = new ShopifyService(prisma, 'test-shop', 'test-token')
+    webhookProcessor = new WebhookProcessor(prisma)
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   describe('End-to-End Product Sync', () => {
     it('should complete full product sync workflow', async () => {
@@ -50,13 +48,13 @@ describe('Shopify Integration Tests', () => {
           images: [],
           collections: [],
         },
-      ];
+      ]
 
       // Mock database operations
-      (prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' });
-      (prisma.product.findMany as any).mockResolvedValue(mockProducts);
-      (prisma.product.update as any).mockResolvedValue({});
-      (prisma.syncStatus.update as any).mockResolvedValue({});
+      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
+      ;(prisma.product.findMany as any).mockResolvedValue(mockProducts)
+      ;(prisma.product.update as any).mockResolvedValue({})
+      ;(prisma.syncStatus.update as any).mockResolvedValue({})
 
       // Mock Shopify API responses
       const mockAxiosInstance = {
@@ -66,19 +64,19 @@ describe('Shopify Integration Tests', () => {
         }),
         post: vi.fn().mockResolvedValue({}),
         put: vi.fn().mockResolvedValue({}),
-      };
+      }
 
       // Mock the service's client
-      (shopifyService as any).client = mockAxiosInstance;
+      ;(shopifyService as any).client = mockAxiosInstance
 
       // Act
-      const result = await shopifyService.syncProductsToShopify();
+      const result = await shopifyService.syncProductsToShopify()
 
       // Assert
-      expect(result.successful).toBe(1);
-      expect(result.failed).toBe(0);
-      expect(result.total).toBe(1);
-      
+      expect(result.successful).toBe(1)
+      expect(result.failed).toBe(0)
+      expect(result.total).toBe(1)
+
       // Verify sync status was tracked
       expect(prisma.syncStatus.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -86,8 +84,8 @@ describe('Shopify Integration Tests', () => {
           direction: 'push',
           status: 'running',
         }),
-      });
-      
+      })
+
       expect(prisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: 'sync-1' },
         data: expect.objectContaining({
@@ -96,8 +94,8 @@ describe('Shopify Integration Tests', () => {
           failed: 0,
           total: 1,
         }),
-      });
-    });
+      })
+    })
 
     it('should handle product conflicts during sync', async () => {
       // Arrange
@@ -108,54 +106,53 @@ describe('Shopify Integration Tests', () => {
         variants: [],
         images: [],
         collections: [],
-      };
+      }
 
       const shopifyProduct = {
         ...mockShopifyProduct,
         title: 'Shopify Product Title',
         updated_at: '2023-01-02T00:00:00Z',
-      };
+      }
 
-      (prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' });
-      (prisma.product.findMany as any).mockResolvedValue([localProduct]);
-      (prisma.product.update as any).mockResolvedValue({});
-      (prisma.syncStatus.update as any).mockResolvedValue({});
+      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
+      ;(prisma.product.findMany as any).mockResolvedValue([localProduct])
+      ;(prisma.product.update as any).mockResolvedValue({})
+      ;(prisma.syncStatus.update as any).mockResolvedValue({})
 
       const mockAxiosInstance = {
         get: vi.fn().mockResolvedValue({
           data: { products: [shopifyProduct] },
           headers: {},
         }),
-      };
+      }
 
-      (shopifyService as any).client = mockAxiosInstance;
+      ;(shopifyService as any).client = mockAxiosInstance
 
       // Mock conflict resolution
-      const conflictResolver = new ConflictResolver();
+      const conflictResolver = new ConflictResolver()
       vi.spyOn(conflictResolver, 'detectProductConflict').mockResolvedValue({
         localProduct,
         shopifyProduct,
         conflictFields: ['title'],
         conflictType: 'timestamp',
-      });
-      
+      })
+
       vi.spyOn(conflictResolver, 'resolveProductConflict').mockResolvedValue({
         action: 'overwrite',
         mergedData: { title: shopifyProduct.title },
         reason: 'Shopify data is more recent',
-      });
-
-      (shopifyService as any).conflictResolver = conflictResolver;
+      })
+      ;(shopifyService as any).conflictResolver = conflictResolver
 
       // Act
-      const result = await shopifyService.syncProductsToShopify();
+      const result = await shopifyService.syncProductsToShopify()
 
       // Assert
-      expect(result.successful).toBe(1);
-      expect(conflictResolver.detectProductConflict).toHaveBeenCalled();
-      expect(conflictResolver.resolveProductConflict).toHaveBeenCalled();
-    });
-  });
+      expect(result.successful).toBe(1)
+      expect(conflictResolver.detectProductConflict).toHaveBeenCalled()
+      expect(conflictResolver.resolveProductConflict).toHaveBeenCalled()
+    })
+  })
 
   describe('Webhook Processing Integration', () => {
     it('should process product webhook and update database', async () => {
@@ -164,17 +161,17 @@ describe('Shopify Integration Tests', () => {
         ...mockWebhookEvent,
         topic: 'products/create',
         payload: mockShopifyProduct,
-      };
+      }
 
-      (prisma.product.findFirst as any).mockResolvedValue(null);
-      (prisma.product.create as any).mockResolvedValue({});
-      (prisma.webhookLog.create as any).mockResolvedValue({});
+      ;(prisma.product.findFirst as any).mockResolvedValue(null)
+      ;(prisma.product.create as any).mockResolvedValue({})
+      ;(prisma.webhookLog.create as any).mockResolvedValue({})
 
       // Mock webhook verification
-      process.env.SHOPIFY_WEBHOOK_SECRET = 'test-secret';
+      process.env.SHOPIFY_WEBHOOK_SECRET = 'test-secret'
 
       // Act
-      await webhookProcessor.process(productWebhook);
+      await webhookProcessor.process(productWebhook)
 
       // Assert
       expect(prisma.product.create).toHaveBeenCalledWith({
@@ -183,15 +180,15 @@ describe('Shopify Integration Tests', () => {
           shopifyId: mockShopifyProduct.id.toString(),
           syncStatus: 'synced',
         }),
-      });
+      })
 
       expect(prisma.webhookLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           topic: 'products/create',
           status: 'processed',
         }),
-      });
-    });
+      })
+    })
 
     it('should process order webhook and create order with customer', async () => {
       // Arrange
@@ -199,16 +196,16 @@ describe('Shopify Integration Tests', () => {
         ...mockWebhookEvent,
         topic: 'orders/create',
         payload: mockShopifyOrder,
-      };
+      }
 
-      (prisma.order.findFirst as any).mockResolvedValue(null);
-      (prisma.customer.findFirst as any).mockResolvedValue(null);
-      (prisma.customer.create as any).mockResolvedValue({ id: 'customer-1' });
-      (prisma.order.create as any).mockResolvedValue({});
-      (prisma.webhookLog.create as any).mockResolvedValue({});
+      ;(prisma.order.findFirst as any).mockResolvedValue(null)
+      ;(prisma.customer.findFirst as any).mockResolvedValue(null)
+      ;(prisma.customer.create as any).mockResolvedValue({ id: 'customer-1' })
+      ;(prisma.order.create as any).mockResolvedValue({})
+      ;(prisma.webhookLog.create as any).mockResolvedValue({})
 
       // Act
-      await webhookProcessor.process(orderWebhook);
+      await webhookProcessor.process(orderWebhook)
 
       // Assert
       expect(prisma.customer.create).toHaveBeenCalledWith({
@@ -217,7 +214,7 @@ describe('Shopify Integration Tests', () => {
           shopifyId: mockShopifyOrder.customer.id.toString(),
           syncStatus: 'synced',
         }),
-      });
+      })
 
       expect(prisma.order.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -226,8 +223,8 @@ describe('Shopify Integration Tests', () => {
           shopifyId: mockShopifyOrder.id.toString(),
           syncStatus: 'synced',
         }),
-      });
-    });
+      })
+    })
 
     it('should handle webhook verification failure', async () => {
       // Arrange
@@ -237,14 +234,16 @@ describe('Shopify Integration Tests', () => {
           ...mockWebhookEvent.headers,
           'x-shopify-hmac-sha256': 'invalid-hmac',
         },
-      };
+      }
 
-      process.env.SHOPIFY_WEBHOOK_SECRET = 'test-secret';
+      process.env.SHOPIFY_WEBHOOK_SECRET = 'test-secret'
 
       // Act & Assert
-      await expect(webhookProcessor.process(invalidWebhook)).rejects.toThrow('Webhook verification failed');
-    });
-  });
+      await expect(webhookProcessor.process(invalidWebhook)).rejects.toThrow(
+        'Webhook verification failed'
+      )
+    })
+  })
 
   describe('Circuit Breaker Integration', () => {
     it('should open circuit breaker after consecutive failures', async () => {
@@ -253,27 +252,29 @@ describe('Shopify Integration Tests', () => {
         failureThreshold: 3,
         recoveryTimeout: 60000,
         monitoringPeriod: 10000,
-      });
+      })
 
-      const failingOperation = vi.fn().mockRejectedValue(new Error('API Error'));
+      const failingOperation = vi.fn().mockRejectedValue(new Error('API Error'))
 
       // Act - Trigger failures
       for (let i = 0; i < 3; i++) {
         try {
-          await circuitBreaker.execute(failingOperation);
+          await circuitBreaker.execute(failingOperation)
         } catch (error) {
           // Expected to fail
         }
       }
 
       // Assert
-      const status = circuitBreaker.getStatus();
-      expect(status.state).toBe('open');
-      expect(status.failureCount).toBe(3);
+      const status = circuitBreaker.getStatus()
+      expect(status.state).toBe('open')
+      expect(status.failureCount).toBe(3)
 
       // Verify circuit breaker blocks further calls
-      await expect(circuitBreaker.execute(failingOperation)).rejects.toThrow('Circuit breaker is open');
-    });
+      await expect(circuitBreaker.execute(failingOperation)).rejects.toThrow(
+        'Circuit breaker is open'
+      )
+    })
 
     it('should transition to half-open and recover', async () => {
       // Arrange
@@ -281,30 +282,35 @@ describe('Shopify Integration Tests', () => {
         failureThreshold: 2,
         recoveryTimeout: 100, // Short timeout for testing
         monitoringPeriod: 10000,
-      });
+      })
 
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('Error 1'))
         .mockRejectedValueOnce(new Error('Error 2'))
-        .mockResolvedValueOnce('Success');
+        .mockResolvedValueOnce('Success')
 
       // Act - Trigger failures to open circuit
-      try { await circuitBreaker.execute(operation); } catch {}
-      try { await circuitBreaker.execute(operation); } catch {}
+      try {
+        await circuitBreaker.execute(operation)
+      } catch {}
+      try {
+        await circuitBreaker.execute(operation)
+      } catch {}
 
-      expect(circuitBreaker.getStatus().state).toBe('open');
+      expect(circuitBreaker.getStatus().state).toBe('open')
 
       // Wait for recovery timeout
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150))
 
       // Execute successful operation
-      const result = await circuitBreaker.execute(operation);
+      const result = await circuitBreaker.execute(operation)
 
       // Assert
-      expect(result).toBe('Success');
-      expect(circuitBreaker.getStatus().state).toBe('closed');
-    });
-  });
+      expect(result).toBe('Success')
+      expect(circuitBreaker.getStatus().state).toBe('closed')
+    })
+  })
 
   describe('Rate Limiting Integration', () => {
     it('should respect rate limits and wait when necessary', async () => {
@@ -313,20 +319,20 @@ describe('Shopify Integration Tests', () => {
         maxRequests: 2,
         windowMs: 1000,
         burstLimit: 2,
-      });
+      })
 
-      const startTime = Date.now();
+      const startTime = Date.now()
 
       // Act - Make requests that exceed rate limit
-      await rateLimiter.waitForToken(); // Request 1
-      await rateLimiter.waitForToken(); // Request 2
-      await rateLimiter.waitForToken(); // Request 3 - should wait
+      await rateLimiter.waitForToken() // Request 1
+      await rateLimiter.waitForToken() // Request 2
+      await rateLimiter.waitForToken() // Request 3 - should wait
 
-      const endTime = Date.now();
+      const endTime = Date.now()
 
       // Assert - Should have waited for rate limit reset
-      expect(endTime - startTime).toBeGreaterThan(900); // Almost 1 second
-    });
+      expect(endTime - startTime).toBeGreaterThan(900) // Almost 1 second
+    })
 
     it('should update rate limits from Shopify headers', async () => {
       // Arrange
@@ -334,19 +340,19 @@ describe('Shopify Integration Tests', () => {
         maxRequests: 40,
         windowMs: 1000,
         burstLimit: 80,
-      });
+      })
 
       // Act
       rateLimiter.updateFromHeaders({
         'x-shopify-shop-api-call-limit': '35/40',
         'x-shopify-api-request-bucket-leak-rate': '2',
-      });
+      })
 
       // Assert
-      const status = rateLimiter.getStatus();
-      expect(status.remaining).toBe(5); // 40 - 35
-    });
-  });
+      const status = rateLimiter.getStatus()
+      expect(status.remaining).toBe(5) // 40 - 35
+    })
+  })
 
   describe('Retry Manager Integration', () => {
     it('should retry failed operations with exponential backoff', async () => {
@@ -356,24 +362,25 @@ describe('Shopify Integration Tests', () => {
         baseDelay: 100,
         maxDelay: 1000,
         backoffFactor: 2,
-      });
+      })
 
-      const operation = vi.fn()
+      const operation = vi
+        .fn()
         .mockRejectedValueOnce(new Error('Temporary error'))
         .mockRejectedValueOnce(new Error('Another temporary error'))
-        .mockResolvedValueOnce('Success');
+        .mockResolvedValueOnce('Success')
 
-      const startTime = Date.now();
+      const startTime = Date.now()
 
       // Act
-      const result = await retryManager.execute(operation);
-      const endTime = Date.now();
+      const result = await retryManager.execute(operation)
+      const endTime = Date.now()
 
       // Assert
-      expect(result).toBe('Success');
-      expect(operation).toHaveBeenCalledTimes(3);
-      expect(endTime - startTime).toBeGreaterThan(300); // Should have waited for retries
-    });
+      expect(result).toBe('Success')
+      expect(operation).toHaveBeenCalledTimes(3)
+      expect(endTime - startTime).toBeGreaterThan(300) // Should have waited for retries
+    })
 
     it('should not retry non-retryable errors', async () => {
       // Arrange
@@ -382,36 +389,38 @@ describe('Shopify Integration Tests', () => {
         baseDelay: 100,
         maxDelay: 1000,
         backoffFactor: 2,
-      });
+      })
 
-      const operation = vi.fn().mockRejectedValue(new Error('Unauthorized'));
+      const operation = vi.fn().mockRejectedValue(new Error('Unauthorized'))
 
       // Act & Assert
-      await expect(retryManager.execute(operation)).rejects.toThrow('Unauthorized');
-      expect(operation).toHaveBeenCalledTimes(1); // Should not retry
-    });
-  });
+      await expect(retryManager.execute(operation)).rejects.toThrow(
+        'Unauthorized'
+      )
+      expect(operation).toHaveBeenCalledTimes(1) // Should not retry
+    })
+  })
 
   describe('Sync Status Management Integration', () => {
     it('should track sync lifecycle correctly', async () => {
       // Arrange
-      const syncStatusManager = new SyncStatusManager(prisma);
-      
-      (prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' });
-      (prisma.syncStatus.update as any).mockResolvedValue({});
+      const syncStatusManager = new SyncStatusManager(prisma)
+
+      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
+      ;(prisma.syncStatus.update as any).mockResolvedValue({})
 
       // Act
-      const syncId = await syncStatusManager.startSync('products', 'pull');
+      const syncId = await syncStatusManager.startSync('products', 'pull')
       await syncStatusManager.updateSyncProgress(syncId, {
         successful: 5,
         failed: 1,
         total: 10,
-      });
+      })
       await syncStatusManager.completeSync(syncId, {
         successful: 9,
         failed: 1,
         total: 10,
-      });
+      })
 
       // Assert
       expect(prisma.syncStatus.create).toHaveBeenCalledWith({
@@ -420,7 +429,7 @@ describe('Shopify Integration Tests', () => {
           direction: 'pull',
           status: 'running',
         }),
-      });
+      })
 
       expect(prisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: syncId },
@@ -429,7 +438,7 @@ describe('Shopify Integration Tests', () => {
           failed: 1,
           total: 10,
         }),
-      });
+      })
 
       expect(prisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: syncId },
@@ -439,13 +448,13 @@ describe('Shopify Integration Tests', () => {
           failed: 1,
           total: 10,
         }),
-      });
-    });
+      })
+    })
 
     it('should calculate sync metrics correctly', async () => {
       // Arrange
-      const syncStatusManager = new SyncStatusManager(prisma);
-      
+      const syncStatusManager = new SyncStatusManager(prisma)
+
       const mockSyncs = [
         {
           status: 'completed',
@@ -462,30 +471,36 @@ describe('Shopify Integration Tests', () => {
           startedAt: new Date('2023-01-01T02:00:00Z'),
           completedAt: new Date('2023-01-01T02:01:00Z'), // 1 minute
         },
-      ];
+      ]
 
-      (prisma.syncStatus.findMany as any).mockResolvedValue(mockSyncs);
+      const mockFindMany = prisma.syncStatus.findMany as any
+      mockFindMany.mockResolvedValue(mockSyncs)
 
       // Act
-      const metrics = await syncStatusManager.getSyncMetrics('products', 7);
+      const metrics = await syncStatusManager.getSyncMetrics('products', 7)
 
       // Assert
-      expect(metrics.totalSyncs).toBe(3);
-      expect(metrics.successfulSyncs).toBe(2);
-      expect(metrics.failedSyncs).toBe(1);
-      expect(metrics.successRate).toBe(66.66666666666666);
-      expect(metrics.averageDuration).toBe(180000); // 3 minutes average
-    });
-  });
+      expect(metrics.totalSyncs).toBe(3)
+      expect(metrics.successfulSyncs).toBe(2)
+      expect(metrics.failedSyncs).toBe(1)
+      expect(metrics.successRate).toBe(66.66666666666666)
+      expect(metrics.averageDuration).toBe(180000) // 3 minutes average
+    })
+  })
 
   describe('Full Integration Scenario', () => {
     it('should handle complete sync workflow with all components', async () => {
       // Arrange - Set up all mocks for a complete workflow
-      (prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' });
-      (prisma.syncStatus.update as any).mockResolvedValue({});
-      (prisma.product.findMany as any).mockResolvedValue([]);
-      (prisma.inventory.findMany as any).mockResolvedValue([]);
-      (prisma.syncStatus.findFirst as any).mockResolvedValue(null);
+      const mockCreate = prisma.syncStatus.create as any
+      const mockUpdate = prisma.syncStatus.update as any
+      const mockProductFindMany = prisma.product.findMany as any
+      const mockInventoryFindMany = prisma.inventory.findMany as any
+      const mockFindFirst = prisma.syncStatus.findFirst as any
+      mockCreate.mockResolvedValue({ id: 'sync-1' })
+      mockUpdate.mockResolvedValue({})
+      mockProductFindMany.mockResolvedValue([])
+      mockInventoryFindMany.mockResolvedValue([])
+      mockFindFirst.mockResolvedValue(null)
 
       const mockAxiosInstance = {
         get: vi.fn().mockResolvedValue({
@@ -496,22 +511,23 @@ describe('Shopify Integration Tests', () => {
           request: { use: vi.fn() },
           response: { use: vi.fn() },
         },
-      };
+      }
 
-      (shopifyService as any).client = mockAxiosInstance;
+      const shopifyServiceTyped = shopifyService as any
+      shopifyServiceTyped.client = mockAxiosInstance
 
       // Act
-      const results = await shopifyService.triggerFullSync();
+      const results = await shopifyService.triggerFullSync()
 
       // Assert
-      expect(results).toHaveProperty('products');
-      expect(results).toHaveProperty('inventory');
-      expect(results).toHaveProperty('orders');
-      expect(results).toHaveProperty('customers');
+      expect(results).toHaveProperty('products')
+      expect(results).toHaveProperty('inventory')
+      expect(results).toHaveProperty('orders')
+      expect(results).toHaveProperty('customers')
 
       // Verify all sync types were initiated
-      expect(prisma.syncStatus.create).toHaveBeenCalledTimes(4);
-      expect(prisma.syncStatus.update).toHaveBeenCalledTimes(4);
-    });
-  });
-});
+      expect(prisma.syncStatus.create).toHaveBeenCalledTimes(4)
+      expect(prisma.syncStatus.update).toHaveBeenCalledTimes(4)
+    })
+  })
+})

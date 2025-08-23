@@ -1,4 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest'
 import { PrismaClient } from '@prisma/client'
 import { ProductService } from '../services/product.service.js'
 import { SearchService } from '../services/search.service.js'
@@ -46,8 +55,8 @@ describe('ProductService', () => {
         price: 29.99,
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ],
     images: [
       {
@@ -57,16 +66,16 @@ describe('ProductService', () => {
         altText: 'Test image',
         sortOrder: 0,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ],
     category: null,
     collections: [],
     _count: {
       variants: 1,
       images: 1,
-      collections: 0
-    }
+      collections: 0,
+    },
   }
 
   const mockCreateProductData: CreateProduct = {
@@ -82,16 +91,16 @@ describe('ProductService', () => {
         price: 29.99,
         inventoryQuantity: 10,
         requiresShipping: true,
-        taxable: true
-      }
+        taxable: true,
+      },
     ],
     images: [
       {
         url: 'https://example.com/image.jpg',
         altText: 'Test image',
-        position: 0
-      }
-    ]
+        position: 0,
+      },
+    ],
   }
 
   beforeAll(() => {
@@ -99,9 +108,11 @@ describe('ProductService', () => {
     prisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/test_db'
-        }
-      }
+          url:
+            process.env.TEST_DATABASE_URL ||
+            'postgresql://test:test@localhost:5432/test_db',
+        },
+      },
     })
   })
 
@@ -121,11 +132,11 @@ describe('ProductService', () => {
     mockCache.get.mockResolvedValue(null)
     mockCache.set.mockResolvedValue(undefined)
     mockCache.deletePattern.mockResolvedValue(undefined)
-    
+
     mockSearchService.isAvailable.mockReturnValue(false)
     mockSearchService.indexProduct.mockResolvedValue(undefined)
     mockSearchService.removeProduct.mockResolvedValue(undefined)
-    
+
     mockAuditService.log.mockResolvedValue(undefined)
 
     // Create service instance
@@ -152,10 +163,12 @@ describe('ProductService', () => {
     vi.spyOn(prisma.location, 'findFirst').mockResolvedValue({
       id: 'location-1',
       name: 'Default Location',
-      isDefault: true
+      isDefault: true,
     } as any)
     vi.spyOn(prisma.inventoryItem, 'createMany').mockResolvedValue({ count: 1 })
-    vi.spyOn(prisma.collectionProduct, 'createMany').mockResolvedValue({ count: 0 })
+    vi.spyOn(prisma.collectionProduct, 'createMany').mockResolvedValue({
+      count: 0,
+    })
     vi.spyOn(prisma.$transaction).mockImplementation(async (callback) => {
       return await callback(prisma)
     })
@@ -167,7 +180,10 @@ describe('ProductService', () => {
 
   describe('createProduct', () => {
     it('should create a product successfully', async () => {
-      const result = await productService.createProduct(mockCreateProductData, 'user-1')
+      const result = await productService.createProduct(
+        mockCreateProductData,
+        'user-1'
+      )
 
       expect(result).toEqual(mockProduct)
       expect(prisma.product.create).toHaveBeenCalledWith({
@@ -175,9 +191,9 @@ describe('ProductService', () => {
           name: mockCreateProductData.name,
           slug: mockCreateProductData.slug,
           description: mockCreateProductData.description,
-          status: 'DRAFT'
+          status: 'DRAFT',
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
       expect(mockSearchService.indexProduct).toHaveBeenCalledWith(mockProduct)
       expect(mockAuditService.log).toHaveBeenCalledWith({
@@ -185,35 +201,37 @@ describe('ProductService', () => {
         entity: 'Product',
         entityId: mockProduct.id,
         newValues: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
     it('should generate unique slug when slug is not provided', async () => {
       const dataWithoutSlug = { ...mockCreateProductData, slug: undefined }
-      
+
       await productService.createProduct(dataWithoutSlug, 'user-1')
 
       expect(prisma.product.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          slug: 'test-product'
+          slug: 'test-product',
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
 
     it('should validate required fields', async () => {
       const invalidData = { ...mockCreateProductData, name: '' }
 
-      await expect(productService.createProduct(invalidData, 'user-1'))
-        .rejects.toThrow('Product name is required')
+      await expect(
+        productService.createProduct(invalidData, 'user-1')
+      ).rejects.toThrow('Product name is required')
     })
 
     it('should validate variants are provided', async () => {
       const invalidData = { ...mockCreateProductData, variants: [] }
 
-      await expect(productService.createProduct(invalidData, 'user-1'))
-        .rejects.toThrow('At least one variant is required')
+      await expect(
+        productService.createProduct(invalidData, 'user-1')
+      ).rejects.toThrow('At least one variant is required')
     })
 
     it('should validate unique SKUs within variants', async () => {
@@ -221,20 +239,25 @@ describe('ProductService', () => {
         ...mockCreateProductData,
         variants: [
           { ...mockCreateProductData.variants[0], sku: 'DUPLICATE' },
-          { ...mockCreateProductData.variants[0], sku: 'DUPLICATE' }
-        ]
+          { ...mockCreateProductData.variants[0], sku: 'DUPLICATE' },
+        ],
       }
 
-      await expect(productService.createProduct(invalidData, 'user-1'))
-        .rejects.toThrow('Duplicate SKUs found: DUPLICATE')
+      await expect(
+        productService.createProduct(invalidData, 'user-1')
+      ).rejects.toThrow('Duplicate SKUs found: DUPLICATE')
     })
 
     it('should validate category exists when provided', async () => {
-      const dataWithCategory = { ...mockCreateProductData, categoryId: 'invalid-category' }
+      const dataWithCategory = {
+        ...mockCreateProductData,
+        categoryId: 'invalid-category',
+      }
       vi.spyOn(prisma.category, 'findFirst').mockResolvedValue(null)
 
-      await expect(productService.createProduct(dataWithCategory, 'user-1'))
-        .rejects.toThrow('Category not found')
+      await expect(
+        productService.createProduct(dataWithCategory, 'user-1')
+      ).rejects.toThrow('Category not found')
     })
 
     it('should create inventory records for variants', async () => {
@@ -248,9 +271,9 @@ describe('ProductService', () => {
             locationId: 'location-1',
             quantity: 0,
             availableQuantity: 0,
-            lowStockThreshold: 5
-          })
-        ])
+            lowStockThreshold: 5,
+          }),
+        ]),
       })
     })
   })
@@ -276,11 +299,15 @@ describe('ProductService', () => {
         where: {
           id: 'product-1',
           isActive: true,
-          deletedAt: null
+          deletedAt: null,
         },
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
-      expect(mockCache.set).toHaveBeenCalledWith('product:product-1:false', mockProduct, 300)
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'product:product-1:false',
+        mockProduct,
+        300
+      )
     })
 
     it('should return null for non-existent product', async () => {
@@ -296,7 +323,7 @@ describe('ProductService', () => {
 
       expect(prisma.product.findFirst).toHaveBeenCalledWith({
         where: { id: 'product-1' },
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
   })
@@ -304,17 +331,21 @@ describe('ProductService', () => {
   describe('updateProduct', () => {
     it('should update product successfully', async () => {
       const updateData = { name: 'Updated Product' }
-      
-      const result = await productService.updateProduct('product-1', updateData, 'user-1')
+
+      const result = await productService.updateProduct(
+        'product-1',
+        updateData,
+        'user-1'
+      )
 
       expect(result).toEqual(mockProduct)
       expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: 'product-1' },
         data: expect.objectContaining({
           name: 'Updated Product',
-          updatedAt: expect.any(Date)
+          updatedAt: expect.any(Date),
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
       expect(mockSearchService.indexProduct).toHaveBeenCalledWith(mockProduct)
       expect(mockAuditService.log).toHaveBeenCalledWith({
@@ -323,29 +354,34 @@ describe('ProductService', () => {
         entityId: 'product-1',
         oldValues: mockProduct,
         newValues: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
     it('should throw error for non-existent product', async () => {
       vi.spyOn(prisma.product, 'findFirst').mockResolvedValue(null)
 
-      await expect(productService.updateProduct('non-existent', { name: 'Updated' }, 'user-1'))
-        .rejects.toThrow('Product not found')
+      await expect(
+        productService.updateProduct(
+          'non-existent',
+          { name: 'Updated' },
+          'user-1'
+        )
+      ).rejects.toThrow('Product not found')
     })
 
     it('should generate new slug when name changes', async () => {
       const updateData = { name: 'New Product Name' }
-      
+
       await productService.updateProduct('product-1', updateData, 'user-1')
 
       expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: 'product-1' },
         data: expect.objectContaining({
           name: 'New Product Name',
-          slug: 'new-product-name'
+          slug: 'new-product-name',
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
   })
@@ -358,8 +394,8 @@ describe('ProductService', () => {
         where: { id: 'product-1' },
         data: {
           deletedAt: expect.any(Date),
-          isActive: false
-        }
+          isActive: false,
+        },
       })
       expect(mockSearchService.removeProduct).toHaveBeenCalledWith('product-1')
       expect(mockAuditService.log).toHaveBeenCalledWith({
@@ -367,22 +403,24 @@ describe('ProductService', () => {
         entity: 'Product',
         entityId: 'product-1',
         oldValues: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
     it('should throw error for non-existent product', async () => {
       vi.spyOn(prisma.product, 'findFirst').mockResolvedValue(null)
 
-      await expect(productService.deleteProduct('non-existent', 'user-1'))
-        .rejects.toThrow('Product not found')
+      await expect(
+        productService.deleteProduct('non-existent', 'user-1')
+      ).rejects.toThrow('Product not found')
     })
 
     it('should prevent deletion of products with orders', async () => {
       vi.spyOn(prisma.orderItem, 'count').mockResolvedValue(1)
 
-      await expect(productService.deleteProduct('product-1', 'user-1'))
-        .rejects.toThrow('Cannot delete product with existing orders')
+      await expect(
+        productService.deleteProduct('product-1', 'user-1')
+      ).rejects.toThrow('Cannot delete product with existing orders')
     })
   })
 
@@ -390,7 +428,7 @@ describe('ProductService', () => {
     it('should return cached results when available', async () => {
       const mockSearchResult = {
         products: [mockProduct],
-        total: 1
+        total: 1,
       }
       mockCache.get.mockResolvedValue(mockSearchResult)
 
@@ -408,8 +446,8 @@ describe('ProductService', () => {
           categories: [],
           brands: [],
           priceRanges: [],
-          status: []
-        }
+          status: [],
+        },
       }
       mockSearchService.isAvailable.mockReturnValue(true)
       mockSearchService.searchProducts.mockResolvedValue(mockSearchResult)
@@ -417,7 +455,9 @@ describe('ProductService', () => {
       const result = await productService.searchProducts({ search: 'test' })
 
       expect(result).toEqual(mockSearchResult)
-      expect(mockSearchService.searchProducts).toHaveBeenCalledWith({ search: 'test' })
+      expect(mockSearchService.searchProducts).toHaveBeenCalledWith({
+        search: 'test',
+      })
     })
 
     it('should fallback to database search when search service unavailable', async () => {
@@ -440,7 +480,7 @@ describe('ProductService', () => {
         status: 'active',
         categoryId: 'category-1',
         priceMin: 10,
-        priceMax: 50
+        priceMax: 50,
       })
 
       expect(prisma.product.findMany).toHaveBeenCalledWith({
@@ -450,12 +490,12 @@ describe('ProductService', () => {
           OR: expect.any(Array),
           status: 'active',
           categoryId: 'category-1',
-          price: { gte: 10, lte: 50 }
+          price: { gte: 10, lte: 50 },
         }),
         include: expect.any(Object),
         orderBy: expect.any(Object),
         skip: expect.any(Number),
-        take: expect.any(Number)
+        take: expect.any(Number),
       })
     })
   })
@@ -466,11 +506,14 @@ describe('ProductService', () => {
         productIds: ['product-1', 'product-2'],
         updates: {
           status: 'active' as ProductStatus,
-          vendor: 'New Vendor'
-        }
+          vendor: 'New Vendor',
+        },
       }
 
-      const result = await productService.bulkUpdateProducts(bulkUpdateData, 'user-1')
+      const result = await productService.bulkUpdateProducts(
+        bulkUpdateData,
+        'user-1'
+      )
 
       expect(result.updatedCount).toBe(1)
       expect(prisma.product.updateMany).toHaveBeenCalledWith({
@@ -478,15 +521,15 @@ describe('ProductService', () => {
         data: expect.objectContaining({
           status: 'active',
           brand: 'New Vendor',
-          updatedAt: expect.any(Date)
-        })
+          updatedAt: expect.any(Date),
+        }),
       })
       expect(mockAuditService.log).toHaveBeenCalledWith({
         action: 'BULK_UPDATE',
         entity: 'Product',
         entityId: 'product-1,product-2',
         newValues: bulkUpdateData.updates,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
@@ -495,53 +538,58 @@ describe('ProductService', () => {
 
       const bulkUpdateData = {
         productIds: ['non-existent'],
-        updates: { status: 'active' as ProductStatus }
+        updates: { status: 'active' as ProductStatus },
       }
 
-      await expect(productService.bulkUpdateProducts(bulkUpdateData, 'user-1'))
-        .rejects.toThrow('Products not found: non-existent')
+      await expect(
+        productService.bulkUpdateProducts(bulkUpdateData, 'user-1')
+      ).rejects.toThrow('Products not found: non-existent')
     })
   })
 
   describe('bulkDeleteProducts', () => {
     it('should delete multiple products successfully', async () => {
       const bulkDeleteData = {
-        productIds: ['product-1', 'product-2']
+        productIds: ['product-1', 'product-2'],
       }
 
-      const result = await productService.bulkDeleteProducts(bulkDeleteData, 'user-1')
+      const result = await productService.bulkDeleteProducts(
+        bulkDeleteData,
+        'user-1'
+      )
 
       expect(result.deletedCount).toBe(1)
       expect(prisma.product.updateMany).toHaveBeenCalledWith({
         where: {
           id: { in: ['product-1', 'product-2'] },
-          deletedAt: null
+          deletedAt: null,
         },
         data: {
           deletedAt: expect.any(Date),
-          isActive: false
-        }
+          isActive: false,
+        },
       })
       expect(mockSearchService.removeProduct).toHaveBeenCalledTimes(2)
       expect(mockAuditService.log).toHaveBeenCalledWith({
         action: 'BULK_DELETE',
         entity: 'Product',
         entityId: 'product-1,product-2',
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
     it('should prevent deletion of products with orders', async () => {
       vi.spyOn(prisma.orderItem, 'findMany').mockResolvedValue([
-        { productId: 'product-1', product: { name: 'Test Product' } }
+        { productId: 'product-1', product: { name: 'Test Product' } },
       ] as any)
 
       const bulkDeleteData = {
-        productIds: ['product-1']
+        productIds: ['product-1'],
       }
 
-      await expect(productService.bulkDeleteProducts(bulkDeleteData, 'user-1'))
-        .rejects.toThrow('Cannot delete products with existing orders')
+      await expect(
+        productService.bulkDeleteProducts(bulkDeleteData, 'user-1')
+      ).rejects.toThrow('Cannot delete products with existing orders')
     })
   })
 
@@ -553,11 +601,11 @@ describe('ProductService', () => {
         draftProducts: 2,
         archivedProducts: 0,
         totalVariants: 20,
-        averagePrice: 35.50,
+        averagePrice: 35.5,
         topCategories: [],
         topBrands: [],
         recentlyCreated: 2,
-        recentlyUpdated: 5
+        recentlyUpdated: 5,
       }
       mockCache.get.mockResolvedValue(mockAnalytics)
 
@@ -569,16 +617,16 @@ describe('ProductService', () => {
 
     it('should calculate analytics from database when not cached', async () => {
       mockCache.get.mockResolvedValue(null)
-      
+
       // Mock database responses for analytics
       vi.spyOn(prisma.product, 'count').mockResolvedValue(10)
       vi.spyOn(prisma.product, 'groupBy').mockResolvedValue([
         { status: 'ACTIVE', _count: { id: 8 } },
-        { status: 'DRAFT', _count: { id: 2 } }
+        { status: 'DRAFT', _count: { id: 2 } },
       ] as any)
       vi.spyOn(prisma.productVariant, 'count').mockResolvedValue(20)
       vi.spyOn(prisma.product, 'aggregate').mockResolvedValue({
-        _avg: { price: 35.50 }
+        _avg: { price: 35.5 },
       } as any)
 
       const result = await productService.getProductAnalytics()
@@ -587,8 +635,12 @@ describe('ProductService', () => {
       expect(result.activeProducts).toBe(8)
       expect(result.draftProducts).toBe(2)
       expect(result.totalVariants).toBe(20)
-      expect(result.averagePrice).toBe(35.50)
-      expect(mockCache.set).toHaveBeenCalledWith('products:analytics', result, 600)
+      expect(result.averagePrice).toBe(35.5)
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'products:analytics',
+        result,
+        600
+      )
     })
   })
 
@@ -601,7 +653,7 @@ describe('ProductService', () => {
 
       expect(eventSpy).toHaveBeenCalledWith({
         product: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
@@ -609,12 +661,16 @@ describe('ProductService', () => {
       const eventSpy = vi.fn()
       productService.on('product.updated', eventSpy)
 
-      await productService.updateProduct('product-1', { name: 'Updated' }, 'user-1')
+      await productService.updateProduct(
+        'product-1',
+        { name: 'Updated' },
+        'user-1'
+      )
 
       expect(eventSpy).toHaveBeenCalledWith({
         product: mockProduct,
         previousProduct: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
 
@@ -626,7 +682,7 @@ describe('ProductService', () => {
 
       expect(eventSpy).toHaveBeenCalledWith({
         product: mockProduct,
-        userId: 'user-1'
+        userId: 'user-1',
       })
     })
   })
@@ -642,23 +698,34 @@ describe('ProductService', () => {
     })
 
     it('should invalidate specific product caches after update', async () => {
-      await productService.updateProduct('product-1', { name: 'Updated' }, 'user-1')
+      await productService.updateProduct(
+        'product-1',
+        { name: 'Updated' },
+        'user-1'
+      )
 
-      expect(mockCache.deletePattern).toHaveBeenCalledWith('product:product-1:*')
+      expect(mockCache.deletePattern).toHaveBeenCalledWith(
+        'product:product-1:*'
+      )
     })
   })
 
   describe('Error Handling', () => {
     it('should handle database errors gracefully', async () => {
-      vi.spyOn(prisma.product, 'create').mockRejectedValue(new Error('Database error'))
+      vi.spyOn(prisma.product, 'create').mockRejectedValue(
+        new Error('Database error')
+      )
 
-      await expect(productService.createProduct(mockCreateProductData, 'user-1'))
-        .rejects.toThrow('Database error')
+      await expect(
+        productService.createProduct(mockCreateProductData, 'user-1')
+      ).rejects.toThrow('Database error')
     })
 
     it('should handle search service errors gracefully', async () => {
       mockSearchService.isAvailable.mockReturnValue(true)
-      mockSearchService.searchProducts.mockRejectedValue(new Error('Search error'))
+      mockSearchService.searchProducts.mockRejectedValue(
+        new Error('Search error')
+      )
       mockCache.get.mockResolvedValue(null)
 
       // Should fallback to database search

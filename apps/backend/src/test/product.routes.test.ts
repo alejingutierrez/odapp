@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { PrismaClient } from '@prisma/client'
+
 import productRoutes from '../routes/products.js'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { errorHandler } from '../middleware/error-handler.js'
@@ -12,7 +12,7 @@ vi.mock('../middleware/auth.js', () => ({
     req.user = { id: 'user-1', email: 'test@example.com' }
     next()
   }),
-  authorize: vi.fn(() => (req: any, res: any, next: any) => next())
+  authorize: vi.fn(() => (req: any, res: any, next: any) => next()),
 }))
 
 // Mock services
@@ -31,31 +31,31 @@ vi.mock('../lib/prisma.js', () => ({
       create: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
-      count: vi.fn()
+      count: vi.fn(),
     },
     productVariant: {
-      findMany: vi.fn()
+      findMany: vi.fn(),
     },
     category: {
-      findFirst: vi.fn()
+      findFirst: vi.fn(),
     },
     collection: {
-      findMany: vi.fn()
+      findMany: vi.fn(),
     },
     orderItem: {
-      count: vi.fn()
+      count: vi.fn(),
     },
     location: {
-      findFirst: vi.fn()
+      findFirst: vi.fn(),
     },
     inventoryItem: {
-      createMany: vi.fn()
+      createMany: vi.fn(),
     },
     collectionProduct: {
-      createMany: vi.fn()
+      createMany: vi.fn(),
     },
-    $transaction: vi.fn()
-  }
+    $transaction: vi.fn(),
+  },
 }))
 
 describe('Product Routes', () => {
@@ -83,8 +83,8 @@ describe('Product Routes', () => {
         price: 29.99,
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ],
     images: [
       {
@@ -94,16 +94,16 @@ describe('Product Routes', () => {
         altText: 'Test image',
         sortOrder: 0,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ],
     category: null,
     collections: [],
     _count: {
       variants: 1,
       images: 1,
-      collections: 0
-    }
+      collections: 0,
+    },
   }
 
   const mockSearchResult = {
@@ -113,8 +113,8 @@ describe('Product Routes', () => {
       categories: [],
       brands: [],
       priceRanges: [],
-      status: []
-    }
+      status: [],
+    },
   }
 
   beforeAll(() => {
@@ -147,11 +147,11 @@ describe('Product Routes', () => {
         page: 1,
         limit: 20,
         total: 1,
-        totalPages: 1
+        totalPages: 1,
       })
       expect(mockSearchProducts).toHaveBeenCalledWith({
         page: '1',
-        limit: '20'
+        limit: '20',
       })
     })
 
@@ -167,7 +167,7 @@ describe('Product Routes', () => {
           status: 'active',
           categoryId: 'category-1',
           priceMin: 10,
-          priceMax: 50
+          priceMax: 50,
         })
         .expect(200)
 
@@ -176,18 +176,16 @@ describe('Product Routes', () => {
         status: 'active',
         categoryId: 'category-1',
         priceMin: '10',
-        priceMax: '50'
+        priceMax: '50',
       })
     })
 
     it('should require authentication', async () => {
-      vi.mocked(authenticate).mockImplementationOnce((req, res, next) => {
+      vi.mocked(authenticate).mockImplementationOnce((req, res, _next) => {
         res.status(401).json({ error: 'Unauthorized' })
       })
 
-      await request(app)
-        .get('/api/products')
-        .expect(401)
+      await request(app).get('/api/products').expect(401)
     })
   })
 
@@ -220,9 +218,7 @@ describe('Product Routes', () => {
     })
 
     it('should validate UUID format', async () => {
-      await request(app)
-        .get('/api/products/invalid-id')
-        .expect(400)
+      await request(app).get('/api/products/invalid-id').expect(400)
     })
   })
 
@@ -240,9 +236,9 @@ describe('Product Routes', () => {
           price: 29.99,
           inventoryQuantity: 10,
           requiresShipping: true,
-          taxable: true
-        }
-      ]
+          taxable: true,
+        },
+      ],
     }
 
     it('should create a product successfully', async () => {
@@ -264,25 +260,21 @@ describe('Product Routes', () => {
     it('should validate required fields', async () => {
       const invalidData = { ...validProductData, name: '' }
 
-      await request(app)
-        .post('/api/products')
-        .send(invalidData)
-        .expect(400)
+      await request(app).post('/api/products').send(invalidData).expect(400)
     })
 
     it('should validate variants are provided', async () => {
       const invalidData = { ...validProductData, variants: [] }
 
-      await request(app)
-        .post('/api/products')
-        .send(invalidData)
-        .expect(400)
+      await request(app).post('/api/products').send(invalidData).expect(400)
     })
 
     it('should require authorization', async () => {
-      vi.mocked(authorize).mockImplementationOnce(() => (req: any, res: any, next: any) => {
-        res.status(403).json({ error: 'Forbidden' })
-      })
+      vi.mocked(authorize).mockImplementationOnce(
+        () => (req: any, res: any, _next: any) => {
+          res.status(403).json({ error: 'Forbidden' })
+        }
+      )
 
       await request(app)
         .post('/api/products')
@@ -294,12 +286,14 @@ describe('Product Routes', () => {
   describe('PUT /api/products/:id', () => {
     const updateData = {
       name: 'Updated Product',
-      description: 'Updated description'
+      description: 'Updated description',
     }
 
     it('should update a product successfully', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockUpdateProduct = vi.fn().mockResolvedValue({ ...mockProduct, ...updateData })
+      const mockUpdateProduct = vi
+        .fn()
+        .mockResolvedValue({ ...mockProduct, ...updateData })
       vi.mocked(ProductService).prototype.updateProduct = mockUpdateProduct
 
       const response = await request(app)
@@ -309,12 +303,18 @@ describe('Product Routes', () => {
 
       expect(response.body.success).toBe(true)
       expect(response.body.message).toBe('Product updated successfully')
-      expect(mockUpdateProduct).toHaveBeenCalledWith('product-1', updateData, 'user-1')
+      expect(mockUpdateProduct).toHaveBeenCalledWith(
+        'product-1',
+        updateData,
+        'user-1'
+      )
     })
 
     it('should handle non-existent product', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockUpdateProduct = vi.fn().mockRejectedValue(new Error('Product not found'))
+      const mockUpdateProduct = vi
+        .fn()
+        .mockRejectedValue(new Error('Product not found'))
       vi.mocked(ProductService).prototype.updateProduct = mockUpdateProduct
 
       await request(app)
@@ -341,14 +341,14 @@ describe('Product Routes', () => {
 
     it('should handle products with orders', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockDeleteProduct = vi.fn().mockRejectedValue(
-        new Error('Cannot delete product with existing orders')
-      )
+      const mockDeleteProduct = vi
+        .fn()
+        .mockRejectedValue(
+          new Error('Cannot delete product with existing orders')
+        )
       vi.mocked(ProductService).prototype.deleteProduct = mockDeleteProduct
 
-      await request(app)
-        .delete('/api/products/product-1')
-        .expect(500)
+      await request(app).delete('/api/products/product-1').expect(500)
     })
   })
 
@@ -357,14 +357,17 @@ describe('Product Routes', () => {
       productIds: ['product-1', 'product-2'],
       updates: {
         status: 'active',
-        vendor: 'New Vendor'
-      }
+        vendor: 'New Vendor',
+      },
     }
 
     it('should bulk update products successfully', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockBulkUpdateProducts = vi.fn().mockResolvedValue({ updatedCount: 2 })
-      vi.mocked(ProductService).prototype.bulkUpdateProducts = mockBulkUpdateProducts
+      const mockBulkUpdateProducts = vi
+        .fn()
+        .mockResolvedValue({ updatedCount: 2 })
+      vi.mocked(ProductService).prototype.bulkUpdateProducts =
+        mockBulkUpdateProducts
 
       const response = await request(app)
         .post('/api/products/bulk-update')
@@ -374,7 +377,10 @@ describe('Product Routes', () => {
       expect(response.body.success).toBe(true)
       expect(response.body.data.updatedCount).toBe(2)
       expect(response.body.message).toBe('2 products updated successfully')
-      expect(mockBulkUpdateProducts).toHaveBeenCalledWith(bulkUpdateData, 'user-1')
+      expect(mockBulkUpdateProducts).toHaveBeenCalledWith(
+        bulkUpdateData,
+        'user-1'
+      )
     })
 
     it('should validate product IDs', async () => {
@@ -389,13 +395,16 @@ describe('Product Routes', () => {
 
   describe('DELETE /api/products/bulk-delete', () => {
     const bulkDeleteData = {
-      productIds: ['product-1', 'product-2']
+      productIds: ['product-1', 'product-2'],
     }
 
     it('should bulk delete products successfully', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockBulkDeleteProducts = vi.fn().mockResolvedValue({ deletedCount: 2 })
-      vi.mocked(ProductService).prototype.bulkDeleteProducts = mockBulkDeleteProducts
+      const mockBulkDeleteProducts = vi
+        .fn()
+        .mockResolvedValue({ deletedCount: 2 })
+      vi.mocked(ProductService).prototype.bulkDeleteProducts =
+        mockBulkDeleteProducts
 
       const response = await request(app)
         .delete('/api/products/bulk-delete')
@@ -405,7 +414,10 @@ describe('Product Routes', () => {
       expect(response.body.success).toBe(true)
       expect(response.body.data.deletedCount).toBe(2)
       expect(response.body.message).toBe('2 products deleted successfully')
-      expect(mockBulkDeleteProducts).toHaveBeenCalledWith(bulkDeleteData, 'user-1')
+      expect(mockBulkDeleteProducts).toHaveBeenCalledWith(
+        bulkDeleteData,
+        'user-1'
+      )
     })
   })
 
@@ -413,7 +425,7 @@ describe('Product Routes', () => {
     it('should upload product images successfully', async () => {
       const { ProductService } = await import('../services/product.service.js')
       const { ImageService } = await import('../services/image.service.js')
-      
+
       const mockGetProduct = vi.fn().mockResolvedValue(mockProduct)
       const mockUpdateProduct = vi.fn().mockResolvedValue(mockProduct)
       const mockBulkProcessImages = vi.fn().mockResolvedValue([
@@ -425,13 +437,14 @@ describe('Product Routes', () => {
           height: 600,
           fileSize: 1024,
           mimeType: 'image/jpeg',
-          variants: {}
-        }
+          variants: {},
+        },
       ])
 
       vi.mocked(ProductService).prototype.getProduct = mockGetProduct
       vi.mocked(ProductService).prototype.updateProduct = mockUpdateProduct
-      vi.mocked(ImageService).prototype.bulkProcessImages = mockBulkProcessImages
+      vi.mocked(ImageService).prototype.bulkProcessImages =
+        mockBulkProcessImages
 
       const response = await request(app)
         .post('/api/products/product-1/images')
@@ -446,9 +459,7 @@ describe('Product Routes', () => {
     })
 
     it('should return 400 when no images provided', async () => {
-      await request(app)
-        .post('/api/products/product-1/images')
-        .expect(400)
+      await request(app).post('/api/products/product-1/images').expect(400)
     })
 
     it('should return 404 for non-existent product', async () => {
@@ -472,14 +483,15 @@ describe('Product Routes', () => {
         draftProducts: 2,
         archivedProducts: 0,
         totalVariants: 20,
-        averagePrice: 35.50,
+        averagePrice: 35.5,
         topCategories: [],
         topBrands: [],
         recentlyCreated: 2,
-        recentlyUpdated: 5
+        recentlyUpdated: 5,
       }
       const mockGetProductAnalytics = vi.fn().mockResolvedValue(mockAnalytics)
-      vi.mocked(ProductService).prototype.getProductAnalytics = mockGetProductAnalytics
+      vi.mocked(ProductService).prototype.getProductAnalytics =
+        mockGetProductAnalytics
 
       const response = await request(app)
         .get('/api/products/analytics/overview')
@@ -493,7 +505,9 @@ describe('Product Routes', () => {
 
   describe('POST /api/products/import/csv', () => {
     it('should import products from CSV successfully', async () => {
-      const { ImportExportService } = await import('../services/import-export.service.js')
+      const { ImportExportService } = await import(
+        '../services/import-export.service.js'
+      )
       const mockImportResult = {
         success: true,
         totalRows: 2,
@@ -501,12 +515,16 @@ describe('Product Routes', () => {
         failedRows: 0,
         errors: [],
         createdProducts: ['product-1', 'product-2'],
-        updatedProducts: []
+        updatedProducts: [],
       }
-      const mockImportProductsFromCSV = vi.fn().mockResolvedValue(mockImportResult)
-      vi.mocked(ImportExportService).prototype.importProductsFromCSV = mockImportProductsFromCSV
+      const mockImportProductsFromCSV = vi
+        .fn()
+        .mockResolvedValue(mockImportResult)
+      vi.mocked(ImportExportService).prototype.importProductsFromCSV =
+        mockImportProductsFromCSV
 
-      const csvContent = 'name,sku,price\nTest Product,TEST-001,29.99\nAnother Product,TEST-002,39.99'
+      const csvContent =
+        'name,sku,price\nTest Product,TEST-001,29.99\nAnother Product,TEST-002,39.99'
 
       const response = await request(app)
         .post('/api/products/import/csv')
@@ -520,33 +538,34 @@ describe('Product Routes', () => {
       expect(mockImportProductsFromCSV).toHaveBeenCalledWith(csvContent, {
         updateExisting: false,
         skipInvalid: true,
-        validateOnly: false
+        validateOnly: false,
       })
     })
 
     it('should return 400 when no file provided', async () => {
-      await request(app)
-        .post('/api/products/import/csv')
-        .expect(400)
+      await request(app).post('/api/products/import/csv').expect(400)
     })
   })
 
   describe('POST /api/products/export', () => {
     it('should export products successfully', async () => {
-      const { ImportExportService } = await import('../services/import-export.service.js')
+      const { ImportExportService } = await import(
+        '../services/import-export.service.js'
+      )
       const mockExportResult = {
         success: true,
         filename: 'products_export_123456.csv',
         recordCount: 10,
         fileSize: 2048,
-        downloadUrl: '/api/exports/products_export_123456.csv'
+        downloadUrl: '/api/exports/products_export_123456.csv',
       }
       const mockExportProducts = vi.fn().mockResolvedValue(mockExportResult)
-      vi.mocked(ImportExportService).prototype.exportProducts = mockExportProducts
+      vi.mocked(ImportExportService).prototype.exportProducts =
+        mockExportProducts
 
       const exportData = {
         format: 'csv',
-        filters: { status: 'active' }
+        filters: { status: 'active' },
       }
 
       const response = await request(app)
@@ -563,7 +582,7 @@ describe('Product Routes', () => {
           fields: undefined,
           includeVariants: true,
           includeImages: true,
-          includeInventory: true
+          includeInventory: true,
         }
       )
     })
@@ -596,21 +615,19 @@ describe('Product Routes', () => {
     })
 
     it('should require query parameter', async () => {
-      await request(app)
-        .get('/api/products/search/suggestions')
-        .expect(400)
+      await request(app).get('/api/products/search/suggestions').expect(400)
     })
   })
 
   describe('Error Handling', () => {
     it('should handle service errors gracefully', async () => {
       const { ProductService } = await import('../services/product.service.js')
-      const mockSearchProducts = vi.fn().mockRejectedValue(new Error('Service error'))
+      const mockSearchProducts = vi
+        .fn()
+        .mockRejectedValue(new Error('Service error'))
       vi.mocked(ProductService).prototype.searchProducts = mockSearchProducts
 
-      await request(app)
-        .get('/api/products')
-        .expect(500)
+      await request(app).get('/api/products').expect(500)
     })
 
     it('should handle validation errors', async () => {
@@ -624,38 +641,38 @@ describe('Product Routes', () => {
   describe('Authorization', () => {
     it('should check read permissions for GET endpoints', async () => {
       const mockAuthorize = vi.mocked(authorize)
-      
+
       await request(app).get('/api/products')
-      
+
       expect(mockAuthorize).toHaveBeenCalledWith(['products:read'])
     })
 
     it('should check write permissions for POST endpoints', async () => {
       const mockAuthorize = vi.mocked(authorize)
-      
+
       await request(app)
         .post('/api/products')
         .send({
           name: 'Test',
-          variants: [{ sku: 'TEST', price: 10 }]
+          variants: [{ sku: 'TEST', price: 10 }],
         })
-      
+
       expect(mockAuthorize).toHaveBeenCalledWith(['products:write'])
     })
 
     it('should check delete permissions for DELETE endpoints', async () => {
       const mockAuthorize = vi.mocked(authorize)
-      
+
       await request(app).delete('/api/products/product-1')
-      
+
       expect(mockAuthorize).toHaveBeenCalledWith(['products:delete'])
     })
 
     it('should check admin permissions for reindex endpoint', async () => {
       const mockAuthorize = vi.mocked(authorize)
-      
+
       await request(app).post('/api/products/reindex')
-      
+
       expect(mockAuthorize).toHaveBeenCalledWith(['products:write', 'admin'])
     })
   })

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect } from 'vitest'
-import { ActivityIcon } from './ActivityIcon'
+import { ActivityIcon, type ActivityType } from './ActivityIcon'
 
 describe('ActivityIcon', () => {
   it('renders with default props', () => {

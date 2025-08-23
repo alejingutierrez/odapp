@@ -1,184 +1,223 @@
-import { PrismaClient, Order, OrderStatus, Payment, PaymentStatus, Prisma, FulfillmentStatus, FinancialStatus, AdjustmentType, PaymentMethod, ReturnStatus, OrderItem } from '@prisma/client';
-import { prisma } from '../lib/prisma';
-import { logger } from '../lib/logger';
-import { AppError, NotFoundError, BusinessLogicError, InternalServerError, PaymentError, ConflictError } from '../lib/errors';
-import { WebSocketService } from './websocket.service';
-import { InventoryService } from './inventory.service';
-import { customerService, CustomerService } from './customer.service';
-import { AuditService } from './audit.service';
+import {
+  Order,
+  OrderStatus,
+  Payment,
+  PaymentStatus,
+  Prisma,
+  FulfillmentStatus,
+  FinancialStatus,
+  AdjustmentType,
+  PaymentMethod,
+  OrderItem,
+} from '@prisma/client'
+import { prisma } from '../lib/prisma'
+import { logger } from '../lib/logger'
+import {
+  NotFoundError,
+  BusinessLogicError,
+  InternalServerError,
+} from '../lib/errors'
+import { WebSocketService } from './websocket.service'
+import { InventoryService } from './inventory.service'
+import { customerService, CustomerService } from './customer.service'
+import { AuditService } from './audit.service'
 
 export interface CreateOrderRequest {
-  customerId?: string;
-  guestEmail?: string;
-  guestPhone?: string;
-  items: CreateOrderItemRequest[];
-  billingAddress?: CreateAddressRequest;
-  shippingAddress?: CreateAddressRequest;
-  shippingMethod?: string;
-  notes?: string;
-  tags?: string[];
-  currency?: string;
+  customerId?: string
+  guestEmail?: string
+  guestPhone?: string
+  items: CreateOrderItemRequest[]
+  billingAddress?: CreateAddressRequest
+  shippingAddress?: CreateAddressRequest
+  shippingMethod?: string
+  notes?: string
+  tags?: string[]
+  currency?: string
 }
 
 export interface CreateOrderItemRequest {
-  productId?: string;
-  variantId?: string;
-  quantity: number;
-  price?: number; // If not provided, will use current product/variant price
+  productId?: string
+  variantId?: string
+  quantity: number
+  price?: number // If not provided, will use current product/variant price
 }
 
 export interface CreateAddressRequest {
-  firstName?: string;
-  lastName?: string;
-  company?: string;
-  address1: string;
-  address2?: string;
-  city: string;
-  state?: string;
-  country: string;
-  postalCode?: string;
-  phone?: string;
+  firstName?: string
+  lastName?: string
+  company?: string
+  address1: string
+  address2?: string
+  city: string
+  state?: string
+  country: string
+  postalCode?: string
+  phone?: string
 }
 
 export interface UpdateOrderRequest {
-  status?: OrderStatus;
-  financialStatus?: FinancialStatus;
-  fulfillmentStatus?: FulfillmentStatus;
-  notes?: string;
-  tags?: string[];
-  shippingMethod?: string;
-  trackingNumber?: string;
-  trackingUrl?: string;
+  status?: OrderStatus
+  financialStatus?: FinancialStatus
+  fulfillmentStatus?: FulfillmentStatus
+  notes?: string
+  tags?: string[]
+  shippingMethod?: string
+  trackingNumber?: string
+  trackingUrl?: string
 }
 
 export interface ProcessPaymentRequest {
-  amount: number;
-  currency: string;
-  method: PaymentMethod;
-  gateway: string;
-  gatewayTransactionId?: string;
-  metadata?: any;
+  amount: number
+  currency: string
+  method: PaymentMethod
+  gateway: string
+  gatewayTransactionId?: string
+  metadata?: Record<string, unknown>
 }
 
 export interface CreateFulfillmentRequest {
-  items: FulfillmentItemRequest[];
-  trackingNumber?: string;
-  trackingUrl?: string;
-  carrier?: string;
-  service?: string;
+  items: FulfillmentItemRequest[]
+  trackingNumber?: string
+  trackingUrl?: string
+  carrier?: string
+  service?: string
 }
 
 export interface FulfillmentItemRequest {
-  orderItemId: string;
-  quantity: number;
+  orderItemId: string
+  quantity: number
 }
 
 export interface CreateReturnRequest {
-  items: ReturnItemRequest[];
-  reason?: string;
-  notes?: string;
+  items: ReturnItemRequest[]
+  reason?: string
+  notes?: string
 }
 
 export interface ReturnItemRequest {
-  orderItemId: string;
-  quantity: number;
-  reason?: string;
-  condition?: string;
+  orderItemId: string
+  quantity: number
+  reason?: string
+  condition?: string
 }
 
 export interface OrderFilters {
-  status?: OrderStatus[];
-  financialStatus?: FinancialStatus[];
-  fulfillmentStatus?: FulfillmentStatus[];
-  customerId?: string;
-  dateFrom?: Date;
-  dateTo?: Date;
-  search?: string;
-  tags?: string[];
+  status?: OrderStatus[]
+  financialStatus?: FinancialStatus[]
+  fulfillmentStatus?: FulfillmentStatus[]
+  customerId?: string
+  dateFrom?: Date
+  dateTo?: Date
+  search?: string
+  tags?: string[]
 }
 
 export interface OrderAnalytics {
-  totalOrders: number;
-  totalRevenue: number;
-  averageOrderValue: number;
-  ordersByStatus: Record<OrderStatus, number>;
-  ordersByMonth: Array<{ month: string; orders: number; revenue: number }>;
-  topProducts: Array<{ productId: string; productName: string; quantity: number; revenue: number }>;
-  topCustomers: Array<{ customerId: string; customerName: string; orders: number; revenue: number }>;
+  totalOrders: number
+  totalRevenue: number
+  averageOrderValue: number
+  ordersByStatus: Record<OrderStatus, number>
+  ordersByMonth: Array<{ month: string; orders: number; revenue: number }>
+  topProducts: Array<{
+    productId: string
+    productName: string
+    quantity: number
+    revenue: number
+  }>
+  topCustomers: Array<{
+    customerId: string
+    customerName: string
+    orders: number
+    revenue: number
+  }>
 }
 
 export class OrderService {
-  private inventoryService: InventoryService;
-  private customerService: CustomerService;
-  private auditService: AuditService;
-  private _webSocketService: WebSocketService | null = null;
+  private inventoryService: InventoryService
+  private customerService: CustomerService
+  private auditService: AuditService
+  private _webSocketService: WebSocketService | null = null
 
   private get webSocketService(): WebSocketService {
     if (!this._webSocketService) {
-      this._webSocketService = WebSocketService.getInstance();
+      this._webSocketService = WebSocketService.getInstance()
     }
-    return this._webSocketService;
+    return this._webSocketService
   }
 
   constructor() {
-    this.inventoryService = new InventoryService(prisma);
-    this.customerService = customerService; // Already instantiated with prisma
-    this.auditService = new AuditService(prisma);
+    this.inventoryService = new InventoryService(prisma)
+    this.customerService = customerService // Already instantiated with prisma
+    this.auditService = new AuditService(prisma)
   }
 
   /**
    * Create a new order
    */
   async createOrder(data: CreateOrderRequest, userId?: string): Promise<Order> {
-    logger.info('Creating new order', { customerId: data.customerId, itemCount: data.items.length });
+    logger.info('Creating new order', {
+      customerId: data.customerId,
+      itemCount: data.items.length,
+    })
 
     return await prisma.$transaction(async (tx) => {
       // Generate order number
-      const orderNumber = await this.generateOrderNumber(tx);
+      const orderNumber = await this.generateOrderNumber(tx)
 
       // Validate customer if provided
       if (data.customerId) {
         const customer = await tx.customer.findUnique({
           where: { id: data.customerId },
           select: { id: true },
-        });
+        })
         if (!customer) {
-          throw new NotFoundError('Customer not found');
+          throw new NotFoundError('Customer not found')
         }
       }
 
       // Validate and calculate order items
-      const orderItems: any[] = [];
-      let subtotal = 0;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const orderItems: any[] = []
+      let subtotal = 0
 
       for (const item of data.items) {
-        let product, variant, price, name, sku, inventoryItem;
+        let product, variant, price, name, sku, inventoryItem
 
         if (item.variantId) {
           variant = await tx.productVariant.findUnique({
             where: { id: item.variantId },
             include: { product: true },
-          });
+          })
           if (!variant) {
-            throw new NotFoundError(`Product variant not found: ${item.variantId}`);
+            throw new NotFoundError(
+              `Product variant not found: ${item.variantId}`
+            )
           }
-          product = variant.product;
-          price = item.price || Number(variant.price);
-          name = variant.name || product.name;
-          sku = variant.sku;
+          product = variant.product
+          price = item.price || Number(variant.price)
+          name = variant.name || product.name
+          sku = variant.sku
         } else if (item.productId) {
           product = await tx.product.findUnique({
             where: { id: item.productId },
-            select: { id: true, price: true, name: true, sku: true, trackQuantity: true },
-          });
+            select: {
+              id: true,
+              price: true,
+              name: true,
+              sku: true,
+              trackQuantity: true,
+            },
+          })
           if (!product) {
-            throw new NotFoundError(`Product not found: ${item.productId}`);
+            throw new NotFoundError(`Product not found: ${item.productId}`)
           }
-          price = item.price || Number(product.price);
-          name = product.name;
-          sku = product.sku;
+          price = item.price || Number(product.price)
+          name = product.name
+          sku = product.sku
         } else {
-          throw new BusinessLogicError('Either productId or variantId must be provided');
+          throw new BusinessLogicError(
+            'Either productId or variantId must be provided'
+          )
         }
 
         // Check inventory availability
@@ -189,15 +228,20 @@ export class OrderService {
               variantId: item.variantId,
             },
             select: { id: true, availableQuantity: true },
-          });
+          })
 
-          if (!inventoryItem || inventoryItem.availableQuantity < item.quantity) {
-            throw new BusinessLogicError(`Insufficient stock for product ${item.productId}`);
+          if (
+            !inventoryItem ||
+            inventoryItem.availableQuantity < item.quantity
+          ) {
+            throw new BusinessLogicError(
+              `Insufficient stock for product ${item.productId}`
+            )
           }
         }
 
-        const totalPrice = price * item.quantity;
-        subtotal += totalPrice;
+        const totalPrice = price * item.quantity
+        subtotal += totalPrice
 
         orderItems.push({
           productId: item.productId,
@@ -211,17 +255,17 @@ export class OrderService {
             product: product,
             variant: variant,
           },
-        });
+        })
       }
 
       // Calculate totals (simplified - in real implementation, add tax and shipping calculation)
-      const taxAmount = 0; // TODO: Implement tax calculation
-      const shippingAmount = 0; // TODO: Implement shipping calculation
-      const discountAmount = 0; // TODO: Implement discount calculation
-      const totalAmount = subtotal + taxAmount + shippingAmount - discountAmount;
+      const taxAmount = 0 // TODO: Implement tax calculation
+      const shippingAmount = 0 // TODO: Implement shipping calculation
+      const discountAmount = 0 // TODO: Implement discount calculation
+      const totalAmount = subtotal + taxAmount + shippingAmount - discountAmount
 
       // Create addresses if provided
-      let billingAddressId, shippingAddressId;
+      let billingAddressId, shippingAddressId
 
       if (data.billingAddress && data.customerId) {
         const billingAddress = await tx.customerAddress.create({
@@ -230,8 +274,8 @@ export class OrderService {
             ...data.billingAddress,
             type: 'BILLING',
           },
-        });
-        billingAddressId = billingAddress.id;
+        })
+        billingAddressId = billingAddress.id
       }
 
       if (data.shippingAddress && data.customerId) {
@@ -241,8 +285,8 @@ export class OrderService {
             ...data.shippingAddress,
             type: 'SHIPPING',
           },
-        });
-        shippingAddressId = shippingAddress.id;
+        })
+        shippingAddressId = shippingAddress.id
       }
 
       // Create the order
@@ -281,7 +325,7 @@ export class OrderService {
           billingAddress: true,
           shippingAddress: true,
         },
-      });
+      })
 
       // Reserve inventory for order items
       for (const item of data.items) {
@@ -289,7 +333,7 @@ export class OrderService {
           const inventoryItem = await tx.inventoryItem.findFirst({
             where: { productId: item.productId, variantId: item.variantId },
             select: { id: true },
-          });
+          })
           if (inventoryItem) {
             await this.inventoryService.createAdjustment({
               inventoryItemId: inventoryItem.id,
@@ -299,14 +343,14 @@ export class OrderService {
               referenceType: 'ORDER',
               referenceId: order.id,
               userId,
-            });
+            })
           }
         }
       }
 
       // Update customer statistics if customer order
       if (data.customerId) {
-        await this.customerService.updateCustomerStats(data.customerId);
+        await this.customerService.updateCustomerStats(data.customerId)
       }
 
       // Log audit event for order creation
@@ -316,7 +360,7 @@ export class OrderService {
         entityId: order.id,
         userId,
         metadata: { message: `Order created by ${userId || 'system'}` },
-      });
+      })
 
       // Send real-time notification
       this.webSocketService.broadcast('order.created', {
@@ -324,18 +368,23 @@ export class OrderService {
         orderNumber: order.orderNumber,
         customerId: order.customerId,
         totalAmount: order.totalAmount,
-      });
+      })
 
-      logger.info('Order created successfully', { orderId: order.id, orderNumber: order.orderNumber });
+      logger.info('Order created successfully', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+      })
 
-      return order;
-    });
+      return order
+    })
   }
 
   /**
    * Get order by ID
    */
-  async getOrderById(id: string): Promise<(Order & { items: OrderItem[] }) | null> {
+  async getOrderById(
+    id: string
+  ): Promise<(Order & { items: OrderItem[] }) | null> {
     return await prisma.order.findUnique({
       where: { id },
       include: {
@@ -378,7 +427,7 @@ export class OrderService {
           },
         },
       },
-    });
+    })
   }
 
   /**
@@ -391,44 +440,56 @@ export class OrderService {
     sortBy: string = 'createdAt',
     sortOrder: 'asc' | 'desc' = 'desc'
   ) {
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
-    const where: Prisma.OrderWhereInput = {};
+    const where: Prisma.OrderWhereInput = {}
 
     if (filters.status?.length) {
-      where.status = { in: filters.status };
+      where.status = { in: filters.status }
     }
 
     if (filters.financialStatus?.length) {
-      where.financialStatus = { in: filters.financialStatus };
+      where.financialStatus = { in: filters.financialStatus }
     }
 
     if (filters.fulfillmentStatus?.length) {
-      where.fulfillmentStatus = { in: filters.fulfillmentStatus };
+      where.fulfillmentStatus = { in: filters.fulfillmentStatus }
     }
 
     if (filters.customerId) {
-      where.customerId = filters.customerId;
+      where.customerId = filters.customerId
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      where.orderDate = {};
-      if (filters.dateFrom) where.orderDate.gte = filters.dateFrom;
-      if (filters.dateTo) where.orderDate.lte = filters.dateTo;
+      where.orderDate = {}
+      if (filters.dateFrom) where.orderDate.gte = filters.dateFrom
+      if (filters.dateTo) where.orderDate.lte = filters.dateTo
     }
 
     if (filters.search) {
       where.OR = [
         { orderNumber: { contains: filters.search, mode: 'insensitive' } },
         { guestEmail: { contains: filters.search, mode: 'insensitive' } },
-        { customer: { email: { contains: filters.search, mode: 'insensitive' } } },
-        { customer: { firstName: { contains: filters.search, mode: 'insensitive' } } },
-        { customer: { lastName: { contains: filters.search, mode: 'insensitive' } } },
-      ];
+        {
+          customer: {
+            email: { contains: filters.search, mode: 'insensitive' },
+          },
+        },
+        {
+          customer: {
+            firstName: { contains: filters.search, mode: 'insensitive' },
+          },
+        },
+        {
+          customer: {
+            lastName: { contains: filters.search, mode: 'insensitive' },
+          },
+        },
+      ]
     }
 
     if (filters.tags?.length) {
-      where.tags = { hasSome: filters.tags };
+      where.tags = { hasSome: filters.tags }
     }
 
     const [orders, total] = await Promise.all([
@@ -449,7 +510,7 @@ export class OrderService {
         orderBy: { [sortBy]: sortOrder },
       }),
       prisma.order.count({ where }),
-    ]);
+    ])
 
     return {
       orders,
@@ -459,23 +520,27 @@ export class OrderService {
         total,
         pages: Math.ceil(total / limit),
       },
-    };
+    }
   }
 
   /**
    * Update an existing order
    */
-  async updateOrder(id: string, data: UpdateOrderRequest, userId?: string): Promise<Order> {
-    const existingOrder = await prisma.order.findUnique({ where: { id } });
+  async updateOrder(
+    id: string,
+    data: UpdateOrderRequest,
+    userId?: string
+  ): Promise<Order> {
+    const existingOrder = await prisma.order.findUnique({ where: { id } })
 
     if (!existingOrder) {
-      throw new NotFoundError('Order not found');
+      throw new NotFoundError('Order not found')
     }
 
     const updatedOrder = await prisma.order.update({
       where: { id },
       data,
-    });
+    })
 
     // Log audit trail for order update
     await this.auditService.log({
@@ -484,7 +549,7 @@ export class OrderService {
       entityId: id,
       userId,
       metadata: { changes: data },
-    });
+    })
 
     // Send real-time notification for status changes
     if (data.status && data.status !== existingOrder.status) {
@@ -494,32 +559,41 @@ export class OrderService {
         oldStatus: existingOrder.status,
         newStatus: data.status,
         customerId: updatedOrder.customerId,
-      });
+      })
     }
 
-    logger.info('Order updated', { orderId: id, changes: Object.keys(data) });
+    logger.info('Order updated', { orderId: id, changes: Object.keys(data) })
 
-    return updatedOrder;
+    return updatedOrder
   }
 
-/**
- * Cancel order
- */
-async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Order> {
+  /**
+   * Cancel order
+   */
+  async cancelOrder(
+    orderId: string,
+    reason?: string,
+    userId?: string
+  ): Promise<Order> {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
         items: true,
         payments: true,
       },
-    });
+    })
 
     if (!order) {
-      throw new NotFoundError(`Order not found with id: ${orderId}`);
+      throw new NotFoundError(`Order not found with id: ${orderId}`)
     }
 
-    if (order.status === OrderStatus.SHIPPED || order.status === OrderStatus.DELIVERED) {
-      throw new BusinessLogicError(`Cannot cancel shipped or delivered order with id: ${orderId}`);
+    if (
+      order.status === OrderStatus.SHIPPED ||
+      order.status === OrderStatus.DELIVERED
+    ) {
+      throw new BusinessLogicError(
+        `Cannot cancel shipped or delivered order with id: ${orderId}`
+      )
     }
 
     return await prisma.$transaction(async (tx) => {
@@ -529,29 +603,33 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
         data: {
           status: OrderStatus.CANCELLED,
           cancelledAt: new Date(),
-          notes: reason ? `${order.notes || ''}\nCancellation reason: ${reason}`.trim() : order.notes,
+          notes: reason
+            ? `${order.notes || ''}\nCancellation reason: ${reason}`.trim()
+            : order.notes,
         },
-      });
+      })
 
       // Release inventory reservations
       for (const item of order.items) {
         const inventoryItem = await tx.inventoryItem.findFirst({
           where: { productId: item.productId, variantId: item.variantId },
           select: { id: true },
-        });
+        })
 
         if (inventoryItem) {
           const reservation = await tx.inventoryReservation.findFirst({
             where: { referenceId: order.id, inventoryItemId: inventoryItem.id },
-          });
+          })
           if (reservation) {
-            await this.inventoryService.releaseReservation(reservation.id);
+            await this.inventoryService.releaseReservation(reservation.id)
           }
         }
       }
 
       // Refund completed payments
-      const completedPayments = order.payments.filter((p: Payment) => p.status === PaymentStatus.COMPLETED);
+      const completedPayments = order.payments.filter(
+        (p: Payment) => p.status === PaymentStatus.COMPLETED
+      )
       for (const payment of completedPayments) {
         await tx.payment.create({
           data: {
@@ -565,7 +643,7 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
             processedAt: new Date(),
             metadata: { reason: 'Order Canceled' },
           },
-        });
+        })
       }
 
       // Update order financial status
@@ -573,7 +651,7 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
         await tx.order.update({
           where: { id: orderId },
           data: { financialStatus: FinancialStatus.REFUNDED },
-        });
+        })
       }
 
       // Log audit trail
@@ -583,21 +661,20 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
         entityId: orderId,
         userId,
         metadata: { reason },
-      });
+      })
 
       // Send notification
       this.webSocketService.broadcast('order.cancelled', {
         orderId,
         orderNumber: order.orderNumber,
         reason,
-      });
+      })
 
-      logger.info('Order cancelled', { orderId, reason });
+      logger.info('Order cancelled', { orderId, reason })
 
-      return cancelledOrder;
-    });
+      return cancelledOrder
+    })
   }
-
 
   /**
    * Get order analytics
@@ -607,22 +684,29 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
     dateTo?: Date,
     customerId?: string
   ): Promise<OrderAnalytics> {
-    const where: Prisma.OrderWhereInput = {};
+    const where: Prisma.OrderWhereInput = {}
 
     if (dateFrom || dateTo) {
-      where.orderDate = {};
-      if (dateFrom) where.orderDate.gte = dateFrom;
-      if (dateTo) where.orderDate.lte = dateTo;
+      where.orderDate = {}
+      if (dateFrom) where.orderDate.gte = dateFrom
+      if (dateTo) where.orderDate.lte = dateTo
     }
 
     if (customerId) {
-      where.customerId = customerId;
+      where.customerId = customerId
     }
 
     // Exclude cancelled orders from revenue calculations
-    const revenueWhere = { ...where, status: { not: OrderStatus.CANCELLED } };
+    const revenueWhere = { ...where, status: { not: OrderStatus.CANCELLED } }
 
-    const [totalOrders, totalRevenue, ordersByStatus, ordersByMonth, topProducts, topCustomers] = await Promise.all([
+    const [
+      totalOrders,
+      totalRevenue,
+      ordersByStatus,
+      ordersByMonth,
+      topProducts,
+      topCustomers,
+    ] = await Promise.all([
       prisma.order.count({ where }),
       prisma.order.aggregate({
         where: revenueWhere,
@@ -633,130 +717,165 @@ async cancelOrder(orderId: string, reason?: string, userId?: string): Promise<Or
         where,
         _count: { status: true },
       }),
-      prisma.$queryRaw<any[]>`SELECT TO_CHAR(order_date, 'YYYY-MM') as month, COUNT(*)::int as orders, SUM(total_amount)::float as revenue FROM "orders" WHERE status != 'CANCELLED' GROUP BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY month DESC LIMIT 12`,
-      prisma.$queryRaw<any[]>`SELECT oi.product_id as "productId", p.name as "productName", SUM(oi.quantity)::int as quantity, SUM(oi.total_price)::float as revenue FROM "order_items" oi JOIN "orders" o ON oi.order_id = o.id LEFT JOIN "products" p ON oi.product_id = p.id WHERE o.status != 'CANCELLED' GROUP BY oi.product_id, p.name ORDER BY revenue DESC LIMIT 10`,
+      prisma.$queryRaw<
+        Record<string, unknown>[]
+      >`SELECT TO_CHAR(order_date, 'YYYY-MM') as month, COUNT(*)::int as orders, SUM(total_amount)::float as revenue FROM "orders" WHERE status != 'CANCELLED' GROUP BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY month DESC LIMIT 12`,
+      prisma.$queryRaw<
+        Record<string, unknown>[]
+      >`SELECT oi.product_id as "productId", p.name as "productName", SUM(oi.quantity)::int as quantity, SUM(oi.total_price)::float as revenue FROM "order_items" oi JOIN "orders" o ON oi.order_id = o.id LEFT JOIN "products" p ON oi.product_id = p.id WHERE o.status != 'CANCELLED' GROUP BY oi.product_id, p.name ORDER BY revenue DESC LIMIT 10`,
       customerId
         ? Promise.resolve([])
-        : prisma.$queryRaw<any[]>`SELECT o.customer_id as "customerId", CONCAT(c.first_name, ' ', c.last_name) as "customerName", COUNT(o.id)::int as orders, SUM(o.total_amount)::float as revenue FROM "orders" o LEFT JOIN "customers" c ON o.customer_id = c.id WHERE o.status != 'CANCELLED' AND o.customer_id IS NOT NULL GROUP BY o.customer_id, c.first_name, c.last_name ORDER BY revenue DESC LIMIT 10`,
-    ]);
+        : prisma.$queryRaw<
+            Record<string, unknown>[]
+          >`SELECT o.customer_id as "customerId", CONCAT(c.first_name, ' ', c.last_name) as "customerName", COUNT(o.id)::int as orders, SUM(o.total_amount)::float as revenue FROM "orders" o LEFT JOIN "customers" c ON o.customer_id = c.id WHERE o.status != 'CANCELLED' AND o.customer_id IS NOT NULL GROUP BY o.customer_id, c.first_name, c.last_name ORDER BY revenue DESC LIMIT 10`,
+    ])
 
-    const revenue = Number(totalRevenue._sum.totalAmount || 0);
-    const averageOrderValue = totalOrders > 0 ? revenue / totalOrders : 0;
+    const revenue = Number(totalRevenue._sum.totalAmount || 0)
+    const averageOrderValue = totalOrders > 0 ? revenue / totalOrders : 0
 
-    const statusCounts = ordersByStatus.reduce((acc, item) => {
-      acc[item.status] = item._count.status;
-      return acc;
-    }, {} as Record<OrderStatus, number>);
+    const statusCounts = ordersByStatus.reduce(
+      (acc, item) => {
+        acc[item.status] = item._count.status
+        return acc
+      },
+      {} as Record<OrderStatus, number>
+    )
 
     return {
       totalOrders,
       totalRevenue: revenue,
       averageOrderValue,
       ordersByStatus: statusCounts,
-      ordersByMonth: ordersByMonth as any[],
-      topProducts: topProducts as any[],
-      topCustomers: topCustomers as any[],
-    };
+      ordersByMonth: ordersByMonth as { month: string; orders: number; revenue: number }[],
+      topProducts: topProducts as { productId: string; productName: string; quantity: number; revenue: number }[],
+      topCustomers: topCustomers as { customerId: string; customerName: string; orders: number; revenue: number }[],
+    }
   }
 
   /**
    * Generate unique order number
    */
-  private async generateOrderNumber(tx: any): Promise<string> {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    
-    const prefix = `ORD-${year}${month}${day}`;
-    
+  private async generateOrderNumber(
+    tx: Prisma.TransactionClient
+  ): Promise<string> {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+
+    const prefix = `ORD-${year}${month}${day}`
+
     // Find the highest order number for today
     const lastOrder = await tx.order.findFirst({
       where: {
         orderNumber: {
-          startsWith: prefix
-        }
+          startsWith: prefix,
+        },
       },
       orderBy: {
-        orderNumber: 'desc'
-      }
-    });
+        orderNumber: 'desc',
+      },
+    })
 
-    let sequence = 1;
+    let sequence = 1
     if (lastOrder) {
-      const lastSequence = parseInt(lastOrder.orderNumber.split('-')[1].slice(8));
-      sequence = lastSequence + 1;
+      const lastSequence = parseInt(
+        lastOrder.orderNumber.split('-')[1].slice(8)
+      )
+      sequence = lastSequence + 1
     }
 
-    return `${prefix}-${String(sequence).padStart(4, '0')}`;
+    return `${prefix}-${String(sequence).padStart(4, '0')}`
   }
 
   /**
    * Generate unique return number
    */
-  private async generateReturnNumber(tx: any): Promise<string> {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    
-    const prefix = `RET-${year}${month}${day}`;
-    
+  private async generateReturnNumber(
+    tx: Prisma.TransactionClient
+  ): Promise<string> {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+
+    const prefix = `RET-${year}${month}${day}`
+
     // Find the highest return number for today
     const lastReturn = await tx.return.findFirst({
       where: {
         returnNumber: {
-          startsWith: prefix
-        }
+          startsWith: prefix,
+        },
       },
       orderBy: {
-        returnNumber: 'desc'
-      }
-    });
+        returnNumber: 'desc',
+      },
+    })
 
-    let sequence = 1;
+    let sequence = 1
     if (lastReturn) {
-      const lastSequence = parseInt(lastReturn.returnNumber.split('-')[1].slice(8));
-      sequence = lastSequence + 1;
+      const lastSequence = parseInt(
+        lastReturn.returnNumber.split('-')[1].slice(8)
+      )
+      sequence = lastSequence + 1
     }
 
-    return `${prefix}-${String(sequence).padStart(4, '0')}`;
+    return `${prefix}-${String(sequence).padStart(4, '0')}`
   }
 
   /**
    * Simulate payment processing (replace with actual gateway integration)
    */
-  private async simulatePaymentProcessing(payment: any): Promise<boolean> {
+  private async simulatePaymentProcessing(
+    _payment: Record<string, unknown>
+  ): Promise<boolean> {
     // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // Simulate 95% success rate
-    return Math.random() > 0.05;
+    return Math.random() > 0.05
   }
 
   // TODO: Implement the following methods
-  async processPayment(orderId: string, data: ProcessPaymentRequest, userId?: string): Promise<Payment> {
+  async processPayment(
+    _orderId: string,
+    _data: ProcessPaymentRequest,
+    _userId?: string
+  ): Promise<Payment> {
     // TODO: Implement
-    throw new InternalServerError('Not implemented');
+    throw new InternalServerError('Not implemented')
   }
 
-  async createFulfillment(orderId: string, data: CreateFulfillmentRequest, userId?: string): Promise<any> {
+  async createFulfillment(
+    _orderId: string,
+    _data: CreateFulfillmentRequest,
+    _userId?: string
+  ): Promise<unknown> {
     // TODO: Implement
-    throw new InternalServerError('Not implemented');
+    throw new InternalServerError('Not implemented')
   }
 
-  async shipFulfillment(fulfillmentId: string, data: { trackingNumber?: string, trackingUrl?: string }, userId?: string): Promise<any> {
+  async shipFulfillment(
+    _fulfillmentId: string,
+    _data: { trackingNumber?: string; trackingUrl?: string },
+    _userId?: string
+  ): Promise<unknown> {
     // TODO: Implement
-    throw new InternalServerError('Not implemented');
+    throw new InternalServerError('Not implemented')
   }
 
-  async createReturn(orderId: string, data: CreateReturnRequest, userId?: string): Promise<any> {
+  async createReturn(
+    _orderId: string,
+    _data: CreateReturnRequest,
+    _userId?: string
+  ): Promise<unknown> {
     // TODO: Implement
-    throw new InternalServerError('Not implemented');
+    throw new InternalServerError('Not implemented')
   }
 
-  async processReturn(returnId: string, userId?: string): Promise<any> {
+  async processReturn(_returnId: string, _userId?: string): Promise<unknown> {
     // TODO: Implement
-    throw new InternalServerError('Not implemented');
+    throw new InternalServerError('Not implemented')
   }
 }

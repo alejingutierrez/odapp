@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { Tag, Modal, Typography, Space, Progress } from 'antd'
 import {
   InfoCircleOutlined,
-  LeafOutlined,
-  RecyclingOutlined,
 } from '@ant-design/icons'
 import './MaterialTagMolecule.css'
 
@@ -104,13 +102,13 @@ export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
       <div className='material-tag__sustainability'>
         <Space size='small'>
           {material.sustainability.organic && (
-            <LeafOutlined
+            <InfoCircleOutlined
               style={{ color: '#52c41a' }}
               title='Organic material'
             />
           )}
           {material.sustainability.recyclable && (
-            <RecyclingOutlined
+            <InfoCircleOutlined
               style={{ color: '#1890ff' }}
               title='Recyclable material'
             />

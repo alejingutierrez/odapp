@@ -8,24 +8,25 @@ const meta: Meta<typeof ProgressIndicator> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A progress indicator for loading states and completion tracking with steps support.'
-      }
-    }
+        component:
+          'A progress indicator for loading states and completion tracking with steps support.',
+      },
+    },
   },
   argTypes: {
     type: {
       control: { type: 'select' },
-      options: ['line', 'circle', 'dashboard']
+      options: ['line', 'circle', 'dashboard'],
     },
     status: {
       control: { type: 'select' },
-      options: ['normal', 'success', 'exception', 'active']
+      options: ['normal', 'success', 'exception', 'active'],
     },
     size: {
       control: { type: 'select' },
-      options: ['small', 'default', 'large']
-    }
-  }
+      options: ['small', 'default', 'large'],
+    },
+  },
 }
 
 export default meta
@@ -35,8 +36,8 @@ export const Default: Story = {
   args: {
     percent: 65,
     title: 'Order Processing',
-    subtitle: 'Your order is being prepared'
-  }
+    subtitle: 'Your order is being prepared',
+  },
 }
 
 export const WithSteps: Story = {
@@ -45,12 +46,20 @@ export const WithSteps: Story = {
     title: 'Order Progress',
     showSteps: true,
     steps: [
-      { title: 'Order Placed', description: 'Order received and confirmed', status: 'finish' },
-      { title: 'Processing', description: 'Preparing your items', status: 'process' },
+      {
+        title: 'Order Placed',
+        description: 'Order received and confirmed',
+        status: 'finish',
+      },
+      {
+        title: 'Processing',
+        description: 'Preparing your items',
+        status: 'process',
+      },
       { title: 'Shipping', description: 'Package in transit', status: 'wait' },
-      { title: 'Delivered', description: 'Package delivered', status: 'wait' }
-    ]
-  }
+      { title: 'Delivered', description: 'Package delivered', status: 'wait' },
+    ],
+  },
 }
 
 export const Circle: Story = {
@@ -58,8 +67,8 @@ export const Circle: Story = {
     percent: 75,
     type: 'circle',
     title: 'Upload Progress',
-    status: 'active'
-  }
+    status: 'active',
+  },
 }
 
 export const Dashboard: Story = {
@@ -67,8 +76,8 @@ export const Dashboard: Story = {
     percent: 85,
     type: 'dashboard',
     title: 'Completion Rate',
-    status: 'success'
-  }
+    status: 'success',
+  },
 }
 
 export const Success: Story = {
@@ -76,8 +85,8 @@ export const Success: Story = {
     percent: 100,
     status: 'success',
     title: 'Order Complete',
-    subtitle: 'Your order has been successfully processed'
-  }
+    subtitle: 'Your order has been successfully processed',
+  },
 }
 
 export const Error: Story = {
@@ -85,16 +94,16 @@ export const Error: Story = {
     percent: 30,
     status: 'exception',
     title: 'Processing Failed',
-    subtitle: 'There was an error processing your order'
-  }
+    subtitle: 'There was an error processing your order',
+  },
 }
 
 export const Small: Story = {
   args: {
     percent: 45,
     size: 'small',
-    title: 'Small Progress'
-  }
+    title: 'Small Progress',
+  },
 }
 
 export const Large: Story = {
@@ -102,6 +111,6 @@ export const Large: Story = {
     percent: 80,
     size: 'large',
     type: 'circle',
-    title: 'Large Progress'
-  }
+    title: 'Large Progress',
+  },
 }

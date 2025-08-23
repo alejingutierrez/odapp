@@ -9,6 +9,7 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
+  Persistor,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
@@ -60,9 +61,9 @@ const rootReducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 // Custom middleware for session management
-const sessionMiddleware: Middleware = (store) => (next) => (action) => {
+const sessionMiddleware: Middleware = (store) => (next) => (action: unknown) => {
   // Check for session expiry on each action
-  if (action.type !== 'auth/updateLastActivity') {
+  if ((action as { type?: string }).type !== 'auth/updateLastActivity') {
     const state = store.getState()
     if (state.auth.isAuthenticated) {
       const now = Date.now()
@@ -87,10 +88,11 @@ const sessionMiddleware: Middleware = (store) => (next) => (action) => {
 }
 
 // Custom middleware for error handling
-const errorMiddleware: Middleware = (store) => (next) => (action) => {
+const errorMiddleware: Middleware = (store) => (next) => (action: unknown) => {
   // Handle RTK Query errors globally
-  if (action.type?.endsWith('/rejected') && action.payload?.status) {
-    const { status, data } = action.payload
+  const typedAction = action as { type?: string; payload?: { status?: number | string; data?: { message?: string } } }
+  if (typedAction.type?.endsWith('/rejected') && typedAction.payload?.status) {
+    const { status, data } = typedAction.payload
 
     // Handle authentication errors
     if (status === 401) {
@@ -106,7 +108,7 @@ const errorMiddleware: Middleware = (store) => (next) => (action) => {
     }
 
     // Handle server errors
-    if (status >= 500) {
+    if (typeof status === 'number' && status >= 500) {
       store.dispatch({
         type: 'ui/addNotification',
         payload: {
@@ -177,17 +179,18 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Create persistor (skip for test environment to avoid open handles)
-export const persistor =
-  process.env.NODE_ENV === 'test'
-    ? {
-        persist: () => {},
-        purge: async () => {},
-        flush: async () => {},
-        pause: () => {},
-        resume: () => {},
-        subscribe: () => () => {},
-      }
-    : persistStore(store)
+export const persistor = process.env.NODE_ENV === 'test'
+  ? {
+      persist: () => {},
+      purge: async () => {},
+      flush: async () => {},
+      pause: () => {},
+      resume: () => {},
+      subscribe: () => () => {},
+      dispatch: () => ({} as Record<string, unknown>),
+      getState: () => ({}),
+    } as unknown as Persistor
+  : persistStore(store)
 
 // Types
 export type RootState = ReturnType<typeof store.getState>

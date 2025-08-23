@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
-import { 
-  authenticate, 
-  requirePermission, 
-  requireRole, 
+import {
+  authenticate,
+  requirePermission,
+  requireRole,
   requireAnyPermission,
   requireAllPermissions,
   requireAnyRole,
   requireSelfOrAdmin,
-  authRateLimit
+  authRateLimit,
 } from '../middleware/auth'
 import { AuthService } from '../lib/auth'
 
@@ -20,60 +20,107 @@ const prisma = new PrismaClient()
 const createTestApp = () => {
   const app = express()
   app.use(express.json())
-  
+
   // Test routes
   app.get('/protected', authenticate, (req, res) => {
     res.json({ success: true, user: req.user?.email })
   })
-  
+
   app.get('/admin-only', authenticate, requireRole('admin'), (req, res) => {
     res.json({ success: true, message: 'Admin access granted' })
   })
-  
-  app.get('/manager-or-admin', authenticate, requireAnyRole(['manager', 'admin']), (req, res) => {
-    res.json({ success: true, message: 'Manager or admin access granted' })
-  })
-  
-  app.get('/products-read', authenticate, requirePermission('products:read'), (req, res) => {
-    res.json({ success: true, message: 'Products read access granted' })
-  })
-  
-  app.get('/products-any', authenticate, requireAnyPermission(['products:read', 'products:write']), (req, res) => {
-    res.json({ success: true, message: 'Products access granted' })
-  })
-  
-  app.get('/products-all', authenticate, requireAllPermissions(['products:read', 'products:write']), (req, res) => {
-    res.json({ success: true, message: 'Full products access granted' })
-  })
-  
+
+  app.get(
+    '/manager-or-admin',
+    authenticate,
+    requireAnyRole(['manager', 'admin']),
+    (req, res) => {
+      res.json({ success: true, message: 'Manager or admin access granted' })
+    }
+  )
+
+  app.get(
+    '/products-read',
+    authenticate,
+    requirePermission('products:read'),
+    (req, res) => {
+      res.json({ success: true, message: 'Products read access granted' })
+    }
+  )
+
+  app.get(
+    '/products-any',
+    authenticate,
+    requireAnyPermission(['products:read', 'products:write']),
+    (req, res) => {
+      res.json({ success: true, message: 'Products access granted' })
+    }
+  )
+
+  app.get(
+    '/products-all',
+    authenticate,
+    requireAllPermissions(['products:read', 'products:write']),
+    (req, res) => {
+      res.json({ success: true, message: 'Full products access granted' })
+    }
+  )
+
   app.get('/user/:userId', authenticate, requireSelfOrAdmin(), (req, res) => {
-    res.json({ success: true, message: 'User access granted', userId: req.params.userId })
+    res.json({
+      success: true,
+      message: 'User access granted',
+      userId: req.params.userId,
+    })
   })
-  
+
   app.post('/rate-limited', authRateLimit(3, 1), (req, res) => {
     res.json({ success: true, message: 'Request processed' })
   })
-  
+
   return app
 }
 
 describe('Authentication Middleware', () => {
   let app: express.Application
-  let testUser: any
-  let adminUser: any
-  let managerUser: any
+  let testUser: {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    passwordHash: string
+    emailVerified: boolean
+  }
+  let adminUser: {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    passwordHash: string
+    emailVerified: boolean
+  }
+  let managerUser: {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    passwordHash: string
+    emailVerified: boolean
+  }
   let testUserToken: string
   let adminUserToken: string
   let managerUserToken: string
 
   beforeAll(async () => {
     app = createTestApp()
-    
+
     // Clean up test data
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'middleware-test' } } })
-    
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'middleware-test' } },
+    })
+
     // Create test users
     testUser = await prisma.user.create({
       data: {
@@ -81,67 +128,82 @@ describe('Authentication Middleware', () => {
         firstName: 'Test',
         lastName: 'User',
         passwordHash: await AuthService.hashPassword('TestPassword123!'),
-        emailVerified: true
-      }
+        emailVerified: true,
+      },
     })
-    
+
     adminUser = await prisma.user.create({
       data: {
         email: 'middleware-test-admin@example.com',
         firstName: 'Admin',
         lastName: 'User',
         passwordHash: await AuthService.hashPassword('AdminPassword123!'),
-        emailVerified: true
-      }
+        emailVerified: true,
+      },
     })
-    
+
     managerUser = await prisma.user.create({
       data: {
         email: 'middleware-test-manager@example.com',
         firstName: 'Manager',
         lastName: 'User',
         passwordHash: await AuthService.hashPassword('ManagerPassword123!'),
-        emailVerified: true
-      }
+        emailVerified: true,
+      },
     })
-    
+
     // Assign roles
-    const userRole = await prisma.role.findUnique({ where: { name: 'employee' } })
+    const userRole = await prisma.role.findUnique({
+      where: { name: 'employee' },
+    })
     const adminRole = await prisma.role.findUnique({ where: { name: 'admin' } })
-    const managerRole = await prisma.role.findUnique({ where: { name: 'manager' } })
-    
+    const managerRole = await prisma.role.findUnique({
+      where: { name: 'manager' },
+    })
+
     if (userRole) {
       await prisma.userRole.create({
-        data: { userId: testUser.id, roleId: userRole.id }
+        data: { userId: testUser.id, roleId: userRole.id },
       })
     }
-    
+
     if (adminRole) {
       await prisma.userRole.create({
-        data: { userId: adminUser.id, roleId: adminRole.id }
+        data: { userId: adminUser.id, roleId: adminRole.id },
       })
     }
-    
+
     if (managerRole) {
       await prisma.userRole.create({
-        data: { userId: managerUser.id, roleId: managerRole.id }
+        data: { userId: managerUser.id, roleId: managerRole.id },
       })
     }
-    
+
     // Create sessions and tokens
     const testUserSession = await AuthService.createSession(testUser.id)
     const adminUserSession = await AuthService.createSession(adminUser.id)
     const managerUserSession = await AuthService.createSession(managerUser.id)
-    
+
     const testUserWithRoles = await AuthService.getUserWithRoles(testUser.id)
     const adminUserWithRoles = await AuthService.getUserWithRoles(adminUser.id)
-    const managerUserWithRoles = await AuthService.getUserWithRoles(managerUser.id)
-    
+    const managerUserWithRoles = await AuthService.getUserWithRoles(
+      managerUser.id
+    )
+
     if (testUserWithRoles && adminUserWithRoles && managerUserWithRoles) {
-      const testTokens = await AuthService.generateTokens(testUserWithRoles, testUserSession.id)
-      const adminTokens = await AuthService.generateTokens(adminUserWithRoles, adminUserSession.id)
-      const managerTokens = await AuthService.generateTokens(managerUserWithRoles, managerUserSession.id)
-      
+      const testTokens = await AuthService.generateTokens(
+        testUserWithRoles,
+        testUserSession.id
+      )
+      const adminTokens = await AuthService.generateTokens(
+        adminUserWithRoles,
+        adminUserSession.id
+      )
+      const managerTokens = await AuthService.generateTokens(
+        managerUserWithRoles,
+        managerUserSession.id
+      )
+
       testUserToken = testTokens.accessToken
       adminUserToken = adminTokens.accessToken
       managerUserToken = managerTokens.accessToken
@@ -152,7 +214,9 @@ describe('Authentication Middleware', () => {
     // Clean up test data
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'middleware-test' } } })
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'middleware-test' } },
+    })
     await prisma.$disconnect()
   })
 
@@ -168,9 +232,7 @@ describe('Authentication Middleware', () => {
     })
 
     it('should reject access without token', async () => {
-      const response = await request(app)
-        .get('/protected')
-        .expect(401)
+      const response = await request(app).get('/protected').expect(401)
 
       expect(response.body.success).toBe(false)
       expect(response.body.error).toBe('Authentication required')
@@ -311,23 +373,30 @@ describe('Authentication Middleware', () => {
           firstName: 'Limited',
           lastName: 'User',
           passwordHash: await AuthService.hashPassword('LimitedPassword123!'),
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       })
 
-      const viewerRole = await prisma.role.findUnique({ where: { name: 'viewer' } })
+      const viewerRole = await prisma.role.findUnique({
+        where: { name: 'viewer' },
+      })
       if (viewerRole) {
         await prisma.userRole.create({
-          data: { userId: limitedUser.id, roleId: viewerRole.id }
+          data: { userId: limitedUser.id, roleId: viewerRole.id },
         })
       }
 
       const limitedSession = await AuthService.createSession(limitedUser.id)
-      const limitedUserWithRoles = await AuthService.getUserWithRoles(limitedUser.id)
-      
+      const limitedUserWithRoles = await AuthService.getUserWithRoles(
+        limitedUser.id
+      )
+
       if (limitedUserWithRoles) {
-        const limitedTokens = await AuthService.generateTokens(limitedUserWithRoles, limitedSession.id)
-        
+        const limitedTokens = await AuthService.generateTokens(
+          limitedUserWithRoles,
+          limitedSession.id
+        )
+
         const response = await request(app)
           .get('/products-any')
           .set('Authorization', `Bearer ${limitedTokens.accessToken}`)
@@ -397,7 +466,9 @@ describe('Authentication Middleware', () => {
         .expect(403)
 
       expect(response.body.success).toBe(false)
-      expect(response.body.error).toBe('Access denied - can only access own data or admin required')
+      expect(response.body.error).toBe(
+        'Access denied - can only access own data or admin required'
+      )
       expect(response.body.code).toBe('ACCESS_DENIED')
     })
   })
@@ -433,7 +504,8 @@ describe('Authentication Middleware', () => {
   describe('Error handling', () => {
     it('should handle authentication errors gracefully', async () => {
       // Mock a scenario where session validation fails
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZXMiOltdLCJwZXJtaXNzaW9ucyI6W10sInNlc3Npb25JZCI6InRlc3QiLCJpYXQiOjE2MDk0NTkyMDAsImV4cCI6MTYwOTQ1OTIwMH0.invalid'
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZXMiOltdLCJwZXJtaXNzaW9ucyI6W10sInNlc3Npb25JZCI6InRlc3QiLCJpYXQiOjE2MDk0NTkyMDAsImV4cCI6MTYwOTQ1OTIwMH0.invalid'
 
       const response = await request(app)
         .get('/protected')

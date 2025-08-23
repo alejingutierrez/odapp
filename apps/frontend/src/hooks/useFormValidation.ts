@@ -9,12 +9,12 @@ import {
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { debounce } from 'lodash-es'
+import { debounce } from 'lodash'
 
 // Enhanced form validation hook
 export interface UseFormValidationOptions<T extends FieldValues>
   extends UseFormProps<T> {
-  schema: yup.Schema<T>
+  schema: yup.ObjectSchema<T>
   realTimeValidation?: boolean
   debounceMs?: number
   onValidationError?: (errors: Record<string, string>) => void
@@ -22,7 +22,7 @@ export interface UseFormValidationOptions<T extends FieldValues>
 }
 
 export interface UseFormValidationReturn<T extends FieldValues>
-  extends UseFormReturn<T> {
+  extends Omit<UseFormReturn<T>, 'handleSubmit'> {
   validateField: (
     field: Path<T>,
     value: PathValue<T, Path<T>>
@@ -34,6 +34,7 @@ export interface UseFormValidationReturn<T extends FieldValues>
   setFieldError: (field: Path<T>, error: string) => void
   isFormValid: boolean
   hasErrors: boolean
+  handleSubmit: UseFormReturn<T>['handleSubmit']
 }
 
 export const useFormValidation = <T extends FieldValues>({
@@ -49,7 +50,7 @@ export const useFormValidation = <T extends FieldValues>({
   >({})
 
   const form = useForm<T>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as unknown as UseFormProps<T>['resolver'],
     mode: realTimeValidation ? 'onChange' : 'onSubmit',
     reValidateMode: 'onChange',
     ...formOptions,
@@ -64,7 +65,7 @@ export const useFormValidation = <T extends FieldValues>({
 
   // Validate individual field
   const validateField = useCallback(
-    async (field: Path<T>, value: PathValue<T, Path<T>>): Promise<boolean> => {
+    async (field: Path<T>, value: unknown): Promise<boolean> => {
       try {
         await schema.validateAt(field as string, { [field]: value })
         setFieldValidationStates((prev) => ({ ...prev, [field]: true }))
@@ -167,7 +168,7 @@ export const useFormValidation = <T extends FieldValues>({
     setFieldError,
     isFormValid,
     hasErrors,
-  }
+  } as UseFormValidationReturn<T>
 }
 
 // Hook for dynamic form arrays with validation
@@ -255,7 +256,7 @@ export const useConditionalValidation = <T extends FieldValues>({
         : alternativeSchema || yup.object().shape({})
 
       if (newSchema !== currentSchema) {
-        setCurrentSchema(newSchema)
+        setCurrentSchema(newSchema as yup.Schema<T>)
       }
     },
     [condition, schema, alternativeSchema, currentSchema]

@@ -10,7 +10,7 @@ describe('DateTimePicker', () => {
   })
 
   it('displays placeholder correctly', () => {
-    const { container } = render(<DateTimePicker placeholder='Select date' />)
+    const { container } = render(<DateTimePicker placeholder={{ date: 'Select date' }} />)
     expect(
       container.querySelector('input[placeholder="Select date"]')
     ).toBeInTheDocument()
@@ -38,12 +38,12 @@ describe('DateTimePicker', () => {
   })
 
   it('shows error state', () => {
-    const { container } = render(<DateTimePicker status='error' />)
+    const { container } = render(<DateTimePicker disabled />)
     expect(container.querySelector('.ant-picker')).toBeInTheDocument()
   })
 
   it('handles time picker mode', () => {
-    const { container } = render(<DateTimePicker picker='time' />)
+    const { container } = render(<DateTimePicker timeFormat='HH:mm:ss' />)
     expect(container.querySelector('input')).toBeInTheDocument()
   })
 

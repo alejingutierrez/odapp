@@ -1,7 +1,8 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
 
-import { vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NotificationCard } from './NotificationCard'
 
 describe('NotificationCard', () => {
@@ -69,6 +70,7 @@ describe('NotificationCard', () => {
   })
 
   it('calls onClose when close button is clicked', async () => {
+    const user = userEvent.setup()
     render(
       <NotificationCard
         title='Close Me'
@@ -114,6 +116,7 @@ describe('NotificationCard', () => {
   })
 
   it('shows action buttons when provided', async () => {
+    const user = userEvent.setup()
     const actions = [
       { label: 'Accept', onClick: mockOnAction },
       { label: 'Decline', onClick: vi.fn() },

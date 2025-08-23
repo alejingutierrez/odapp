@@ -194,7 +194,6 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       </Text>
                       <Tag
                         color={getNotificationColor(notification.type)}
-                        size='small'
                         style={{ marginLeft: '8px' }}
                       >
                         {notification.type.toUpperCase()}

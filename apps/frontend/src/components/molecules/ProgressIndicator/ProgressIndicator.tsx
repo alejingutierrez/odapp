@@ -141,7 +141,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           type={type}
           status={status}
           showInfo={showInfo}
-          size={size}
+          size={size === 'small' ? 'small' : size === 'large' ? 'default' : 'default'}
           strokeColor={strokeColor}
           trailColor={trailColor}
           format={format || defaultFormat}

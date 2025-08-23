@@ -49,15 +49,16 @@ export const Icon: React.FC<IconProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  return (
-    <IconComponent
-      className={iconClasses}
-      spin={spin}
-      rotate={rotate}
-      onClick={onClick}
-      style={style}
-    />
-  )
+  const iconProps: React.SVGProps<SVGSVGElement> & { spin?: boolean; rotate?: number } = {
+    className: iconClasses,
+    spin,
+    rotate,
+    onClick,
+    style,
+    ...(onClick && { role: 'button', tabIndex: 0 })
+  }
+
+  return <IconComponent {...iconProps} />
 }
 
 // Commonly used icons as separate components for better DX

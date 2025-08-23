@@ -8,7 +8,7 @@ import {
   SyncOutlined,
   MinusCircleOutlined,
 } from '@ant-design/icons'
-import { Typography } from '../../atoms'
+import { Text } from '../../atoms/Typography/Typography'
 import './StatusIndicator.css'
 
 export type StatusType =
@@ -116,11 +116,11 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
             className={`status-indicator__icon status-indicator__icon--${status} ${shouldAnimate ? 'status-indicator__icon--spinning' : ''}`}
           />
         )}
-        <Typography.Text
+        <Text
           className={`status-indicator__text status-indicator__text--${size}`}
         >
           {displayText}
-        </Typography.Text>
+        </Text>
       </Space>
     )
   }

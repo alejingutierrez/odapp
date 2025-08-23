@@ -16,10 +16,16 @@ describe('WebSocketService Basic Tests', () => {
     expect(WebSocketService.prototype.broadcastUserActivity).toBeDefined()
     expect(WebSocketService.prototype.broadcastSystemEvent).toBeDefined()
     expect(WebSocketService.prototype.broadcastShopifyProductSync).toBeDefined()
-    expect(WebSocketService.prototype.broadcastShopifyInventorySync).toBeDefined()
+    expect(
+      WebSocketService.prototype.broadcastShopifyInventorySync
+    ).toBeDefined()
     expect(WebSocketService.prototype.broadcastShopifyOrderSync).toBeDefined()
-    expect(WebSocketService.prototype.broadcastShopifyCustomerSync).toBeDefined()
-    expect(WebSocketService.prototype.broadcastShopifyWebhookReceived).toBeDefined()
+    expect(
+      WebSocketService.prototype.broadcastShopifyCustomerSync
+    ).toBeDefined()
+    expect(
+      WebSocketService.prototype.broadcastShopifyWebhookReceived
+    ).toBeDefined()
   })
 
   it('should have utility methods', () => {

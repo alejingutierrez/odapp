@@ -130,8 +130,8 @@ export const Sizes: Story = {
       <Button variant='primary' size='small'>
         Small
       </Button>
-      <Button variant='primary' size='medium'>
-        Medium
+      <Button variant='primary' size='middle'>
+        Middle
       </Button>
       <Button variant='primary' size='large'>
         Large

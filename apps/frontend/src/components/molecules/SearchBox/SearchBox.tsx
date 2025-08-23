@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Input, Button, Badge, Space } from 'antd'
-import { SearchOutlined, FilterOutlined, ClearOutlined } from '@ant-design/icons'
+import {
+  SearchOutlined,
+  FilterOutlined,
+  ClearOutlined,
+} from '@ant-design/icons'
 import { Spinner } from '../../atoms'
 import { useDebounce } from '../../../hooks/useDebounce'
 import './SearchBox.css'
@@ -34,7 +38,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
   filterCount = 0,
   size = 'middle',
   className = '',
-  debounceMs = 300
+  debounceMs = 300,
 }) => {
   const [searchValue, setSearchValue] = useState(value)
   const debouncedSearch = useDebounce(searchValue, debounceMs)
@@ -49,9 +53,12 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
     }
   }, [debouncedSearch, onSearch, value])
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value)
-  }, [])
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchValue(e.target.value)
+    },
+    []
+  )
 
   const handleClear = useCallback(() => {
     setSearchValue('')
@@ -64,15 +71,15 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
   }, [onSearch, searchValue])
 
   const suffix = (
-    <Space size="small">
-      {loading && <Spinner size="sm" />}
+    <Space size='small'>
+      {loading && <Spinner size='sm' />}
       {allowClear && searchValue && (
         <Button
-          type="text"
-          size="small"
+          type='text'
+          size='small'
           icon={<ClearOutlined />}
           onClick={handleClear}
-          className="search-box__clear-btn"
+          className='search-box__clear-btn'
         />
       )}
     </Space>
@@ -89,7 +96,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
         suffix={suffix}
         size={size}
         disabled={disabled}
-        className="search-box__input"
+        className='search-box__input'
       />
       {showFilterButton && (
         <Badge count={filterCount > 0 ? filterCount : 0} showZero={false}>
@@ -98,7 +105,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
             onClick={onFilter}
             size={size}
             disabled={disabled}
-            className="search-box__filter-btn"
+            className='search-box__filter-btn'
           >
             Filters
           </Button>

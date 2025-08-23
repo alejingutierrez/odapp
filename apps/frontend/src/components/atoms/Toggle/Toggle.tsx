@@ -17,7 +17,7 @@ export interface ToggleProps
   /** Icon to show when toggle is off */
   offIcon?: React.ReactNode
   /** Toggle size */
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'default'
   /** Toggle variant */
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
   /** Label position */
@@ -76,9 +76,7 @@ export const Toggle: React.FC<ToggleProps> = ({
   const renderToggle = () => (
     <Switch
       className='oda-toggle__switch'
-      size={
-        size === 'large' ? 'default' : size === 'small' ? 'small' : 'default'
-      }
+      size={size === 'small' ? 'small' : 'default'}
       loading={loading}
       checkedChildren={
         onLabel || onIcon ? (

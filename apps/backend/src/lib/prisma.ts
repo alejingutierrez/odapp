@@ -14,9 +14,10 @@ const prismaConfig = {
       url: env.DATABASE_URL,
     },
   },
-  log: env.NODE_ENV === 'development' 
-    ? ['query', 'info', 'warn', 'error'] as const
-    : ['warn', 'error'] as const,
+  log:
+    env.NODE_ENV === 'development'
+      ? (['query', 'info', 'warn', 'error'] as any)
+      : (['warn', 'error'] as any),
   errorFormat: 'pretty' as const,
 }
 
@@ -60,10 +61,10 @@ export async function checkDatabaseHealth() {
     await prisma.$queryRaw`SELECT 1`
     return { status: 'healthy', timestamp: new Date().toISOString() }
   } catch (error) {
-    return { 
-      status: 'unhealthy', 
+    return {
+      status: 'unhealthy',
       error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -71,19 +72,14 @@ export async function checkDatabaseHealth() {
 // Database metrics
 export async function getDatabaseMetrics() {
   try {
-    const [
-      userCount,
-      productCount,
-      orderCount,
-      customerCount,
-      inventoryCount,
-    ] = await Promise.all([
-      prisma.user.count(),
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.customer.count(),
-      prisma.inventoryItem.count(),
-    ])
+    const [userCount, productCount, orderCount, customerCount, inventoryCount] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.product.count(),
+        prisma.order.count(),
+        prisma.customer.count(),
+        prisma.inventoryItem.count(),
+      ])
 
     return {
       users: userCount,
@@ -99,41 +95,22 @@ export async function getDatabaseMetrics() {
 }
 
 // Transaction helper
-export async function withTransaction<T>(
-  callback: (_prisma: PrismaClient) => Promise<T>
-): Promise<T> {
-  return prisma.$transaction(callback)
+export async function withTransaction(
+  callback: (_prisma: PrismaClient) => Promise<any>
+): Promise<any> {
+  return prisma.$transaction(callback as any)
 }
 
 // Soft delete helper
-export async function softDelete(
-  model: keyof PrismaClient,
-  id: string
-) {
+export async function softDelete(model: keyof PrismaClient, id: string) {
   const modelClient = prisma[model] as Record<string, unknown>
-  return modelClient.update({
+  return (modelClient.update as any)({
     where: { id },
     data: { deletedAt: new Date() },
   })
 }
 
-// Bulk operations helper
-export async function bulkUpsert<T>(
-  model: keyof PrismaClient,
-  data: T[],
-  uniqueField: keyof T
-) {
-  const modelClient = prisma[model] as Record<string, unknown>
-  const operations = data.map((item) => 
-    modelClient.upsert({
-      where: { [uniqueField]: item[uniqueField] },
-      update: item,
-      create: item,
-    })
-  )
-  
-  return Promise.all(operations)
-}
+
 
 // Query performance monitoring
 export function logSlowQueries() {
@@ -145,7 +122,9 @@ export function logSlowQueries() {
       const duration = end - start
 
       if (duration > (env.DB_SLOW_QUERY_THRESHOLD || 1000)) {
-        console.warn(`🐌 Slow query detected: ${params.model}.${params.action} took ${duration}ms`)
+        console.warn(
+          `🐌 Slow query detected: ${params.model}.${params.action} took ${duration}ms`
+        )
       }
 
       return result

@@ -105,7 +105,6 @@ export const ReduxExample: React.FC = () => {
         category: 'electronics',
         pricing: {
           basePrice: 99.99,
-          taxable: true,
         },
         inventory: {
           tracked: true,
@@ -119,7 +118,7 @@ export const ReduxExample: React.FC = () => {
         addNotification({
           type: 'success',
           title: 'Product Created',
-          message: `Product "${newProduct.name}" created successfully`,
+          message: `Product "${(newProduct as { name?: string })?.name || 'Unknown'}" created successfully`,
         })
       )
     } catch (error) {
@@ -178,17 +177,17 @@ export const ReduxExample: React.FC = () => {
         <Space direction='vertical' style={{ width: '100%' }}>
           <div>
             <Text strong>Products Data:</Text>
-            {productsLoading && <Text> Loading...</Text>}
+            {(productsLoading as boolean) && <Text> Loading...</Text>}
             {productsError && (
               <Text type='danger'> Error loading products</Text>
             )}
             {productsData && (
               <div>
-                <Text> Found {productsData.total} products</Text>
+                <Text> Found {(productsData as { total?: number })?.total || 0} products</Text>
                 <ul>
-                  {productsData.products.slice(0, 3).map((product) => (
+                  {(productsData as { products?: Array<{ id: string; name: string; pricing?: { basePrice?: number } }> })?.products?.slice(0, 3).map((product) => (
                     <li key={product.id}>
-                      {product.name} - ${product.pricing.basePrice}
+                      {product.name} - ${product.pricing?.basePrice || 0}
                     </li>
                   ))}
                 </ul>

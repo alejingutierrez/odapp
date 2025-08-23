@@ -1,6 +1,9 @@
 import { prisma } from './prisma'
 import { EmailService } from './email'
 
+// Security event types for audit logging
+// These enum values are defined for future use in security event handling
+/* eslint-disable no-unused-vars */
 export enum SecurityEventType {
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
   LOGIN_FAILED = 'LOGIN_FAILED',
@@ -16,8 +19,9 @@ export enum SecurityEventType {
   SESSION_REVOKED = 'SESSION_REVOKED',
   PERMISSION_DENIED = 'PERMISSION_DENIED',
   EMAIL_VERIFIED = 'EMAIL_VERIFIED',
-  ACCOUNT_CREATED = 'ACCOUNT_CREATED'
+  ACCOUNT_CREATED = 'ACCOUNT_CREATED',
 }
+/* eslint-enable no-unused-vars */
 
 export interface SecurityEvent {
   type: SecurityEventType
@@ -42,8 +46,8 @@ export class SecurityAuditService {
           userId: event.userId,
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
-          newValues: event.metadata as any || {}
-        }
+          newValues: (event.metadata || {}) as any,
+        },
       })
 
       // Handle high-severity events
@@ -54,7 +58,7 @@ export class SecurityAuditService {
       console.log(`Security event logged: ${event.type}`, {
         userId: event.userId,
         severity: event.severity,
-        ipAddress: event.ipAddress
+        ipAddress: event.ipAddress,
       })
     } catch (error) {
       console.error('Failed to log security event:', error)
@@ -64,7 +68,9 @@ export class SecurityAuditService {
   /**
    * Handle high-severity security events
    */
-  private static async handleHighSeverityEvent(event: SecurityEvent): Promise<void> {
+  private static async handleHighSeverityEvent(
+    event: SecurityEvent
+  ): Promise<void> {
     try {
       // Get user information if available
       let user = null
@@ -74,14 +80,18 @@ export class SecurityAuditService {
           select: {
             email: true,
             firstName: true,
-            lastName: true
-          }
+            lastName: true,
+          },
         })
       }
 
       // Send security alert email
       if (user && user.email) {
-        await this.sendSecurityAlert(user.email, event, user.firstName || 'User')
+        await this.sendSecurityAlert(
+          user.email,
+          event,
+          user.firstName || 'User'
+        )
       }
 
       // Log to external monitoring system (if configured)
@@ -106,7 +116,7 @@ export class SecurityAuditService {
       to: email,
       subject,
       html: this.generateSecurityAlertHTML(event, userName, message),
-      text: message
+      text: message,
     })
   }
 
@@ -131,23 +141,26 @@ export class SecurityAuditService {
   /**
    * Get security alert message
    */
-  private static getSecurityAlertMessage(event: SecurityEvent, userName: string): string {
+  private static getSecurityAlertMessage(
+    event: SecurityEvent,
+    userName: string
+  ): string {
     const timestamp = new Date().toLocaleString()
     const ipAddress = event.ipAddress || 'Unknown'
 
     switch (event.type) {
       case SecurityEventType.LOGIN_LOCKED:
         return `Hello ${userName},\n\nYour account has been temporarily locked due to multiple failed login attempts.\n\nTime: ${timestamp}\nIP Address: ${ipAddress}\n\nIf this wasn't you, please contact support immediately.`
-      
+
       case SecurityEventType.SUSPICIOUS_ACTIVITY:
         return `Hello ${userName},\n\nSuspicious activity has been detected on your account.\n\nTime: ${timestamp}\nIP Address: ${ipAddress}\nReason: ${event.metadata?.reason || 'Unknown'}\n\nIf this wasn't you, please secure your account immediately.`
-      
+
       case SecurityEventType.PASSWORD_CHANGED:
         return `Hello ${userName},\n\nYour password has been changed.\n\nTime: ${timestamp}\nIP Address: ${ipAddress}\n\nIf you didn't make this change, please contact support immediately.`
-      
+
       case SecurityEventType.TWO_FACTOR_DISABLED:
         return `Hello ${userName},\n\nTwo-factor authentication has been disabled on your account.\n\nTime: ${timestamp}\nIP Address: ${ipAddress}\n\nIf you didn't make this change, please contact support immediately.`
-      
+
       default:
         return `Hello ${userName},\n\nSecurity event detected on your account: ${event.type}\n\nTime: ${timestamp}\nIP Address: ${ipAddress}\n\nIf you have concerns, please contact support.`
     }
@@ -165,7 +178,7 @@ export class SecurityAuditService {
       low: '#52c41a',
       medium: '#fa8c16',
       high: '#fa541c',
-      critical: '#ff4d4f'
+      critical: '#ff4d4f',
     }[event.severity]
 
     return `
@@ -233,7 +246,7 @@ export class SecurityAuditService {
       userId: event.userId,
       ipAddress: event.ipAddress,
       timestamp: new Date().toISOString(),
-      metadata: event.metadata
+      metadata: event.metadata,
     })
   }
 
@@ -243,37 +256,43 @@ export class SecurityAuditService {
   static async getUserSecurityEvents(
     userId: string,
     limit: number = 50
-  ): Promise<Array<{
-    id: string
-    action: string
-    ipAddress: string | null
-    userAgent: string | null
-    createdAt: Date
-    metadata: unknown
-  }>> {
-    return prisma.auditLog.findMany({
-      where: {
-        userId,
-        entity: 'security'
-      },
-      select: {
-        id: true,
-        action: true,
-        ipAddress: true,
-        userAgent: true,
-        createdAt: true,
-        newValues: true
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit
-    }).then(logs => logs.map(log => ({
-      id: log.id,
-      action: log.action,
-      ipAddress: log.ipAddress,
-      userAgent: log.userAgent,
-      createdAt: log.createdAt,
-      metadata: log.newValues
-    })))
+  ): Promise<
+    Array<{
+      id: string
+      action: string
+      ipAddress: string | null
+      userAgent: string | null
+      createdAt: Date
+      metadata: unknown
+    }>
+  > {
+    return prisma.auditLog
+      .findMany({
+        where: {
+          userId,
+          entity: 'security',
+        },
+        select: {
+          id: true,
+          action: true,
+          ipAddress: true,
+          userAgent: true,
+          createdAt: true,
+          newValues: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      })
+      .then((logs) =>
+        logs.map((log) => ({
+          id: log.id,
+          action: log.action,
+          ipAddress: log.ipAddress,
+          userAgent: log.userAgent,
+          createdAt: log.createdAt,
+          metadata: log.newValues,
+        }))
+      )
   }
 
   /**
@@ -291,12 +310,12 @@ export class SecurityAuditService {
     const events = await prisma.auditLog.findMany({
       where: {
         entity: 'security',
-        createdAt: { gte: since }
+        createdAt: { gte: since },
       },
       select: {
         action: true,
-        newValues: true
-      }
+        newValues: true,
+      },
     })
 
     const eventsByType: Record<string, number> = {}
@@ -304,12 +323,14 @@ export class SecurityAuditService {
     let suspiciousActivityCount = 0
     let lockedAccountsCount = 0
 
-    events.forEach(event => {
+    events.forEach((event) => {
       // Count by type
       eventsByType[event.action] = (eventsByType[event.action] || 0) + 1
 
       // Count by severity (if available in metadata)
-      const severity = (event.newValues as Record<string, unknown>)?.severity as string || 'unknown'
+      const severity =
+        ((event.newValues as Record<string, unknown>)?.severity as string) ||
+        'unknown'
       eventsBySeverity[severity] = (eventsBySeverity[severity] || 0) + 1
 
       // Count specific event types
@@ -326,7 +347,7 @@ export class SecurityAuditService {
       eventsByType,
       eventsBySeverity,
       suspiciousActivityCount,
-      lockedAccountsCount
+      lockedAccountsCount,
     }
   }
 }

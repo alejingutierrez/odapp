@@ -70,6 +70,8 @@ export interface DateTimePickerProps {
   layout?: 'horizontal' | 'vertical' | 'compact'
   /** Custom validation */
   validator?: (date: Dayjs, timezone: string) => string | undefined
+  /** Validation error message */
+  validationError?: string
 }
 
 const DEFAULT_TIMEZONES = [
@@ -271,7 +273,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         value={internalValue}
         onChange={handleDateChange}
         format={dateFormat}
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         disabled={disabled}
         disabledDate={getDisabledDate}
         placeholder={placeholder.date || 'Select date'}
@@ -288,7 +290,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <Select
           value={currentTimezone}
           onChange={handleTimezoneChange}
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           disabled={disabled}
           placeholder={placeholder.timezone || 'Timezone'}
           suffixIcon={<GlobalOutlined />}
@@ -314,7 +316,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           value={internalValue}
           onChange={handleDateChange}
           format={dateFormat}
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           disabled={disabled}
           disabledDate={getDisabledDate}
           placeholder={placeholder.date || 'Select date'}
@@ -326,7 +328,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           value={internalValue}
           onChange={handleTimeChange}
           format={showSeconds ? 'HH:mm:ss' : timeFormat}
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           disabled={disabled}
           disabledTime={() => getDisabledTime(internalValue)}
           placeholder={placeholder.time || 'Select time'}
@@ -339,7 +341,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <Select
             value={currentTimezone}
             onChange={handleTimezoneChange}
-            size={size === 'large' ? 'middle' : size}
+            size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
             disabled={disabled}
             placeholder={placeholder.timezone || 'Timezone'}
             suffixIcon={<GlobalOutlined />}
@@ -364,7 +366,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <Alert
           message={validationError}
           type='error'
-          size='small'
           showIcon
           className='oda-datetime-picker__error'
         />

@@ -39,15 +39,17 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // Loading component for PersistGate
 const PersistGateLoading: React.FC = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    flexDirection: 'column',
-    gap: '16px'
-  }}>
-    <Spin size="large" />
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      flexDirection: 'column',
+      gap: '16px',
+    }}
+  >
+    <Spin size='large' />
     <div>Loading application...</div>
   </div>
 )

@@ -12,14 +12,14 @@ describe('DateRangePicker', () => {
 
   it('renders date range picker correctly', () => {
     render(<DateRangePicker onChange={mockOnChange} />)
-    
+
     expect(screen.getByPlaceholderText('Start date')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('End date')).toBeInTheDocument()
   })
 
   it('renders preset buttons correctly', () => {
     render(<DateRangePicker onChange={mockOnChange} showPresets={true} />)
-    
+
     // Check that preset buttons are rendered
     expect(screen.getByText('Today')).toBeInTheDocument()
     expect(screen.getByText('Yesterday')).toBeInTheDocument()
@@ -29,42 +29,34 @@ describe('DateRangePicker', () => {
 
   it('has correct input placeholders', () => {
     render(<DateRangePicker onChange={mockOnChange} />)
-    
+
     const startInput = screen.getByPlaceholderText('Start date')
     const endInput = screen.getByPlaceholderText('End date')
-    
+
     expect(startInput).toBeInTheDocument()
     expect(endInput).toBeInTheDocument()
   })
 
   it('renders with preset ranges', () => {
-    render(
-      <DateRangePicker 
-        onChange={mockOnChange}
-        showPresets={true}
-      />
-    )
-    
+    render(<DateRangePicker onChange={mockOnChange} showPresets={true} />)
+
     const picker = document.querySelector('.ant-picker')
     expect(picker).toBeInTheDocument()
   })
 
   it('applies custom className', () => {
     render(
-      <DateRangePicker 
-        onChange={mockOnChange}
-        className="custom-date-picker"
-      />
+      <DateRangePicker onChange={mockOnChange} className='custom-date-picker' />
     )
-    
+
     expect(document.querySelector('.custom-date-picker')).toBeInTheDocument()
   })
 
   it('shows disabled state', () => {
     render(<DateRangePicker onChange={mockOnChange} disabled={true} />)
-    
+
     const inputs = screen.getAllByRole('textbox')
-    inputs.forEach(input => {
+    inputs.forEach((input) => {
       expect(input).toBeDisabled()
     })
   })
@@ -72,17 +64,17 @@ describe('DateRangePicker', () => {
   it('renders with custom format', () => {
     const dateRange = {
       start: dayjs('2023-01-01'),
-      end: dayjs('2023-01-31')
+      end: dayjs('2023-01-31'),
     }
-    
+
     render(
-      <DateRangePicker 
+      <DateRangePicker
         onChange={mockOnChange}
         value={dateRange}
-        format="MM/DD/YYYY"
+        format='MM/DD/YYYY'
       />
     )
-    
+
     // Check that the component renders with date inputs
     const inputs = screen.getAllByRole('textbox')
     expect(inputs).toHaveLength(2)

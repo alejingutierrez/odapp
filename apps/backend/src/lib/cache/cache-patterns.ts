@@ -19,16 +19,13 @@ export class CacheAsidePattern {
   /**
    * Get data with cache-aside pattern
    */
-  static async get<T>(
-    key: string,
-    options: CacheAsideOptions<T>
-  ): Promise<T> {
+  static async get<T>(key: string, options: CacheAsideOptions<T>): Promise<T> {
     const { loader, ...cacheOptions } = options
 
     try {
       // Try to get from cache first
       const cachedData = await cacheManager.get<T>(key, cacheOptions)
-      
+
       if (cachedData !== null) {
         logger.debug('Cache-aside hit', { key })
         return cachedData
@@ -143,7 +140,8 @@ export class WriteThroughPattern {
  * Cache is updated immediately, data store is updated asynchronously
  */
 export class WriteBehindPattern {
-  private static writeQueue: Map<string, { data: unknown; timestamp: number }> = new Map()
+  private static writeQueue: Map<string, { data: unknown; timestamp: number }> =
+    new Map()
   private static flushInterval: NodeJS.Timeout | null = null
   private static flushIntervalMs = 5000 // 5 seconds
 
@@ -153,7 +151,7 @@ export class WriteBehindPattern {
   static initialize(): void {
     if (!this.flushInterval) {
       this.flushInterval = setInterval(() => {
-        this.flushWrites().catch(error => {
+        this.flushWrites().catch((error) => {
           logger.error('Write-behind flush error', { error })
         })
       }, this.flushIntervalMs)
@@ -168,7 +166,7 @@ export class WriteBehindPattern {
       clearInterval(this.flushInterval)
       this.flushInterval = null
     }
-    
+
     // Flush any remaining writes
     await this.flushWrites()
   }
@@ -243,7 +241,7 @@ export class RefreshAheadPattern {
 
     try {
       const cachedData = await cacheManager.get<T>(key, cacheOptions)
-      
+
       if (cachedData !== null) {
         // Schedule refresh if needed
         this.scheduleRefresh(key, loader, cacheOptions, refreshThreshold)
@@ -253,10 +251,10 @@ export class RefreshAheadPattern {
       // Cache miss - load and cache
       const data = await loader()
       await cacheManager.set(key, data, cacheOptions)
-      
+
       // Schedule refresh
       this.scheduleRefresh(key, loader, cacheOptions, refreshThreshold)
-      
+
       return data
     } catch (error) {
       logger.error('Refresh-ahead get error', { key, error })
@@ -287,7 +285,7 @@ export class RefreshAheadPattern {
         logger.debug('Refresh-ahead refreshing', { key })
         const data = await loader()
         await cacheManager.set(key, data, options)
-        
+
         // Schedule next refresh
         this.scheduleRefresh(key, loader, options, refreshThreshold)
       } catch (error) {
@@ -313,7 +311,7 @@ export class RefreshAheadPattern {
    * Shutdown refresh-ahead pattern
    */
   static shutdown(): void {
-    for (const [, task] of this.refreshTasks.entries()) {
+    for (const [, task] of Array.from(this.refreshTasks.entries())) {
       clearTimeout(task)
     }
     this.refreshTasks.clear()

@@ -1,4 +1,8 @@
-import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createEntityAdapter,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import type { RootState } from '../index'
 
 // Types
@@ -120,7 +124,13 @@ export interface Collection {
 
 export interface CollectionRule {
   field: string
-  operator: 'equals' | 'contains' | 'starts_with' | 'ends_with' | 'greater_than' | 'less_than'
+  operator:
+    | 'equals'
+    | 'contains'
+    | 'starts_with'
+    | 'ends_with'
+    | 'greater_than'
+    | 'less_than'
   value: string
 }
 
@@ -178,17 +188,14 @@ export interface ProductsState {
 
 // Entity adapters for normalization
 const productsAdapter = createEntityAdapter<Product>({
-  selectId: (product) => product.id,
   sortComparer: (a, b) => b.updatedAt.localeCompare(a.updatedAt),
 })
 
 const collectionsAdapter = createEntityAdapter<Collection>({
-  selectId: (collection) => collection.id,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 })
 
 const categoriesAdapter = createEntityAdapter<Category>({
-  selectId: (category) => category.id,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 })
 
@@ -244,7 +251,10 @@ const productsSlice = createSlice({
       productsAdapter.addOne(state.products, action.payload)
     },
 
-    updateProduct: (state, action: PayloadAction<{ id: string; changes: Partial<Product> }>) => {
+    updateProduct: (
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Product> }>
+    ) => {
       productsAdapter.updateOne(state.products, action.payload)
     },
 
@@ -269,7 +279,10 @@ const productsSlice = createSlice({
       collectionsAdapter.addOne(state.collections, action.payload)
     },
 
-    updateCollection: (state, action: PayloadAction<{ id: string; changes: Partial<Collection> }>) => {
+    updateCollection: (
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Collection> }>
+    ) => {
       collectionsAdapter.updateOne(state.collections, action.payload)
     },
 
@@ -280,7 +293,10 @@ const productsSlice = createSlice({
       }
     },
 
-    setSelectedCollection: (state, action: PayloadAction<Collection | null>) => {
+    setSelectedCollection: (
+      state,
+      action: PayloadAction<Collection | null>
+    ) => {
       state.selectedCollection = action.payload
     },
 
@@ -293,7 +309,10 @@ const productsSlice = createSlice({
       categoriesAdapter.addOne(state.categories, action.payload)
     },
 
-    updateCategory: (state, action: PayloadAction<{ id: string; changes: Partial<Category> }>) => {
+    updateCategory: (
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Category> }>
+    ) => {
       categoriesAdapter.updateOne(state.categories, action.payload)
     },
 
@@ -344,7 +363,10 @@ const productsSlice = createSlice({
     // Loading actions
     setLoading: (
       state,
-      action: PayloadAction<{ key: keyof ProductsState['loading']; loading: boolean }>
+      action: PayloadAction<{
+        key: keyof ProductsState['loading']
+        loading: boolean
+      }>
     ) => {
       const { key, loading } = action.payload
       state.loading[key] = loading
@@ -370,7 +392,10 @@ const productsSlice = createSlice({
     bulkRemoveProducts: (state, action: PayloadAction<string[]>) => {
       productsAdapter.removeMany(state.products, action.payload)
       // Clear selection if any deleted product was selected
-      if (state.selectedProduct && action.payload.includes(state.selectedProduct.id)) {
+      if (
+        state.selectedProduct &&
+        action.payload.includes(state.selectedProduct.id)
+      ) {
         state.selectedProduct = null
       }
     },
@@ -426,7 +451,9 @@ export const {
   selectIds: selectCollectionIds,
   selectEntities: selectCollectionEntities,
   selectTotal: selectCollectionsTotal,
-} = collectionsAdapter.getSelectors((state: RootState) => state.products.collections)
+} = collectionsAdapter.getSelectors(
+  (state: RootState) => state.products.collections
+)
 
 export const {
   selectAll: selectAllCategories,
@@ -434,107 +461,128 @@ export const {
   selectIds: selectCategoryIds,
   selectEntities: selectCategoryEntities,
   selectTotal: selectCategoriesTotal,
-} = categoriesAdapter.getSelectors((state: RootState) => state.products.categories)
+} = categoriesAdapter.getSelectors(
+  (state: RootState) => state.products.categories
+)
 
 // Custom selectors
-export const selectSelectedProduct = (state: RootState) => state.products.selectedProduct
-export const selectSelectedCollection = (state: RootState) => state.products.selectedCollection
-export const selectSelectedCategory = (state: RootState) => state.products.selectedCategory
+export const selectSelectedProduct = (state: RootState) =>
+  state.products.selectedProduct
+export const selectSelectedCollection = (state: RootState) =>
+  state.products.selectedCollection
+export const selectSelectedCategory = (state: RootState) =>
+  state.products.selectedCategory
 
 export const selectProductFilters = (state: RootState) => state.products.filters
-export const selectSearchResults = (state: RootState) => state.products.searchResults
-export const selectProductPagination = (state: RootState) => state.products.pagination
+export const selectSearchResults = (state: RootState) =>
+  state.products.searchResults
+export const selectProductPagination = (state: RootState) =>
+  state.products.pagination
 export const selectProductSorting = (state: RootState) => state.products.sorting
-export const selectProductsLoading = (state: RootState) => state.products.loading
+export const selectProductsLoading = (state: RootState) =>
+  state.products.loading
 export const selectProductsError = (state: RootState) => state.products.error
 
 // Filtered products selector
 export const selectFilteredProducts = (state: RootState) => {
   const products = selectAllProducts(state)
   const filters = selectProductFilters(state)
-  
+
   return products.filter((product) => {
     // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase()
-      const matchesSearch = 
+      const matchesSearch =
         product.name.toLowerCase().includes(searchTerm) ||
         product.description.toLowerCase().includes(searchTerm) ||
         product.sku.toLowerCase().includes(searchTerm) ||
-        product.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-      
+        product.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+
       if (!matchesSearch) return false
     }
-    
+
     // Status filter
     if (filters.status.length > 0 && !filters.status.includes(product.status)) {
       return false
     }
-    
+
     // Category filter
-    if (filters.category.length > 0 && !filters.category.includes(product.category)) {
+    if (
+      filters.category.length > 0 &&
+      !filters.category.includes(product.category)
+    ) {
       return false
     }
-    
+
     // Collections filter
     if (filters.collections.length > 0) {
-      const hasMatchingCollection = product.collections.some(collection =>
+      const hasMatchingCollection = product.collections.some((collection) =>
         filters.collections.includes(collection)
       )
       if (!hasMatchingCollection) return false
     }
-    
+
     // Tags filter
     if (filters.tags.length > 0) {
-      const hasMatchingTag = product.tags.some(tag =>
+      const hasMatchingTag = product.tags.some((tag) =>
         filters.tags.includes(tag)
       )
       if (!hasMatchingTag) return false
     }
-    
+
     // Price range filter
     if (filters.priceRange) {
       const [minPrice, maxPrice] = filters.priceRange
-      if (product.pricing.basePrice < minPrice || product.pricing.basePrice > maxPrice) {
+      if (
+        product.pricing.basePrice < minPrice ||
+        product.pricing.basePrice > maxPrice
+      ) {
         return false
       }
     }
-    
+
     // In stock filter
     if (filters.inStock !== null) {
       const isInStock = product.inventory.quantity > 0
       if (filters.inStock !== isInStock) return false
     }
-    
+
     // Date range filter
     if (filters.dateRange) {
       const [startDate, endDate] = filters.dateRange
       const productDate = new Date(product.createdAt)
-      if (productDate < new Date(startDate) || productDate > new Date(endDate)) {
+      if (
+        productDate < new Date(startDate) ||
+        productDate > new Date(endDate)
+      ) {
         return false
       }
     }
-    
+
     return true
   })
 }
 
 // Products by collection selector
-export const selectProductsByCollection = (collectionId: string) => (state: RootState) => {
-  const products = selectAllProducts(state)
-  return products.filter(product => product.collections.includes(collectionId))
-}
+export const selectProductsByCollection =
+  (collectionId: string) => (state: RootState) => {
+    const products = selectAllProducts(state)
+    return products.filter((product) =>
+      product.collections.includes(collectionId)
+    )
+  }
 
 // Products by category selector
-export const selectProductsByCategory = (categoryId: string) => (state: RootState) => {
-  const products = selectAllProducts(state)
-  return products.filter(product => product.category === categoryId)
-}
+export const selectProductsByCategory =
+  (categoryId: string) => (state: RootState) => {
+    const products = selectAllProducts(state)
+    return products.filter((product) => product.category === categoryId)
+  }
 
 // Low stock products selector
 export const selectLowStockProducts = (state: RootState) => {
   const products = selectAllProducts(state)
-  return products.filter(product => {
+  return products.filter((product) => {
     if (!product.inventory.tracked) return false
     const threshold = product.inventory.lowStockThreshold || 10
     return product.inventory.quantity <= threshold
@@ -544,22 +592,26 @@ export const selectLowStockProducts = (state: RootState) => {
 // Category tree selector
 export const selectCategoryTree = (state: RootState) => {
   const categories = selectAllCategories(state)
-  const categoryMap = new Map(categories.map(cat => [cat.id, { ...cat, children: [] }]))
+  const categoryMap = new Map(
+    categories.map((cat) => [cat.id, { ...cat, children: [] as Category[] }])
+  )
   const rootCategories: Category[] = []
-  
-  categories.forEach(category => {
+
+  categories.forEach((category) => {
     const categoryWithChildren = categoryMap.get(category.id)!
     if (category.parentId) {
       const parent = categoryMap.get(category.parentId)
       if (parent) {
-        parent.children = parent.children || []
+        if (!parent.children) {
+          parent.children = []
+        }
         parent.children.push(categoryWithChildren)
       }
     } else {
       rootCategories.push(categoryWithChildren)
     }
   })
-  
+
   return rootCategories
 }
 

@@ -6,47 +6,21 @@ import { WebSocketService } from '../services/websocket.service'
 import { authenticate } from '../middleware/auth'
 import { validate } from '../middleware/validation'
 import { sendSuccess, sendCreated } from '../lib/api-response'
-import { AppError } from '../lib/errors'
-import { logger } from '../lib/logger'
 
 const router: Router = Router()
 
 // Validation schemas
-const getInventorySchema = z.object({
-  query: z.object({
-    locationId: z.string().optional(),
-    productIds: z.string().optional().transform(val => val ? val.split(',') : undefined),
-    lowStockOnly: z.string().optional().transform(val => val === 'true'),
-    includeZeroStock: z.string().optional().transform(val => val === 'true'),
-    page: z.string().optional().transform(val => val ? parseInt(val) : 1),
-    limit: z.string().optional().transform(val => val ? parseInt(val) : 50)
-  })
-})
-
-const updateStockSchema = z.object({
-  body: z.object({
-    quantity: z.number().int().min(0),
-    reason: z.string().optional()
-  })
-})
 
 const bulkUpdateSchema = z.object({
   body: z.object({
-    updates: z.array(z.object({
-      inventoryItemId: z.string(),
-      quantity: z.number().int().min(0),
-      reason: z.string().optional()
-    }))
-  })
-})
-
-const createReservationSchema = z.object({
-  body: z.object({
-    quantity: z.number().int().min(1),
-    reason: z.string().min(1),
-    referenceId: z.string().optional(),
-    expiresAt: z.string().optional().transform(val => val ? new Date(val) : undefined)
-  })
+    updates: z.array(
+      z.object({
+        inventoryItemId: z.string(),
+        quantity: z.number().int().min(0),
+        reason: z.string().optional(),
+      })
+    ),
+  }),
 })
 
 const adjustmentSchema = z.object({
@@ -57,65 +31,86 @@ const adjustmentSchema = z.object({
     notes: z.string().optional(),
     unitCost: z.number().optional(),
     referenceType: z.string().optional(),
-    referenceId: z.string().optional()
-  })
+    referenceId: z.string().optional(),
+  }),
 })
 
 const createTransferSchema = z.object({
   body: z.object({
     fromLocationId: z.string(),
     toLocationId: z.string(),
-    items: z.array(z.object({
-      productId: z.string().optional(),
-      variantId: z.string().optional(),
-      quantity: z.number().int().min(1)
-    })).min(1),
-    notes: z.string().optional()
-  })
+    items: z
+      .array(
+        z.object({
+          productId: z.string().optional(),
+          variantId: z.string().optional(),
+          quantity: z.number().int().min(1),
+        })
+      )
+      .min(1),
+    notes: z.string().optional(),
+  }),
 })
 
 const shipTransferSchema = z.object({
   body: z.object({
-    trackingNumber: z.string().optional()
-  })
+    trackingNumber: z.string().optional(),
+  }),
 })
 
 const receiveTransferSchema = z.object({
   body: z.object({
-    receivedItems: z.array(z.object({
-      transferItemId: z.string(),
-      quantityReceived: z.number().int().min(0)
-    })).min(1)
-  })
+    receivedItems: z
+      .array(
+        z.object({
+          transferItemId: z.string(),
+          quantityReceived: z.number().int().min(0),
+        })
+      )
+      .min(1),
+  }),
 })
 
 const updateThresholdSchema = z.object({
   body: z.object({
-    threshold: z.number().int().min(0)
-  })
+    threshold: z.number().int().min(0),
+  }),
 })
 
 const reportFiltersSchema = z.object({
   query: z.object({
-    locationIds: z.string().optional().transform(val => val ? val.split(',') : undefined),
-    productIds: z.string().optional().transform(val => val ? val.split(',') : undefined),
-    lowStockOnly: z.string().optional().transform(val => val === 'true'),
-    dateFrom: z.string().optional().transform(val => val ? new Date(val) : undefined),
-    dateTo: z.string().optional().transform(val => val ? new Date(val) : undefined)
-  })
+    locationIds: z
+      .string()
+      .optional()
+      .transform((val) => (val ? val.split(',') : undefined)),
+    productIds: z
+      .string()
+      .optional()
+      .transform((val) => (val ? val.split(',') : undefined)),
+    lowStockOnly: z
+      .string()
+      .optional()
+      .transform((val) => val === 'true'),
+    dateFrom: z
+      .string()
+      .optional()
+      .transform((val) => (val ? new Date(val) : undefined)),
+    dateTo: z
+      .string()
+      .optional()
+      .transform((val) => (val ? new Date(val) : undefined)),
+  }),
 })
 
 // Initialize services (these would typically be injected)
 let inventoryService: InventoryService
-let webSocketService: WebSocketService
 
 export const initializeInventoryRoutes = (
-  prisma: PrismaClient,
+  _prisma: PrismaClient,
   invService: InventoryService,
-  wsService: WebSocketService
+  _wsService: WebSocketService
 ) => {
   inventoryService = invService
-  webSocketService = wsService
 }
 
 // ============================================================================
@@ -165,35 +160,32 @@ export const initializeInventoryRoutes = (
  *       200:
  *         description: Inventory items retrieved successfully
  */
-router.get('/', 
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const { locationId, productIds, lowStockOnly, includeZeroStock, page, limit } = req.query as any
+router.get('/', authenticate, async (req, res, next) => {
+  try {
+    const { locationId, productIds, lowStockOnly, includeZeroStock } =
+      req.query as Record<string, unknown>
 
-      let inventory
-      if (locationId) {
-        inventory = await inventoryService.getInventoryByLocation(locationId, {
-          productIds,
-          lowStockOnly,
-          includeZeroStock
-        })
-      } else {
-        // Get all inventory with pagination
-        const skip = (page - 1) * limit
-        // This would need to be implemented in the service
-        inventory = await inventoryService.getInventoryReport({
-          productIds,
-          lowStockOnly
-        })
-      }
-
-      sendSuccess(res, inventory)
-    } catch (error) {
-      next(error)
+    let inventory
+    if (locationId) {
+      inventory = await inventoryService.getInventoryByLocation(locationId as string, {
+        productIds: productIds as string[] | undefined,
+        lowStockOnly: lowStockOnly as boolean | undefined,
+        includeZeroStock: includeZeroStock as boolean | undefined,
+      })
+    } else {
+      // Get all inventory with pagination
+      // This would need to be implemented in the service
+      inventory = await inventoryService.getInventoryReport({
+        productIds: productIds as string[] | undefined,
+        lowStockOnly: lowStockOnly as boolean | undefined,
+      })
     }
+
+    sendSuccess(res, inventory)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 /**
  * @swagger
@@ -217,25 +209,28 @@ router.get('/',
  *       200:
  *         description: Product inventory retrieved successfully
  */
-router.get('/product/:productId',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const { productId } = req.params
-      const { variantId } = req.query as any
+router.get('/product/:productId', authenticate, async (req, res, next) => {
+  try {
+    const { productId } = req.params
+    const { variantId } = req.query as Record<string, unknown>
 
-      const inventory = await inventoryService.getInventoryByProduct(productId, variantId)
-      const totals = await inventoryService.getTotalInventory(productId, variantId)
+    const inventory = await inventoryService.getInventoryByProduct(
+      productId,
+      variantId as string | undefined
+    )
+    const totals = await inventoryService.getTotalInventory(
+      productId,
+      variantId as string | undefined
+    )
 
-      sendSuccess(res, {
-        inventory,
-        totals
-      })
-    } catch (error) {
-      next(error)
-    }
+    sendSuccess(res, {
+      inventory,
+      totals,
+    })
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 /**
  * @swagger
@@ -269,27 +264,24 @@ router.get('/product/:productId',
  *       200:
  *         description: Stock level updated successfully
  */
-router.put('/:inventoryItemId/stock',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const { inventoryItemId } = req.params
-      const { quantity, reason } = req.body
-      const userId = (req as any).user.id
+router.put('/:inventoryItemId/stock', authenticate, async (req, res, next) => {
+  try {
+    const { inventoryItemId } = req.params
+    const { quantity, reason } = req.body
+    const userId = (req as { user: { id: string } }).user.id
 
-      const updatedItem = await inventoryService.updateStockLevel(
-        inventoryItemId,
-        quantity,
-        reason,
-        userId
-      )
+    const updatedItem = await inventoryService.updateStockLevel(
+      inventoryItemId,
+      quantity,
+      reason,
+      userId
+    )
 
-      sendSuccess(res, updatedItem)
-    } catch (error) {
-      next(error)
-    }
+    sendSuccess(res, updatedItem)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 /**
  * @swagger
@@ -327,26 +319,30 @@ router.put('/:inventoryItemId/stock',
  *       200:
  *         description: Bulk update completed
  */
-router.put('/bulk-update',
+router.put(
+  '/bulk-update',
   authenticate,
   validate({ body: bulkUpdateSchema.shape.body }),
   async (req, res, next) => {
     try {
       const { updates } = req.body
-      const userId = (req as any).user.id
+      const userId = (req as { user: { id: string } }).user.id
 
-      const results = await inventoryService.bulkUpdateStockLevels(updates, userId)
+      const results = await inventoryService.bulkUpdateStockLevels(
+        updates,
+        userId
+      )
 
-      const successCount = results.filter(r => r.success).length
-      const errorCount = results.filter(r => !r.success).length
+      const successCount = results.filter((r) => r.success).length
+      const errorCount = results.filter((r) => !r.success).length
 
       sendSuccess(res, {
         results,
         summary: {
           total: results.length,
           successful: successCount,
-          failed: errorCount
-        }
+          failed: errorCount,
+        },
       })
     } catch (error) {
       next(error)
@@ -396,7 +392,8 @@ router.put('/bulk-update',
  *       201:
  *         description: Reservation created successfully
  */
-router.post('/:inventoryItemId/reservations',
+router.post(
+  '/:inventoryItemId/reservations',
   authenticate,
   async (req, res, next) => {
     try {
@@ -408,7 +405,7 @@ router.post('/:inventoryItemId/reservations',
         quantity,
         reason,
         referenceId,
-        expiresAt
+        expiresAt,
       })
 
       sendCreated(res, reservation)
@@ -436,7 +433,8 @@ router.post('/:inventoryItemId/reservations',
  *       200:
  *         description: Reservation released successfully
  */
-router.delete('/reservations/:reservationId',
+router.delete(
+  '/reservations/:reservationId',
   authenticate,
   async (req, res, next) => {
     try {
@@ -481,14 +479,18 @@ router.delete('/reservations/:reservationId',
  *       200:
  *         description: Reservation fulfilled successfully
  */
-router.post('/reservations/:reservationId/fulfill',
+router.post(
+  '/reservations/:reservationId/fulfill',
   authenticate,
   async (req, res, next) => {
     try {
       const { reservationId } = req.params
       const { quantityFulfilled } = req.body
 
-      await inventoryService.fulfillReservation(reservationId, quantityFulfilled)
+      await inventoryService.fulfillReservation(
+        reservationId,
+        quantityFulfilled
+      )
 
       sendSuccess(res, null)
     } catch (error) {
@@ -545,14 +547,23 @@ router.post('/reservations/:reservationId/fulfill',
  *       201:
  *         description: Adjustment created successfully
  */
-router.post('/:inventoryItemId/adjustments',
+router.post(
+  '/:inventoryItemId/adjustments',
   authenticate,
   validate({ body: adjustmentSchema.shape.body }),
   async (req, res, next) => {
     try {
       const { inventoryItemId } = req.params
-      const { type, quantityChange, reason, notes, unitCost, referenceType, referenceId } = req.body
-      const userId = (req as any).user.id
+      const {
+        type,
+        quantityChange,
+        reason,
+        notes,
+        unitCost,
+        referenceType,
+        referenceId,
+      } = req.body
+      const userId = (req as { user: { id: string } }).user.id
 
       const adjustment = await inventoryService.createAdjustment({
         inventoryItemId,
@@ -563,7 +574,7 @@ router.post('/:inventoryItemId/adjustments',
         unitCost,
         referenceType,
         referenceId,
-        userId
+        userId,
       })
 
       sendCreated(res, adjustment)
@@ -601,17 +612,18 @@ router.post('/:inventoryItemId/adjustments',
  *       200:
  *         description: Movement history retrieved successfully
  */
-router.get('/:inventoryItemId/history',
+router.get(
+  '/:inventoryItemId/history',
   authenticate,
   async (req, res, next) => {
     try {
       const { inventoryItemId } = req.params
-      const { dateFrom, dateTo } = req.query as any
+      const { dateFrom, dateTo } = req.query as Record<string, unknown>
 
       const history = await inventoryService.getInventoryMovementHistory(
         inventoryItemId,
-        dateFrom ? new Date(dateFrom) : undefined,
-        dateTo ? new Date(dateTo) : undefined
+        dateFrom && typeof dateFrom === 'string' ? new Date(dateFrom) : undefined,
+        dateTo && typeof dateTo === 'string' ? new Date(dateTo) : undefined
       )
 
       sendSuccess(res, history)
@@ -666,20 +678,21 @@ router.get('/:inventoryItemId/history',
  *       201:
  *         description: Transfer created successfully
  */
-router.post('/transfers',
+router.post(
+  '/transfers',
   authenticate,
   validate({ body: createTransferSchema.shape.body }),
   async (req, res, next) => {
     try {
       const { fromLocationId, toLocationId, items, notes } = req.body
-      const userId = (req as any).user.id
+      const userId = (req as { user: { id: string } }).user.id
 
       const transfer = await inventoryService.createTransfer({
         fromLocationId,
         toLocationId,
         items,
         notes,
-        userId
+        userId,
       })
 
       sendCreated(res, transfer)
@@ -715,14 +728,15 @@ router.post('/transfers',
  *       200:
  *         description: Transfer shipped successfully
  */
-router.post('/transfers/:transferId/ship',
+router.post(
+  '/transfers/:transferId/ship',
   authenticate,
   validate({ body: shipTransferSchema.shape.body }),
   async (req, res, next) => {
     try {
       const { transferId } = req.params
       const { trackingNumber } = req.body
-      const userId = (req as any).user.id
+      const userId = (req as { user: { id: string } }).user.id
 
       await inventoryService.shipTransfer(transferId, trackingNumber, userId)
 
@@ -773,14 +787,15 @@ router.post('/transfers/:transferId/ship',
  *       200:
  *         description: Transfer received successfully
  */
-router.post('/transfers/:transferId/receive',
+router.post(
+  '/transfers/:transferId/receive',
   authenticate,
   validate({ body: receiveTransferSchema.shape.body }),
   async (req, res, next) => {
     try {
       const { transferId } = req.params
       const { receivedItems } = req.body
-      const userId = (req as any).user.id
+      const userId = (req as { user: { id: string } }).user.id
 
       await inventoryService.receiveTransfer(transferId, receivedItems, userId)
 
@@ -812,20 +827,17 @@ router.post('/transfers/:transferId/receive',
  *       200:
  *         description: Low stock items retrieved successfully
  */
-router.get('/low-stock',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const { locationId } = req.query as any
+router.get('/low-stock', authenticate, async (req, res, next) => {
+  try {
+    const { locationId } = req.query as Record<string, unknown>
 
-      const lowStockItems = await inventoryService.getLowStockItems(locationId)
+    const lowStockItems = await inventoryService.getLowStockItems(locationId as string | undefined)
 
-      sendSuccess(res, lowStockItems)
-    } catch (error) {
-      next(error)
-    }
+    sendSuccess(res, lowStockItems)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 /**
  * @swagger
@@ -857,7 +869,8 @@ router.get('/low-stock',
  *       200:
  *         description: Threshold updated successfully
  */
-router.put('/:inventoryItemId/threshold',
+router.put(
+  '/:inventoryItemId/threshold',
   authenticate,
   validate({ body: updateThresholdSchema.shape.body }),
   async (req, res, next) => {
@@ -865,7 +878,10 @@ router.put('/:inventoryItemId/threshold',
       const { inventoryItemId } = req.params
       const { threshold } = req.body
 
-      const updatedItem = await inventoryService.updateLowStockThreshold(inventoryItemId, threshold)
+      const updatedItem = await inventoryService.updateLowStockThreshold(
+        inventoryItemId,
+        threshold
+      )
 
       sendSuccess(res, updatedItem)
     } catch (error) {
@@ -915,19 +931,21 @@ router.put('/:inventoryItemId/threshold',
  *       200:
  *         description: Inventory report generated successfully
  */
-router.get('/reports',
+router.get(
+  '/reports',
   authenticate,
   validate({ query: reportFiltersSchema.shape.query }),
   async (req, res, next) => {
     try {
-      const { locationIds, productIds, lowStockOnly, dateFrom, dateTo } = req.query as any
+      const { locationIds, productIds, lowStockOnly, dateFrom, dateTo } =
+        req.query as Record<string, unknown>
 
       const report = await inventoryService.getInventoryReport({
-        locationIds,
-        productIds,
-        lowStockOnly,
-        dateFrom,
-        dateTo
+        locationIds: locationIds as string[] | undefined,
+        productIds: productIds as string[] | undefined,
+        lowStockOnly: lowStockOnly as boolean | undefined,
+        dateFrom: dateFrom as Date | undefined,
+        dateTo: dateTo as Date | undefined,
       })
 
       sendSuccess(res, report)
@@ -964,24 +982,24 @@ router.get('/reports',
  *       200:
  *         description: Inventory trends retrieved successfully
  */
-router.get('/trends',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const { locationId, productIds, days } = req.query as any
+router.get('/trends', authenticate, async (req, res, next) => {
+  try {
+    const { locationId, productIds, days } = req.query as Record<
+      string,
+      unknown
+    >
 
-      const trends = await inventoryService.getInventoryTrends(
-        locationId,
-        productIds ? productIds.split(',') : undefined,
-        days ? parseInt(days) : 30
-      )
+    const trends = await inventoryService.getInventoryTrends(
+      locationId as string | undefined,
+      productIds && typeof productIds === 'string' ? productIds.split(',') : undefined,
+      days && typeof days === 'string' ? parseInt(days) : 30
+    )
 
-      sendSuccess(res, trends)
-    } catch (error) {
-      next(error)
-    }
+    sendSuccess(res, trends)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 // ============================================================================
 // UTILITY ROUTES
@@ -999,17 +1017,14 @@ router.get('/trends',
  *       200:
  *         description: Expired reservations cleaned up
  */
-router.post('/cleanup-reservations',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      const cleanedCount = await inventoryService.cleanupExpiredReservations()
+router.post('/cleanup-reservations', authenticate, async (req, res, next) => {
+  try {
+    const cleanedCount = await inventoryService.cleanupExpiredReservations()
 
-      sendSuccess(res, { cleanedCount })
-    } catch (error) {
-      next(error)
-    }
+    sendSuccess(res, { cleanedCount })
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 export default router

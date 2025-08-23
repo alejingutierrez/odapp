@@ -14,7 +14,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Apply theme to document body for global styles
   useEffect(() => {
     const body = document.body
-    
+
     if (currentTheme === 'dark') {
       body.classList.add('dark-theme')
       body.classList.remove('light-theme')
@@ -26,7 +26,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Handle auto theme based on system preference
     if (currentTheme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      
+
       const handleChange = (e: MediaQueryListEvent) => {
         if (e.matches) {
           body.classList.add('dark-theme')
@@ -39,10 +39,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
       // Set initial theme
       handleChange({ matches: mediaQuery.matches } as MediaQueryListEvent)
-      
+
       // Listen for changes
       mediaQuery.addEventListener('change', handleChange)
-      
+
       return () => {
         mediaQuery.removeEventListener('change', handleChange)
       }
@@ -52,7 +52,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Determine effective theme
   const getEffectiveTheme = () => {
     if (currentTheme === 'auto') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
     }
     return currentTheme
   }
@@ -61,7 +63,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Ant Design theme configuration
   const themeConfig = {
-    algorithm: effectiveTheme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    algorithm:
+      effectiveTheme === 'dark'
+        ? antdTheme.darkAlgorithm
+        : antdTheme.defaultAlgorithm,
     token: {
       colorPrimary: primaryColor,
       borderRadius: 6,
@@ -72,7 +77,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       colorError: '#ff4d4f',
       colorInfo: '#1890ff',
       // Typography
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily:
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: 14,
       fontSizeHeading1: 38,
       fontSizeHeading2: 30,
@@ -144,9 +150,5 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     },
   }
 
-  return (
-    <ConfigProvider theme={themeConfig}>
-      {children}
-    </ConfigProvider>
-  )
+  return <ConfigProvider theme={themeConfig}>{children}</ConfigProvider>
 }

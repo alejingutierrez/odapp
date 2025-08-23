@@ -35,10 +35,13 @@ export class EmailService {
         host: env.SMTP_HOST,
         port: env.SMTP_PORT,
         secure: env.SMTP_PORT === 465, // true for 465, false for other ports
-        auth: env.SMTP_USER && env.SMTP_PASS ? {
-          user: env.SMTP_USER,
-          pass: env.SMTP_PASS
-        } : undefined
+        auth:
+          env.SMTP_USER && env.SMTP_PASS
+            ? {
+                user: env.SMTP_USER,
+                pass: env.SMTP_PASS,
+              }
+            : undefined,
       })
 
       // Verify connection
@@ -64,7 +67,7 @@ export class EmailService {
         to: options.to,
         subject: options.subject,
         html: options.html,
-        text: options.text
+        text: options.text,
       })
 
       console.log('Email sent successfully:', result.messageId)
@@ -89,7 +92,7 @@ export class EmailService {
       to: email,
       subject: 'Verify your email address - Oda Fashion Platform',
       html,
-      text
+      text,
     })
   }
 
@@ -107,7 +110,7 @@ export class EmailService {
       to: email,
       subject: 'Reset your password - Oda Fashion Platform',
       html,
-      text
+      text,
     })
   }
 
@@ -125,7 +128,7 @@ export class EmailService {
       to: email,
       subject: 'Welcome to Oda Fashion Platform',
       html,
-      text
+      text,
     })
   }
 
@@ -143,7 +146,7 @@ export class EmailService {
       to: email,
       subject: 'Two-Factor Authentication Enabled - Oda Fashion Platform',
       html,
-      text
+      text,
     })
   }
 
@@ -162,14 +165,16 @@ export class EmailService {
       to: email,
       subject: 'Account Temporarily Locked - Oda Fashion Platform',
       html,
-      text
+      text,
     })
   }
 
   /**
    * Generate email verification HTML template
    */
-  private static generateEmailVerificationHTML(data: EmailVerificationData): string {
+  private static generateEmailVerificationHTML(
+    data: EmailVerificationData
+  ): string {
     return `
       <!DOCTYPE html>
       <html>
@@ -222,7 +227,9 @@ export class EmailService {
   /**
    * Generate email verification text template
    */
-  private static generateEmailVerificationText(data: EmailVerificationData): string {
+  private static generateEmailVerificationText(
+    data: EmailVerificationData
+  ): string {
     return `
 Hello ${data.userName}!
 
@@ -473,7 +480,10 @@ Oda Fashion Platform Team
   /**
    * Generate account locked HTML template
    */
-  private static generateAccountLockedHTML(userName: string, unlockTime: Date): string {
+  private static generateAccountLockedHTML(
+    userName: string,
+    unlockTime: Date
+  ): string {
     return `
       <!DOCTYPE html>
       <html>
@@ -522,7 +532,10 @@ Oda Fashion Platform Team
   /**
    * Generate account locked text template
    */
-  private static generateAccountLockedText(userName: string, unlockTime: Date): string {
+  private static generateAccountLockedText(
+    userName: string,
+    unlockTime: Date
+  ): string {
     return `
 Hello ${userName}!
 

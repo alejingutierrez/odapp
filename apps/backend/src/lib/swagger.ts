@@ -386,7 +386,8 @@ const swaggerOptions: swaggerJSDoc.Options = {
         SortParam: {
           name: 'sort',
           in: 'query',
-          description: 'Sort field and direction (e.g., name:asc, createdAt:desc)',
+          description:
+            'Sort field and direction (e.g., name:asc, createdAt:desc)',
           required: false,
           schema: {
             type: 'string',
@@ -543,7 +544,8 @@ const swaggerOptions: swaggerJSDoc.Options = {
                       },
                       message: {
                         type: 'string',
-                        example: 'Too many requests from this IP, please try again later.',
+                        example:
+                          'Too many requests from this IP, please try again later.',
                       },
                       timestamp: {
                         type: 'string',
@@ -627,11 +629,7 @@ const swaggerOptions: swaggerJSDoc.Options = {
       },
     ],
   },
-  apis: [
-    './src/routes/*.ts',
-    './src/routes/**/*.ts',
-    './src/middleware/*.ts',
-  ],
+  apis: ['./src/routes/*.ts', './src/routes/**/*.ts', './src/middleware/*.ts'],
 }
 
 /**
@@ -667,8 +665,12 @@ const swaggerUiOptions: swaggerUi.SwaggerUiOptions = {
  */
 export const setupSwagger = (app: Express): void => {
   // Serve Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions))
-  
+  app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+  )
+
   // Serve raw OpenAPI spec
   app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json')

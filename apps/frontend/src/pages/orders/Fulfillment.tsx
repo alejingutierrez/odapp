@@ -5,7 +5,9 @@ const Fulfillment: React.FC = () => {
   return (
     <div>
       <Typography.Title level={2}>Order Fulfillment</Typography.Title>
-      <Card><p>Order Fulfillment page will be implemented here...</p></Card>
+      <Card>
+        <p>Order Fulfillment page will be implemented here...</p>
+      </Card>
     </div>
   )
 }

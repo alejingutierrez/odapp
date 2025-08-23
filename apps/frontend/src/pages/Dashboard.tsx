@@ -25,12 +25,12 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <Title level={2}>Dashboard</Title>
-      
+
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Total Products"
+              title='Total Products'
               value={1128}
               prefix={<ShoppingOutlined />}
               valueStyle={{ color: '#3f8600' }}
@@ -43,11 +43,11 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        
+
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Low Stock Items"
+              title='Low Stock Items'
               value={23}
               prefix={<InboxOutlined />}
               valueStyle={{ color: '#cf1322' }}
@@ -60,11 +60,11 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        
+
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Pending Orders"
+              title='Pending Orders'
               value={45}
               prefix={<ShoppingCartOutlined />}
               valueStyle={{ color: '#1890ff' }}
@@ -77,11 +77,11 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        
+
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Active Customers"
+              title='Active Customers'
               value={892}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#722ed1' }}
@@ -98,13 +98,13 @@ const Dashboard: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
         <Col xs={24} lg={12}>
-          <Card title="Recent Activity" size="small">
+          <Card title='Recent Activity' size='small'>
             <p>Recent activity content will go here...</p>
           </Card>
         </Col>
-        
+
         <Col xs={24} lg={12}>
-          <Card title="Quick Actions" size="small">
+          <Card title='Quick Actions' size='small'>
             <p>Quick action buttons will go here...</p>
           </Card>
         </Col>

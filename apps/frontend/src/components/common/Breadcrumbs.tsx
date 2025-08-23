@@ -57,7 +57,7 @@ const generateBreadcrumbs = (pathname: string) => {
   // Always include home
   breadcrumbs.push({
     title: (
-      <Link to="/">
+      <Link to='/'>
         <HomeOutlined style={{ marginRight: '4px' }} />
         Dashboard
       </Link>
@@ -69,19 +69,23 @@ const generateBreadcrumbs = (pathname: string) => {
   pathSegments.forEach((segment, index) => {
     currentPath += `/${segment}`
     const config = routeConfig[currentPath]
-    
+
     if (config) {
       const isLast = index === pathSegments.length - 1
-      
+
       breadcrumbs.push({
         title: isLast ? (
           <span>
-            {config.icon && <span style={{ marginRight: '4px' }}>{config.icon}</span>}
+            {config.icon && (
+              <span style={{ marginRight: '4px' }}>{config.icon}</span>
+            )}
             {config.label}
           </span>
         ) : (
           <Link to={currentPath}>
-            {config.icon && <span style={{ marginRight: '4px' }}>{config.icon}</span>}
+            {config.icon && (
+              <span style={{ marginRight: '4px' }}>{config.icon}</span>
+            )}
             {config.label}
           </Link>
         ),
@@ -90,7 +94,7 @@ const generateBreadcrumbs = (pathname: string) => {
       // Handle dynamic routes (e.g., /products/:id)
       const isLast = index === pathSegments.length - 1
       const label = segment.charAt(0).toUpperCase() + segment.slice(1)
-      
+
       breadcrumbs.push({
         title: isLast ? (
           <span>{label}</span>
@@ -116,10 +120,5 @@ export const Breadcrumbs: React.FC = () => {
     return null
   }
 
-  return (
-    <Breadcrumb
-      items={breadcrumbItems}
-      style={{ fontSize: '14px' }}
-    />
-  )
+  return <Breadcrumb items={breadcrumbItems} style={{ fontSize: '14px' }} />
 }

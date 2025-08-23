@@ -10,14 +10,18 @@ describe('Authentication Unit Tests', () => {
     // Clean up test data
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'unit-test' } } })
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'unit-test' } },
+    })
   })
 
   afterAll(async () => {
     // Clean up test data
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'unit-test' } } })
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'unit-test' } },
+    })
     await prisma.$disconnect()
   })
 
@@ -26,7 +30,7 @@ describe('Authentication Unit Tests', () => {
       it('should hash password correctly', async () => {
         const password = 'TestPassword123!'
         const hash = await AuthService.hashPassword(password)
-        
+
         expect(hash).toBeTruthy()
         expect(hash).not.toBe(password)
         expect(hash.length).toBeGreaterThan(50)
@@ -35,11 +39,14 @@ describe('Authentication Unit Tests', () => {
       it('should verify password correctly', async () => {
         const password = 'TestPassword123!'
         const hash = await AuthService.hashPassword(password)
-        
+
         const isValid = await AuthService.verifyPassword(password, hash)
         expect(isValid).toBe(true)
-        
-        const isInvalid = await AuthService.verifyPassword('WrongPassword', hash)
+
+        const isInvalid = await AuthService.verifyPassword(
+          'WrongPassword',
+          hash
+        )
         expect(isInvalid).toBe(false)
       })
     })
@@ -48,7 +55,7 @@ describe('Authentication Unit Tests', () => {
       it('should generate secure tokens', () => {
         const token1 = AuthService.generateSecureToken()
         const token2 = AuthService.generateSecureToken()
-        
+
         expect(token1).toBeTruthy()
         expect(token2).toBeTruthy()
         expect(token1).not.toBe(token2)
@@ -84,18 +91,20 @@ describe('Authentication Unit Tests', () => {
             firstName: 'Unit',
             lastName: 'Test',
             passwordHash: await AuthService.hashPassword('TestPassword123!'),
-            emailVerified: true
-          }
+            emailVerified: true,
+          },
         })
 
         // Assign role
-        const userRole = await prisma.role.findUnique({ where: { name: 'employee' } })
+        const userRole = await prisma.role.findUnique({
+          where: { name: 'employee' },
+        })
         if (userRole) {
           await prisma.userRole.create({
             data: {
               userId: testUser.id,
-              roleId: userRole.id
-            }
+              roleId: userRole.id,
+            },
           })
         }
       })
@@ -109,7 +118,7 @@ describe('Authentication Unit Tests', () => {
 
       it('should get user with roles', async () => {
         const user = await AuthService.getUserWithRoles(testUser.id)
-        
+
         expect(user).toBeTruthy()
         expect(user?.email).toBe('unit-test@example.com')
         expect(user?.roles).toBeTruthy()
@@ -117,8 +126,10 @@ describe('Authentication Unit Tests', () => {
       })
 
       it('should get user by email with roles', async () => {
-        const user = await AuthService.getUserByEmailWithRoles('unit-test@example.com')
-        
+        const user = await AuthService.getUserByEmailWithRoles(
+          'unit-test@example.com'
+        )
+
         expect(user).toBeTruthy()
         expect(user?.id).toBe(testUser.id)
         expect(user?.roles).toBeTruthy()
@@ -127,25 +138,31 @@ describe('Authentication Unit Tests', () => {
 
       it('should check permissions correctly', async () => {
         const user = await AuthService.getUserWithRoles(testUser.id)
-        
+
         if (user) {
           // Employee role should have products:read permission
-          const hasProductsRead = AuthService.hasPermission(user, 'products:read')
+          const hasProductsRead = AuthService.hasPermission(
+            user,
+            'products:read'
+          )
           expect(hasProductsRead).toBe(true)
-          
+
           // Employee role should not have admin permissions
-          const hasAdminPermission = AuthService.hasPermission(user, 'users:delete')
+          const hasAdminPermission = AuthService.hasPermission(
+            user,
+            'users:delete'
+          )
           expect(hasAdminPermission).toBe(false)
         }
       })
 
       it('should check roles correctly', async () => {
         const user = await AuthService.getUserWithRoles(testUser.id)
-        
+
         if (user) {
           const hasEmployeeRole = AuthService.hasRole(user, 'employee')
           expect(hasEmployeeRole).toBe(true)
-          
+
           const hasAdminRole = AuthService.hasRole(user, 'admin')
           expect(hasAdminRole).toBe(false)
         }
@@ -164,21 +181,27 @@ describe('Authentication Unit Tests', () => {
             firstName: 'Session',
             lastName: 'Test',
             passwordHash: await AuthService.hashPassword('TestPassword123!'),
-            emailVerified: true
-          }
+            emailVerified: true,
+          },
         })
       })
 
       afterAll(async () => {
         if (testUser) {
-          await prisma.userSession.deleteMany({ where: { userId: testUser.id } })
+          await prisma.userSession.deleteMany({
+            where: { userId: testUser.id },
+          })
           await prisma.user.delete({ where: { id: testUser.id } })
         }
       })
 
       it('should create session', async () => {
-        session = await AuthService.createSession(testUser.id, '127.0.0.1', 'test-agent')
-        
+        session = await AuthService.createSession(
+          testUser.id,
+          '127.0.0.1',
+          'test-agent'
+        )
+
         expect(session).toBeTruthy()
         expect(session.userId).toBe(testUser.id)
         expect(session.ipAddress).toBe('127.0.0.1')
@@ -189,33 +212,33 @@ describe('Authentication Unit Tests', () => {
 
       it('should validate session', async () => {
         const user = await AuthService.validateSession(session.id)
-        
+
         expect(user).toBeTruthy()
         expect(user?.id).toBe(testUser.id)
       })
 
       it('should update session last used', async () => {
         const originalLastUsed = session.lastUsedAt
-        
+
         // Wait a bit to ensure timestamp difference
-        await new Promise(resolve => setTimeout(resolve, 10))
-        
+        await new Promise((resolve) => setTimeout(resolve, 10))
+
         await AuthService.updateSessionLastUsed(session.id)
-        
+
         const updatedSession = await prisma.userSession.findUnique({
-          where: { id: session.id }
+          where: { id: session.id },
         })
-        
+
         expect(updatedSession?.lastUsedAt).not.toEqual(originalLastUsed)
       })
 
       it('should revoke session', async () => {
         await AuthService.revokeSession(session.id)
-        
+
         const revokedSession = await prisma.userSession.findUnique({
-          where: { id: session.id }
+          where: { id: session.id },
         })
-        
+
         expect(revokedSession).toBeNull()
       })
     })
@@ -231,8 +254,8 @@ describe('Authentication Unit Tests', () => {
             lastName: 'Test',
             passwordHash: await AuthService.hashPassword('TestPassword123!'),
             emailVerified: true,
-            loginAttempts: 0
-          }
+            loginAttempts: 0,
+          },
         })
       })
 
@@ -254,11 +277,11 @@ describe('Authentication Unit Tests', () => {
 
       it('should reset login attempts', async () => {
         await AuthService.resetLoginAttempts(testUser.id)
-        
+
         const user = await prisma.user.findUnique({
-          where: { id: testUser.id }
+          where: { id: testUser.id },
         })
-        
+
         expect(user?.loginAttempts).toBe(0)
         expect(user?.lastLoginAt).toBeTruthy()
       })
@@ -268,11 +291,11 @@ describe('Authentication Unit Tests', () => {
         for (let i = 0; i < 5; i++) {
           await AuthService.incrementLoginAttempts(testUser.id)
         }
-        
+
         const user = await prisma.user.findUnique({
-          where: { id: testUser.id }
+          where: { id: testUser.id },
         })
-        
+
         expect(user?.lockedUntil).toBeTruthy()
         expect(AuthService.isAccountLocked(user!)).toBe(true)
       })
@@ -284,7 +307,7 @@ describe('Authentication Unit Tests', () => {
       it('should generate TOTP setup data', () => {
         const email = 'test@example.com'
         const setup = TwoFactorService.generateTOTPSecret(email)
-        
+
         expect(setup.secret).toBeTruthy()
         expect(setup.qrCodeUrl).toBeTruthy()
         expect(setup.backupCodes).toBeTruthy()
@@ -295,7 +318,7 @@ describe('Authentication Unit Tests', () => {
 
       it('should verify TOTP token', () => {
         const secret = 'JBSWY3DPEHPK3PXP'
-        
+
         // This test is time-dependent, so we'll just test the function exists
         // and doesn't throw an error
         expect(() => {
@@ -307,7 +330,7 @@ describe('Authentication Unit Tests', () => {
     describe('SMS Code Generation', () => {
       it('should generate 6-digit SMS code', () => {
         const code = TwoFactorService.generateSMSCode()
-        
+
         expect(code).toBeTruthy()
         expect(code.length).toBe(6)
         expect(/^\d{6}$/.test(code)).toBe(true)
@@ -316,7 +339,7 @@ describe('Authentication Unit Tests', () => {
       it('should generate different codes', () => {
         const code1 = TwoFactorService.generateSMSCode()
         const code2 = TwoFactorService.generateSMSCode()
-        
+
         // While theoretically possible to be the same, it's extremely unlikely
         expect(code1).not.toBe(code2)
       })
@@ -325,11 +348,11 @@ describe('Authentication Unit Tests', () => {
     describe('Backup Codes', () => {
       it('should generate backup codes', () => {
         const codes = TwoFactorService.generateBackupCodes()
-        
+
         expect(Array.isArray(codes)).toBe(true)
         expect(codes.length).toBe(10)
-        
-        codes.forEach(code => {
+
+        codes.forEach((code) => {
           expect(code).toBeTruthy()
           expect(code.length).toBe(8)
           expect(/^[A-F0-9]{8}$/.test(code)).toBe(true)
@@ -339,14 +362,14 @@ describe('Authentication Unit Tests', () => {
       it('should generate unique backup codes', () => {
         const codes = TwoFactorService.generateBackupCodes()
         const uniqueCodes = new Set(codes)
-        
+
         expect(uniqueCodes.size).toBe(codes.length)
       })
 
       it('should generate different sets of codes', () => {
         const codes1 = TwoFactorService.generateBackupCodes()
         const codes2 = TwoFactorService.generateBackupCodes()
-        
+
         expect(codes1).not.toEqual(codes2)
       })
     })
@@ -362,8 +385,8 @@ describe('Authentication Unit Tests', () => {
             lastName: 'Test',
             passwordHash: await AuthService.hashPassword('TestPassword123!'),
             emailVerified: true,
-            twoFactorEnabled: false
-          }
+            twoFactorEnabled: false,
+          },
         })
       })
 
@@ -380,7 +403,7 @@ describe('Authentication Unit Tests', () => {
 
       it('should get 2FA status', async () => {
         const status = await TwoFactorService.getTwoFactorStatus(testUser.id)
-        
+
         expect(status).toBeTruthy()
         expect(status.enabled).toBe(false)
         expect(status.hasSecret).toBe(false)

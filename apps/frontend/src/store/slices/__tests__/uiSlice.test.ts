@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, type Reducer } from '@reduxjs/toolkit'
 import uiReducer, {
   toggleSidebar,
   setSidebarCollapsed,
@@ -40,16 +40,16 @@ import uiReducer, {
 } from '../uiSlice'
 
 const createTestStore = (initialState?: Partial<UIState>) => {
-  return configureStore({
+  const store = configureStore({
     reducer: {
-      ui: uiReducer,
+      ui: uiReducer as Reducer<UIState>,
     },
     preloadedState: {
       ui: {
         sidebarCollapsed: false,
         sidebarWidth: 256,
         headerHeight: 64,
-        theme: 'light',
+        theme: 'light' as const,
         primaryColor: '#1890ff',
         modals: {
           productCreate: { id: 'productCreate', isOpen: false },
@@ -80,10 +80,10 @@ const createTestStore = (initialState?: Partial<UIState>) => {
         pageTitle: '',
         globalSearch: '',
         activeFilters: {},
-        viewMode: 'grid',
+        viewMode: 'grid' as const,
         pageSize: 20,
         sortBy: 'createdAt',
-        sortOrder: 'desc',
+        sortOrder: 'desc' as const,
         isOnline: true,
         websocketConnected: false,
         errorBoundaries: {},
@@ -91,7 +91,15 @@ const createTestStore = (initialState?: Partial<UIState>) => {
       },
     },
   })
+  
+  return {
+    ...store,
+    getState: () => ({ ui: store.getState().ui }),
+    dispatch: store.dispatch
+  }
 }
+
+
 
 describe('uiSlice', () => {
   describe('layout actions', () => {
@@ -99,30 +107,30 @@ describe('uiSlice', () => {
       const store = createTestStore({ sidebarCollapsed: false })
 
       store.dispatch(toggleSidebar())
-      expect(store.getState().ui.sidebarCollapsed).toBe(true)
+      expect((store.getState() as { ui: UIState }).ui.sidebarCollapsed).toBe(true)
 
       store.dispatch(toggleSidebar())
-      expect(store.getState().ui.sidebarCollapsed).toBe(false)
+      expect((store.getState() as { ui: UIState }).ui.sidebarCollapsed).toBe(false)
     })
 
     it('should set sidebar collapsed state', () => {
       const store = createTestStore()
 
       store.dispatch(setSidebarCollapsed(true))
-      expect(store.getState().ui.sidebarCollapsed).toBe(true)
+      expect((store.getState() as { ui: UIState }).ui.sidebarCollapsed).toBe(true)
 
       store.dispatch(setSidebarCollapsed(false))
-      expect(store.getState().ui.sidebarCollapsed).toBe(false)
+      expect((store.getState() as { ui: UIState }).ui.sidebarCollapsed).toBe(false)
     })
 
     it('should set theme', () => {
       const store = createTestStore()
 
       store.dispatch(setTheme('dark'))
-      expect(store.getState().ui.theme).toBe('dark')
+      expect((store.getState() as { ui: UIState }).ui.theme).toBe('dark')
 
       store.dispatch(setTheme('auto'))
-      expect(store.getState().ui.theme).toBe('auto')
+      expect((store.getState() as { ui: UIState }).ui.theme).toBe('auto')
     })
   })
 
@@ -133,7 +141,7 @@ describe('uiSlice', () => {
 
       store.dispatch(openModal({ modalId: 'productEdit', data: modalData }))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.modals.productEdit.isOpen).toBe(true)
       expect(state.modals.productEdit.data).toEqual(modalData)
     })
@@ -142,7 +150,11 @@ describe('uiSlice', () => {
       const store = createTestStore({
         modals: {
           productCreate: { id: 'productCreate', isOpen: false },
-          productEdit: { id: 'productEdit', isOpen: true, data: { productId: '123' } },
+          productEdit: {
+            id: 'productEdit',
+            isOpen: true,
+            data: { productId: '123' },
+          },
           productDelete: { id: 'productDelete', isOpen: false },
           orderDetail: { id: 'orderDetail', isOpen: false },
           orderCreate: { id: 'orderCreate', isOpen: false },
@@ -157,7 +169,7 @@ describe('uiSlice', () => {
 
       store.dispatch(closeModal('productEdit'))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.modals.productEdit.isOpen).toBe(false)
       expect(state.modals.productEdit.data).toBeUndefined()
     })
@@ -181,8 +193,8 @@ describe('uiSlice', () => {
 
       store.dispatch(closeAllModals())
 
-      const state = store.getState().ui
-      Object.values(state.modals).forEach(modal => {
+      const state = (store.getState() as { ui: UIState }).ui
+      Object.values(state.modals).forEach((modal: { isOpen: boolean; data?: unknown }) => {
         expect(modal.isOpen).toBe(false)
         expect(modal.data).toBeUndefined()
       })
@@ -194,10 +206,10 @@ describe('uiSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setLoading({ key: 'products', loading: true }))
-      expect(store.getState().ui.loading.products).toBe(true)
+      expect((store.getState() as { ui: UIState }).ui.loading.products).toBe(true)
 
       store.dispatch(setLoading({ key: 'products', loading: false }))
-      expect(store.getState().ui.loading.products).toBe(false)
+      expect((store.getState() as { ui: UIState }).ui.loading.products).toBe(false)
     })
   })
 
@@ -212,7 +224,7 @@ describe('uiSlice', () => {
 
       store.dispatch(addNotification(notification))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.notifications).toHaveLength(1)
       expect(state.notifications[0]).toMatchObject(notification)
       expect(state.notifications[0].id).toBeDefined()
@@ -238,7 +250,7 @@ describe('uiSlice', () => {
 
       store.dispatch(removeNotification('test-notification'))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.notifications).toHaveLength(0)
       expect(state.unreadNotificationCount).toBe(0)
     })
@@ -260,7 +272,7 @@ describe('uiSlice', () => {
 
       store.dispatch(markNotificationAsRead('test-notification'))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.notifications[0].read).toBe(true)
       expect(state.unreadNotificationCount).toBe(0)
     })
@@ -292,8 +304,8 @@ describe('uiSlice', () => {
 
       store.dispatch(markAllNotificationsAsRead())
 
-      const state = store.getState().ui
-      expect(state.notifications.every(n => n.read)).toBe(true)
+      const state = (store.getState() as { ui: UIState }).ui
+      expect(state.notifications.every((n: { read: boolean }) => n.read)).toBe(true)
       expect(state.unreadNotificationCount).toBe(0)
     })
 
@@ -316,7 +328,7 @@ describe('uiSlice', () => {
 
       store.dispatch(clearNotifications())
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.notifications).toHaveLength(0)
       expect(state.unreadNotificationCount).toBe(0)
     })
@@ -327,7 +339,7 @@ describe('uiSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setCurrentPage('products'))
-      expect(store.getState().ui.currentPage).toBe('products')
+      expect((store.getState() as { ui: UIState }).ui.currentPage).toBe('products')
     })
 
     it('should set breadcrumbs', () => {
@@ -339,7 +351,7 @@ describe('uiSlice', () => {
       ]
 
       store.dispatch(setBreadcrumbs(breadcrumbs))
-      expect(store.getState().ui.breadcrumbs).toEqual(breadcrumbs)
+      expect((store.getState() as { ui: UIState }).ui.breadcrumbs).toEqual(breadcrumbs)
     })
   })
 
@@ -348,7 +360,7 @@ describe('uiSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setGlobalSearch('test search'))
-      expect(store.getState().ui.globalSearch).toBe('test search')
+      expect((store.getState() as { ui: UIState }).ui.globalSearch).toBe('test search')
     })
 
     it('should set active filters', () => {
@@ -356,7 +368,7 @@ describe('uiSlice', () => {
       const filters = { status: 'active', category: 'electronics' }
 
       store.dispatch(setActiveFilters(filters))
-      expect(store.getState().ui.activeFilters).toEqual(filters)
+      expect((store.getState() as { ui: UIState }).ui.activeFilters).toEqual(filters)
     })
 
     it('should add filter', () => {
@@ -364,7 +376,7 @@ describe('uiSlice', () => {
 
       store.dispatch(addFilter({ key: 'category', value: 'electronics' }))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.activeFilters).toEqual({
         status: 'active',
         category: 'electronics',
@@ -378,7 +390,7 @@ describe('uiSlice', () => {
 
       store.dispatch(removeFilter('category'))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.activeFilters).toEqual({ status: 'active' })
     })
 
@@ -388,7 +400,7 @@ describe('uiSlice', () => {
       })
 
       store.dispatch(clearFilters())
-      expect(store.getState().ui.activeFilters).toEqual({})
+      expect((store.getState() as { ui: UIState }).ui.activeFilters).toEqual({})
     })
   })
 
@@ -397,7 +409,7 @@ describe('uiSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setViewMode('list'))
-      expect(store.getState().ui.viewMode).toBe('list')
+      expect((store.getState() as { ui: UIState }).ui.viewMode).toBe('list')
     })
 
     it('should set sorting', () => {
@@ -406,7 +418,7 @@ describe('uiSlice', () => {
 
       store.dispatch(setSorting(sorting))
 
-      const state = store.getState().ui
+      const state = (store.getState() as { ui: UIState }).ui
       expect(state.sortBy).toBe('name')
       expect(state.sortOrder).toBe('asc')
     })
@@ -417,36 +429,38 @@ describe('uiSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setOnlineStatus(false))
-      expect(store.getState().ui.isOnline).toBe(false)
+      expect((store.getState() as { ui: UIState }).ui.isOnline).toBe(false)
 
       store.dispatch(setOnlineStatus(true))
-      expect(store.getState().ui.isOnline).toBe(true)
+      expect((store.getState() as { ui: UIState }).ui.isOnline).toBe(true)
     })
 
     it('should set websocket status', () => {
       const store = createTestStore()
 
       store.dispatch(setWebSocketStatus(true))
-      expect(store.getState().ui.websocketConnected).toBe(true)
+      expect((store.getState() as { ui: UIState }).ui.websocketConnected).toBe(true)
 
       store.dispatch(setWebSocketStatus(false))
-      expect(store.getState().ui.websocketConnected).toBe(false)
+      expect((store.getState() as { ui: UIState }).ui.websocketConnected).toBe(false)
     })
   })
 
   describe('selectors', () => {
     it('should select sidebar collapsed state', () => {
       const store = createTestStore({ sidebarCollapsed: true })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectSidebarCollapsed(state)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectSidebarCollapsed(state as any)).toBe(true)
     })
 
     it('should select theme', () => {
       const store = createTestStore({ theme: 'dark' })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectTheme(state)).toBe('dark')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectTheme(state as any)).toBe('dark')
     })
 
     it('should select modal state', () => {
@@ -465,9 +479,10 @@ describe('uiSlice', () => {
           shopifySync: { id: 'shopifySync', isOpen: false },
         },
       })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      const productEditModal = selectModal('productEdit')(state)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const productEditModal = selectModal("productEdit")(state as any)
       expect(productEditModal.isOpen).toBe(true)
       expect(productEditModal.data).toEqual({ id: '123' })
     })
@@ -484,10 +499,12 @@ describe('uiSlice', () => {
           shopify: false,
         },
       })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectLoading('products')(state)).toBe(true)
-      expect(selectLoading('inventory')(state)).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectLoading("products")(state as any)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectLoading("products")(state as any)).toBe(false)
     })
 
     it('should select notifications', () => {
@@ -502,35 +519,48 @@ describe('uiSlice', () => {
         },
       ]
 
-      const store = createTestStore({ notifications, unreadNotificationCount: 1 })
-      const state = store.getState()
+      const store = createTestStore({
+        notifications,
+        unreadNotificationCount: 1,
+      })
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectNotifications(state)).toEqual(notifications)
-      expect(selectUnreadNotificationCount(state)).toBe(1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectNotifications(state as any)).toEqual(notifications)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectUnreadNotificationCount(state as any)).toBe(1)
     })
 
     it('should select global search', () => {
       const store = createTestStore({ globalSearch: 'test search' })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectGlobalSearch(state)).toBe('test search')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectGlobalSearch(state as any)).toBe('test search')
     })
 
     it('should select active filters', () => {
       const filters = { status: 'active', category: 'electronics' }
       const store = createTestStore({ activeFilters: filters })
-      const state = store.getState()
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectActiveFilters(state)).toEqual(filters)
-      expect(selectHasActiveFilters(state)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectActiveFilters(state as any)).toEqual(filters)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectHasActiveFilters(state as any)).toBe(true)
     })
 
     it('should select connection status', () => {
-      const store = createTestStore({ isOnline: true, websocketConnected: false })
-      const state = store.getState()
+      const store = createTestStore({
+        isOnline: true,
+        websocketConnected: false,
+      })
+      const state = store.getState() as { ui: UIState }
 
-      expect(selectIsOnline(state)).toBe(true)
-      expect(selectWebSocketConnected(state)).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectIsOnline(state as any)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectWebSocketConnected(state as any)).toBe(false)
     })
   })
 })

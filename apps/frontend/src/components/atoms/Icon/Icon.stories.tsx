@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { 
-  Icon, 
-  SearchIcon, 
-  EditIcon, 
-  DeleteIcon, 
-  PlusIcon, 
-  MinusIcon, 
-  CloseIcon, 
-  CheckIcon, 
-  WarningIcon, 
-  InfoIcon, 
-  LoadingIcon 
+import {
+  Icon,
+  SearchIcon,
+  EditIcon,
+  DeleteIcon,
+  PlusIcon,
+  MinusIcon,
+  CloseIcon,
+  CheckIcon,
+  WarningIcon,
+  InfoIcon,
+  LoadingIcon,
 } from './Icon'
 
 const meta: Meta<typeof Icon> = {
@@ -20,7 +20,8 @@ const meta: Meta<typeof Icon> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Icon component for displaying Ant Design icons with consistent sizing, colors, and interactive states.',
+        component:
+          'Icon component for displaying Ant Design icons with consistent sizing, colors, and interactive states.',
       },
     },
   },
@@ -59,7 +60,15 @@ const meta: Meta<typeof Icon> = {
     },
     color: {
       control: { type: 'select' },
-      options: ['default', 'primary', 'secondary', 'success', 'warning', 'error', 'white'],
+      options: [
+        'default',
+        'primary',
+        'secondary',
+        'success',
+        'warning',
+        'error',
+        'white',
+      ],
       description: 'Color variant of the icon',
     },
     spin: {
@@ -94,12 +103,12 @@ export const WithClick: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <Icon name="StarOutlined" size="xs" />
-      <Icon name="StarOutlined" size="sm" />
-      <Icon name="StarOutlined" size="md" />
-      <Icon name="StarOutlined" size="lg" />
-      <Icon name="StarOutlined" size="xl" />
-      <Icon name="StarOutlined" size="2xl" />
+      <Icon name='StarOutlined' size='xs' />
+      <Icon name='StarOutlined' size='sm' />
+      <Icon name='StarOutlined' size='md' />
+      <Icon name='StarOutlined' size='lg' />
+      <Icon name='StarOutlined' size='xl' />
+      <Icon name='StarOutlined' size='2xl' />
     </div>
   ),
 }
@@ -108,12 +117,12 @@ export const Sizes: Story = {
 export const Colors: Story = {
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <Icon name="HeartOutlined" color="default" size="lg" />
-      <Icon name="HeartOutlined" color="primary" size="lg" />
-      <Icon name="HeartOutlined" color="secondary" size="lg" />
-      <Icon name="HeartOutlined" color="success" size="lg" />
-      <Icon name="HeartOutlined" color="warning" size="lg" />
-      <Icon name="HeartOutlined" color="error" size="lg" />
+      <Icon name='HeartOutlined' color='default' size='lg' />
+      <Icon name='HeartOutlined' color='primary' size='lg' />
+      <Icon name='HeartOutlined' color='secondary' size='lg' />
+      <Icon name='HeartOutlined' color='success' size='lg' />
+      <Icon name='HeartOutlined' color='warning' size='lg' />
+      <Icon name='HeartOutlined' color='error' size='lg' />
     </div>
   ),
 }
@@ -121,18 +130,20 @@ export const Colors: Story = {
 // On Dark Background
 export const OnDarkBackground: Story = {
   render: () => (
-    <div style={{ 
-      backgroundColor: '#1f2937', 
-      padding: '24px', 
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '16px'
-    }}>
-      <Icon name="HomeOutlined" color="white" size="lg" />
-      <Icon name="UserOutlined" color="white" size="lg" />
-      <Icon name="SettingOutlined" color="white" size="lg" />
-      <Icon name="BellOutlined" color="white" size="lg" />
+    <div
+      style={{
+        backgroundColor: '#1f2937',
+        padding: '24px',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+      }}
+    >
+      <Icon name='HomeOutlined' color='white' size='lg' />
+      <Icon name='UserOutlined' color='white' size='lg' />
+      <Icon name='SettingOutlined' color='white' size='lg' />
+      <Icon name='BellOutlined' color='white' size='lg' />
     </div>
   ),
 }
@@ -141,10 +152,29 @@ export const OnDarkBackground: Story = {
 export const InteractiveStates: Story = {
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <Icon name="EditOutlined" size="lg" onClick={() => console.log('Edit clicked')} />
-      <Icon name="DeleteOutlined" size="lg" color="error" onClick={() => console.log('Delete clicked')} />
-      <Icon name="DownloadOutlined" size="lg" color="primary" onClick={() => console.log('Download clicked')} />
-      <Icon name="UploadOutlined" size="lg" color="success" onClick={() => console.log('Upload clicked')} />
+      <Icon
+        name='EditOutlined'
+        size='lg'
+        onClick={() => console.log('Edit clicked')}
+      />
+      <Icon
+        name='DeleteOutlined'
+        size='lg'
+        color='error'
+        onClick={() => console.log('Delete clicked')}
+      />
+      <Icon
+        name='DownloadOutlined'
+        size='lg'
+        color='primary'
+        onClick={() => console.log('Download clicked')}
+      />
+      <Icon
+        name='UploadOutlined'
+        size='lg'
+        color='success'
+        onClick={() => console.log('Upload clicked')}
+      />
     </div>
   ),
 }
@@ -153,9 +183,9 @@ export const InteractiveStates: Story = {
 export const SpinningIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <Icon name="LoadingOutlined" spin size="lg" />
-      <Icon name="SettingOutlined" spin size="lg" color="primary" />
-      <Icon name="ReloadOutlined" spin size="lg" color="success" />
+      <Icon name='LoadingOutlined' spin size='lg' />
+      <Icon name='SettingOutlined' spin size='lg' color='primary' />
+      <Icon name='ReloadOutlined' spin size='lg' color='success' />
     </div>
   ),
 }
@@ -164,14 +194,14 @@ export const SpinningIcons: Story = {
 export const RotatedIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <Icon name="ArrowUpOutlined" rotate={0} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={45} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={90} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={135} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={180} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={225} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={270} size="lg" />
-      <Icon name="ArrowUpOutlined" rotate={315} size="lg" />
+      <Icon name='ArrowUpOutlined' rotate={0} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={45} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={90} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={135} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={180} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={225} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={270} size='lg' />
+      <Icon name='ArrowUpOutlined' rotate={315} size='lg' />
     </div>
   ),
 }
@@ -179,35 +209,37 @@ export const RotatedIcons: Story = {
 // Common Icon Set
 export const CommonIcons: Story = {
   render: () => (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(6, 1fr)', 
-      gap: '16px',
-      alignItems: 'center',
-      justifyItems: 'center'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(6, 1fr)',
+        gap: '16px',
+        alignItems: 'center',
+        justifyItems: 'center',
+      }}
+    >
       <div style={{ textAlign: 'center' }}>
-        <Icon name="HomeOutlined" size="lg" />
+        <Icon name='HomeOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>Home</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Icon name="UserOutlined" size="lg" />
+        <Icon name='UserOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>User</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Icon name="SettingOutlined" size="lg" />
+        <Icon name='SettingOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>Settings</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Icon name="SearchOutlined" size="lg" />
+        <Icon name='SearchOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>Search</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Icon name="BellOutlined" size="lg" />
+        <Icon name='BellOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>Notifications</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Icon name="MailOutlined" size="lg" />
+        <Icon name='MailOutlined' size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>Mail</div>
       </div>
     </div>
@@ -217,51 +249,53 @@ export const CommonIcons: Story = {
 // Predefined Icon Components
 export const PredefinedIcons: Story = {
   render: () => (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(5, 1fr)', 
-      gap: '16px',
-      alignItems: 'center',
-      justifyItems: 'center'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        gap: '16px',
+        alignItems: 'center',
+        justifyItems: 'center',
+      }}
+    >
       <div style={{ textAlign: 'center' }}>
-        <SearchIcon size="lg" />
+        <SearchIcon size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>SearchIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <EditIcon size="lg" color="primary" />
+        <EditIcon size='lg' color='primary' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>EditIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <DeleteIcon size="lg" color="error" />
+        <DeleteIcon size='lg' color='error' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>DeleteIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <PlusIcon size="lg" color="success" />
+        <PlusIcon size='lg' color='success' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>PlusIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <MinusIcon size="lg" color="warning" />
+        <MinusIcon size='lg' color='warning' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>MinusIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <CloseIcon size="lg" />
+        <CloseIcon size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>CloseIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <CheckIcon size="lg" color="success" />
+        <CheckIcon size='lg' color='success' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>CheckIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <WarningIcon size="lg" color="warning" />
+        <WarningIcon size='lg' color='warning' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>WarningIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <InfoIcon size="lg" color="primary" />
+        <InfoIcon size='lg' color='primary' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>InfoIcon</div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <LoadingIcon size="lg" />
+        <LoadingIcon size='lg' />
         <div style={{ fontSize: '12px', marginTop: '4px' }}>LoadingIcon</div>
       </div>
     </div>
@@ -273,23 +307,23 @@ export const StatusIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <CheckIcon color="success" size="md" />
+        <CheckIcon color='success' size='md' />
         <span>Success state</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <WarningIcon color="warning" size="md" />
+        <WarningIcon color='warning' size='md' />
         <span>Warning state</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <CloseIcon color="error" size="md" />
+        <CloseIcon color='error' size='md' />
         <span>Error state</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <InfoIcon color="primary" size="md" />
+        <InfoIcon color='primary' size='md' />
         <span>Info state</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <LoadingIcon color="default" size="md" />
+        <LoadingIcon color='default' size='md' />
         <span>Loading state</span>
       </div>
     </div>

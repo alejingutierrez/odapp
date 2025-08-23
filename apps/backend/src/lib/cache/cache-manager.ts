@@ -87,7 +87,7 @@ export class CacheManager {
           this.stats.totalHits++
           this.updateStats()
           logger.debug('Cache hit (memory)', { key: namespacedKey })
-          return memoryEntry.data
+          return memoryEntry.data as T | null
         }
         this.stats.memoryMisses++
       }
@@ -111,7 +111,7 @@ export class CacheManager {
 
             this.updateStats()
             logger.debug('Cache hit (Redis)', { key: namespacedKey })
-            return redisEntry.data
+            return redisEntry.data as T | null
           } else {
             // Remove expired entry from Redis
             await client.del(namespacedKey)
@@ -262,7 +262,7 @@ export class CacheManager {
         // Clear Redis cache
         if (redisClient.isReady()) {
           const client = redisClient.getClient()
-          const keys = await client.keys(pattern)
+          const keys = await (client as { keys: (_pattern: string) => Promise<string[]> }).keys(pattern)
           if (keys.length > 0) {
             await client.del(keys)
           }
@@ -273,7 +273,7 @@ export class CacheManager {
 
         if (redisClient.isReady()) {
           const client = redisClient.getClient()
-          await client.flushDb()
+          await (client as unknown as { flushDb: () => Promise<void> }).flushDb()
         }
       }
 
@@ -359,7 +359,7 @@ export class CacheManager {
   }
 
   private removeFromTagMapping(key: string): void {
-    for (const [tag, keys] of this.tagMap.entries()) {
+    for (const [tag, keys] of Array.from(this.tagMap.entries())) {
       keys.delete(key)
       if (keys.size === 0) {
         this.tagMap.delete(tag)

@@ -7,7 +7,9 @@ export interface ImageUploaderProps {
   placeholder?: string
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ placeholder = 'Upload Image' }) => {
+export const ImageUploader: React.FC<ImageUploaderProps> = ({
+  placeholder = 'Upload Image',
+}) => {
   return (
     <Upload>
       <Button icon={<UploadOutlined />}>{placeholder}</Button>

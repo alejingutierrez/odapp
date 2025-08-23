@@ -29,14 +29,14 @@ export class TwoFactorService {
     const secret = authenticator.generateSecret()
     const serviceName = 'Oda Fashion Platform'
     const qrCodeUrl = authenticator.keyuri(userEmail, serviceName, secret)
-    
+
     // Generate backup codes
     const backupCodes = this.generateBackupCodes()
 
     return {
       secret,
       qrCodeUrl,
-      backupCodes
+      backupCodes,
     }
   }
 
@@ -68,8 +68,8 @@ export class TwoFactorService {
       where: { id: userId },
       data: {
         twoFactorEnabled: true,
-        twoFactorSecret: secret
-      }
+        twoFactorSecret: secret,
+      },
     })
 
     return true
@@ -83,17 +83,20 @@ export class TwoFactorService {
       where: { id: userId },
       data: {
         twoFactorEnabled: false,
-        twoFactorSecret: null
-      }
+        twoFactorSecret: null,
+      },
     })
   }
 
   /**
    * Verify two-factor authentication token for user
    */
-  static async verifyUserTwoFactor(userId: string, token: string): Promise<boolean> {
+  static async verifyUserTwoFactor(
+    userId: string,
+    token: string
+  ): Promise<boolean> {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     })
 
     if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
@@ -113,7 +116,10 @@ export class TwoFactorService {
   /**
    * Send SMS verification code
    */
-  static async sendSMSCode(phoneNumber: string, code: string): Promise<boolean> {
+  static async sendSMSCode(
+    phoneNumber: string,
+    code: string
+  ): Promise<boolean> {
     if (!this.smsProvider) {
       throw new Error('SMS provider not configured')
     }
@@ -131,7 +137,7 @@ export class TwoFactorService {
 
     // Delete existing code for this phone number
     await prisma.smsVerificationCode.deleteMany({
-      where: { phoneNumber }
+      where: { phoneNumber },
     })
 
     // Store new verification code
@@ -139,23 +145,26 @@ export class TwoFactorService {
       data: {
         phoneNumber,
         code,
-        expiresAt
-      }
+        expiresAt,
+      },
     })
   }
 
   /**
    * Verify SMS code
    */
-  static async verifySMSCode(phoneNumber: string, code: string): Promise<boolean> {
+  static async verifySMSCode(
+    phoneNumber: string,
+    code: string
+  ): Promise<boolean> {
     try {
       const smsCode = await prisma.smsVerificationCode.findFirst({
         where: {
           phoneNumber,
           expiresAt: {
-            gt: new Date()
-          }
-        }
+            gt: new Date(),
+          },
+        },
       })
 
       if (!smsCode) {
@@ -167,7 +176,7 @@ export class TwoFactorService {
       if (isValid) {
         // Delete the used code
         await prisma.smsVerificationCode.delete({
-          where: { id: smsCode.id }
+          where: { id: smsCode.id },
         })
       }
 
@@ -183,7 +192,7 @@ export class TwoFactorService {
    */
   static generateBackupCodes(count: number = 10): string[] {
     const codes: string[] = []
-    
+
     for (let i = 0; i < count; i++) {
       // Generate 8-character alphanumeric code
       const code = crypto.randomBytes(4).toString('hex').toUpperCase()
@@ -196,10 +205,13 @@ export class TwoFactorService {
   /**
    * Store backup codes for user
    */
-  static async storeBackupCodes(userId: string, codes: string[]): Promise<void> {
+  static async storeBackupCodes(
+    userId: string,
+    codes: string[]
+  ): Promise<void> {
     // Delete existing backup codes
     await prisma.userBackupCode.deleteMany({
-      where: { userId }
+      where: { userId },
     })
 
     // Hash the backup codes before storing
@@ -207,27 +219,30 @@ export class TwoFactorService {
     const hashedCodes = await Promise.all(
       codes.map(async (code) => ({
         userId,
-        codeHash: await bcrypt.hash(code, 10)
+        codeHash: await bcrypt.hash(code, 10),
       }))
     )
 
     // Store new backup codes
     await prisma.userBackupCode.createMany({
-      data: hashedCodes
+      data: hashedCodes,
     })
   }
 
   /**
    * Verify backup code
    */
-  static async verifyBackupCode(userId: string, code: string): Promise<boolean> {
+  static async verifyBackupCode(
+    userId: string,
+    code: string
+  ): Promise<boolean> {
     try {
       // Get unused backup codes for user
       const backupCodes = await prisma.userBackupCode.findMany({
         where: {
           userId,
-          used: false
-        }
+          used: false,
+        },
       })
 
       const bcrypt = await import('bcryptjs')
@@ -235,17 +250,17 @@ export class TwoFactorService {
       // Check each backup code
       for (const backupCode of backupCodes) {
         const isValid = await bcrypt.compare(code, backupCode.codeHash)
-        
+
         if (isValid) {
           // Mark backup code as used
           await prisma.userBackupCode.update({
             where: { id: backupCode.id },
             data: {
               used: true,
-              usedAt: new Date()
-            }
+              usedAt: new Date(),
+            },
           })
-          
+
           return true
         }
       }
@@ -263,7 +278,7 @@ export class TwoFactorService {
   static async isTwoFactorEnabled(userId: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { twoFactorEnabled: true }
+      select: { twoFactorEnabled: true },
     })
 
     return user?.twoFactorEnabled ?? false
@@ -281,22 +296,22 @@ export class TwoFactorService {
       where: { id: userId },
       select: {
         twoFactorEnabled: true,
-        twoFactorSecret: true
-      }
+        twoFactorSecret: true,
+      },
     })
 
     // Count unused backup codes
     const backupCodesCount = await prisma.userBackupCode.count({
       where: {
         userId,
-        used: false
-      }
+        used: false,
+      },
     })
 
     return {
       enabled: user?.twoFactorEnabled ?? false,
       hasSecret: !!user?.twoFactorSecret,
-      backupCodesCount
+      backupCodesCount,
     }
   }
 
@@ -308,9 +323,9 @@ export class TwoFactorService {
       await prisma.smsVerificationCode.deleteMany({
         where: {
           expiresAt: {
-            lt: new Date()
-          }
-        }
+            lt: new Date(),
+          },
+        },
       })
     } catch (error) {
       console.error('Error cleaning up expired SMS codes:', error)

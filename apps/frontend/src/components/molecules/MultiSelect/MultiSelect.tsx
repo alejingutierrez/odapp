@@ -174,7 +174,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   }
 
   const renderTag = (props: {
-    label: string
+    label: React.ReactNode
     value: string
     closable?: boolean
     onClose?: () => void

@@ -2,13 +2,18 @@ import express, { type Express } from 'express'
 import compression from 'compression'
 import { createServer } from 'http'
 import helmet from 'helmet'
-import cors from 'cors'
+import * as cors from 'cors'
 
 // Import configuration and utilities
 import { env } from './config/env'
 import logger from './lib/logger'
 import { EmailService } from './lib/email'
-import { initializeRedis, shutdownRedis, cacheWarming, cacheMonitoring } from './lib/cache/index.js'
+import {
+  initializeRedis,
+  shutdownRedis,
+  cacheWarming,
+  cacheMonitoring,
+} from './lib/cache/index.js'
 import { prisma } from './lib/prisma'
 
 // Import services
@@ -17,29 +22,26 @@ import { WebSocketService } from './services/websocket.service'
 import { InventorySchedulerService } from './services/inventory-scheduler.service'
 
 // Import middleware
-import { 
-  corsOptions, 
-  helmetOptions, 
-  generalRateLimit, 
+import {
+  corsOptions,
+  helmetOptions,
+  generalRateLimit,
   authRateLimit,
   securityHeaders,
   sanitizeRequest,
-  configureTrustedProxies
+  configureTrustedProxies,
 } from './middleware/security'
-import { 
-  requestId, 
-  httpLogger, 
-  detailedLogger, 
-  performanceLogger 
+import {
+  requestId,
+  httpLogger,
+  detailedLogger,
+  performanceLogger,
 } from './middleware/request-logger'
-import { 
-  errorHandler, 
-  notFoundHandler 
-} from './middleware/error-handler'
-import { 
-  apiVersion, 
-  backwardCompatibility, 
-  contentNegotiation 
+import { errorHandler, notFoundHandler } from './middleware/error-handler'
+import {
+  apiVersion,
+  backwardCompatibility,
+  contentNegotiation,
 } from './middleware/api-version'
 
 // Import routes
@@ -60,7 +62,11 @@ const server = createServer(app)
 // Initialize services
 const inventoryService = new InventoryService(prisma)
 const webSocketService = new WebSocketService(server, prisma, inventoryService)
-const inventoryScheduler = new InventorySchedulerService(prisma, inventoryService, webSocketService)
+const inventoryScheduler = new InventorySchedulerService(
+  prisma,
+  inventoryService,
+  webSocketService
+)
 
 // Initialize inventory routes with services
 initializeInventoryRoutes(prisma, inventoryService, webSocketService)
@@ -74,7 +80,7 @@ app.use(httpLogger)
 
 // Security middleware
 app.use(helmet(helmetOptions))
-app.use(cors(corsOptions))
+app.use(cors.default(corsOptions))
 app.use(securityHeaders)
 app.use(sanitizeRequest)
 
@@ -83,16 +89,20 @@ app.use(performanceLogger)
 
 // General middleware
 app.use(compression())
-app.use(express.json({ 
-  limit: '10mb',
-  strict: true,
-  type: 'application/json'
-}))
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: '10mb',
-  parameterLimit: 1000
-}))
+app.use(
+  express.json({
+    limit: '10mb',
+    strict: true,
+    type: 'application/json',
+  })
+)
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: '10mb',
+    parameterLimit: 1000,
+  })
+)
 
 // Detailed logging in development
 if (env.NODE_ENV === 'development') {
@@ -173,7 +183,7 @@ if (env.NODE_ENV !== 'test') {
       healthCheck: `${env.API_BASE_URL}/health`,
       documentation: `${env.API_BASE_URL}/api-docs`,
       websocket: 'enabled',
-      connectedClients: webSocketService.getConnectedSocketsCount()
+      connectedClients: webSocketService.getConnectedSocketsCount(),
     })
 
     // Start inventory scheduled jobs
@@ -183,20 +193,20 @@ if (env.NODE_ENV !== 'test') {
   // Graceful shutdown
   const gracefulShutdown = async (signal: string) => {
     logger.info(`${signal} received, shutting down gracefully`)
-    
+
     // Stop inventory scheduled jobs
     inventoryScheduler.stopAll()
-    
+
     // Stop cache warming and monitoring
     cacheWarming.stop()
     cacheMonitoring.stop()
-    
+
     // Shutdown Redis connection
     await shutdownRedis()
-    
+
     // Close Prisma connection
     await prisma.$disconnect()
-    
+
     server.close(() => {
       logger.info('Server closed')
       process.exit(0)
@@ -208,7 +218,10 @@ if (env.NODE_ENV !== 'test') {
 
   // Handle uncaught exceptions
   process.on('uncaughtException', (error) => {
-    logger.error('Uncaught Exception', { error: error.message, stack: error.stack })
+    logger.error('Uncaught Exception', {
+      error: error.message,
+      stack: error.stack,
+    })
     process.exit(1)
   })
 

@@ -63,7 +63,7 @@ const mockUser: User = {
 }
 
 const createTestStore = (initialState?: Partial<AuthState>) => {
-  return configureStore({
+  const store = configureStore({
     reducer: {
       auth: authReducer,
     },
@@ -83,7 +83,18 @@ const createTestStore = (initialState?: Partial<AuthState>) => {
       },
     },
   })
+  
+  return {
+    ...store,
+    getState: () => ({ auth: store.getState().auth }),
+    dispatch: store.dispatch
+  } as ReturnType<typeof configureStore> & {
+    getState: () => { auth: AuthState }
+  }
 }
+
+// Helper function to get auth state directly for selectors that expect AuthState
+const getAuthStateDirect = (store: ReturnType<typeof createTestStore>) => (store.getState() as { auth: AuthState }).auth as AuthState
 
 describe('authSlice', () => {
   beforeEach(() => {
@@ -102,7 +113,7 @@ describe('authSlice', () => {
 
       store.dispatch(setCredentials(credentials))
 
-      const state = store.getState().auth
+      const state = (store.getState() as { auth: AuthState }).auth
       expect(state.user).toEqual(mockUser)
       expect(state.token).toBe('test-token')
       expect(state.refreshToken).toBe('test-refresh-token')
@@ -121,7 +132,7 @@ describe('authSlice', () => {
 
       store.dispatch(clearCredentials())
 
-      const state = store.getState().auth
+      const state = (store.getState() as { auth: AuthState }).auth
       expect(state.user).toBeNull()
       expect(state.token).toBeNull()
       expect(state.refreshToken).toBeNull()
@@ -133,11 +144,11 @@ describe('authSlice', () => {
 
     it('should handle updateLastActivity', () => {
       const store = createTestStore({ lastActivity: 1000 })
-      const beforeUpdate = store.getState().auth.lastActivity
+      const beforeUpdate = (store.getState() as { auth: AuthState }).auth.lastActivity
 
       store.dispatch(updateLastActivity())
 
-      const afterUpdate = store.getState().auth.lastActivity
+      const afterUpdate = (store.getState() as { auth: AuthState }).auth.lastActivity
       expect(afterUpdate).toBeGreaterThan(beforeUpdate)
     })
 
@@ -145,17 +156,17 @@ describe('authSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setRememberMe(true))
-      expect(store.getState().auth.rememberMe).toBe(true)
+      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(true)
 
       store.dispatch(setRememberMe(false))
-      expect(store.getState().auth.rememberMe).toBe(false)
+      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(false)
     })
 
     it('should handle clearError', () => {
       const store = createTestStore({ error: 'Test error' })
 
       store.dispatch(clearError())
-      expect(store.getState().auth.error).toBeNull()
+      expect((store.getState() as { auth: AuthState }).auth.error).toBeNull()
     })
 
     it('should handle updateUserPreferences', () => {
@@ -167,7 +178,7 @@ describe('authSlice', () => {
 
       store.dispatch(updateUserPreferences(newPreferences))
 
-      const state = store.getState().auth
+      const state = (store.getState() as { auth: AuthState }).auth
       expect(state.user?.preferences.theme).toBe('dark')
       expect(state.user?.preferences.language).toBe('es')
       expect(state.user?.preferences.timezone).toBe('UTC') // Should preserve other preferences
@@ -192,9 +203,10 @@ describe('authSlice', () => {
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-        await store.dispatch(loginUser(credentials))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(loginUser(credentials) as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.isLoading).toBe(false)
         expect(state.user).toEqual(mockUser)
         expect(state.token).toBe('test-token')
@@ -215,9 +227,10 @@ describe('authSlice', () => {
           password: 'wrong-password',
         }
 
-        await store.dispatch(loginUser(credentials))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(loginUser(credentials) as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.isLoading).toBe(false)
         expect(state.user).toBeNull()
         expect(state.token).toBeNull()
@@ -226,16 +239,16 @@ describe('authSlice', () => {
       })
 
       it('should handle network error', async () => {
-        ;(fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-          new Error('Network error')
-        )
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-        await store.dispatch(loginUser(credentials))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(loginUser(credentials) as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.isLoading).toBe(false)
         expect(state.error).toBe('Network error occurred')
       })
@@ -243,7 +256,8 @@ describe('authSlice', () => {
 
     describe('logoutUser', () => {
       it('should handle successful logout', async () => {
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: true,
         })
 
@@ -253,16 +267,18 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        await store.dispatch(logoutUser())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(logoutUser() as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.user).toBeNull()
         expect(state.token).toBeNull()
         expect(state.isAuthenticated).toBe(false)
       })
 
       it('should clear state even if server logout fails', async () => {
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: false,
         })
 
@@ -272,9 +288,10 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        await store.dispatch(logoutUser())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(logoutUser() as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.user).toBeNull()
         expect(state.token).toBeNull()
         expect(state.isAuthenticated).toBe(false)
@@ -289,7 +306,8 @@ describe('authSlice', () => {
           expiresIn: 3600,
         }
 
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: true,
           json: async () => mockResponse,
         })
@@ -298,16 +316,18 @@ describe('authSlice', () => {
           refreshToken: 'old-refresh-token',
         })
 
-        await store.dispatch(refreshToken())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(refreshToken() as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.token).toBe('new-token')
         expect(state.refreshToken).toBe('new-refresh-token')
         expect(state.sessionExpiry).toBeGreaterThan(Date.now())
       })
 
       it('should clear credentials if refresh fails', async () => {
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: false,
         })
 
@@ -318,9 +338,10 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        await store.dispatch(refreshToken())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(refreshToken() as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.user).toBeNull()
         expect(state.token).toBeNull()
         expect(state.isAuthenticated).toBe(false)
@@ -330,7 +351,8 @@ describe('authSlice', () => {
     describe('updateUserProfile', () => {
       it('should handle successful profile update', async () => {
         const updatedUser = { ...mockUser, firstName: 'Jane' }
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: true,
           json: async () => updatedUser,
         })
@@ -341,9 +363,10 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-        await store.dispatch(updateUserProfile(updates))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(updateUserProfile(updates) as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.isLoading).toBe(false)
         expect(state.user?.firstName).toBe('Jane')
         expect(state.error).toBeNull()
@@ -351,7 +374,8 @@ describe('authSlice', () => {
 
       it('should handle profile update failure', async () => {
         const errorMessage = 'Update failed'
-        ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        const mockFetch = fetch as ReturnType<typeof vi.fn>
+        mockFetch.mockResolvedValueOnce({
           ok: false,
           json: async () => ({ message: errorMessage }),
         })
@@ -362,9 +386,10 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-        await store.dispatch(updateUserProfile(updates))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await store.dispatch(updateUserProfile(updates) as any)
 
-        const state = store.getState().auth
+        const state = (store.getState() as { auth: AuthState }).auth
         expect(state.isLoading).toBe(false)
         expect(state.error).toBe(errorMessage)
       })
@@ -374,41 +399,42 @@ describe('authSlice', () => {
   describe('selectors', () => {
     it('should select current user', () => {
       const store = createTestStore({ user: mockUser })
-      const state = store.getState()
 
-      expect(selectCurrentUser(state)).toEqual(mockUser)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectCurrentUser(getAuthStateDirect(store) as any)).toEqual(mockUser)
     })
 
     it('should select token', () => {
       const store = createTestStore({ token: 'test-token' })
-      const state = store.getState()
 
-      expect(selectToken(state)).toBe('test-token')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectToken(getAuthStateDirect(store) as any)).toBe('test-token')
     })
 
     it('should select authentication status', () => {
       const store = createTestStore({ isAuthenticated: true })
-      const state = store.getState()
 
-      expect(selectIsAuthenticated(state)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectIsAuthenticated(getAuthStateDirect(store) as any)).toBe(true)
     })
 
     it('should select permissions', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
-      const state = store.getState()
 
-      expect(selectPermissions(state)).toEqual(mockUser.permissions)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectPermissions(getAuthStateDirect(store) as any)).toEqual(mockUser.permissions)
     })
 
     it('should check if user has specific permission', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
-      const state = store.getState()
 
-      const hasReadPermission = selectHasPermission('products', 'read')(state)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const hasReadPermission = selectHasPermission('products', 'read')(getAuthStateDirect(store) as any)
       const hasDeletePermission = selectHasPermission(
         'products',
         'delete'
-      )(state)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      )(getAuthStateDirect(store) as any)
 
       expect(hasReadPermission).toBe(true)
       expect(hasDeletePermission).toBe(false)
@@ -422,9 +448,12 @@ describe('authSlice', () => {
       const expiredStore = createTestStore({ sessionExpiry: pastExpiry })
       const noExpiryStore = createTestStore({ sessionExpiry: null })
 
-      expect(selectIsSessionValid(validStore.getState())).toBe(true)
-      expect(selectIsSessionValid(expiredStore.getState())).toBe(false)
-      expect(selectIsSessionValid(noExpiryStore.getState())).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectIsSessionValid(getAuthStateDirect(validStore) as any)).toBe(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectIsSessionValid(getAuthStateDirect(expiredStore) as any)).toBe(false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(selectIsSessionValid(getAuthStateDirect(noExpiryStore) as any)).toBe(false)
     })
   })
 })

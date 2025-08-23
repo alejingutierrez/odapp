@@ -122,8 +122,8 @@ describe('CurrencyDisplay', () => {
       expect(screen.getByText('$0.01')).toBeInTheDocument()
     })
 
-    it('handles string amounts', () => {
-      render(<CurrencyDisplay amount='1234.56' />)
+    it('handles decimal amounts', () => {
+      render(<CurrencyDisplay amount={1234.56} />)
       expect(screen.getByText('$1,234.56')).toBeInTheDocument()
     })
   })

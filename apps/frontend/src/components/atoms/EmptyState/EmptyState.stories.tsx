@@ -1,6 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { EmptyState } from './EmptyState';
-import { PlusOutlined, SearchOutlined, ShoppingCartOutlined, FileTextOutlined } from '@ant-design/icons';
+import type { Meta, StoryObj } from '@storybook/react'
+import { EmptyState } from './EmptyState'
+import {
+  PlusOutlined,
+  SearchOutlined,
+  ShoppingCartOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons'
 
 const meta: Meta<typeof EmptyState> = {
   title: 'Atoms/EmptyState',
@@ -22,23 +27,23 @@ const meta: Meta<typeof EmptyState> = {
       control: 'boolean',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
     title: 'No data available',
   },
-};
+}
 
 export const WithDescription: Story = {
   args: {
     title: 'No products found',
     description: 'Try adjusting your search criteria or browse our categories',
   },
-};
+}
 
 export const WithAction: Story = {
   args: {
@@ -48,7 +53,7 @@ export const WithAction: Story = {
     actionIcon: <ShoppingCartOutlined />,
     onAction: () => alert('Navigate to products'),
   },
-};
+}
 
 export const SmallSize: Story = {
   args: {
@@ -58,7 +63,7 @@ export const SmallSize: Story = {
     actionText: 'Clear Filters',
     onAction: () => alert('Clear filters'),
   },
-};
+}
 
 export const WithCustomIcon: Story = {
   args: {
@@ -69,7 +74,7 @@ export const WithCustomIcon: Story = {
     actionIcon: <PlusOutlined />,
     onAction: () => alert('Open upload dialog'),
   },
-};
+}
 
 export const WithoutImage: Story = {
   args: {
@@ -80,54 +85,69 @@ export const WithoutImage: Story = {
     actionIcon: <SearchOutlined />,
     onAction: () => alert('Open advanced search'),
   },
-};
+}
 
 export const DifferentScenarios: Story = {
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 32, width: 800 }}>
-      <div style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 32,
+        width: 800,
+      }}
+    >
+      <div
+        style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}
+      >
         <h4>Empty Product List</h4>
         <EmptyState
-          title="No products available"
-          description="Add your first product to get started"
-          actionText="Add Product"
+          title='No products available'
+          description='Add your first product to get started'
+          actionText='Add Product'
           actionIcon={<PlusOutlined />}
           onAction={() => alert('Add product')}
         />
       </div>
-      
-      <div style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}>
+
+      <div
+        style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}
+      >
         <h4>Search Results</h4>
         <EmptyState
-          title="No results found"
-          description="Try different keywords or check your spelling"
-          actionText="Clear Search"
-          actionType="default"
+          title='No results found'
+          description='Try different keywords or check your spelling'
+          actionText='Clear Search'
+          actionType='default'
           onAction={() => alert('Clear search')}
-          size="small"
+          size='small'
         />
       </div>
-      
-      <div style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}>
+
+      <div
+        style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}
+      >
         <h4>Empty Cart</h4>
         <EmptyState
-          title="Your cart is empty"
-          description="Discover our amazing products and add them to your cart"
-          actionText="Browse Products"
+          title='Your cart is empty'
+          description='Discover our amazing products and add them to your cart'
+          actionText='Browse Products'
           actionIcon={<ShoppingCartOutlined />}
           onAction={() => alert('Browse products')}
         />
       </div>
-      
-      <div style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}>
+
+      <div
+        style={{ border: '1px solid #f0f0f0', padding: 24, borderRadius: 8 }}
+      >
         <h4>No Notifications</h4>
         <EmptyState
-          title="All caught up!"
-          description="You have no new notifications"
+          title='All caught up!'
+          description='You have no new notifications'
           showImage={false}
-          size="small"
+          size='small'
         />
       </div>
     </div>
   ),
-};
+}

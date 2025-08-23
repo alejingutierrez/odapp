@@ -43,11 +43,11 @@ export class RedisClient {
           defaults: {
             socket: {
               connectTimeout: this.config.connectTimeout,
-              commandTimeout: this.config.commandTimeout,
+              // commandTimeout: this.config.commandTimeout, // Removed - not a valid option
               keepAlive: this.config.keepAlive,
-              family: this.config.family,
+              // family: this.config.family, // Removed - not a valid option
             },
-            lazyConnect: this.config.lazyConnect,
+            // lazyConnect: this.config.lazyConnect, // Removed - not a valid option
           },
           useReplicas: true,
         })
@@ -57,11 +57,11 @@ export class RedisClient {
           url: this.config.url,
           socket: {
             connectTimeout: this.config.connectTimeout,
-            commandTimeout: this.config.commandTimeout,
+            // commandTimeout: this.config.commandTimeout, // Removed - not a valid option
             keepAlive: this.config.keepAlive,
-            family: this.config.family,
+            // family: this.config.family, // Removed - not a valid option
           },
-          lazyConnect: this.config.lazyConnect,
+          // lazyConnect: this.config.lazyConnect, // Removed - not a valid option
         })
       }
 
@@ -74,7 +74,7 @@ export class RedisClient {
 
       // Connect to Redis
       await this.client.connect()
-      
+
       logger.info('Redis client connected successfully', {
         url: this.config.url,
         isCluster,
@@ -113,7 +113,7 @@ export class RedisClient {
     if (!this.client) {
       throw new Error('Redis client is not initialized')
     }
-    return await this.client.ping()
+    return await (this.client as { ping: () => Promise<string> }).ping()
   }
 
   private handleError(error: Error): void {
@@ -151,14 +151,17 @@ export class RedisClient {
       return
     }
 
-    setTimeout(async () => {
-      try {
-        await this.connect()
-      } catch (error) {
-        logger.error('Failed to reconnect to Redis', { error })
-        this.attemptReconnect()
-      }
-    }, this.reconnectDelay * Math.pow(2, this.reconnectAttempts))
+    setTimeout(
+      async () => {
+        try {
+          await this.connect()
+        } catch (error) {
+          logger.error('Failed to reconnect to Redis', { error })
+          this.attemptReconnect()
+        }
+      },
+      this.reconnectDelay * Math.pow(2, this.reconnectAttempts)
+    )
   }
 }
 

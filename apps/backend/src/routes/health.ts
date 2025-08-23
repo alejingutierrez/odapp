@@ -4,7 +4,6 @@ import { getDatabaseMetrics } from '../lib/prisma.js'
 import { databasePool } from '../lib/database-pool.js'
 import { sendSuccess, sendError } from '../lib/api-response.js'
 import { asyncHandler } from '../middleware/error-handler'
-import logger from '../lib/logger'
 
 const router: Router = Router()
 
@@ -29,34 +28,41 @@ const router: Router = Router()
  *             schema:
  *               $ref: '#/components/responses/InternalError'
  */
-router.get('/', asyncHandler(async (req, res) => {
-  const healthResult = await databaseHealthChecker.performHealthCheck()
-  
-  const response = {
-    status: healthResult.status,
-    timestamp: healthResult.timestamp,
-    service: 'oda-backend',
-    version: process.env.APP_VERSION || '1.0.0',
-    uptime: Math.round(process.uptime()),
-    checks: healthResult.checks,
-  }
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const healthResult = await databaseHealthChecker.performHealthCheck()
 
-  const statusCode = healthResult.status === 'healthy' ? 200 : 
-                    healthResult.status === 'degraded' ? 200 : 503
+    const response = {
+      status: healthResult.status,
+      timestamp: healthResult.timestamp,
+      service: 'oda-backend',
+      version: process.env.APP_VERSION || '1.0.0',
+      uptime: Math.round(process.uptime()),
+      checks: healthResult.checks,
+    }
 
-  if (statusCode === 503) {
-    return sendError(
-      res,
-      'SERVICE_UNHEALTHY',
-      'Service is unhealthy',
-      503,
-      response,
-      req.requestId
-    )
-  }
+    const statusCode =
+      healthResult.status === 'healthy'
+        ? 200
+        : healthResult.status === 'degraded'
+          ? 200
+          : 503
 
-  return sendSuccess(res, response, undefined, statusCode)
-}))
+    if (statusCode === 503) {
+      return sendError(
+        res,
+        'SERVICE_UNHEALTHY',
+        'Service is unhealthy',
+        503,
+        response,
+        req.requestId
+      )
+    }
+
+    return sendSuccess(res, response, undefined, statusCode)
+  })
+)
 
 /**
  * @swagger
@@ -75,49 +81,56 @@ router.get('/', asyncHandler(async (req, res) => {
  *       503:
  *         description: Service is unhealthy
  */
-router.get('/detailed', asyncHandler(async (req, res) => {
-  const [healthResult, dbMetrics, poolStats] = await Promise.all([
-    databaseHealthChecker.performHealthCheck(),
-    getDatabaseMetrics().catch(() => null),
-    databasePool.healthCheck(),
-  ])
+router.get(
+  '/detailed',
+  asyncHandler(async (req, res) => {
+    const [healthResult, dbMetrics, poolStats] = await Promise.all([
+      databaseHealthChecker.performHealthCheck(),
+      getDatabaseMetrics().catch(() => null),
+      databasePool.healthCheck(),
+    ])
 
-  const response = {
-    status: healthResult.status,
-    timestamp: healthResult.timestamp,
-    service: 'oda-backend',
-    version: process.env.APP_VERSION || '1.0.0',
-    uptime: Math.round(process.uptime()),
-    environment: process.env.NODE_ENV,
-    checks: healthResult.checks,
-    metrics: {
-      database: dbMetrics,
-      connectionPool: poolStats,
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        external: Math.round(process.memoryUsage().external / 1024 / 1024),
+    const response = {
+      status: healthResult.status,
+      timestamp: healthResult.timestamp,
+      service: 'oda-backend',
+      version: process.env.APP_VERSION || '1.0.0',
+      uptime: Math.round(process.uptime()),
+      environment: process.env.NODE_ENV,
+      checks: healthResult.checks,
+      metrics: {
+        database: dbMetrics,
+        connectionPool: poolStats,
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          external: Math.round(process.memoryUsage().external / 1024 / 1024),
+        },
+        cpu: process.cpuUsage(),
       },
-      cpu: process.cpuUsage(),
-    },
-  }
+    }
 
-  const statusCode = healthResult.status === 'healthy' ? 200 : 
-                    healthResult.status === 'degraded' ? 200 : 503
+    const statusCode =
+      healthResult.status === 'healthy'
+        ? 200
+        : healthResult.status === 'degraded'
+          ? 200
+          : 503
 
-  if (statusCode === 503) {
-    return sendError(
-      res,
-      'SERVICE_UNHEALTHY',
-      'Service is unhealthy',
-      503,
-      response,
-      req.requestId
-    )
-  }
+    if (statusCode === 503) {
+      return sendError(
+        res,
+        'SERVICE_UNHEALTHY',
+        'Service is unhealthy',
+        503,
+        response,
+        req.requestId
+      )
+    }
 
-  return sendSuccess(res, response, undefined, statusCode)
-}))
+    return sendSuccess(res, response, undefined, statusCode)
+  })
+)
 
 /**
  * @swagger
@@ -136,35 +149,42 @@ router.get('/detailed', asyncHandler(async (req, res) => {
  *       503:
  *         description: Database is unhealthy
  */
-router.get('/database', asyncHandler(async (req, res) => {
-  const healthResult = await databaseHealthChecker.performHealthCheck()
-  
-  // Record health check result
-  await databaseHealthChecker.recordHealthCheck(healthResult)
-  
-  const response = {
-    status: healthResult.status,
-    timestamp: healthResult.timestamp,
-    checks: healthResult.checks,
-    metrics: healthResult.metrics,
-  }
+router.get(
+  '/database',
+  asyncHandler(async (req, res) => {
+    const healthResult = await databaseHealthChecker.performHealthCheck()
 
-  const statusCode = healthResult.status === 'healthy' ? 200 : 
-                    healthResult.status === 'degraded' ? 200 : 503
+    // Record health check result
+    await databaseHealthChecker.recordHealthCheck(healthResult)
 
-  if (statusCode === 503) {
-    return sendError(
-      res,
-      'DATABASE_UNHEALTHY',
-      'Database is unhealthy',
-      503,
-      response,
-      req.requestId
-    )
-  }
+    const response = {
+      status: healthResult.status,
+      timestamp: healthResult.timestamp,
+      checks: healthResult.checks,
+      metrics: healthResult.metrics,
+    }
 
-  return sendSuccess(res, response, undefined, statusCode)
-}))
+    const statusCode =
+      healthResult.status === 'healthy'
+        ? 200
+        : healthResult.status === 'degraded'
+          ? 200
+          : 503
+
+    if (statusCode === 503) {
+      return sendError(
+        res,
+        'DATABASE_UNHEALTHY',
+        'Database is unhealthy',
+        503,
+        response,
+        req.requestId
+      )
+    }
+
+    return sendSuccess(res, response, undefined, statusCode)
+  })
+)
 
 /**
  * @swagger
@@ -183,24 +203,23 @@ router.get('/database', asyncHandler(async (req, res) => {
  *       503:
  *         description: Service is not ready
  */
-router.get('/ready', asyncHandler(async (_req, res) => {
-  const isReady = await databasePool.healthCheck()
-  
-  if (isReady.healthy) {
-    return sendSuccess(res, {
-      status: 'ready',
-      timestamp: new Date().toISOString(),
-    })
-  } else {
-    return sendError(
-      res,
-      'SERVICE_NOT_READY',
-      'Service is not ready',
-      503,
-      { error: isReady.error }
-    )
-  }
-}))
+router.get(
+  '/ready',
+  asyncHandler(async (_req, res) => {
+    const isReady = await databasePool.healthCheck()
+
+    if (isReady.healthy) {
+      return sendSuccess(res, {
+        status: 'ready',
+        timestamp: new Date().toISOString(),
+      })
+    } else {
+      return sendError(res, 'SERVICE_NOT_READY', 'Service is not ready', 503, {
+        error: isReady.error,
+      })
+    }
+  })
+)
 
 /**
  * @swagger

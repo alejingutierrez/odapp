@@ -28,7 +28,7 @@ export const ProductRating: React.FC<ProductRatingProps> = ({
   size = 'default',
   onChange,
   disabled = false,
-  className = ''
+  className = '',
 }) => {
   const [hoverRating, setHoverRating] = useState<number>(0)
 
@@ -60,7 +60,7 @@ export const ProductRating: React.FC<ProductRatingProps> = ({
 
   return (
     <div className={`product-rating ${getSizeClass()} ${className}`}>
-      <Space size="small" align="center">
+      <Space size='small' align='center'>
         <Tooltip title={interactive ? 'Click to rate' : ratingText}>
           <Rate
             value={rating}
@@ -73,25 +73,20 @@ export const ProductRating: React.FC<ProductRatingProps> = ({
               const filled = index < value
               return filled ? <StarFilled /> : <StarOutlined />
             }}
-            className="product-rating__stars"
+            className='product-rating__stars'
           />
         </Tooltip>
 
         {showValue && (
-          <Typography.Text 
-            strong 
-            className="product-rating__value"
-          >
+          <Typography.Text strong className='product-rating__value'>
             {displayRating.toFixed(1)}
           </Typography.Text>
         )}
 
         {showCount && reviewCount > 0 && (
-          <Typography.Text 
-            type="secondary" 
-            className="product-rating__count"
-          >
-            ({reviewCount.toLocaleString()} {reviewCount === 1 ? 'review' : 'reviews'})
+          <Typography.Text type='secondary' className='product-rating__count'>
+            ({reviewCount.toLocaleString()}{' '}
+            {reviewCount === 1 ? 'review' : 'reviews'})
           </Typography.Text>
         )}
       </Space>

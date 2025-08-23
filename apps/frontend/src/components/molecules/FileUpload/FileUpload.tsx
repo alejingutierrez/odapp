@@ -1,13 +1,21 @@
 import React, { useState } from 'react'
-import { Upload, Button, Progress, Typography, Space, Image, message } from 'antd'
-import { 
-  UploadOutlined, 
-  DeleteOutlined, 
+import {
+  Upload,
+  Button,
+  Progress,
+  Typography,
+  Space,
+  Image,
+  message,
+} from 'antd'
+import {
+  UploadOutlined,
+  DeleteOutlined,
   EyeOutlined,
   FileImageOutlined,
   FilePdfOutlined,
   FileTextOutlined,
-  FileOutlined
+  FileOutlined,
 } from '@ant-design/icons'
 import type { UploadProps, UploadFile } from 'antd'
 import './FileUpload.css'
@@ -35,7 +43,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   showProgress = true,
   dragAndDrop = true,
   disabled = false,
-  className = ''
+  className = '',
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false)
   const [previewImage, setPreviewImage] = useState('')
@@ -45,7 +53,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const type = file.type || ''
     if (type.startsWith('image/')) return <FileImageOutlined />
     if (type.includes('pdf')) return <FilePdfOutlined />
-    if (type.includes('doc') || type.includes('text')) return <FileTextOutlined />
+    if (type.includes('doc') || type.includes('text'))
+      return <FileTextOutlined />
     return <FileOutlined />
   }
 
@@ -80,7 +89,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     fileList = fileList.slice(-maxFiles)
 
     // Update file status
-    fileList = fileList.map(file => {
+    fileList = fileList.map((file) => {
       if (file.response) {
         file.url = file.response.url
       }
@@ -97,11 +106,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
     setPreviewImage(file.url || (file.preview as string))
     setPreviewVisible(true)
-    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1))
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1)
+    )
   }
 
   const handleRemove = (file: UploadFile) => {
-    const newFileList = value.filter(item => item.uid !== file.uid)
+    const newFileList = value.filter((item) => item.uid !== file.uid)
     onChange?.(newFileList)
   }
 
@@ -110,15 +121,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       const reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = () => resolve(reader.result as string)
-      reader.onerror = error => reject(error)
+      reader.onerror = (error) => reject(error)
     })
 
   const renderFileItem = (file: UploadFile) => {
     const isImage = file.type?.startsWith('image/')
-    
+
     return (
-      <div key={file.uid} className="file-upload__item">
-        <div className="file-upload__item-preview">
+      <div key={file.uid} className='file-upload__item'>
+        <div className='file-upload__item-preview'>
           {isImage && file.thumbUrl ? (
             <Image
               src={file.thumbUrl}
@@ -126,51 +137,46 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               width={40}
               height={40}
               preview={false}
-              className="file-upload__thumbnail"
+              className='file-upload__thumbnail'
             />
           ) : (
-            <div className="file-upload__icon">
-              {getFileIcon(file)}
-            </div>
+            <div className='file-upload__icon'>{getFileIcon(file)}</div>
           )}
         </div>
-        
-        <div className="file-upload__item-info">
-          <Typography.Text 
+
+        <div className='file-upload__item-info'>
+          <Typography.Text
             ellipsis={{ tooltip: file.name }}
-            className="file-upload__filename"
+            className='file-upload__filename'
           >
             {file.name}
           </Typography.Text>
-          <Typography.Text 
-            type="secondary" 
-            className="file-upload__filesize"
-          >
+          <Typography.Text type='secondary' className='file-upload__filesize'>
             {file.size ? formatFileSize(file.size) : 'Unknown size'}
           </Typography.Text>
-          
+
           {showProgress && file.status === 'uploading' && (
-            <Progress 
-              percent={file.percent} 
-              size="small"
-              className="file-upload__progress"
+            <Progress
+              percent={file.percent}
+              size='small'
+              className='file-upload__progress'
             />
           )}
         </div>
-        
-        <div className="file-upload__item-actions">
-          <Space size="small">
+
+        <div className='file-upload__item-actions'>
+          <Space size='small'>
             {showPreview && isImage && (
               <Button
-                type="text"
-                size="small"
+                type='text'
+                size='small'
                 icon={<EyeOutlined />}
                 onClick={() => handlePreview(file)}
               />
             )}
             <Button
-              type="text"
-              size="small"
+              type='text'
+              size='small'
               icon={<DeleteOutlined />}
               onClick={() => handleRemove(file)}
               danger
@@ -190,21 +196,24 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     accept: acceptedTypes.join(','),
     multiple: maxFiles > 1,
     disabled,
-    showUploadList: false
+    showUploadList: false,
   }
 
   const uploadButton = (
-    <div className="file-upload__button">
-      <UploadOutlined className="file-upload__button-icon" />
-      <div className="file-upload__button-text">
+    <div className='file-upload__button'>
+      <UploadOutlined className='file-upload__button-icon' />
+      <div className='file-upload__button-text'>
         <Typography.Text>Click to upload</Typography.Text>
         {dragAndDrop && (
-          <Typography.Text type="secondary" className="file-upload__button-hint">
+          <Typography.Text
+            type='secondary'
+            className='file-upload__button-hint'
+          >
             or drag and drop
           </Typography.Text>
         )}
       </div>
-      <Typography.Text type="secondary" className="file-upload__button-info">
+      <Typography.Text type='secondary' className='file-upload__button-info'>
         Max {maxFiles} files, up to {maxSize}MB each
       </Typography.Text>
     </div>
@@ -213,7 +222,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className={`file-upload ${className}`}>
       {dragAndDrop ? (
-        <Upload.Dragger {...uploadProps} className="file-upload__dragger">
+        <Upload.Dragger {...uploadProps} className='file-upload__dragger'>
           {uploadButton}
         </Upload.Dragger>
       ) : (
@@ -225,9 +234,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       )}
 
       {value.length > 0 && (
-        <div className="file-upload__list">
-          {value.map(renderFileItem)}
-        </div>
+        <div className='file-upload__list'>{value.map(renderFileItem)}</div>
       )}
 
       <Image
@@ -236,7 +243,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         preview={{
           visible: previewVisible,
           onVisibleChange: setPreviewVisible,
-          title: previewTitle
+          title: previewTitle,
         }}
       />
     </div>

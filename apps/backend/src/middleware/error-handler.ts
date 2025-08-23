@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
-import { AppError, ValidationError, DatabaseError, InternalServerError, NotFoundError, AuthenticationError } from '../lib/errors'
+import {
+  AppError,
+  ValidationError,
+  DatabaseError,
+  InternalServerError,
+  NotFoundError,
+  AuthenticationError,
+} from '../lib/errors'
 import { logError } from '../lib/logger'
 import { env } from '../config/env'
 
@@ -52,7 +59,8 @@ export const createErrorResponse = (
   error: {
     code: error.errorCode,
     message: error.message,
-    details: env.NODE_ENV === 'development' ? error.context : undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    details: env.NODE_ENV === 'development' ? (error as any).context : undefined,
     timestamp: new Date().toISOString(),
     requestId,
   },
@@ -61,7 +69,9 @@ export const createErrorResponse = (
 /**
  * Handle Prisma database errors
  */
-const handlePrismaError = (error: Prisma.PrismaClientKnownRequestError): AppError => {
+const handlePrismaError = (
+  error: Prisma.PrismaClientKnownRequestError
+): AppError => {
   switch (error.code) {
     case 'P2002':
       return new DatabaseError('Unique constraint violation', {
@@ -156,7 +166,10 @@ const normalizeError = (error: unknown): AppError => {
   }
 
   // JWT errors
-  if (error instanceof Error && (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError')) {
+  if (
+    error instanceof Error &&
+    (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError')
+  ) {
     return handleJWTError(error)
   }
 
@@ -180,8 +193,7 @@ const normalizeError = (error: unknown): AppError => {
 export const errorHandler = (
   error: unknown,
   req: Request,
-  res: Response,
-  _next: NextFunction
+  res: Response
 ): void => {
   const normalizedError = normalizeError(error)
   const requestId = req.headers['x-request-id'] as string
@@ -193,7 +205,7 @@ export const errorHandler = (
     url: req.url,
     userAgent: req.get('User-Agent'),
     ip: req.ip,
-    userId: req.user?.id,
+    userId: (req.user as { id?: string })?.id,
     body: req.body,
     params: req.params,
     query: req.query,
@@ -215,39 +227,45 @@ export const errorHandler = (
  * Async error wrapper for route handlers
  */
 export const asyncHandler = (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>
+  fn: (_req: Request, _res: Response, _next: NextFunction) => Promise<unknown>
 ) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next)
+  return (_req: Request, _res: Response, _next: NextFunction) => {
+    Promise.resolve(fn(_req, _res, _next)).catch(_next)
   }
 }
 
 /**
  * 404 Not Found handler
  */
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
+export const notFoundHandler = (
+  req: Request,
+  _res: Response,
+  _next: NextFunction
+): void => {
   const error = new NotFoundError(`Route ${req.method} ${req.path}`)
-  next(error)
+  _next(error)
 }
 
 /**
  * Validation middleware using Zod schemas
  */
 export const validate = (schema: {
-  body?: { parse: (data: unknown) => unknown }
-  query?: { parse: (data: unknown) => unknown }
-  params?: { parse: (data: unknown) => unknown }
+  body?: { parse: (_data: unknown) => unknown }
+  query?: { parse: (_data: unknown) => unknown }
+  params?: { parse: (_data: unknown) => unknown }
 }) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (schema.body) {
         req.body = schema.body.parse(req.body)
       }
       if (schema.query) {
-        req.query = schema.query.parse(req.query)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        req.query = schema.query.parse(req.query) as any
       }
       if (schema.params) {
-        req.params = schema.params.parse(req.params)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        req.params = schema.params.parse(req.params) as any
       }
       next()
     } catch (error) {

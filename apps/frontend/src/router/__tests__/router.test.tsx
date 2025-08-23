@@ -1,32 +1,34 @@
+import { describe, it, expect, vi } from 'vitest'
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, type Reducer } from '@reduxjs/toolkit'
 import { router } from '../index'
 import authReducer from '../../store/slices/authSlice'
 import uiReducer from '../../store/slices/uiSlice'
+import type { UIState } from '../../store/slices/uiSlice'
 
 // Mock all the page components
-jest.mock('../../pages/Dashboard', () => {
+vi.mock('../../pages/Dashboard', () => {
   return function Dashboard() {
     return <div>Dashboard Page</div>
   }
 })
 
-jest.mock('../../pages/auth/Login', () => {
+vi.mock('../../pages/auth/Login', () => {
   return function Login() {
     return <div>Login Page</div>
   }
 })
 
-jest.mock('../../pages/products/ProductList', () => {
+vi.mock('../../pages/products/ProductList', () => {
   return function ProductList() {
     return <div>Product List Page</div>
   }
 })
 
-jest.mock('../../pages/NotFound', () => {
+vi.mock('../../pages/NotFound', () => {
   return {
     NotFoundPage: function NotFound() {
       return <div>404 Not Found</div>
@@ -35,7 +37,7 @@ jest.mock('../../pages/NotFound', () => {
 })
 
 // Mock layout components
-jest.mock('../../components/layouts/DashboardLayout', () => {
+vi.mock('../../components/layouts/DashboardLayout', () => {
   return {
     DashboardLayout: function DashboardLayout() {
       return (
@@ -50,7 +52,7 @@ jest.mock('../../components/layouts/DashboardLayout', () => {
   }
 })
 
-jest.mock('../../components/layouts/AuthLayout', () => {
+vi.mock('../../components/layouts/AuthLayout', () => {
   return {
     AuthLayout: function AuthLayout() {
       return (
@@ -66,7 +68,7 @@ jest.mock('../../components/layouts/AuthLayout', () => {
 })
 
 // Mock route guards
-jest.mock('../ProtectedRoute', () => {
+vi.mock('../ProtectedRoute', () => {
   return {
     ProtectedRoute: function ProtectedRoute({
       children,
@@ -78,7 +80,7 @@ jest.mock('../ProtectedRoute', () => {
   }
 })
 
-jest.mock('../PublicRoute', () => {
+vi.mock('../PublicRoute', () => {
   return {
     PublicRoute: function PublicRoute({
       children,
@@ -95,7 +97,7 @@ const createMockStore = (authState: Record<string, unknown> = {}) => {
   return configureStore({
     reducer: {
       auth: authReducer,
-      ui: uiReducer,
+      ui: uiReducer as Reducer<UIState>,
     },
     preloadedState: {
       auth: {
@@ -117,7 +119,19 @@ const createMockStore = (authState: Record<string, unknown> = {}) => {
         headerHeight: 64,
         theme: 'light' as const,
         primaryColor: '#1890ff',
-        modals: {},
+        modals: {
+          productCreate: { id: 'productCreate', isOpen: false },
+          productEdit: { id: 'productEdit', isOpen: false },
+          productDelete: { id: 'productDelete', isOpen: false },
+          orderDetail: { id: 'orderDetail', isOpen: false },
+          orderCreate: { id: 'orderCreate', isOpen: false },
+          customerEdit: { id: 'customerEdit', isOpen: false },
+          customerDelete: { id: 'customerDelete', isOpen: false },
+          inventoryAdjust: { id: 'inventoryAdjust', isOpen: false },
+          bulkActions: { id: 'bulkActions', isOpen: false },
+          settings: { id: 'settings', isOpen: false },
+          shopifySync: { id: 'shopifySync', isOpen: false },
+        },
         loading: {
           global: false,
           products: false,

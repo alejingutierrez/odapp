@@ -16,7 +16,7 @@ export interface DropdownOption {
 }
 
 export interface DropdownProps
-  extends Omit<SelectProps, 'options' | 'children'> {
+  extends Omit<SelectProps<string | number, DropdownOption>, 'options' | 'children' | 'variant' | 'optionRender' | 'size'> {
   /** Dropdown options */
   options: DropdownOption[]
   /** Whether to show search input */

@@ -5,7 +5,7 @@ export { Label } from './Label'
 export { Icon } from './Icon'
 export { Badge } from './Badge'
 export { Avatar } from './Avatar'
-export { Typography } from './Typography'
+export { Title, Text, Paragraph, Link, Code } from './Typography'
 
 // Fashion-specific Atoms
 export { ColorSwatch } from './ColorSwatch'

@@ -1,69 +1,29 @@
-import { Router } from 'express';
-import { OrderService, CreateOrderRequest, UpdateOrderRequest, ProcessPaymentRequest, CreateFulfillmentRequest, CreateReturnRequest, OrderFilters } from '../services/order.service';
-// import { sendSuccess, sendError, sendNotFound, sendCreated, sendPaginated } from '../lib/api-response.js';
-import type { ApiResponse } from '../lib/api-response.js';
-import { logger } from '../lib/logger';
-import { z } from 'zod';
-import { OrderStatus, FinancialStatus, FulfillmentStatus, PaymentMethod } from '@prisma/client';
+import { Router } from 'express'
+import {
+  OrderService,
+  CreateOrderRequest,
+  UpdateOrderRequest,
+  ProcessPaymentRequest,
+  CreateFulfillmentRequest,
+  CreateReturnRequest,
+  OrderFilters,
+} from '../services/order.service'
+import { sendSuccess, sendError } from '../lib/api-response.js';
+import { logger } from '../lib/logger'
+import { authenticate } from '../middleware/auth.js'
+import { validate } from '../middleware/validation.js'
+import { z } from 'zod'
+import {
+  OrderStatus,
+  FinancialStatus,
+  FulfillmentStatus,
+  PaymentMethod,
+} from '@prisma/client'
 
-const router = Router();
-const orderService = new OrderService();
+const router = Router()
+const orderService = new OrderService()
 
 // Validation schemas
-const _createOrderSchema = z.object({
-  customerId: z.string().optional(),
-  guestEmail: z.string().email().optional(),
-  guestPhone: z.string().optional(),
-  items: z.array(z.object({
-    productId: z.string().optional(),
-    variantId: z.string().optional(),
-    quantity: z.number().int().positive(),
-    price: z.number().positive().optional()
-  })).min(1),
-  billingAddress: z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    company: z.string().optional(),
-    address1: z.string(),
-    address2: z.string().optional(),
-    city: z.string(),
-    state: z.string().optional(),
-    country: z.string(),
-    postalCode: z.string().optional(),
-    phone: z.string().optional()
-  }).optional(),
-  shippingAddress: z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    company: z.string().optional(),
-    address1: z.string(),
-    address2: z.string().optional(),
-    city: z.string(),
-    state: z.string().optional(),
-    country: z.string(),
-    postalCode: z.string().optional(),
-    phone: z.string().optional()
-  }).optional(),
-  shippingMethod: z.string().optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  currency: z.string().optional()
-}).refine(data => data.customerId || data.guestEmail, {
-  message: "Either customerId or guestEmail must be provided"
-}).refine(data => data.items.every(item => item.productId || item.variantId), {
-  message: "Each item must have either productId or variantId"
-});
-
-const _updateOrderSchema = z.object({
-  status: z.nativeEnum(OrderStatus).optional(),
-  financialStatus: z.nativeEnum(FinancialStatus).optional(),
-  fulfillmentStatus: z.nativeEnum(FulfillmentStatus).optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  shippingMethod: z.string().optional(),
-  trackingNumber: z.string().optional(),
-  trackingUrl: z.string().optional()
-});
 
 const processPaymentSchema = z.object({
   amount: z.number().positive(),
@@ -71,30 +31,38 @@ const processPaymentSchema = z.object({
   method: z.nativeEnum(PaymentMethod),
   gateway: z.string(),
   gatewayTransactionId: z.string().optional(),
-  metadata: z.any().optional()
-});
+  metadata: z.any().optional(),
+})
 
 const createFulfillmentSchema = z.object({
-  items: z.array(z.object({
-    orderItemId: z.string(),
-    quantity: z.number().int().positive()
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        orderItemId: z.string(),
+        quantity: z.number().int().positive(),
+      })
+    )
+    .min(1),
   trackingNumber: z.string().optional(),
   trackingUrl: z.string().optional(),
   carrier: z.string().optional(),
-  service: z.string().optional()
-});
+  service: z.string().optional(),
+})
 
 const createReturnSchema = z.object({
-  items: z.array(z.object({
-    orderItemId: z.string(),
-    quantity: z.number().int().positive(),
-    reason: z.string().optional(),
-    condition: z.string().optional()
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        orderItemId: z.string(),
+        quantity: z.number().int().positive(),
+        reason: z.string().optional(),
+        condition: z.string().optional(),
+      })
+    )
+    .min(1),
   reason: z.string().optional(),
-  notes: z.string().optional()
-});
+  notes: z.string().optional(),
+})
 
 const orderFiltersSchema = z.object({
   status: z.array(z.nativeEnum(OrderStatus)).optional(),
@@ -108,8 +76,8 @@ const orderFiltersSchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).optional(),
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
   sortBy: z.string().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional()
-});
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+})
 
 /**
  * @swagger
@@ -219,19 +187,27 @@ const orderFiltersSchema = z.object({
  */
 router.post('/', async (req, res) => {
   try {
-    const orderData: CreateOrderRequest = req.body;
-    const userId = req.user?.id;
+    const orderData: CreateOrderRequest = req.body
+    const userId = req.user?.id
 
-    const order = await orderService.createOrder(orderData, userId);
+    const order = await orderService.createOrder(orderData, userId)
 
-    logger.info('Order created via API', { orderId: order.id, userId });
+    logger.info('Order created via API', { orderId: order.id, userId })
 
-    res.status(201).json(ApiResponse.success(order, 'Order created successfully'));
+    res
+      .status(201)
+      .json(sendSuccess(res, order, 'Order created successfully'))
   } catch (error) {
-    logger.error('Error creating order', { error: error.message, body: req.body });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error creating order', {
+      error: errorMessage,
+      body: req.body,
+    })
+    res.status(statusCode).json(sendError(res, 'ORDER_CREATION_ERROR', errorMessage, statusCode))
   }
-});
+})
 
 /**
  * @swagger
@@ -262,33 +238,49 @@ router.post('/', async (req, res) => {
  *       200:
  *         description: Orders retrieved successfully
  */
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   try {
-    const validatedQuery = orderFiltersSchema.parse(req.query);
-    
-    const filters: OrderFilters = {};
-    if (validatedQuery.status) filters.status = validatedQuery.status;
-    if (validatedQuery.financialStatus) filters.financialStatus = validatedQuery.financialStatus;
-    if (validatedQuery.fulfillmentStatus) filters.fulfillmentStatus = validatedQuery.fulfillmentStatus;
-    if (validatedQuery.customerId) filters.customerId = validatedQuery.customerId;
-    if (validatedQuery.dateFrom) filters.dateFrom = new Date(validatedQuery.dateFrom);
-    if (validatedQuery.dateTo) filters.dateTo = new Date(validatedQuery.dateTo);
-    if (validatedQuery.search) filters.search = validatedQuery.search;
-    if (validatedQuery.tags) filters.tags = validatedQuery.tags;
+    const validatedQuery = orderFiltersSchema.parse(req.query)
 
-    const page = validatedQuery.page || 1;
-    const limit = validatedQuery.limit || 20;
-    const sortBy = validatedQuery.sortBy || 'createdAt';
-    const sortOrder = validatedQuery.sortOrder || 'desc';
+    const filters: OrderFilters = {}
+    if (validatedQuery.status) filters.status = validatedQuery.status
+    if (validatedQuery.financialStatus)
+      filters.financialStatus = validatedQuery.financialStatus
+    if (validatedQuery.fulfillmentStatus)
+      filters.fulfillmentStatus = validatedQuery.fulfillmentStatus
+    if (validatedQuery.customerId)
+      filters.customerId = validatedQuery.customerId
+    if (validatedQuery.dateFrom)
+      filters.dateFrom = new Date(validatedQuery.dateFrom)
+    if (validatedQuery.dateTo) filters.dateTo = new Date(validatedQuery.dateTo)
+    if (validatedQuery.search) filters.search = validatedQuery.search
+    if (validatedQuery.tags) filters.tags = validatedQuery.tags
 
-    const result = await orderService.getOrders(filters, page, limit, sortBy, sortOrder);
+    const page = validatedQuery.page || 1
+    const limit = validatedQuery.limit || 20
+    const sortBy = validatedQuery.sortBy || 'createdAt'
+    const sortOrder = validatedQuery.sortOrder || 'desc'
 
-    res.json(ApiResponse.success(result, 'Orders retrieved successfully'));
+    const result = await orderService.getOrders(
+      filters,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    )
+
+    res.json(sendSuccess(res, result, 'Orders retrieved successfully'))
   } catch (error) {
-    logger.error('Error retrieving orders', { error: error.message, query: req.query });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error retrieving orders', {
+      error: errorMessage,
+      query: req.query,
+    })
+    res.status(statusCode).json(sendError(res, 'ORDERS_RETRIEVAL_ERROR', errorMessage, statusCode))
   }
-});
+})
 
 /**
  * @swagger
@@ -317,22 +309,30 @@ router.get('/', authMiddleware, async (req, res) => {
  *       200:
  *         description: Order analytics retrieved successfully
  */
-router.get('/analytics', authMiddleware, async (req, res) => {
+router.get('/analytics', authenticate, async (req, res) => {
   try {
-    const { dateFrom, dateTo, customerId } = req.query;
+    const { dateFrom, dateTo, customerId } = req.query
 
     const analytics = await orderService.getOrderAnalytics(
       dateFrom ? new Date(dateFrom as string) : undefined,
       dateTo ? new Date(dateTo as string) : undefined,
       customerId as string
-    );
+    )
 
-    res.json(ApiResponse.success(analytics, 'Order analytics retrieved successfully'));
+    res.json(
+      sendSuccess(res, analytics, 'Order analytics retrieved successfully')
+    )
   } catch (error) {
-    logger.error('Error retrieving order analytics', { error: error.message, query: req.query });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error retrieving order analytics', {
+      error: errorMessage,
+      query: req.query,
+    })
+    res.status(statusCode).json(sendError(res, 'ANALYTICS_RETRIEVAL_ERROR', errorMessage, statusCode))
   }
-});
+})
 
 /**
  * @swagger
@@ -356,21 +356,27 @@ router.get('/analytics', authMiddleware, async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Order'
  */
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
-    const order = await orderService.getOrderById(id);
+    const { id } = req.params
+    const order = await orderService.getOrderById(id)
 
     if (!order) {
-      return res.status(404).json(ApiResponse.error('Order not found'));
+      return res.status(404).json(sendError(res, 'NOT_FOUND', 'Order not found', 404))
     }
 
-    res.json(ApiResponse.success(order, 'Order retrieved successfully'));
+    res.json(sendSuccess(res, order, 'Order retrieved successfully'))
   } catch (error) {
-    logger.error('Error retrieving order', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error retrieving order', {
+      error: errorMessage,
+      orderId: req.params.id,
+    })
+    res.status(statusCode).json(sendError(res, 'ORDER_RETRIEVAL_ERROR', errorMessage, statusCode))
   }
-});
+})
 
 /**
  * @swagger
@@ -401,22 +407,32 @@ router.get('/:id', authMiddleware, async (req, res) => {
  *       200:
  *         description: Order updated successfully
  */
-router.get('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData: UpdateOrderRequest = req.body;
-    const userId = req.user?.id;
+    const { id } = req.params
+    const updateData: UpdateOrderRequest = req.body
+    const userId = req.user?.id
 
-    const order = await orderService.updateOrder(id, updateData, userId);
+    const order = await orderService.updateOrder(id, updateData, userId)
 
-    logger.info('Order updated via API', { orderId: id, userId, changes: Object.keys(updateData) });
+    logger.info('Order updated via API', {
+      orderId: id,
+      userId,
+      changes: Object.keys(updateData),
+    })
 
-    res.json(ApiResponse.success(order, 'Order updated successfully'));
+    res.json(sendSuccess(res, order, 'Order updated successfully'))
   } catch (error) {
-    logger.error('Error updating order', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error updating order', {
+      error: errorMessage,
+      orderId: req.params.id,
+    })
+    res.status(statusCode).json(sendError(res, 'ORDER_UPDATE_ERROR', errorMessage, statusCode))
   }
-});
+})
 
 /**
  * @swagger
@@ -456,22 +472,37 @@ router.get('/:id', authMiddleware, async (req, res) => {
  *       200:
  *         description: Payment processed successfully
  */
-router.post('/:id/payments', authMiddleware, validateRequest(processPaymentSchema), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const paymentData: ProcessPaymentRequest = req.body;
-    const userId = req.user?.id;
+router.post(
+  '/:id/payments',
+  authenticate,
+  validate({ body: processPaymentSchema }),
+  async (req, res) => {
+    try {
+      const { id } = req.params
+      const paymentData: ProcessPaymentRequest = req.body
+      const userId = req.user?.id
 
-    const payment = await orderService.processPayment(id, paymentData, userId);
+      const payment = await orderService.processPayment(id, paymentData, userId)
 
-    logger.info('Payment processed via API', { orderId: id, paymentId: payment.id, userId });
+      logger.info('Payment processed via API', {
+        orderId: id,
+        paymentId: payment.id,
+        userId,
+      })
 
-    res.json(ApiResponse.success(payment, 'Payment processed successfully'));
-  } catch (error) {
-    logger.error('Error processing payment', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+      res.json(sendSuccess(res, payment, 'Payment processed successfully'))
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statusCode = (error as any)?.statusCode || 500
+      logger.error('Error processing payment', {
+        error: errorMessage,
+        orderId: req.params.id,
+      })
+      res.status(statusCode).json(sendError(res, 'PAYMENT_PROCESSING_ERROR', errorMessage, statusCode))
+    }
   }
-});
+)
 
 /**
  * @swagger
@@ -509,22 +540,46 @@ router.post('/:id/payments', authMiddleware, validateRequest(processPaymentSchem
  *       201:
  *         description: Fulfillment created successfully
  */
-router.post('/:id/fulfillments', authMiddleware, validateRequest(createFulfillmentSchema), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const fulfillmentData: CreateFulfillmentRequest = req.body;
-    const userId = req.user?.id;
+router.post(
+  '/:id/fulfillments',
+  authenticate,
+  validate({ body: createFulfillmentSchema }),
+  async (req, res) => {
+    try {
+      const { id } = req.params
+      const fulfillmentData: CreateFulfillmentRequest = req.body
+      const userId = req.user?.id
 
-    const fulfillment = await orderService.createFulfillment(id, fulfillmentData, userId);
+      const fulfillment = await orderService.createFulfillment(
+        id,
+        fulfillmentData,
+        userId
+      )
 
-    logger.info('Fulfillment created via API', { orderId: id, fulfillmentId: fulfillment.id, userId });
+      logger.info('Fulfillment created via API', {
+        orderId: id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fulfillmentId: (fulfillment as any)?.id,
+        userId,
+      })
 
-    res.status(201).json(ApiResponse.success(fulfillment, 'Fulfillment created successfully'));
-  } catch (error) {
-    logger.error('Error creating fulfillment', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+      res
+        .status(201)
+        .json(
+          sendSuccess(res, fulfillment, 'Fulfillment created successfully')
+        )
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statusCode = (error as any)?.statusCode || 500
+      logger.error('Error creating fulfillment', {
+        error: errorMessage,
+        orderId: req.params.id,
+      })
+      res.status(statusCode).json(sendError(res, 'FULFILLMENT_CREATION_ERROR', errorMessage, statusCode))
+    }
   }
-});
+)
 
 /**
  * @swagger
@@ -549,21 +604,37 @@ router.post('/:id/fulfillments', authMiddleware, validateRequest(createFulfillme
  *       200:
  *         description: Fulfillment shipped successfully
  */
-router.post('/:id/fulfillments/:fulfillmentId/ship', authMiddleware, async (req, res) => {
-  try {
-    const { fulfillmentId } = req.params;
-    const userId = req.user?.id;
+router.post(
+  '/:id/fulfillments/:fulfillmentId/ship',
+  authenticate,
+  async (req, res) => {
+    try {
+      const { fulfillmentId } = req.params
+      const userId = req.user?.id
 
-    const fulfillment = await orderService.shipFulfillment(fulfillmentId, userId);
+      const fulfillment = await orderService.shipFulfillment(
+        fulfillmentId,
+        {},
+        userId
+      )
 
-    logger.info('Fulfillment shipped via API', { fulfillmentId, userId });
+      logger.info('Fulfillment shipped via API', { fulfillmentId, userId })
 
-    res.json(ApiResponse.success(fulfillment, 'Fulfillment shipped successfully'));
-  } catch (error) {
-    logger.error('Error shipping fulfillment', { error: error.message, fulfillmentId: req.params.fulfillmentId });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+      res.json(
+        sendSuccess(res, fulfillment, 'Fulfillment shipped successfully')
+      )
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statusCode = (error as any)?.statusCode || 500
+      logger.error('Error shipping fulfillment', {
+        error: errorMessage,
+        fulfillmentId: req.params.fulfillmentId,
+      })
+      res.status(statusCode).json(sendError(res, 'FULFILLMENT_SHIPPING_ERROR', errorMessage, statusCode))
+    }
   }
-});
+)
 
 /**
  * @swagger
@@ -603,22 +674,44 @@ router.post('/:id/fulfillments/:fulfillmentId/ship', authMiddleware, async (req,
  *       201:
  *         description: Return created successfully
  */
-router.post('/:id/returns', authMiddleware, validateRequest(createReturnSchema), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const returnData: CreateReturnRequest = req.body;
-    const userId = req.user?.id;
+router.post(
+  '/:id/returns',
+  authenticate,
+  validate({ body: createReturnSchema }),
+  async (req, res) => {
+    try {
+      const { id } = req.params
+      const returnData: CreateReturnRequest = req.body
+      const userId = req.user?.id
 
-    const returnRecord = await orderService.createReturn(id, returnData, userId);
+      const returnRecord = await orderService.createReturn(
+        id,
+        returnData,
+        userId
+      )
 
-    logger.info('Return created via API', { orderId: id, returnId: returnRecord.id, userId });
+      logger.info('Return created via API', {
+        orderId: id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        returnId: (returnRecord as any)?.id,
+        userId,
+      })
 
-    res.status(201).json(ApiResponse.success(returnRecord, 'Return created successfully'));
-  } catch (error) {
-    logger.error('Error creating return', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+      res
+        .status(201)
+        .json(sendSuccess(res, returnRecord, 'Return created successfully'))
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statusCode = (error as any)?.statusCode || 500
+      logger.error('Error creating return', {
+        error: errorMessage,
+        orderId: req.params.id,
+      })
+      res.status(statusCode).json(sendError(res, 'RETURN_CREATION_ERROR', errorMessage, statusCode))
+    }
   }
-});
+)
 
 /**
  * @swagger
@@ -656,26 +749,50 @@ router.post('/:id/returns', authMiddleware, validateRequest(createReturnSchema),
  *       200:
  *         description: Return processed successfully
  */
-router.post('/:id/returns/:returnId/process', authMiddleware, async (req, res) => {
-  try {
-    const { returnId } = req.params;
-    const { approve, refundAmount } = req.body;
-    const userId = req.user?.id;
+router.post(
+  '/:id/returns/:returnId/process',
+  authenticate,
+  async (req, res) => {
+    try {
+      const { returnId } = req.params
+      const { approve, refundAmount } = req.body
+      const userId = req.user?.id
 
-    if (typeof approve !== 'boolean') {
-      return res.status(400).json(ApiResponse.error('approve field is required and must be boolean'));
+      if (typeof approve !== 'boolean') {
+        return res
+          .status(400)
+          .json(
+            sendError(res, 'INVALID_APPROVE_FIELD', 'approve field is required and must be boolean', 400)
+          )
+      }
+
+      const returnRecord = await orderService.processReturn(
+        returnId,
+        userId
+      )
+
+      logger.info('Return processed via API', {
+        returnId,
+        approve,
+        refundAmount,
+        userId,
+      })
+
+      res.json(
+        sendSuccess(res, returnRecord, 'Return processed successfully')
+      )
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statusCode = (error as any)?.statusCode || 500
+      logger.error('Error processing return', {
+        error: errorMessage,
+        returnId: req.params.returnId,
+      })
+      res.status(statusCode).json(sendError(res, 'RETURN_PROCESSING_ERROR', errorMessage, statusCode))
     }
-
-    const returnRecord = await orderService.processReturn(returnId, approve, refundAmount, userId);
-
-    logger.info('Return processed via API', { returnId, approve, refundAmount, userId });
-
-    res.json(ApiResponse.success(returnRecord, 'Return processed successfully'));
-  } catch (error) {
-    logger.error('Error processing return', { error: error.message, returnId: req.params.returnId });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
   }
-});
+)
 
 /**
  * @swagger
@@ -703,21 +820,27 @@ router.post('/:id/returns/:returnId/process', authMiddleware, async (req, res) =
  *       200:
  *         description: Order cancelled successfully
  */
-router.post('/:id/cancel', authMiddleware, async (req, res) => {
+router.post('/:id/cancel', authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { reason } = req.body;
-    const userId = req.user?.id;
+    const { id } = req.params
+    const { reason } = req.body
+    const userId = req.user?.id
 
-    const order = await orderService.cancelOrder(id, reason, userId);
+    const order = await orderService.cancelOrder(id, reason, userId)
 
-    logger.info('Order cancelled via API', { orderId: id, reason, userId });
+    logger.info('Order cancelled via API', { orderId: id, reason, userId })
 
-    res.json(ApiResponse.success(order, 'Order cancelled successfully'));
+    res.json(sendSuccess(res, order, 'Order cancelled successfully'))
   } catch (error) {
-    logger.error('Error cancelling order', { error: error.message, orderId: req.params.id });
-    res.status(error.statusCode || 500).json(ApiResponse.error(error.message));
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCode = (error as any)?.statusCode || 500
+    logger.error('Error cancelling order', {
+      error: errorMessage,
+      orderId: req.params.id,
+    })
+    res.status(statusCode).json(sendError(res, 'ORDER_CANCELLATION_ERROR', errorMessage, statusCode))
   }
-});
+})
 
-export default router;
+export default router

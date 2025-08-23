@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Accordion } from './Accordion';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Accordion } from './Accordion'
 
 const meta: Meta<typeof Accordion> = {
   title: 'Atoms/Accordion',
@@ -27,26 +27,31 @@ const meta: Meta<typeof Accordion> = {
       description: 'Size of the accordion',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 const sampleItems = [
   {
     key: '1',
-    label: 'Panel 1',
-    children: (
+    title: 'Panel 1',
+    content: (
       <div>
-        <p>This is the content of panel 1. It can contain any React elements.</p>
-        <p>Multiple paragraphs, lists, buttons, or other components can be placed here.</p>
+        <p>
+          This is the content of panel 1. It can contain any React elements.
+        </p>
+        <p>
+          Multiple paragraphs, lists, buttons, or other components can be placed
+          here.
+        </p>
       </div>
     ),
   },
   {
     key: '2',
-    label: 'Panel 2',
-    children: (
+    title: 'Panel 2',
+    content: (
       <div>
         <p>This is the content of panel 2.</p>
         <ul>
@@ -59,63 +64,70 @@ const sampleItems = [
   },
   {
     key: '3',
-    label: 'Panel 3',
-    children: <p>This is the content of panel 3. Short and simple.</p>,
+    title: 'Panel 3',
+    content: <p>This is the content of panel 3. Short and simple.</p>,
   },
-];
+]
 
 export const Default: Story = {
   args: {
     items: sampleItems,
   },
-};
+}
 
 export const AccordionMode: Story = {
   args: {
     items: sampleItems,
     accordion: true,
   },
-};
+}
 
 export const WithDefaultOpen: Story = {
   args: {
     items: sampleItems,
     defaultActiveKey: ['1', '2'],
   },
-};
+}
 
 export const Bordered: Story = {
   args: {
     items: sampleItems,
     bordered: true,
   },
-};
+}
 
 export const Ghost: Story = {
   args: {
     items: sampleItems,
     ghost: true,
   },
-};
+}
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '500px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        width: '500px',
+      }}
+    >
       <div>
         <h4>Small</h4>
-        <Accordion items={sampleItems} size="small" />
+        <Accordion items={sampleItems} size='small' />
       </div>
       <div>
         <h4>Middle (Default)</h4>
-        <Accordion items={sampleItems} size="middle" />
+        <Accordion items={sampleItems} size='middle' />
       </div>
       <div>
         <h4>Large</h4>
-        <Accordion items={sampleItems} size="large" />
+        <Accordion items={sampleItems} size='large' />
       </div>
     </div>
   ),
-};
+}
 
 export const WithDisabledPanel: Story = {
   args: {
@@ -123,44 +135,52 @@ export const WithDisabledPanel: Story = {
       ...sampleItems,
       {
         key: '4',
-        label: 'Disabled Panel',
-        children: <p>This panel is disabled and cannot be opened.</p>,
+        title: 'Disabled Panel',
+        content: <p>This panel is disabled and cannot be opened.</p>,
         disabled: true,
       },
     ],
   },
-};
+}
 
 export const ComplexContent: Story = {
   args: {
     items: [
       {
         key: '1',
-        label: 'User Information',
-        children: (
+        title: 'User Information',
+        content: (
           <div style={{ padding: '16px' }}>
             <h4>Personal Details</h4>
-            <p><strong>Name:</strong> John Doe</p>
-            <p><strong>Email:</strong> john.doe@example.com</p>
-            <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+            <p>
+              <strong>Name:</strong> John Doe
+            </p>
+            <p>
+              <strong>Email:</strong> john.doe@example.com
+            </p>
+            <p>
+              <strong>Phone:</strong> +1 (555) 123-4567
+            </p>
           </div>
         ),
       },
       {
         key: '2',
-        label: 'Settings & Preferences',
-        children: (
+        title: 'Settings & Preferences',
+        content: (
           <div style={{ padding: '16px' }}>
             <h4>Account Settings</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+            >
               <label>
-                <input type="checkbox" defaultChecked /> Email notifications
+                <input type='checkbox' defaultChecked /> Email notifications
               </label>
               <label>
-                <input type="checkbox" /> SMS notifications
+                <input type='checkbox' /> SMS notifications
               </label>
               <label>
-                <input type="checkbox" defaultChecked /> Marketing emails
+                <input type='checkbox' defaultChecked /> Marketing emails
               </label>
             </div>
           </div>
@@ -168,8 +188,8 @@ export const ComplexContent: Story = {
       },
       {
         key: '3',
-        label: 'Billing Information',
-        children: (
+        title: 'Billing Information',
+        content: (
           <div style={{ padding: '16px' }}>
             <h4>Payment Methods</h4>
             <p>Credit Card ending in ****1234</p>
@@ -182,4 +202,4 @@ export const ComplexContent: Story = {
       },
     ],
   },
-};
+}

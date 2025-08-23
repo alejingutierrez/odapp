@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Radio, Button, Modal, Table, Typography, Space, Tooltip } from 'antd'
-import { InfoCircleOutlined, RuleOutlined } from '@ant-design/icons'
+import type { RadioChangeEvent } from 'antd'
+import { InfoCircleOutlined, BulbOutlined } from '@ant-design/icons'
 import './SizeSelector.css'
 
 export interface SizeOption {
@@ -42,9 +43,8 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
 }) => {
   const [showChart, setShowChart] = useState(false)
 
-  const handleSizeChange = (e: { target: { value: string } }) => {
-    const size = e.target.value
-    onChange?.(size)
+  const handleSizeChange = (e: RadioChangeEvent) => {
+    onChange?.(e.target.value)
   }
 
   const getFitRecommendationColor = (fit?: string) => {
@@ -180,7 +180,7 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
             <Button
               type='link'
               size='small'
-              icon={<RuleOutlined />}
+              icon={<BulbOutlined />}
               onClick={() => setShowChart(true)}
               className='size-selector__chart-button'
             >

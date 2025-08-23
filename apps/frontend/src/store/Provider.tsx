@@ -19,7 +19,7 @@ const LoadingFallback: React.FC = () => (
       gap: '16px',
     }}
   >
-    <Spin size="large" />
+    <Spin size='large' />
     <div>Loading application...</div>
   </div>
 )

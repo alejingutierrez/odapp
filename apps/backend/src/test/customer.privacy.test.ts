@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { customerService } from '../services/customer.service.js'
 import { auditService } from '../services/audit.service.js'
 import { AppError } from '../lib/errors.js'
@@ -12,28 +12,28 @@ const mockPrisma = {
   customer: {
     findUnique: vi.fn(),
     update: vi.fn(),
-    delete: vi.fn()
+    delete: vi.fn(),
   },
   customerAddress: {
-    deleteMany: vi.fn()
+    deleteMany: vi.fn(),
   },
   customerInteraction: {
-    deleteMany: vi.fn()
+    deleteMany: vi.fn(),
   },
   loyaltyTransaction: {
-    deleteMany: vi.fn()
+    deleteMany: vi.fn(),
   },
   customerSegmentMember: {
-    deleteMany: vi.fn()
+    deleteMany: vi.fn(),
   },
   order: {
-    updateMany: vi.fn()
+    updateMany: vi.fn(),
   },
-  $transaction: vi.fn()
-} as any
+  $transaction: vi.fn(),
+}
 
 vi.mock('../lib/prisma.js', () => ({
-  prisma: mockPrisma
+  prisma: mockPrisma,
 }))
 
 describe('Customer Privacy Compliance', () => {
@@ -48,40 +48,52 @@ describe('Customer Privacy Compliance', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null,
-    addresses: [{
-      id: 'address-1',
-      firstName: 'John',
-      lastName: 'Doe',
-      address1: '123 Main St',
-      city: 'New York',
-      country: 'US',
-      postalCode: '10001'
-    }],
-    orders: [{
-      id: 'order-1',
-      orderNumber: 'ORD-001',
-      totalAmount: 100,
-      items: [{
-        name: 'Product 1',
-        sku: 'SKU-001',
-        quantity: 1,
-        price: 100
-      }]
-    }],
-    interactions: [{
-      id: 'interaction-1',
-      type: 'EMAIL',
-      content: 'Customer inquiry about order'
-    }],
-    loyaltyTransactions: [{
-      id: 'loyalty-1',
-      type: 'EARNED',
-      points: 50
-    }],
-    segmentMembers: [{
-      id: 'segment-member-1',
-      segmentId: 'segment-1'
-    }]
+    addresses: [
+      {
+        id: 'address-1',
+        firstName: 'John',
+        lastName: 'Doe',
+        address1: '123 Main St',
+        city: 'New York',
+        country: 'US',
+        postalCode: '10001',
+      },
+    ],
+    orders: [
+      {
+        id: 'order-1',
+        orderNumber: 'ORD-001',
+        totalAmount: 100,
+        items: [
+          {
+            name: 'Product 1',
+            sku: 'SKU-001',
+            quantity: 1,
+            price: 100,
+          },
+        ],
+      },
+    ],
+    interactions: [
+      {
+        id: 'interaction-1',
+        type: 'EMAIL',
+        content: 'Customer inquiry about order',
+      },
+    ],
+    loyaltyTransactions: [
+      {
+        id: 'loyalty-1',
+        type: 'EARNED',
+        points: 50,
+      },
+    ],
+    segmentMembers: [
+      {
+        id: 'segment-member-1',
+        segmentId: 'segment-1',
+      },
+    ],
   }
 
   beforeEach(() => {
@@ -102,7 +114,7 @@ describe('Customer Privacy Compliance', () => {
           firstName: 'John',
           lastName: 'Doe',
           phone: '+1234567890',
-          dateOfBirth: expect.any(Date)
+          dateOfBirth: expect.any(Date),
         }),
         addresses: expect.arrayContaining([
           expect.objectContaining({
@@ -111,8 +123,8 @@ describe('Customer Privacy Compliance', () => {
             address1: '123 Main St',
             city: 'New York',
             country: 'US',
-            postalCode: '10001'
-          })
+            postalCode: '10001',
+          }),
         ]),
         orderHistory: expect.arrayContaining([
           expect.objectContaining({
@@ -123,24 +135,24 @@ describe('Customer Privacy Compliance', () => {
                 name: 'Product 1',
                 sku: 'SKU-001',
                 quantity: 1,
-                price: 100
-              })
-            ])
-          })
+                price: 100,
+              }),
+            ]),
+          }),
         ]),
         interactions: expect.arrayContaining([
           expect.objectContaining({
-            type: 'EMAIL'
-          })
+            type: 'EMAIL',
+          }),
         ]),
         loyaltyProgram: expect.objectContaining({
           transactions: expect.arrayContaining([
             expect.objectContaining({
               type: 'EARNED',
-              points: 50
-            })
-          ])
-        })
+              points: 50,
+            }),
+          ]),
+        }),
       })
 
       // Verify audit log for data export
@@ -148,7 +160,7 @@ describe('Customer Privacy Compliance', () => {
         action: 'customer_data_exported',
         entity: 'customer',
         entityId: 'customer-1',
-        newValues: { exportedAt: expect.any(Date) }
+        newValues: { exportedAt: expect.any(Date) },
       })
     })
 
@@ -177,7 +189,7 @@ describe('Customer Privacy Compliance', () => {
   describe('GDPR Compliance - Right to be Forgotten', () => {
     it('should perform complete data deletion for GDPR compliance', async () => {
       mockPrisma.customer.findUnique.mockResolvedValue(mockCustomer)
-      
+
       // Mock transaction to simulate complete data deletion
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         const mockTx = {
@@ -186,7 +198,7 @@ describe('Customer Privacy Compliance', () => {
           loyaltyTransaction: { deleteMany: vi.fn() },
           customerSegmentMember: { deleteMany: vi.fn() },
           order: { updateMany: vi.fn() },
-          customer: { delete: vi.fn() }
+          customer: { delete: vi.fn() },
         }
         return callback(mockTx)
       })
@@ -199,8 +211,8 @@ describe('Customer Privacy Compliance', () => {
         where: { id: 'customer-1' },
         data: {
           deletedAt: expect.any(Date),
-          email: expect.stringContaining('test@example.com_deleted_')
-        }
+          email: expect.stringContaining('test@example.com_deleted_'),
+        },
       })
 
       // Verify audit log
@@ -209,7 +221,7 @@ describe('Customer Privacy Compliance', () => {
         entity: 'customer',
         entityId: 'customer-1',
         oldValues: mockCustomer,
-        userId: 'admin-user'
+        userId: 'admin-user',
       })
     })
   })
@@ -220,7 +232,7 @@ describe('Customer Privacy Compliance', () => {
         email: 'minimal@example.com',
         firstName: 'Jane',
         lastName: 'Doe',
-        acceptsMarketing: false
+        acceptsMarketing: false,
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(null) // No existing customer
@@ -228,19 +240,19 @@ describe('Customer Privacy Compliance', () => {
         id: 'customer-2',
         ...minimalCustomerData,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
 
-      const result = await customerService.createCustomer(minimalCustomerData)
+      await customerService.createCustomer(minimalCustomerData)
 
       expect(mockPrisma.customer.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           email: 'minimal@example.com',
           firstName: 'Jane',
           lastName: 'Doe',
-          marketingOptIn: false
+          marketingOptIn: false,
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
 
@@ -252,7 +264,7 @@ describe('Customer Privacy Compliance', () => {
         // These should not be stored if not necessary
         socialSecurityNumber: '123-45-6789',
         creditCardNumber: '4111111111111111',
-        acceptsMarketing: true
+        acceptsMarketing: true,
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(null)
@@ -263,7 +275,7 @@ describe('Customer Privacy Compliance', () => {
         lastName: 'Doe',
         marketingOptIn: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
 
       await customerService.createCustomer(customerDataWithExtra)
@@ -272,9 +284,9 @@ describe('Customer Privacy Compliance', () => {
       expect(mockPrisma.customer.create).toHaveBeenCalledWith({
         data: expect.not.objectContaining({
           socialSecurityNumber: expect.any(String),
-          creditCardNumber: expect.any(String)
+          creditCardNumber: expect.any(String),
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
   })
@@ -289,8 +301,8 @@ describe('Customer Privacy Compliance', () => {
         acceptsSmsMarketing: false,
         preferences: {
           emailMarketing: true,
-          newsletter: false
-        }
+          newsletter: false,
+        },
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(null)
@@ -301,7 +313,7 @@ describe('Customer Privacy Compliance', () => {
         emailOptIn: true,
         smsOptIn: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
 
       await customerService.createCustomer(customerWithConsent)
@@ -310,9 +322,9 @@ describe('Customer Privacy Compliance', () => {
         data: expect.objectContaining({
           marketingOptIn: true,
           emailOptIn: true,
-          smsOptIn: false
+          smsOptIn: false,
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
 
@@ -321,7 +333,7 @@ describe('Customer Privacy Compliance', () => {
         ...mockCustomer,
         marketingOptIn: true,
         emailOptIn: true,
-        smsOptIn: true
+        smsOptIn: true,
       }
 
       const consentWithdrawal = {
@@ -329,8 +341,8 @@ describe('Customer Privacy Compliance', () => {
         acceptsMarketing: false,
         acceptsSmsMarketing: false,
         preferences: {
-          emailMarketing: false
-        }
+          emailMarketing: false,
+        },
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(existingCustomer)
@@ -338,7 +350,7 @@ describe('Customer Privacy Compliance', () => {
         ...existingCustomer,
         marketingOptIn: false,
         emailOptIn: false,
-        smsOptIn: false
+        smsOptIn: false,
       })
 
       await customerService.updateCustomer('customer-1', consentWithdrawal)
@@ -349,9 +361,9 @@ describe('Customer Privacy Compliance', () => {
           marketingOptIn: false,
           emailOptIn: false,
           smsOptIn: false,
-          updatedAt: expect.any(Date)
+          updatedAt: expect.any(Date),
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
 
       // Verify audit log for consent changes
@@ -361,7 +373,7 @@ describe('Customer Privacy Compliance', () => {
         entityId: 'customer-1',
         oldValues: existingCustomer,
         newValues: expect.any(Object),
-        userId: undefined
+        userId: undefined,
       })
     })
   })
@@ -372,7 +384,7 @@ describe('Customer Privacy Compliance', () => {
       // For now, we'll test that deleted customers are properly marked
       const oldCustomer = {
         ...mockCustomer,
-        deletedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) // 1 year ago
+        deletedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), // 1 year ago
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(oldCustomer)
@@ -394,7 +406,7 @@ describe('Customer Privacy Compliance', () => {
       // For now, we verify the customer was retrieved securely
       expect(mockPrisma.customer.findUnique).toHaveBeenCalledWith({
         where: { id: 'customer-1', deletedAt: null },
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
     })
 
@@ -439,13 +451,20 @@ describe('Customer Privacy Compliance', () => {
       const updateData = {
         id: 'customer-1',
         firstName: 'John Updated',
-        email: 'updated@example.com'
+        email: 'updated@example.com',
       }
 
       mockPrisma.customer.findUnique.mockResolvedValue(mockCustomer)
-      mockPrisma.customer.update.mockResolvedValue({ ...mockCustomer, ...updateData })
+      mockPrisma.customer.update.mockResolvedValue({
+        ...mockCustomer,
+        ...updateData,
+      })
 
-      await customerService.updateCustomer('customer-1', updateData, 'admin-user')
+      await customerService.updateCustomer(
+        'customer-1',
+        updateData,
+        'admin-user'
+      )
 
       // Verify comprehensive audit logging
       expect(auditService.log).toHaveBeenCalledWith({
@@ -454,7 +473,7 @@ describe('Customer Privacy Compliance', () => {
         entityId: 'customer-1',
         oldValues: mockCustomer,
         newValues: expect.any(Object),
-        userId: 'admin-user'
+        userId: 'admin-user',
       })
     })
 
@@ -467,13 +486,16 @@ describe('Customer Privacy Compliance', () => {
         action: 'customer_data_exported',
         entity: 'customer',
         entityId: 'customer-1',
-        newValues: { exportedAt: expect.any(Date) }
+        newValues: { exportedAt: expect.any(Date) },
       })
     })
 
     it('should log data deletion requests', async () => {
       mockPrisma.customer.findUnique.mockResolvedValue(mockCustomer)
-      mockPrisma.customer.update.mockResolvedValue({ ...mockCustomer, deletedAt: new Date() })
+      mockPrisma.customer.update.mockResolvedValue({
+        ...mockCustomer,
+        deletedAt: new Date(),
+      })
 
       await customerService.deleteCustomer('customer-1', 'admin-user')
 
@@ -482,7 +504,7 @@ describe('Customer Privacy Compliance', () => {
         entity: 'customer',
         entityId: 'customer-1',
         oldValues: mockCustomer,
-        userId: 'admin-user'
+        userId: 'admin-user',
       })
     })
   })
@@ -505,7 +527,7 @@ describe('Customer Privacy Compliance', () => {
         // Geographic data can be generalized
         country: 'US',
         state: null, // Removed for privacy
-        city: null   // Removed for privacy
+        city: null, // Removed for privacy
       }
 
       // In a real implementation, this would be a separate anonymization method

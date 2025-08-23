@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { DollarOutlined, ShoppingOutlined, UserOutlined, TrendingUpOutlined } from '@ant-design/icons'
+import {
+  DollarOutlined,
+  ShoppingOutlined,
+  UserOutlined,
+  RiseOutlined,
+} from '@ant-design/icons'
 import { MetricCard } from './MetricCard'
 
 const meta: Meta<typeof MetricCard> = {
@@ -9,21 +14,22 @@ const meta: Meta<typeof MetricCard> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A metric card for displaying KPIs with trends, progress, and comparisons.'
-      }
-    }
+        component:
+          'A metric card for displaying KPIs with trends, progress, and comparisons.',
+      },
+    },
   },
   argTypes: {
     onClick: { action: 'card clicked' },
     size: {
       control: { type: 'select' },
-      options: ['small', 'default', 'large']
+      options: ['small', 'default', 'large'],
     },
     color: {
       control: { type: 'select' },
-      options: ['primary', 'success', 'warning', 'error', 'default']
-    }
-  }
+      options: ['primary', 'success', 'warning', 'error', 'default'],
+    },
+  },
 }
 
 export default meta
@@ -38,10 +44,10 @@ export const Revenue: Story = {
     trend: {
       value: 12.5,
       period: 'last month',
-      isPositive: true
+      isPositive: true,
     },
-    color: 'success'
-  }
+    color: 'success',
+  },
 }
 
 export const Orders: Story = {
@@ -53,10 +59,10 @@ export const Orders: Story = {
     trend: {
       value: -3.2,
       period: 'last week',
-      isPositive: false
+      isPositive: false,
     },
-    color: 'primary'
-  }
+    color: 'primary',
+  },
 }
 
 export const Customers: Story = {
@@ -68,10 +74,10 @@ export const Customers: Story = {
     trend: {
       value: 8.7,
       period: 'last month',
-      isPositive: true
+      isPositive: true,
     },
-    color: 'default'
-  }
+    color: 'default',
+  },
 }
 
 export const WithProgress: Story = {
@@ -79,27 +85,27 @@ export const WithProgress: Story = {
     title: 'Sales Target',
     value: '$89,432',
     subtitle: 'of $120,000 goal',
-    icon: <TrendingUpOutlined />,
+    icon: <RiseOutlined />,
     progress: {
       percent: 74.5,
-      status: 'active'
+      status: 'active',
     },
-    color: 'warning'
-  }
+    color: 'warning',
+  },
 }
 
 export const Small: Story = {
   args: {
     title: 'Conversion Rate',
     value: '3.24%',
-    icon: <TrendingUpOutlined />,
+    icon: <RiseOutlined />,
     trend: {
       value: 0.8,
-      period: 'yesterday'
+      period: 'yesterday',
     },
     size: 'small',
-    color: 'success'
-  }
+    color: 'success',
+  },
 }
 
 export const Large: Story = {
@@ -111,15 +117,15 @@ export const Large: Story = {
     trend: {
       value: 23.4,
       period: 'last month',
-      isPositive: true
+      isPositive: true,
     },
     progress: {
       percent: 89,
-      status: 'success'
+      status: 'success',
     },
     size: 'large',
-    color: 'primary'
-  }
+    color: 'primary',
+  },
 }
 
 export const Loading: Story = {
@@ -127,8 +133,8 @@ export const Loading: Story = {
     title: 'Loading Metric',
     value: '---',
     icon: <DollarOutlined />,
-    loading: true
-  }
+    loading: true,
+  },
 }
 
 export const Clickable: Story = {
@@ -138,8 +144,8 @@ export const Clickable: Story = {
     subtitle: 'Interactive card',
     icon: <DollarOutlined />,
     onClick: () => console.log('Metric card clicked!'),
-    color: 'primary'
-  }
+    color: 'primary',
+  },
 }
 
 export const Error: Story = {
@@ -151,8 +157,8 @@ export const Error: Story = {
     trend: {
       value: 15.2,
       period: 'yesterday',
-      isPositive: false
+      isPositive: false,
     },
-    color: 'error'
-  }
+    color: 'error',
+  },
 }

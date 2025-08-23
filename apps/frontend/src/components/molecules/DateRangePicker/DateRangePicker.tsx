@@ -3,7 +3,11 @@ import { DatePicker, Button, Space, Typography, Dropdown, Tag } from 'antd'
 import { CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import './DateRangePicker.css'
+
+// Extend dayjs with quarter plugin
+dayjs.extend(quarterOfYear)
 
 const { RangePicker } = DatePicker
 
@@ -40,7 +44,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   disabled = false,
   allowClear = true,
   size = 'middle',
-  className = ''
+  className = '',
 }) => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
 
@@ -50,56 +54,71 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const presets: PresetRange[] = [
     {
       label: 'Today',
-      value: [dayjs().startOf('day'), dayjs().endOf('day')]
+      value: [dayjs().startOf('day'), dayjs().endOf('day')],
     },
     {
       label: 'Yesterday',
-      value: [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')]
+      value: [
+        dayjs().subtract(1, 'day').startOf('day'),
+        dayjs().subtract(1, 'day').endOf('day'),
+      ],
     },
     {
       label: 'This Week',
-      value: [dayjs().startOf('week'), dayjs().endOf('week')]
+      value: [dayjs().startOf('week'), dayjs().endOf('week')],
     },
     {
       label: 'Last Week',
-      value: [dayjs().subtract(1, 'week').startOf('week'), dayjs().subtract(1, 'week').endOf('week')]
+      value: [
+        dayjs().subtract(1, 'week').startOf('week'),
+        dayjs().subtract(1, 'week').endOf('week'),
+      ],
     },
     {
       label: 'This Month',
-      value: [dayjs().startOf('month'), dayjs().endOf('month')]
+      value: [dayjs().startOf('month'), dayjs().endOf('month')],
     },
     {
       label: 'Last Month',
-      value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')]
+      value: [
+        dayjs().subtract(1, 'month').startOf('month'),
+        dayjs().subtract(1, 'month').endOf('month'),
+      ],
     },
     {
       label: 'This Quarter',
-      value: [dayjs().startOf('quarter'), dayjs().endOf('quarter')]
+      value: [dayjs().startOf('quarter'), dayjs().endOf('quarter')],
     },
     {
       label: 'Last Quarter',
-      value: [dayjs().subtract(1, 'quarter').startOf('quarter'), dayjs().subtract(1, 'quarter').endOf('quarter')]
+      value: [
+        dayjs().subtract(3, 'month').startOf('quarter'),
+        dayjs().subtract(3, 'month').endOf('quarter'),
+      ],
     },
     {
       label: 'This Year',
-      value: [dayjs().startOf('year'), dayjs().endOf('year')]
+      value: [dayjs().startOf('year'), dayjs().endOf('year')],
     },
     {
       label: 'Last Year',
-      value: [dayjs().subtract(1, 'year').startOf('year'), dayjs().subtract(1, 'year').endOf('year')]
+      value: [
+        dayjs().subtract(1, 'year').startOf('year'),
+        dayjs().subtract(1, 'year').endOf('year'),
+      ],
     },
     {
       label: 'Last 7 Days',
-      value: [dayjs().subtract(7, 'day'), dayjs()]
+      value: [dayjs().subtract(7, 'day'), dayjs()],
     },
     {
       label: 'Last 30 Days',
-      value: [dayjs().subtract(30, 'day'), dayjs()]
+      value: [dayjs().subtract(30, 'day'), dayjs()],
     },
     {
       label: 'Last 90 Days',
-      value: [dayjs().subtract(90, 'day'), dayjs()]
-    }
+      value: [dayjs().subtract(90, 'day'), dayjs()],
+    },
   ]
 
   const handleRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
@@ -128,31 +147,31 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     <Button
       key={preset.label}
       type={selectedPreset === preset.label ? 'primary' : 'default'}
-      size="small"
+      size='small'
       onClick={() => handlePresetSelect(preset)}
-      className="date-range-picker__preset-btn"
+      className='date-range-picker__preset-btn'
     >
       {preset.label}
     </Button>
   )
 
   const renderPresetDropdown = () => {
-    const menuItems = presets.map(preset => ({
+    const menuItems = presets.map((preset) => ({
       key: preset.label,
       label: preset.label,
-      onClick: () => handlePresetSelect(preset)
+      onClick: () => handlePresetSelect(preset),
     }))
 
     return (
       <Dropdown
         menu={{ items: menuItems }}
         trigger={['click']}
-        placement="bottomLeft"
+        placement='bottomLeft'
       >
-        <Button 
+        <Button
           icon={<ClockCircleOutlined />}
           size={size}
-          className="date-range-picker__preset-dropdown"
+          className='date-range-picker__preset-dropdown'
         >
           Quick Select
         </Button>
@@ -164,19 +183,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     if (!showPresets) return null
 
     return (
-      <div className="date-range-picker__presets">
-        <Typography.Text 
-          type="secondary" 
-          className="date-range-picker__presets-label"
+      <div className='date-range-picker__presets'>
+        <Typography.Text
+          type='secondary'
+          className='date-range-picker__presets-label'
         >
           Quick select:
         </Typography.Text>
-        
-        <div className="date-range-picker__presets-buttons">
+
+        <div className='date-range-picker__presets-buttons'>
           {presets.slice(0, 6).map(renderPresetButton)}
         </div>
-        
-        <div className="date-range-picker__presets-more">
+
+        <div className='date-range-picker__presets-more'>
           {renderPresetDropdown()}
         </div>
       </div>
@@ -187,15 +206,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     if (!value?.start || !value?.end) return null
 
     const duration = value.end.diff(value.start, 'day') + 1
-    
+
     return (
-      <div className="date-range-picker__selection-info">
-        <Space size="small">
-          <Tag color="blue" className="date-range-picker__duration-tag">
+      <div className='date-range-picker__selection-info'>
+        <Space size='small'>
+          <Tag color='blue' className='date-range-picker__duration-tag'>
             {duration} day{duration !== 1 ? 's' : ''} selected
           </Tag>
           {selectedPreset && (
-            <Tag color="green" className="date-range-picker__preset-tag">
+            <Tag color='green' className='date-range-picker__preset-tag'>
               {selectedPreset}
             </Tag>
           )}
@@ -206,7 +225,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   return (
     <div className={`date-range-picker ${className}`}>
-      <div className="date-range-picker__input-section">
+      <div className='date-range-picker__input-section'>
         <RangePicker
           value={value?.start && value?.end ? [value.start, value.end] : null}
           onChange={handleRangeChange}
@@ -217,15 +236,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           allowClear={allowClear}
           size={size}
           suffixIcon={<CalendarOutlined />}
-          className="date-range-picker__picker"
+          className='date-range-picker__picker'
         />
-        
+
         {allowClear && (value?.start || value?.end) && (
           <Button
-            type="text"
-            size="small"
+            type='text'
+            size='small'
             onClick={handleClear}
-            className="date-range-picker__clear-btn"
+            className='date-range-picker__clear-btn'
           >
             Clear
           </Button>

@@ -1,15 +1,10 @@
 import { PrismaClient } from '@prisma/client'
-import { logger } from './logger.js'
 import { v4 as uuidv4 } from 'uuid'
-
-import { SyncStatus } from '../types/shopify.js'
+import { logger } from './logger'
+import { SyncStatus } from '../types/shopify'
 
 export class SyncStatusManager {
-  private _prisma: PrismaClient
-
-  constructor(prisma: PrismaClient) {
-    this._prisma = prisma
-  }
+  constructor(private _prisma: PrismaClient) {}
 
   async startSync(
     entityType: string,
@@ -19,7 +14,7 @@ export class SyncStatusManager {
 
     try {
       // TODO: Add SyncStatus model to Prisma schema
-      // await this._prisma.syncStatus.create({
+      // // await this._prisma.syncStatus.create({
       //   data: {
       //     id: syncId,
       //     entityType,
@@ -47,7 +42,7 @@ export class SyncStatusManager {
   ): Promise<void> {
     try {
       // TODO: Add SyncStatus model to Prisma schema
-      // await this._prisma.syncStatus.update({
+      // // await this._prisma.syncStatus.update({
       //   where: { id: syncId },
       //   data: {
       //     status: 'completed',
@@ -87,8 +82,8 @@ export class SyncStatusManager {
   }
 
   async updateSyncProgress(
-    _syncId: string,
-    _progress: {
+    syncId: string,
+    progress: {
       successful: number
       failed: number
       total: number
@@ -111,7 +106,7 @@ export class SyncStatusManager {
     }
   }
 
-  async getSyncStatus(_syncId: string): Promise<SyncStatus | null> {
+  async getSyncStatus(syncId: string): Promise<SyncStatus | null> {
     try {
       // TODO: Add SyncStatus model to Prisma schema
       // const status = await this._prisma.syncStatus.findUnique({
@@ -127,11 +122,10 @@ export class SyncStatusManager {
 
   async getAllSyncStatuses(): Promise<SyncStatus[]> {
     try {
-      // TODO: Add SyncStatus model to Prisma schema
       // const statuses = await this._prisma.syncStatus.findMany({
-      //   orderBy: { startedAt: 'desc' },
-      //   take: 100, // Limit to recent syncs
-      // })
+        orderBy: { startedAt: 'desc' },
+        take: 100, // Limit to recent syncs
+      })
 
       return [] // Temporary return until SyncStatus model is added
     } catch (error) {
@@ -140,7 +134,7 @@ export class SyncStatusManager {
     }
   }
 
-  async getSyncHistory(_entityType?: string): Promise<SyncStatus[]> {
+  async getSyncHistory(entityType?: string): Promise<SyncStatus[]> {
     try {
       // TODO: Add SyncStatus model to Prisma schema
       // const statuses = await this._prisma.syncStatus.findMany({
@@ -156,7 +150,7 @@ export class SyncStatusManager {
     }
   }
 
-  async getLastSyncTime(_entityType: string): Promise<Date | undefined> {
+  async getLastSyncTime(entityType: string): Promise<Date | undefined> {
     try {
       // TODO: Add SyncStatus model to Prisma schema
       // const lastSync = await this._prisma.syncStatus.findFirst({

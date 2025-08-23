@@ -1,7 +1,7 @@
-export { 
-  SeasonalTag, 
-  type SeasonalTagProps, 
-  type Season, 
-  type TrendLevel 
+export {
+  SeasonalTag,
+  type SeasonalTagProps,
+  type Season,
+  type TrendLevel,
 } from './SeasonalTag'
 export { default } from './SeasonalTag'

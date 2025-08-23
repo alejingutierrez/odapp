@@ -1,13 +1,18 @@
-import React from 'react';
-import { Tag, TagProps } from 'antd';
-import { ArrowDownOutlined, ArrowUpOutlined, ExclamationOutlined, MinusOutlined } from '@ant-design/icons';
+import React from 'react'
+import { Tag, TagProps } from 'antd'
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  ExclamationOutlined,
+  MinusOutlined,
+} from '@ant-design/icons'
 
-export type PriorityType = 'low' | 'medium' | 'high' | 'urgent';
+export type PriorityType = 'low' | 'medium' | 'high' | 'urgent'
 
 export interface PriorityTagProps extends Omit<TagProps, 'color'> {
-  priority: PriorityType;
-  text?: string;
-  showIcon?: boolean;
+  priority: PriorityType
+  text?: string
+  showIcon?: boolean
 }
 
 const priorityConfig = {
@@ -15,7 +20,7 @@ const priorityConfig = {
   medium: { color: 'blue', icon: MinusOutlined },
   high: { color: 'orange', icon: ArrowUpOutlined },
   urgent: { color: 'red', icon: ExclamationOutlined },
-} as const;
+} as const
 
 export const PriorityTag: React.FC<PriorityTagProps> = ({
   priority,
@@ -24,13 +29,13 @@ export const PriorityTag: React.FC<PriorityTagProps> = ({
   children,
   ...props
 }) => {
-  const config = priorityConfig[priority];
-  const IconComponent = config.icon;
+  const config = priorityConfig[priority]
+  const IconComponent = config.icon
 
   return (
     <Tag color={config.color} {...props}>
       {showIcon && <IconComponent style={{ marginRight: 4 }} />}
       {text || children || priority.charAt(0).toUpperCase() + priority.slice(1)}
     </Tag>
-  );
-};
+  )
+}

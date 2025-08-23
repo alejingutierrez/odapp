@@ -76,7 +76,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
       {selected && (
         <CheckOutlined
           className={`oda-color-swatch__check ${
-            isLightColor(color) ? 'oda-color-swatch__check--dark' : 'oda-color-swatch__check--light'
+            isLightColor(color)
+              ? 'oda-color-swatch__check--dark'
+              : 'oda-color-swatch__check--light'
           }`}
         />
       )}
@@ -85,7 +87,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
 
   if (showTooltip && name) {
     return (
-      <Tooltip title={name} placement="top">
+      <Tooltip title={name} placement='top'>
         {swatch}
       </Tooltip>
     )

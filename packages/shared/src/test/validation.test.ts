@@ -1,64 +1,37 @@
 import { describe, it, expect } from 'vitest'
-import { z } from 'zod'
 import {
   // Common schemas
   emailSchema,
   passwordSchema,
   phoneSchema,
-  urlSchema,
   slugSchema,
   colorHexSchema,
-  currencySchema,
   skuSchema,
   paginationSchema,
-  searchSchema,
   dateRangeSchema,
-  uuidSchema,
   sanitizeString,
   sanitizeHtml,
-  
+
   // Product schemas
   productSchema,
-  createProductSchema,
-  updateProductSchema,
   productQuerySchema,
   productVariantSchema,
-  productImageSchema,
-  productCategorySchema,
-  productCollectionSchema,
-  
+
   // Customer schemas
   customerSchema,
-  createCustomerSchema,
-  updateCustomerSchema,
-  customerQuerySchema,
   customerAddressSchema,
-  customerPreferencesSchema,
-  customerSegmentSchema,
-  
+
   // Order schemas
   orderSchema,
-  createOrderSchema,
-  updateOrderSchema,
-  orderQuerySchema,
   orderLineItemSchema,
-  orderDiscountSchema,
-  orderShippingLineSchema,
-  
+
   // Auth schemas
-  userSchema,
   loginSchema,
   registerSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  changePasswordSchema,
-  
+
   // Shopify schemas
   shopifyConfigSchema,
-  shopifySyncConfigSchema,
   shopifyWebhookSchema,
-  shopifyProductSyncSchema,
-  shopifyInventorySyncSchema,
 } from '../schemas.js'
 
 describe('Common Validation Schemas', () => {
@@ -69,8 +42,8 @@ describe('Common Validation Schemas', () => {
         'test.email+tag@domain.co.uk',
         'user123@test-domain.com',
       ]
-      
-      validEmails.forEach(email => {
+
+      validEmails.forEach((email) => {
         expect(emailSchema.parse(email)).toBe(email)
       })
     })
@@ -82,8 +55,8 @@ describe('Common Validation Schemas', () => {
         'user@',
         'user..double.dot@domain.com',
       ]
-      
-      invalidEmails.forEach(email => {
+
+      invalidEmails.forEach((email) => {
         expect(() => emailSchema.parse(email)).toThrow()
       })
     })
@@ -91,13 +64,9 @@ describe('Common Validation Schemas', () => {
 
   describe('passwordSchema', () => {
     it('should validate strong passwords', () => {
-      const validPasswords = [
-        'StrongPass123!',
-        'MyP@ssw0rd',
-        'Complex1ty!',
-      ]
-      
-      validPasswords.forEach(password => {
+      const validPasswords = ['StrongPass123!', 'MyP@ssw0rd', 'Complex1ty!']
+
+      validPasswords.forEach((password) => {
         expect(passwordSchema.parse(password)).toBe(password)
       })
     })
@@ -111,8 +80,8 @@ describe('Common Validation Schemas', () => {
         'nospecialchars123',
         'short1!',
       ]
-      
-      invalidPasswords.forEach(password => {
+
+      invalidPasswords.forEach((password) => {
         expect(() => passwordSchema.parse(password)).toThrow()
       })
     })
@@ -126,20 +95,16 @@ describe('Common Validation Schemas', () => {
         '555-123-4567',
         '+44 20 7946 0958',
       ]
-      
-      validPhones.forEach(phone => {
+
+      validPhones.forEach((phone) => {
         expect(phoneSchema.parse(phone)).toBe(phone)
       })
     })
 
     it('should reject invalid phone numbers', () => {
-      const invalidPhones = [
-        'abc123',
-        '123-abc-4567',
-        'phone-number',
-      ]
-      
-      invalidPhones.forEach(phone => {
+      const invalidPhones = ['abc123', '123-abc-4567', 'phone-number']
+
+      invalidPhones.forEach((phone) => {
         expect(() => phoneSchema.parse(phone)).toThrow()
       })
     })
@@ -153,8 +118,8 @@ describe('Common Validation Schemas', () => {
         'simple-slug',
         'a-very-long-slug-with-many-words',
       ]
-      
-      validSlugs.forEach(slug => {
+
+      validSlugs.forEach((slug) => {
         expect(slugSchema.parse(slug)).toBe(slug)
       })
     })
@@ -168,8 +133,8 @@ describe('Common Validation Schemas', () => {
         '-slug',
         'slug--double-dash',
       ]
-      
-      invalidSlugs.forEach(slug => {
+
+      invalidSlugs.forEach((slug) => {
         expect(() => slugSchema.parse(slug)).toThrow()
       })
     })
@@ -185,22 +150,16 @@ describe('Common Validation Schemas', () => {
         '#0F0',
         '#00F',
       ]
-      
-      validColors.forEach(color => {
+
+      validColors.forEach((color) => {
         expect(colorHexSchema.parse(color)).toBe(color)
       })
     })
 
     it('should reject invalid hex colors', () => {
-      const invalidColors = [
-        'red',
-        'FF0000',
-        '#GG0000',
-        '#FF00',
-        '#FF00000',
-      ]
-      
-      invalidColors.forEach(color => {
+      const invalidColors = ['red', 'FF0000', '#GG0000', '#FF00', '#FF00000']
+
+      invalidColors.forEach((color) => {
         expect(() => colorHexSchema.parse(color)).toThrow()
       })
     })
@@ -208,14 +167,9 @@ describe('Common Validation Schemas', () => {
 
   describe('skuSchema', () => {
     it('should validate SKU formats', () => {
-      const validSkus = [
-        'PROD-123',
-        'SKU_ABC_123',
-        'SIMPLE123',
-        'A-B-C-1-2-3',
-      ]
-      
-      validSkus.forEach(sku => {
+      const validSkus = ['PROD-123', 'SKU_ABC_123', 'SIMPLE123', 'A-B-C-1-2-3']
+
+      validSkus.forEach((sku) => {
         expect(skuSchema.parse(sku)).toBe(sku)
       })
     })
@@ -228,8 +182,8 @@ describe('Common Validation Schemas', () => {
         'sku@with#special',
         'a'.repeat(51), // Too long
       ]
-      
-      invalidSkus.forEach(sku => {
+
+      invalidSkus.forEach((sku) => {
         expect(() => skuSchema.parse(sku)).toThrow()
       })
     })
@@ -243,7 +197,7 @@ describe('Common Validation Schemas', () => {
         sortBy: 'name',
         sortOrder: 'asc' as const,
       }
-      
+
       const result = paginationSchema.parse(validPagination)
       expect(result).toEqual({
         page: 2,
@@ -274,7 +228,7 @@ describe('Common Validation Schemas', () => {
         startDate: '2024-01-01T00:00:00Z',
         endDate: '2024-12-31T23:59:59Z',
       }
-      
+
       expect(dateRangeSchema.parse(validRange)).toEqual(validRange)
     })
 
@@ -283,7 +237,7 @@ describe('Common Validation Schemas', () => {
         startDate: '2024-12-31T23:59:59Z',
         endDate: '2024-01-01T00:00:00Z',
       }
-      
+
       expect(() => dateRangeSchema.parse(invalidRange)).toThrow()
     })
   })
@@ -299,7 +253,7 @@ describe('Product Validation Schemas', () => {
         price: 29.99,
         inventoryQuantity: 10,
       }
-      
+
       const result = productVariantSchema.parse(validVariant)
       expect(result).toEqual(expect.objectContaining(validVariant))
     })
@@ -312,7 +266,7 @@ describe('Product Validation Schemas', () => {
         price: -10,
         inventoryQuantity: -5,
       }
-      
+
       expect(() => productVariantSchema.parse(invalidVariant)).toThrow()
     })
   })
@@ -324,15 +278,17 @@ describe('Product Validation Schemas', () => {
         slug: 'test-product',
         description: 'A test product description',
         status: 'active' as const,
-        variants: [{
-          sku: 'TEST-001',
-          size: 'M',
-          color: 'Blue',
-          price: 49.99,
-          inventoryQuantity: 5,
-        }],
+        variants: [
+          {
+            sku: 'TEST-001',
+            size: 'M',
+            color: 'Blue',
+            price: 49.99,
+            inventoryQuantity: 5,
+          },
+        ],
       }
-      
+
       const result = productSchema.parse(validProduct)
       expect(result.name).toBe(validProduct.name)
       expect(result.slug).toBe(validProduct.slug)
@@ -348,7 +304,7 @@ describe('Product Validation Schemas', () => {
         slug: 'test-product',
         variants: [],
       }
-      
+
       expect(() => productSchema.parse(productWithoutVariants)).toThrow()
     })
 
@@ -356,15 +312,17 @@ describe('Product Validation Schemas', () => {
       const productWithUnsafeName = {
         name: '  <script>alert("xss")</script>Product Name  ',
         slug: 'product-name',
-        variants: [{
-          sku: 'TEST-001',
-          size: 'M',
-          color: 'Blue',
-          price: 49.99,
-          inventoryQuantity: 5,
-        }],
+        variants: [
+          {
+            sku: 'TEST-001',
+            size: 'M',
+            color: 'Blue',
+            price: 49.99,
+            inventoryQuantity: 5,
+          },
+        ],
       }
-      
+
       const result = productSchema.parse(productWithUnsafeName)
       expect(result.name).toBe('alert("xss")Product Name')
     })
@@ -380,16 +338,18 @@ describe('Product Validation Schemas', () => {
         page: '2',
         limit: '20',
       }
-      
+
       const result = productQuerySchema.parse(validQuery)
-      expect(result).toEqual(expect.objectContaining({
-        q: 'search term',
-        status: 'active',
-        priceMin: 10,
-        priceMax: 100,
-        page: 2,
-        limit: 20,
-      }))
+      expect(result).toEqual(
+        expect.objectContaining({
+          q: 'search term',
+          status: 'active',
+          priceMin: 10,
+          priceMax: 100,
+          page: 2,
+          limit: 20,
+        })
+      )
     })
   })
 })
@@ -405,7 +365,7 @@ describe('Customer Validation Schemas', () => {
         country: 'US',
         zip: '10001',
       }
-      
+
       const result = customerAddressSchema.parse(validAddress)
       expect(result).toEqual(expect.objectContaining(validAddress))
     })
@@ -419,7 +379,7 @@ describe('Customer Validation Schemas', () => {
         country: 'US',
         zip: '10001',
       }
-      
+
       const result = customerAddressSchema.parse(addressWithUnsafeData)
       expect(result.firstName).toBe('John')
       expect(result.lastName).toBe('Doe')
@@ -435,7 +395,7 @@ describe('Customer Validation Schemas', () => {
         phone: '+1234567890',
         status: 'active' as const,
       }
-      
+
       const result = customerSchema.parse(validCustomer)
       expect(result).toEqual(expect.objectContaining(validCustomer))
     })
@@ -446,7 +406,7 @@ describe('Customer Validation Schemas', () => {
         firstName: 'John',
         lastName: 'Doe',
       }
-      
+
       const result = customerSchema.parse(minimalCustomer)
       expect(result.status).toBe('active')
       expect(result.addresses).toEqual([])
@@ -465,7 +425,7 @@ describe('Order Validation Schemas', () => {
         price: 29.99,
         title: 'Test Product',
       }
-      
+
       const result = orderLineItemSchema.parse(validLineItem)
       expect(result).toEqual(expect.objectContaining(validLineItem))
     })
@@ -478,7 +438,7 @@ describe('Order Validation Schemas', () => {
         price: 29.99,
         title: 'Test Product',
       }
-      
+
       expect(() => orderLineItemSchema.parse(invalidLineItem)).toThrow()
     })
   })
@@ -508,20 +468,24 @@ describe('Order Validation Schemas', () => {
           country: 'US',
           zip: '10001',
         },
-        lineItems: [{
-          productId: '123e4567-e89b-12d3-a456-426614174000',
-          variantId: '123e4567-e89b-12d3-a456-426614174001',
-          quantity: 1,
-          price: 29.99,
-          title: 'Test Product',
-        }],
+        lineItems: [
+          {
+            productId: '123e4567-e89b-12d3-a456-426614174000',
+            variantId: '123e4567-e89b-12d3-a456-426614174001',
+            quantity: 1,
+            price: 29.99,
+            title: 'Test Product',
+          },
+        ],
         subtotalPrice: 29.99,
         totalPrice: 29.99,
       }
-      
+
       const result = orderSchema.parse(validOrder)
       expect(result.email).toBe(validOrder.email)
-      expect(result.customerInfo).toEqual(expect.objectContaining(validOrder.customerInfo))
+      expect(result.customerInfo).toEqual(
+        expect.objectContaining(validOrder.customerInfo)
+      )
       expect(result.lineItems).toHaveLength(1)
       expect(result.subtotalPrice).toBe(validOrder.subtotalPrice)
       expect(result.totalPrice).toBe(validOrder.totalPrice)
@@ -534,7 +498,7 @@ describe('Order Validation Schemas', () => {
         subtotalPrice: 0,
         totalPrice: 0,
       }
-      
+
       expect(() => orderSchema.parse(orderWithoutItems)).toThrow()
     })
   })
@@ -548,7 +512,7 @@ describe('Auth Validation Schemas', () => {
         password: 'password123',
         rememberMe: true,
       }
-      
+
       const result = loginSchema.parse(validLogin)
       expect(result).toEqual(validLogin)
     })
@@ -559,14 +523,16 @@ describe('Auth Validation Schemas', () => {
         password: 'password123',
         twoFactorCode: '123456',
       }
-      
+
       const result = loginSchema.parse(loginWithTwoFactor)
       expect(result.twoFactorCode).toBe('123456')
-      
-      expect(() => loginSchema.parse({
-        ...loginWithTwoFactor,
-        twoFactorCode: '12345', // Too short
-      })).toThrow()
+
+      expect(() =>
+        loginSchema.parse({
+          ...loginWithTwoFactor,
+          twoFactorCode: '12345', // Too short
+        })
+      ).toThrow()
     })
   })
 
@@ -580,7 +546,7 @@ describe('Auth Validation Schemas', () => {
         lastName: 'Doe',
         acceptTerms: true,
       }
-      
+
       const result = registerSchema.parse(validRegistration)
       expect(result).toEqual(validRegistration)
     })
@@ -594,7 +560,7 @@ describe('Auth Validation Schemas', () => {
         lastName: 'Doe',
         acceptTerms: true,
       }
-      
+
       expect(() => registerSchema.parse(registrationWithMismatch)).toThrow()
     })
 
@@ -607,7 +573,7 @@ describe('Auth Validation Schemas', () => {
         lastName: 'Doe',
         acceptTerms: false,
       }
-      
+
       expect(() => registerSchema.parse(registrationWithoutTerms)).toThrow()
     })
   })
@@ -621,7 +587,7 @@ describe('Shopify Validation Schemas', () => {
         accessToken: 'shpat_test_token',
         webhookSecret: 'webhook_secret_123',
       }
-      
+
       const result = shopifyConfigSchema.parse(validConfig)
       expect(result).toEqual(expect.objectContaining(validConfig))
       expect(result.apiVersion).toBe('2024-01')
@@ -634,7 +600,7 @@ describe('Shopify Validation Schemas', () => {
         accessToken: 'token',
         webhookSecret: 'secret',
       }
-      
+
       expect(() => shopifyConfigSchema.parse(invalidConfig)).toThrow()
     })
   })
@@ -647,7 +613,7 @@ describe('Shopify Validation Schemas', () => {
         payload: { id: 123, status: 'open' },
         headers: { 'x-shopify-topic': 'orders/create' },
       }
-      
+
       const result = shopifyWebhookSchema.parse(validWebhook)
       expect(result).toEqual(expect.objectContaining(validWebhook))
       expect(result.verified).toBe(false)
@@ -660,7 +626,9 @@ describe('Sanitization Functions', () => {
   describe('sanitizeString', () => {
     it('should remove HTML tags and trim whitespace', () => {
       expect(sanitizeString('  Hello World  ')).toBe('Hello World')
-      expect(sanitizeString('<script>alert("xss")</script>')).toBe('alert("xss")')
+      expect(sanitizeString('<script>alert("xss")</script>')).toBe(
+        'alert("xss")'
+      )
       expect(sanitizeString('Normal text')).toBe('Normal text')
     })
   })
@@ -669,7 +637,9 @@ describe('Sanitization Functions', () => {
     it('should remove dangerous HTML elements and attributes', () => {
       expect(sanitizeHtml('<p>Safe content</p>')).toBe('<p>Safe content</p>')
       expect(sanitizeHtml('<script>alert("xss")</script>')).toBe('')
-      expect(sanitizeHtml('<div onclick="alert()">Click me</div>')).toBe('<div>Click me</div>')
+      expect(sanitizeHtml('<div onclick="alert()">Click me</div>')).toBe(
+        '<div>Click me</div>'
+      )
       expect(sanitizeHtml('javascript:alert("xss")')).toBe('alert("xss")')
     })
   })
@@ -719,17 +689,17 @@ describe('Schema Integration Tests', () => {
         keywords: ['shirt', 'clothing', 'fashion'],
       },
     }
-    
+
     const result = productSchema.parse(complexProduct)
-    
+
     // Check that HTML was sanitized
     expect(result.description).toBe('<p>Safe HTML description</p>')
-    
+
     // Check that all variants are valid
     expect(result.variants).toHaveLength(2)
     expect(result.variants[0].colorHex).toBe('#FF0000')
     expect(result.variants[1].colorHex).toBe('#0000FF')
-    
+
     // Check that images are valid
     expect(result.images).toHaveLength(2)
     expect(result.images[0].position).toBe(0)
@@ -743,7 +713,7 @@ describe('Schema Integration Tests', () => {
       firstName: 'John',
       lastName: 'Doe',
     }
-    
+
     const order = {
       email: customer.email,
       customerInfo: {
@@ -767,20 +737,22 @@ describe('Schema Integration Tests', () => {
         country: 'US',
         zip: '10001',
       },
-      lineItems: [{
-        productId: '123e4567-e89b-12d3-a456-426614174000',
-        variantId: '123e4567-e89b-12d3-a456-426614174001',
-        quantity: 1,
-        price: 29.99,
-        title: 'Test Product',
-      }],
+      lineItems: [
+        {
+          productId: '123e4567-e89b-12d3-a456-426614174000',
+          variantId: '123e4567-e89b-12d3-a456-426614174001',
+          quantity: 1,
+          price: 29.99,
+          title: 'Test Product',
+        },
+      ],
       subtotalPrice: 29.99,
       totalPrice: 29.99,
     }
-    
+
     const validCustomer = customerSchema.parse(customer)
     const validOrder = orderSchema.parse(order)
-    
+
     expect(validCustomer.email).toBe(validOrder.email)
     expect(validCustomer.firstName).toBe(validOrder.customerInfo.firstName)
     expect(validCustomer.lastName).toBe(validOrder.customerInfo.lastName)

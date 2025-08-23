@@ -35,12 +35,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onApply,
   collapsible = true,
   defaultExpanded = true,
-  className = ''
+  className = '',
 }) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>(
     sections
-      .filter(section => section.defaultExpanded !== false)
-      .map(section => section.key)
+      .filter((section) => section.defaultExpanded !== false)
+      .map((section) => section.key)
   )
 
   const handleCollapseChange = (keys: string | string[]) => {
@@ -48,28 +48,28 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   }
 
   const renderHeader = () => (
-    <div className="filter-panel__header">
-      <Space size="small">
-        <FilterOutlined className="filter-panel__icon" />
-        <Typography.Title level={5} className="filter-panel__title">
+    <div className='filter-panel__header'>
+      <Space size='small'>
+        <FilterOutlined className='filter-panel__icon' />
+        <Typography.Title level={5} className='filter-panel__title'>
           {title}
         </Typography.Title>
         {activeFiltersCount > 0 && (
-          <Badge 
-            count={activeFiltersCount} 
-            size="small"
-            className="filter-panel__badge"
+          <Badge
+            count={activeFiltersCount}
+            size='small'
+            className='filter-panel__badge'
           />
         )}
       </Space>
-      
+
       {showClearAll && activeFiltersCount > 0 && (
         <Button
-          type="text"
-          size="small"
+          type='text'
+          size='small'
           icon={<ClearOutlined />}
           onClick={onClearAll}
-          className="filter-panel__clear"
+          className='filter-panel__clear'
         >
           Clear All
         </Button>
@@ -78,27 +78,25 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   )
 
   const renderSectionHeader = (section: FilterSection) => (
-    <Space size="small" className="filter-panel__section-header">
+    <Space size='small' className='filter-panel__section-header'>
       <Typography.Text strong>{section.title}</Typography.Text>
       {section.badge && section.badge > 0 && (
-        <Badge count={section.badge} size="small" />
+        <Badge count={section.badge} size='small' />
       )}
     </Space>
   )
 
-  const collapseItems = sections.map(section => ({
+  const collapseItems = sections.map((section) => ({
     key: section.key,
     label: renderSectionHeader(section),
     children: (
-      <div className="filter-panel__section-content">
-        {section.content}
-      </div>
+      <div className='filter-panel__section-content'>{section.content}</div>
     ),
-    collapsible: section.collapsible === false ? 'disabled' : undefined
+    collapsible: section.collapsible === false ? ('disabled' as const) : undefined,
   }))
 
   const panelContent = (
-    <div className="filter-panel__content">
+    <div className='filter-panel__content'>
       <Collapse
         items={collapseItems}
         activeKey={expandedKeys}
@@ -107,15 +105,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         expandIcon={({ isActive }) => (
           <DownOutlined rotate={isActive ? 180 : 0} />
         )}
-        className="filter-panel__collapse"
+        className='filter-panel__collapse'
       />
-      
+
       {showApplyButton && (
         <>
-          <Divider className="filter-panel__divider" />
-          <div className="filter-panel__actions">
+          <Divider className='filter-panel__divider' />
+          <div className='filter-panel__actions'>
             <Button
-              type="primary"
+              type='primary'
               block
               onClick={onApply}
               disabled={activeFiltersCount === 0}
@@ -132,14 +130,16 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     return (
       <div className={`filter-panel ${className}`}>
         <Collapse
-          items={[{
-            key: 'main',
-            label: renderHeader(),
-            children: panelContent
-          }]}
+          items={[
+            {
+              key: 'main',
+              label: renderHeader(),
+              children: panelContent,
+            },
+          ]}
           defaultActiveKey={defaultExpanded ? ['main'] : []}
           ghost
-          className="filter-panel__main-collapse"
+          className='filter-panel__main-collapse'
         />
       </div>
     )
@@ -148,7 +148,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <div className={`filter-panel ${className}`}>
       {renderHeader()}
-      <Divider className="filter-panel__header-divider" />
+      <Divider className='filter-panel__header-divider' />
       {panelContent}
     </div>
   )

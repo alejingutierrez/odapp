@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { prisma, connectDatabase, disconnectDatabase, getDatabaseMetrics } from '../lib/prisma.js'
+import {
+  prisma,
+  connectDatabase,
+  disconnectDatabase,
+  getDatabaseMetrics,
+} from '../lib/prisma.js'
 import { databaseHealthChecker } from '../lib/database-health.js'
 import { databasePool } from '../lib/database-pool.js'
 
@@ -42,14 +47,14 @@ describe('Database Setup', () => {
       AND indexname LIKE 'idx_%'
       ORDER BY tablename, indexname
     `
-    
+
     expect(Array.isArray(indexes)).toBe(true)
-    expect((indexes as any[]).length).toBeGreaterThan(10)
+    expect((indexes as unknown[]).length).toBeGreaterThan(10)
   })
 
   it('should perform health check successfully', async () => {
     const healthResult = await databaseHealthChecker.performHealthCheck()
-    
+
     expect(healthResult.status).toMatch(/healthy|degraded/)
     expect(healthResult.checks.connection.status).toBe('pass')
     expect(healthResult.checks.performance.status).toMatch(/pass|warn/)
@@ -58,7 +63,7 @@ describe('Database Setup', () => {
 
   it('should get database metrics', async () => {
     const metrics = await getDatabaseMetrics()
-    
+
     expect(metrics).toBeDefined()
     expect(typeof metrics.users).toBe('number')
     expect(typeof metrics.products).toBe('number')
@@ -70,7 +75,7 @@ describe('Database Setup', () => {
 
   it('should handle database pool operations', async () => {
     const poolHealth = await databasePool.healthCheck()
-    
+
     expect(poolHealth.healthy).toBe(true)
     expect(poolHealth.stats).toBeDefined()
     expect(typeof poolHealth.stats.totalCount).toBe('number')
@@ -88,7 +93,7 @@ describe('Database Setup', () => {
     })
 
     expect(products.length).toBeGreaterThan(0)
-    
+
     const product = products[0]
     expect(product.variants.length).toBeGreaterThan(0)
     expect(product.category).toBeDefined()
@@ -105,7 +110,7 @@ describe('Database Setup', () => {
     })
 
     expect(customers.length).toBeGreaterThan(0)
-    
+
     const customer = customers[0]
     expect(customer.email).toBeDefined()
     expect(customer.addresses.length).toBeGreaterThan(0)
@@ -122,7 +127,7 @@ describe('Database Setup', () => {
     })
 
     expect(inventory.length).toBeGreaterThan(0)
-    
+
     const item = inventory[0]
     expect(item.quantity).toBeGreaterThanOrEqual(0)
     expect(item.availableQuantity).toBeGreaterThanOrEqual(0)

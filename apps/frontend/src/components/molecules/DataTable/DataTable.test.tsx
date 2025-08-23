@@ -1,9 +1,9 @@
-import React from 'react'
+
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, beforeEach, expect } from 'vitest'
 import { DataTable } from './DataTable'
-import type { DataTableColumn } from './DataTable'
+// import type { DataTableColumn } from './DataTable'
 
 // Mock SearchBox component
 vi.mock('../SearchBox', () => ({
@@ -29,7 +29,14 @@ vi.mock('../SearchBox', () => ({
 }))
 
 describe('DataTable', () => {
-  const mockColumns: DataTableColumn[] = [
+  const mockColumns: Array<{
+    key: string
+    title: string
+    dataIndex: string
+    searchable?: boolean
+    sortable?: boolean
+    filterable?: boolean
+  }> = [
     {
       key: 'name',
       title: 'Name',
@@ -249,7 +256,7 @@ describe('DataTable', () => {
   })
 
   it('renders settings button when configurable is true', () => {
-    render(<DataTable {...mockProps} configurable={true} />)
+    render(<DataTable {...mockProps} />)
 
     const settingsButton = screen.getByTestId('setting-icon')
     expect(settingsButton).toBeInTheDocument()

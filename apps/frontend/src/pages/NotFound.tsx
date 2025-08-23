@@ -7,28 +7,30 @@ export const NotFoundPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '100vh',
-      padding: '24px'
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        padding: '24px',
+      }}
+    >
       <Result
-        status="404"
-        title="404"
-        subTitle="Sorry, the page you visited does not exist."
+        status='404'
+        title='404'
+        subTitle='Sorry, the page you visited does not exist.'
         extra={[
-          <Button 
-            type="primary" 
-            key="home"
+          <Button
+            type='primary'
+            key='home'
             icon={<HomeOutlined />}
             onClick={() => navigate('/')}
           >
             Back Home
           </Button>,
-          <Button 
-            key="back"
+          <Button
+            key='back'
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
           >

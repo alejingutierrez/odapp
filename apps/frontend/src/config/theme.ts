@@ -27,7 +27,9 @@ export const brandColors = {
   },
   // Neutral colors for fashion UI
   neutral: {
+    25: '#fcfcfc',
     50: '#fafafa',
+    75: '#f8f8f8',
     100: '#f5f5f5',
     200: '#e5e5e5',
     300: '#d4d4d4',
@@ -44,7 +46,7 @@ export const brandColors = {
     warning: '#f59e0b',
     error: '#ef4444',
     info: '#3b82f6',
-  }
+  },
 }
 
 // Typography Scale
@@ -58,7 +60,7 @@ export const typography = {
       'Roboto',
       'Helvetica Neue',
       'Arial',
-      'sans-serif'
+      'sans-serif',
     ].join(', '),
     mono: [
       'JetBrains Mono',
@@ -67,7 +69,7 @@ export const typography = {
       'Consolas',
       'Liberation Mono',
       'Courier New',
-      'monospace'
+      'monospace',
     ].join(', '),
   },
   fontSize: {
@@ -152,24 +154,24 @@ export const theme: ThemeConfig = {
     colorWarning: brandColors.status.warning,
     colorError: brandColors.status.error,
     colorInfo: brandColors.status.info,
-    
+
     // Background Colors
     colorBgBase: '#ffffff',
     colorBgContainer: '#ffffff',
     colorBgElevated: '#ffffff',
     colorBgLayout: brandColors.neutral[50],
     colorBgSpotlight: brandColors.neutral[100],
-    
+
     // Text Colors
     colorText: brandColors.neutral[900],
     colorTextSecondary: brandColors.neutral[600],
     colorTextTertiary: brandColors.neutral[500],
     colorTextQuaternary: brandColors.neutral[400],
-    
+
     // Border Colors
     colorBorder: brandColors.neutral[200],
     colorBorderSecondary: brandColors.neutral[100],
-    
+
     // Typography
     fontSize: 16,
     fontSizeHeading1: 48,
@@ -182,13 +184,13 @@ export const theme: ThemeConfig = {
     fontSizeXL: 20,
     fontFamily: typography.fontFamily.sans,
     fontWeightStrong: typography.fontWeight.semibold,
-    
+
     // Layout
     borderRadius: 8,
     borderRadiusLG: 12,
     borderRadiusSM: 6,
     borderRadiusXS: 4,
-    
+
     // Spacing
     padding: 16,
     paddingLG: 24,
@@ -200,13 +202,13 @@ export const theme: ThemeConfig = {
     marginSM: 12,
     marginXS: 8,
     marginXXS: 4,
-    
+
     // Control Heights
     controlHeight: 40,
     controlHeightLG: 48,
     controlHeightSM: 32,
     controlHeightXS: 24,
-    
+
     // Line Heights
     lineHeight: 1.5,
     lineHeightHeading1: 1.2,
@@ -214,12 +216,12 @@ export const theme: ThemeConfig = {
     lineHeightHeading3: 1.3,
     lineHeightHeading4: 1.35,
     lineHeightHeading5: 1.4,
-    
+
     // Motion
     motionDurationFast: '0.1s',
     motionDurationMid: '0.2s',
     motionDurationSlow: '0.3s',
-    
+
     // Z-Index
     zIndexBase: 0,
     zIndexPopupBase: 1000,
@@ -238,7 +240,7 @@ export const theme: ThemeConfig = {
       triggerBg: brandColors.neutral[100],
       triggerColor: brandColors.neutral[700],
     },
-    
+
     // Navigation
     Menu: {
       itemBg: 'transparent',
@@ -254,7 +256,7 @@ export const theme: ThemeConfig = {
       darkItemHoverBg: brandColors.neutral[700],
       darkItemSelectedBg: brandColors.primary[600],
     },
-    
+
     // Form Controls
     Button: {
       borderRadius: 8,
@@ -264,7 +266,7 @@ export const theme: ThemeConfig = {
       fontWeight: typography.fontWeight.medium,
       primaryShadow: `0 2px 0 ${brandColors.primary[200]}`,
     },
-    
+
     Input: {
       borderRadius: 8,
       controlHeight: 40,
@@ -273,21 +275,21 @@ export const theme: ThemeConfig = {
       paddingInline: 12,
       paddingBlock: 8,
     },
-    
+
     Select: {
       borderRadius: 8,
       controlHeight: 40,
       controlHeightLG: 48,
       controlHeightSM: 32,
     },
-    
+
     DatePicker: {
       borderRadius: 8,
       controlHeight: 40,
       controlHeightLG: 48,
       controlHeightSM: 32,
     },
-    
+
     // Data Display
     Card: {
       borderRadius: 12,
@@ -296,9 +298,8 @@ export const theme: ThemeConfig = {
       headerBg: 'transparent',
       headerHeight: 56,
       boxShadow: shadows.sm,
-      boxShadowHover: shadows.md,
     },
-    
+
     Table: {
       borderRadius: 8,
       headerBg: brandColors.neutral[50],
@@ -308,66 +309,65 @@ export const theme: ThemeConfig = {
       bodySortBg: brandColors.neutral[25] || '#fcfcfc',
       rowHoverBg: brandColors.neutral[50],
       rowSelectedBg: brandColors.primary[50],
-      rowSelectedHoverBg: brandColors.primary[75] || '#e0f2fe',
+      rowSelectedHoverBg: brandColors.primary[100] || '#e0f2fe',
     },
-    
+
     Tag: {
       borderRadius: 6,
       borderRadiusSM: 4,
       fontSizeSM: 12,
       lineHeightSM: 1.4,
     },
-    
+
     Badge: {
       borderRadius: 10,
       fontSizeSM: 12,
-      fontWeight: typography.fontWeight.medium,
     },
-    
+
     Avatar: {
       borderRadius: 8,
       containerSize: 40,
       containerSizeLG: 48,
       containerSizeSM: 32,
     },
-    
+
     // Feedback
     Alert: {
       borderRadius: 8,
       paddingContentHorizontalLG: 16,
       paddingContentVerticalLG: 12,
     },
-    
+
     Message: {
       borderRadius: 8,
       contentPadding: '12px 16px',
     },
-    
+
     Notification: {
       borderRadius: 12,
       paddingContentHorizontal: 20,
       paddingContentVertical: 16,
     },
-    
+
     Modal: {
       borderRadius: 16,
       headerBg: 'transparent',
       contentBg: brandColors.neutral[50],
       footerBg: 'transparent',
     },
-    
+
     Drawer: {
       borderRadius: 0,
       paddingLG: 24,
     },
-    
+
     // Navigation
     Pagination: {
       borderRadius: 6,
       itemSize: 32,
       itemSizeSM: 24,
     },
-    
+
     Breadcrumb: {
       fontSize: 14,
       itemColor: brandColors.neutral[600],
@@ -376,7 +376,7 @@ export const theme: ThemeConfig = {
       linkHoverColor: brandColors.primary[700],
       separatorColor: brandColors.neutral[400],
     },
-    
+
     // Data Entry
     Form: {
       labelColor: brandColors.neutral[700],
@@ -386,20 +386,19 @@ export const theme: ThemeConfig = {
       itemMarginBottom: 24,
       verticalLabelPadding: '0 0 8px',
     },
-    
+
     // Utility
     Divider: {
       colorSplit: brandColors.neutral[200],
       orientationMargin: 0.05,
     },
-    
+
     Spin: {
       colorPrimary: brandColors.primary[500],
     },
-    
+
     Progress: {
       borderRadius: 100,
-      lineCap: 'round',
     },
   },
 }

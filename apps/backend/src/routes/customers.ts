@@ -1,22 +1,14 @@
 import { Router } from 'express'
-import { z } from 'zod'
 import { customerService } from '../services/customer.service.js'
 import { authenticate } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
 import { sendSuccess, sendCreated, sendNoContent } from '../lib/api-response.js'
-import { logger } from '../lib/logger.js'
 import { ApiError } from '../lib/errors.js'
 import {
-  customerSchema,
   createCustomerSchema,
   updateCustomerSchema,
   customerQuerySchema,
-  customerSegmentSchema,
   customerCommunicationSchema,
-  customerAnalyticsSchema,
-  bulkCustomerUpdateSchema,
-  customerImportSchema,
-  customerExportSchema
 } from '@oda/shared'
 
 const router: Router = Router()
@@ -90,14 +82,18 @@ router.use(authenticate)
  *                     totalPages:
  *                       type: integer
  */
-router.get('/', validate({ query: customerQuerySchema }), async (req, res, next) => {
-  try {
-    const result = await customerService.searchCustomers(req.query)
-    sendSuccess(res, result)
-  } catch (error) {
-    next(error)
+router.get(
+  '/',
+  validate({ query: customerQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await customerService.searchCustomers(req.query)
+      sendSuccess(res, result)
+    } catch (error) {
+      next(error)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -139,7 +135,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params
     const includeTimeline = req.query.includeTimeline === 'true'
-    
+
     const customer = await customerService.getCustomerById(id, includeTimeline)
     if (!customer) {
       throw new ApiError(404, 'Customer not found')
@@ -208,7 +204,7 @@ router.get('/:id/timeline', async (req, res, next) => {
   try {
     const { id } = req.params
     const limit = parseInt(req.query.limit as string) || 100
-    
+
     const timeline = await customerService.getCustomerTimeline(id, limit)
     sendSuccess(res, timeline)
   } catch (error) {
@@ -245,14 +241,21 @@ router.get('/:id/timeline', async (req, res, next) => {
  *       409:
  *         description: Customer with email already exists
  */
-router.post('/', validate({ body: createCustomerSchema }), async (req, res, next) => {
-  try {
-    const customer = await customerService.createCustomer(req.body, req.user?.id)
-    sendCreated(res, customer)
-  } catch (error) {
-    next(error)
+router.post(
+  '/',
+  validate({ body: createCustomerSchema }),
+  async (req, res, next) => {
+    try {
+      const customer = await customerService.createCustomer(
+        req.body,
+        req.user?.id
+      )
+      sendCreated(res, customer)
+    } catch (error) {
+      next(error)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -290,15 +293,23 @@ router.post('/', validate({ body: createCustomerSchema }), async (req, res, next
  *       404:
  *         description: Customer not found
  */
-router.put('/:id', validate({ body: updateCustomerSchema }), async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const customer = await customerService.updateCustomer(id, { ...req.body, id }, req.user?.id)
-    sendSuccess(res, customer)
-  } catch (error) {
-    next(error)
+router.put(
+  '/:id',
+  validate({ body: updateCustomerSchema }),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params
+      const customer = await customerService.updateCustomer(
+        id,
+        { ...req.body, id },
+        req.user?.id
+      )
+      sendSuccess(res, customer)
+    } catch (error) {
+      next(error)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -365,15 +376,23 @@ router.delete('/:id', async (req, res, next) => {
  *                 data:
  *                   type: object
  */
-router.post('/:id/interactions', validate({ body: customerCommunicationSchema }), async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const interaction = await customerService.addInteraction(id, req.body, req.user?.id)
-    sendCreated(res, interaction)
-  } catch (error) {
-    next(error)
+router.post(
+  '/:id/interactions',
+  validate({ body: customerCommunicationSchema }),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params
+      const interaction = await customerService.addInteraction(
+        id,
+        req.body,
+        req.user?.id
+      )
+      sendCreated(res, interaction)
+    } catch (error) {
+      next(error)
+    }
   }
-})
+)
 
 /**
  * @swagger
@@ -426,8 +445,15 @@ router.post('/:id/loyalty/points', async (req, res, next) => {
   try {
     const { id } = req.params
     const { points, description, referenceType, referenceId } = req.body
-    
-    await customerService.addLoyaltyPoints(id, points, description, referenceType, referenceId, req.user?.id)
+
+    await customerService.addLoyaltyPoints(
+      id,
+      points,
+      description,
+      referenceType,
+      referenceId,
+      req.user?.id
+    )
     sendSuccess(res, { message: 'Loyalty points added successfully' })
   } catch (error) {
     next(error)
@@ -487,8 +513,15 @@ router.post('/:id/loyalty/redeem', async (req, res, next) => {
   try {
     const { id } = req.params
     const { points, description, referenceType, referenceId } = req.body
-    
-    await customerService.redeemLoyaltyPoints(id, points, description, referenceType, referenceId, req.user?.id)
+
+    await customerService.redeemLoyaltyPoints(
+      id,
+      points,
+      description,
+      referenceType,
+      referenceId,
+      req.user?.id
+    )
     sendSuccess(res, { message: 'Loyalty points redeemed successfully' })
   } catch (error) {
     next(error)

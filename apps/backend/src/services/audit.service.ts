@@ -34,19 +34,23 @@ export class AuditService {
           action: entry.action,
           entity: entry.entity,
           entityId: entry.entityId,
-          oldValues: entry.oldValues ? JSON.stringify(entry.oldValues) : undefined,
-          newValues: entry.newValues ? JSON.stringify(entry.newValues) : undefined,
+          oldValues: entry.oldValues
+            ? JSON.stringify(entry.oldValues)
+            : undefined,
+          newValues: entry.newValues
+            ? JSON.stringify(entry.newValues)
+            : undefined,
           userId: entry.userId,
           ipAddress: entry.ipAddress,
           userAgent: entry.userAgent,
-        }
+        },
       })
 
       logger.debug('Audit log entry created', {
         action: entry.action,
         entity: entry.entity,
         entityId: entry.entityId,
-        userId: entry.userId
+        userId: entry.userId,
       })
     } catch (error) {
       logger.error('Failed to create audit log entry', { error, entry })
@@ -63,7 +67,7 @@ export class AuditService {
       startDate,
       endDate,
       page = 1,
-      limit = 50
+      limit = 50,
     } = query
 
     const where: Record<string, unknown> = {}
@@ -75,7 +79,8 @@ export class AuditService {
 
     if (startDate || endDate) {
       where.createdAt = {}
-      if (startDate) (where.createdAt as Record<string, unknown>).gte = startDate
+      if (startDate)
+        (where.createdAt as Record<string, unknown>).gte = startDate
       if (endDate) (where.createdAt as Record<string, unknown>).lte = endDate
     }
 
@@ -88,27 +93,27 @@ export class AuditService {
               id: true,
               email: true,
               firstName: true,
-              lastName: true
-            }
-          }
+              lastName: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      this._prisma.auditLog.count({ where })
+      this._prisma.auditLog.count({ where }),
     ])
 
     return {
-      logs: logs.map(log => ({
+      logs: logs.map((log) => ({
         ...log,
         oldValues: log.oldValues ? JSON.parse(log.oldValues as string) : null,
-        newValues: log.newValues ? JSON.parse(log.newValues as string) : null
+        newValues: log.newValues ? JSON.parse(log.newValues as string) : null,
       })),
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     }
   }
 }

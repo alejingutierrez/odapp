@@ -10,7 +10,8 @@ const meta: Meta<typeof Tooltip> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A flexible tooltip component with positioning, delay, and rich content support for ERP/CRM/CDP systems.',
+        component:
+          'A flexible tooltip component with positioning, delay, and rich content support for ERP/CRM/CDP systems.',
       },
     },
   },
@@ -19,10 +20,18 @@ const meta: Meta<typeof Tooltip> = {
     placement: {
       control: 'select',
       options: [
-        'top', 'topLeft', 'topRight',
-        'bottom', 'bottomLeft', 'bottomRight',
-        'left', 'leftTop', 'leftBottom',
-        'right', 'rightTop', 'rightBottom'
+        'top',
+        'topLeft',
+        'topRight',
+        'bottom',
+        'bottomLeft',
+        'bottomRight',
+        'left',
+        'leftTop',
+        'leftBottom',
+        'right',
+        'rightTop',
+        'rightBottom',
       ],
     },
     variant: {
@@ -54,20 +63,24 @@ export const Default: Story = {
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <Tooltip content="Default tooltip" variant="default">
+      <Tooltip content='Default tooltip' variant='default'>
         <Button>Default</Button>
       </Tooltip>
-      <Tooltip content="Information tooltip" variant="info">
-        <Button type="primary">Info</Button>
+      <Tooltip content='Information tooltip' variant='info'>
+        <Button type='primary'>Info</Button>
       </Tooltip>
-      <Tooltip content="Warning tooltip" variant="warning">
-        <Button style={{ backgroundColor: '#faad14', borderColor: '#faad14' }}>Warning</Button>
+      <Tooltip content='Warning tooltip' variant='warning'>
+        <Button style={{ backgroundColor: '#faad14', borderColor: '#faad14' }}>
+          Warning
+        </Button>
       </Tooltip>
-      <Tooltip content="Error tooltip" variant="error">
+      <Tooltip content='Error tooltip' variant='error'>
         <Button danger>Error</Button>
       </Tooltip>
-      <Tooltip content="Success tooltip" variant="success">
-        <Button style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}>Success</Button>
+      <Tooltip content='Success tooltip' variant='success'>
+        <Button style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}>
+          Success
+        </Button>
       </Tooltip>
     </div>
   ),
@@ -94,38 +107,40 @@ export const RichContent: Story = {
 
 export const Placements: Story = {
   render: () => (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(3, 1fr)', 
-      gap: '16px',
-      padding: '50px',
-      justifyItems: 'center'
-    }}>
-      <Tooltip content="Top Left" placement="topLeft">
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '16px',
+        padding: '50px',
+        justifyItems: 'center',
+      }}
+    >
+      <Tooltip content='Top Left' placement='topLeft'>
         <Button>TL</Button>
       </Tooltip>
-      <Tooltip content="Top" placement="top">
+      <Tooltip content='Top' placement='top'>
         <Button>Top</Button>
       </Tooltip>
-      <Tooltip content="Top Right" placement="topRight">
+      <Tooltip content='Top Right' placement='topRight'>
         <Button>TR</Button>
       </Tooltip>
-      
-      <Tooltip content="Left" placement="left">
+
+      <Tooltip content='Left' placement='left'>
         <Button>Left</Button>
       </Tooltip>
       <Button disabled>Center</Button>
-      <Tooltip content="Right" placement="right">
+      <Tooltip content='Right' placement='right'>
         <Button>Right</Button>
       </Tooltip>
-      
-      <Tooltip content="Bottom Left" placement="bottomLeft">
+
+      <Tooltip content='Bottom Left' placement='bottomLeft'>
         <Button>BL</Button>
       </Tooltip>
-      <Tooltip content="Bottom" placement="bottom">
+      <Tooltip content='Bottom' placement='bottom'>
         <Button>Bottom</Button>
       </Tooltip>
-      <Tooltip content="Bottom Right" placement="bottomRight">
+      <Tooltip content='Bottom Right' placement='bottomRight'>
         <Button>BR</Button>
       </Tooltip>
     </div>

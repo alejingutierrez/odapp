@@ -25,7 +25,6 @@ Customizable button component with multiple variants and sizes.
 
 ```tsx
 import { Button } from '@/components/atoms/Button'
-
 ;<Button variant='primary' size='medium' icon={<PlusOutlined />}>
   Add Product
 </Button>
@@ -46,7 +45,6 @@ Enhanced input component with validation and styling.
 
 ```tsx
 import { Input } from '@/components/atoms/Input'
-
 ;<Input
   label='Product Name'
   placeholder='Enter product name'
@@ -83,7 +81,6 @@ Color selection component for fashion products.
 
 ```tsx
 import { ColorSwatch, ColorPalette } from '@/components/atoms/ColorSwatch'
-
 ;<ColorPalette
   colors={[
     { color: '#ff0000', name: 'Red' },
@@ -107,7 +104,6 @@ Size selection for clothing items.
 
 ```tsx
 import { SizeChart } from '@/components/atoms/SizeIndicator'
-
 ;<SizeChart
   sizes={[
     { size: 'S', label: 'Small', available: true },
@@ -125,7 +121,6 @@ Material composition and certification display.
 
 ```tsx
 import { MaterialComposition } from '@/components/atoms/MaterialTag'
-
 ;<MaterialComposition
   materials={[
     { material: 'Cotton', percentage: 95, certification: 'organic' },
@@ -141,7 +136,6 @@ The design system uses a comprehensive theme configuration:
 ```tsx
 import { ConfigProvider } from 'antd'
 import { theme } from '@/config/theme'
-
 ;<ConfigProvider theme={theme}>
   <App />
 </ConfigProvider>

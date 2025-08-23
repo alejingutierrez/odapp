@@ -19,7 +19,10 @@ export interface TabNavigationProps {
   activeKey?: string
   defaultActiveKey?: string
   onChange?: (activeKey: string) => void
-  onEdit?: (targetKey: React.MouseEvent | React.KeyboardEvent | string, action: 'add' | 'remove') => void
+  onEdit?: (
+    targetKey: React.MouseEvent | React.KeyboardEvent | string,
+    action: 'add' | 'remove'
+  ) => void
   type?: 'line' | 'card' | 'editable-card'
   size?: 'small' | 'middle' | 'large'
   position?: 'top' | 'bottom' | 'left' | 'right'
@@ -41,9 +44,11 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   centered = false,
   animated = true,
   destroyOnHidden = false,
-  className = ''
+  className = '',
 }) => {
-  const [internalActiveKey, setInternalActiveKey] = useState(defaultActiveKey || items[0]?.key)
+  const [internalActiveKey, setInternalActiveKey] = useState(
+    defaultActiveKey || items[0]?.key
+  )
 
   const handleChange = (key: string) => {
     setInternalActiveKey(key)
@@ -52,38 +57,32 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
 
   const renderTabLabel = (item: TabItem) => {
     const labelContent = (
-      <span className="tab-navigation__label">
-        {item.icon && (
-          <span className="tab-navigation__icon">{item.icon}</span>
-        )}
-        <span className="tab-navigation__text">{item.label}</span>
+      <span className='tab-navigation__label'>
+        {item.icon && <span className='tab-navigation__icon'>{item.icon}</span>}
+        <span className='tab-navigation__text'>{item.label}</span>
         {item.badge && (
-          <Badge 
-            count={item.badge} 
-            size="small"
-            className="tab-navigation__badge"
+          <Badge
+            count={item.badge}
+            size='small'
+            className='tab-navigation__badge'
           />
         )}
       </span>
     )
 
     if (item.tooltip) {
-      return (
-        <Tooltip title={item.tooltip}>
-          {labelContent}
-        </Tooltip>
-      )
+      return <Tooltip title={item.tooltip}>{labelContent}</Tooltip>
     }
 
     return labelContent
   }
 
-  const tabItems: TabsProps['items'] = items.map(item => ({
+  const tabItems: TabsProps['items'] = items.map((item) => ({
     key: item.key,
     label: renderTabLabel(item),
     children: item.content,
     disabled: item.disabled,
-    closable: item.closable
+    closable: item.closable,
   }))
 
   return (

@@ -52,11 +52,7 @@ export default defineConfig({
     testTimeout: 10000,
     hookTimeout: 10000,
     // Excluir archivos del sistema
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/coverage/**',
-    ],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'antd'],

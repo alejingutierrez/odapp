@@ -40,4 +40,4 @@ export interface RegisterRequest {
 }
 
 // Import entity types
-import type { User, Product, Customer, Order } from './entities'
+import type { User } from './entities'

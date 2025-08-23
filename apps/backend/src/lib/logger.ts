@@ -1,4 +1,4 @@
-import winston from 'winston'
+import * as winston from 'winston'
 import { env } from '../config/env'
 
 // Define log levels
@@ -28,7 +28,8 @@ const format = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}${info.stack ? '\n' + info.stack : ''}`
+    (info) =>
+      `${info.timestamp} ${info.level}: ${info.message}${info.stack ? '\n' + info.stack : ''}`
   )
 )
 
@@ -37,7 +38,9 @@ const jsonFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
   winston.format.json(),
-  winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'label'] })
+  winston.format.metadata({
+    fillExcept: ['message', 'level', 'timestamp', 'label'],
+  })
 )
 
 // Define which transports the logger must use
@@ -55,11 +58,11 @@ if (env.NODE_ENV === 'production') {
       filename: 'logs/error.log',
       level: 'error',
       format: jsonFormat,
-    }),
+    }) as any,
     new winston.transports.File({
       filename: 'logs/combined.log',
       format: jsonFormat,
-    })
+    }) as any
   )
 }
 
@@ -83,7 +86,11 @@ export const loggerStream = {
 }
 
 // Helper functions for structured logging
-export const logWithContext = (level: string, message: string, context?: Record<string, unknown>) => {
+export const logWithContext = (
+  level: string,
+  message: string,
+  context?: Record<string, unknown>
+) => {
   logger.log(level, message, context)
 }
 
@@ -98,19 +105,27 @@ export const logError = (error: Error, context?: Record<string, unknown>) => {
   })
 }
 
-export const logRequest = (req: Record<string, unknown>, res: Record<string, unknown>, responseTime?: number) => {
+export const logRequest = (
+  req: Record<string, unknown>,
+  res: Record<string, unknown>,
+  responseTime?: number
+) => {
   logger.http('HTTP Request', {
     method: req.method,
     url: req.url,
     statusCode: res.statusCode,
     responseTime: responseTime ? `${responseTime}ms` : undefined,
-    userAgent: req.get('User-Agent'),
+    userAgent: (req.get as any)('User-Agent'),
     ip: req.ip,
-    userId: req.user?.id,
+    userId: (req.user as { id?: string })?.id,
   })
 }
 
-export const logDatabaseQuery = (query: string, duration: number, context?: Record<string, unknown>) => {
+export const logDatabaseQuery = (
+  query: string,
+  duration: number,
+  context?: Record<string, unknown>
+) => {
   logger.debug('Database Query', {
     query,
     duration: `${duration}ms`,
@@ -136,7 +151,10 @@ export const logExternalApiCall = (
   })
 }
 
-export const logBusinessEvent = (event: string, context?: Record<string, unknown>) => {
+export const logBusinessEvent = (
+  event: string,
+  context?: Record<string, unknown>
+) => {
   logger.info('Business Event', {
     event,
     ...context,

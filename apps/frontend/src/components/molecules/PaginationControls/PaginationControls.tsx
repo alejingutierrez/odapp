@@ -60,7 +60,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         <Select
           value={pageSize}
           onChange={(value) => handleShowSizeChange(1, value)}
-          size={size}
+          size={size as 'small' | 'middle' | 'large'}
           disabled={disabled}
           className='pagination-controls__size-select'
         >
@@ -106,7 +106,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         pageSize={pageSize}
         showSizeChanger={false} // We handle this separately
         showQuickJumper={showQuickJumper}
-        showTotal={showTotal ? renderTotal : false}
+        showTotal={showTotal ? renderTotal : undefined}
         showLessItems={showLessItems}
         onChange={handleChange}
         disabled={disabled}

@@ -6,6 +6,7 @@ import { env } from '../config/env'
 
 // Extend Request interface to include requestId and startTime
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       requestId: string
@@ -17,13 +18,17 @@ declare global {
 /**
  * Add request ID and start time to request
  */
-export const requestId = (req: Request, res: Response, next: NextFunction): void => {
-  req.requestId = req.headers['x-request-id'] as string || uuidv4()
+export const requestId = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  req.requestId = (req.headers['x-request-id'] as string) || uuidv4()
   req.startTime = Date.now()
-  
+
   // Add request ID to response headers
   res.setHeader('X-Request-ID', req.requestId)
-  
+
   next()
 }
 
@@ -58,7 +63,7 @@ morgan.token('bodySize', (req: Request) => {
 /**
  * Skip logging for health check endpoints in production
  */
-const skipHealthChecks = (req: Request, _res: Response) => {
+const skipHealthChecks = (req: Request) => {
   if (env.NODE_ENV === 'production') {
     return req.url === '/health' || req.url === '/api/health'
   }
@@ -68,7 +73,8 @@ const skipHealthChecks = (req: Request, _res: Response) => {
 /**
  * Morgan format for development
  */
-const developmentFormat = ':method :url :status :responseTime - :res[content-length] bytes - :userId - :requestId'
+const developmentFormat =
+  ':method :url :status :responseTime - :res[content-length] bytes - :userId - :requestId'
 
 /**
  * Morgan format for production (JSON)
@@ -84,7 +90,7 @@ const productionFormat = JSON.stringify({
   userId: ':userId',
   requestId: ':requestId',
   bodySize: ':bodySize',
-  timestamp: ':date[iso]'
+  timestamp: ':date[iso]',
 })
 
 /**
@@ -101,7 +107,11 @@ export const httpLogger = morgan(
 /**
  * Detailed request/response logging middleware
  */
-export const detailedLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const detailedLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   // Log request details
   logger.debug('Incoming Request', {
     requestId: req.requestId,
@@ -118,7 +128,7 @@ export const detailedLogger = (req: Request, res: Response, next: NextFunction):
 
   // Capture original res.json to log response
   const originalJson = res.json
-  res.json = function(body: unknown) {
+  res.json = function (body: unknown) {
     // Log response details
     logger.debug('Outgoing Response', {
       requestId: req.requestId,
@@ -137,21 +147,25 @@ export const detailedLogger = (req: Request, res: Response, next: NextFunction):
 /**
  * Security headers logging
  */
-export const securityLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const securityLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   // Log potentially suspicious requests
   const suspiciousPatterns = [
-    /\.\./,  // Path traversal
-    /<script/i,  // XSS attempts
-    /union.*select/i,  // SQL injection
-    /javascript:/i,  // JavaScript protocol
-    /data:/i,  // Data protocol
+    /\.\./, // Path traversal
+    /<script/i, // XSS attempts
+    /union.*select/i, // SQL injection
+    /javascript:/i, // JavaScript protocol
+    /data:/i, // Data protocol
   ]
 
   const url = req.url.toLowerCase()
   const body = JSON.stringify(req.body || {}).toLowerCase()
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => 
-    pattern.test(url) || pattern.test(body)
+
+  const isSuspicious = suspiciousPatterns.some(
+    (pattern) => pattern.test(url) || pattern.test(body)
   )
 
   if (isSuspicious) {
@@ -167,14 +181,12 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   }
 
   // Log requests with missing security headers
-  const securityHeaders = [
-    'x-forwarded-for',
-    'x-real-ip',
-    'user-agent',
-  ]
+  const securityHeaders = ['x-forwarded-for', 'x-real-ip', 'user-agent']
 
-  const missingHeaders = securityHeaders.filter(header => !req.headers[header])
-  
+  const missingHeaders = securityHeaders.filter(
+    (header) => !req.headers[header]
+  )
+
   if (missingHeaders.length > 0) {
     logger.debug('Request Missing Security Headers', {
       requestId: req.requestId,
@@ -189,7 +201,11 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
 /**
  * Performance monitoring middleware
  */
-export const performanceLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const performanceLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const startTime = process.hrtime.bigint()
 
   res.on('finish', () => {

@@ -1,7 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Dropdown } from './Dropdown';
-import { Button } from '../Button/Button';
-import { DownOutlined, UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Dropdown, type MenuProps } from 'antd'
+import { Button } from '../Button/Button'
+import {
+  DownOutlined,
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons'
 
 const meta: Meta<typeof Dropdown> = {
   title: 'Atoms/Dropdown',
@@ -13,7 +18,14 @@ const meta: Meta<typeof Dropdown> = {
   argTypes: {
     placement: {
       control: 'select',
-      options: ['bottomLeft', 'bottomCenter', 'bottomRight', 'topLeft', 'topCenter', 'topRight'],
+      options: [
+        'bottomLeft',
+        'bottomCenter',
+        'bottomRight',
+        'topLeft',
+        'topCenter',
+        'topRight',
+      ],
     },
     trigger: {
       control: 'select',
@@ -23,12 +35,12 @@ const meta: Meta<typeof Dropdown> = {
       control: 'boolean',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
-const menuItems = [
+const menuItems: MenuProps['items'] = [
   {
     key: '1',
     label: 'Profile',
@@ -48,7 +60,7 @@ const menuItems = [
     icon: <LogoutOutlined />,
     danger: true,
   },
-];
+]
 
 export const Default: Story = {
   args: {
@@ -59,7 +71,7 @@ export const Default: Story = {
       </Button>
     ),
   },
-};
+}
 
 export const HoverTrigger: Story = {
   args: {
@@ -71,32 +83,39 @@ export const HoverTrigger: Story = {
       </Button>
     ),
   },
-};
+}
 
 export const Placements: Story = {
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '50px' }}>
-      <Dropdown menu={{ items: menuItems }} placement="topLeft">
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '16px',
+        padding: '50px',
+      }}
+    >
+      <Dropdown menu={{ items: menuItems }} placement='topLeft'>
         <Button>Top Left</Button>
       </Dropdown>
-      <Dropdown menu={{ items: menuItems }} placement="topCenter">
+      <Dropdown menu={{ items: menuItems }} placement='topCenter'>
         <Button>Top Center</Button>
       </Dropdown>
-      <Dropdown menu={{ items: menuItems }} placement="topRight">
+      <Dropdown menu={{ items: menuItems }} placement='topRight'>
         <Button>Top Right</Button>
       </Dropdown>
-      <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
+      <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
         <Button>Bottom Left</Button>
       </Dropdown>
-      <Dropdown menu={{ items: menuItems }} placement="bottomCenter">
+      <Dropdown menu={{ items: menuItems }} placement='bottomCenter'>
         <Button>Bottom Center</Button>
       </Dropdown>
-      <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+      <Dropdown menu={{ items: menuItems }} placement='bottomRight'>
         <Button>Bottom Right</Button>
       </Dropdown>
     </div>
   ),
-};
+}
 
 export const WithSubmenus: Story = {
   args: {
@@ -128,7 +147,7 @@ export const WithSubmenus: Story = {
       </Button>
     ),
   },
-};
+}
 
 export const Disabled: Story = {
   args: {
@@ -140,4 +159,4 @@ export const Disabled: Story = {
       </Button>
     ),
   },
-};
+}

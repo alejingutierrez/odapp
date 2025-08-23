@@ -1,4 +1,10 @@
-import { ShopifyProduct, ShopifyOrder, ShopifyCustomer, ShopifyVariant, ShopifyImage } from '../../types/shopify';
+import {
+  ShopifyProduct,
+  ShopifyOrder,
+  ShopifyCustomer,
+  ShopifyVariant,
+  ShopifyImage,
+} from '../../types/shopify'
 
 export const mockShopifyVariant: ShopifyVariant = {
   id: 1,
@@ -27,7 +33,7 @@ export const mockShopifyVariant: ShopifyVariant = {
   old_inventory_quantity: 90,
   requires_shipping: true,
   admin_graphql_api_id: 'gid://shopify/ProductVariant/1',
-};
+}
 
 export const mockShopifyImage: ShopifyImage = {
   id: 1,
@@ -41,7 +47,7 @@ export const mockShopifyImage: ShopifyImage = {
   src: 'https://cdn.shopify.com/test-image.jpg',
   variant_ids: [1],
   admin_graphql_api_id: 'gid://shopify/ProductImage/1',
-};
+}
 
 export const mockShopifyProduct: ShopifyProduct = {
   id: 1,
@@ -69,7 +75,7 @@ export const mockShopifyProduct: ShopifyProduct = {
   ],
   images: [mockShopifyImage],
   image: mockShopifyImage,
-};
+}
 
 export const mockShopifyCustomer: ShopifyCustomer = {
   id: 1,
@@ -135,7 +141,7 @@ export const mockShopifyCustomer: ShopifyCustomer = {
     country_name: 'Test Country',
     default: true,
   },
-};
+}
 
 export const mockShopifyOrder: ShopifyOrder = {
   id: 1,
@@ -388,7 +394,7 @@ export const mockShopifyOrder: ShopifyOrder = {
       discount_allocations: [],
     },
   ],
-};
+}
 
 export const mockWebhookEvent = {
   topic: 'products/create',
@@ -400,7 +406,7 @@ export const mockWebhookEvent = {
     'x-shopify-hmac-sha256': 'test-hmac',
   },
   timestamp: new Date(),
-};
+}
 
 export const mockSyncResult = {
   syncId: 'test-sync-id',
@@ -408,7 +414,7 @@ export const mockSyncResult = {
   failed: 0,
   total: 1,
   errors: [],
-};
+}
 
 export const mockSyncStatus = {
   id: 'test-sync-id',
@@ -421,4 +427,4 @@ export const mockSyncStatus = {
   failed: 0,
   total: 1,
   errors: [],
-};
+}

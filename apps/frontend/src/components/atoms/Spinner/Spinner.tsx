@@ -3,7 +3,14 @@ import './Spinner.css'
 
 export interface SpinnerProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'white'
+  color?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'white'
   variant?: 'spin' | 'dots' | 'pulse' | 'bars' | 'ring' | 'bounce'
   text?: string
   centered?: boolean
@@ -42,74 +49,74 @@ export const Spinner: React.FC<SpinnerProps> = ({
     switch (variant) {
       case 'spin':
         return (
-          <div className="oda-spinner__spin" aria-hidden="true">
-            <svg viewBox="0 0 24 24" className="oda-spinner__svg">
+          <div className='oda-spinner__spin' aria-hidden='true'>
+            <svg viewBox='0 0 24 24' className='oda-spinner__svg'>
               <circle
-                cx="12"
-                cy="12"
-                r="10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeDasharray="31.416"
-                strokeDashoffset="31.416"
+                cx='12'
+                cy='12'
+                r='10'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeDasharray='31.416'
+                strokeDashoffset='31.416'
               />
             </svg>
           </div>
         )
-      
+
       case 'dots':
         return (
-          <div className="oda-spinner__dots" aria-hidden="true">
-            <div className="oda-spinner__dot" />
-            <div className="oda-spinner__dot" />
-            <div className="oda-spinner__dot" />
+          <div className='oda-spinner__dots' aria-hidden='true'>
+            <div className='oda-spinner__dot' />
+            <div className='oda-spinner__dot' />
+            <div className='oda-spinner__dot' />
           </div>
         )
-      
+
       case 'pulse':
-        return <div className="oda-spinner__pulse" aria-hidden="true" />
-      
+        return <div className='oda-spinner__pulse' aria-hidden='true' />
+
       case 'bars':
         return (
-          <div className="oda-spinner__bars" aria-hidden="true">
-            <div className="oda-spinner__bar" />
-            <div className="oda-spinner__bar" />
-            <div className="oda-spinner__bar" />
-            <div className="oda-spinner__bar" />
+          <div className='oda-spinner__bars' aria-hidden='true'>
+            <div className='oda-spinner__bar' />
+            <div className='oda-spinner__bar' />
+            <div className='oda-spinner__bar' />
+            <div className='oda-spinner__bar' />
           </div>
         )
-      
+
       case 'ring':
         return (
-          <div className="oda-spinner__ring" aria-hidden="true">
-            <div className="oda-spinner__ring-inner" />
+          <div className='oda-spinner__ring' aria-hidden='true'>
+            <div className='oda-spinner__ring-inner' />
           </div>
         )
-      
+
       case 'bounce':
         return (
-          <div className="oda-spinner__bounce" aria-hidden="true">
-            <div className="oda-spinner__bounce-dot" />
-            <div className="oda-spinner__bounce-dot" />
+          <div className='oda-spinner__bounce' aria-hidden='true'>
+            <div className='oda-spinner__bounce-dot' />
+            <div className='oda-spinner__bounce-dot' />
           </div>
         )
-      
+
       default:
         return (
-          <div className="oda-spinner__spin" aria-hidden="true">
-            <svg viewBox="0 0 24 24" className="oda-spinner__svg">
+          <div className='oda-spinner__spin' aria-hidden='true'>
+            <svg viewBox='0 0 24 24' className='oda-spinner__svg'>
               <circle
-                cx="12"
-                cy="12"
-                r="10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeDasharray="31.416"
-                strokeDashoffset="31.416"
+                cx='12'
+                cy='12'
+                r='10'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeDasharray='31.416'
+                strokeDashoffset='31.416'
               />
             </svg>
           </div>
@@ -118,21 +125,24 @@ export const Spinner: React.FC<SpinnerProps> = ({
   }
 
   const spinnerContent = (
-    <div 
+    <div
       className={spinnerClasses}
-      role="status"
+      role='status'
       aria-label={ariaLabel || text || 'Loading'}
       data-testid={testId}
     >
       {renderSpinnerIcon()}
-      {text && <span className="oda-spinner__text">{text}</span>}
-      {children && <div className="oda-spinner__content">{children}</div>}
+      {text && <span className='oda-spinner__text'>{text}</span>}
+      {children && <div className='oda-spinner__content'>{children}</div>}
     </div>
   )
 
   if (overlay) {
     return (
-      <div className="oda-spinner-overlay" data-testid={testId ? `${testId}-overlay` : undefined}>
+      <div
+        className='oda-spinner-overlay'
+        data-testid={testId ? `${testId}-overlay` : undefined}
+      >
         {spinnerContent}
       </div>
     )
@@ -173,16 +183,14 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
   return (
     <div className={buttonClasses} data-testid={testId}>
       {loading && (
-        <Spinner 
-          size={size} 
-          color={spinnerColor} 
-          variant="spin"
-          aria-label="Loading"
+        <Spinner
+          size={size}
+          color={spinnerColor}
+          variant='spin'
+          aria-label='Loading'
         />
       )}
-      <span className="oda-loading-button__text">
-        {children}
-      </span>
+      <span className='oda-loading-button__text'>{children}</span>
     </div>
   )
 }
@@ -212,7 +220,7 @@ export const PageLoader: React.FC<PageLoaderProps> = ({
   }
 
   return (
-    <div 
+    <div
       className={`oda-page-loader ${className}`}
       style={loaderStyle}
       data-testid={testId}
@@ -251,7 +259,7 @@ export const InlineLoader: React.FC<InlineLoaderProps> = ({
       color={color}
       variant={variant}
       className={`oda-inline-loader ${className}`}
-      aria-label="Loading"
+      aria-label='Loading'
       testId={testId}
     />
   )

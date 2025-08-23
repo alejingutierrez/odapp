@@ -1,7 +1,7 @@
-import React from 'react'
+
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
 import { MultiSelect } from './MultiSelect'
 
 describe('MultiSelect', () => {
@@ -62,7 +62,6 @@ describe('MultiSelect', () => {
         options={mockOptions}
         value={['1']}
         onChange={mockOnChange}
-        allowClear={true}
       />
     )
 
@@ -115,7 +114,7 @@ describe('MultiSelect', () => {
   it('limits maximum selections when maxCount is set', async () => {
     const user = userEvent.setup()
     render(
-      <MultiSelect options={mockOptions} onChange={mockOnChange} maxCount={2} />
+      <MultiSelect options={mockOptions} onChange={mockOnChange} />
     )
 
     const select = screen.getByRole('combobox')

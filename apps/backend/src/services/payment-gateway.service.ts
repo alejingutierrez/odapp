@@ -1,76 +1,79 @@
-import { logger } from '../lib/logger';
-import { AppError } from '../lib/errors';
-import { PaymentMethod, PaymentStatus } from '@prisma/client';
+import { logger } from '../lib/logger'
+import { ServiceUnavailableError, NotFoundError, ApiError } from '../lib/errors'
+import { PaymentMethod, PaymentStatus } from '@prisma/client'
 
 export interface PaymentRequest {
-  amount: number;
-  currency: string;
-  method: PaymentMethod;
+  amount: number
+  currency: string
+  method: PaymentMethod
   customerInfo?: {
-    email?: string;
-    name?: string;
-    phone?: string;
-  };
+    email?: string
+    name?: string
+    phone?: string
+  }
   billingAddress?: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state?: string;
-    postalCode?: string;
-    country: string;
-  };
-  metadata?: Record<string, any>;
+    line1: string
+    line2?: string
+    city: string
+    state?: string
+    postalCode?: string
+    country: string
+  }
+  metadata?: Record<string, unknown>
 }
 
 export interface PaymentResponse {
-  success: boolean;
-  transactionId?: string;
-  status: PaymentStatus;
-  message?: string;
-  metadata?: Record<string, any>;
+  success: boolean
+  transactionId?: string
+  status: PaymentStatus
+  message?: string
+  metadata?: Record<string, unknown>
 }
 
 export interface RefundRequest {
-  transactionId: string;
-  amount?: number; // If not provided, full refund
-  reason?: string;
+  transactionId: string
+  amount?: number // If not provided, full refund
+  reason?: string
 }
 
 export interface RefundResponse {
-  success: boolean;
-  refundId?: string;
-  amount: number;
-  message?: string;
+  success: boolean
+  refundId?: string
+  amount: number
+  message?: string
 }
 
 export interface PaymentGateway {
-  name: string;
-  processPayment(request: PaymentRequest): Promise<PaymentResponse>;
-  refundPayment(request: RefundRequest): Promise<RefundResponse>;
-  verifyWebhook?(payload: any, signature: string): boolean;
-  handleWebhook?(payload: any): Promise<void>;
+  name: string
+  processPayment(_request: PaymentRequest): Promise<PaymentResponse>
+  refundPayment(_request: RefundRequest): Promise<RefundResponse>
+  verifyWebhook?(_payload: unknown, _signature: string): boolean
+  handleWebhook?(_payload: unknown): Promise<void>
 }
 
 // Stripe Gateway Implementation
 export class StripeGateway implements PaymentGateway {
-  name = 'stripe';
-  private apiKey: string;
+  name = 'stripe'
+  private apiKey: string
 
   constructor(apiKey: string) {
-    this.apiKey = apiKey;
+    this.apiKey = apiKey
   }
 
   async processPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      logger.info('Processing Stripe payment', { amount: request.amount, currency: request.currency });
+      logger.info('Processing Stripe payment', {
+        amount: request.amount,
+        currency: request.currency,
+      })
 
       // Simulate Stripe API call
       // In real implementation, use Stripe SDK
-      const success = Math.random() > 0.05; // 95% success rate
-      
+      const success = Math.random() > 0.05 // 95% success rate
+
       if (success) {
-        const transactionId = `pi_${Math.random().toString(36).substr(2, 24)}`;
-        
+        const transactionId = `pi_${Math.random().toString(36).substr(2, 24)}`
+
         return {
           success: true,
           transactionId,
@@ -78,105 +81,119 @@ export class StripeGateway implements PaymentGateway {
           message: 'Payment processed successfully',
           metadata: {
             gateway: 'stripe',
-            processingTime: Date.now()
-          }
-        };
+            processingTime: Date.now(),
+          },
+        }
       } else {
         return {
           success: false,
           status: PaymentStatus.FAILED,
-          message: 'Payment declined by bank'
-        };
+          message: 'Payment declined by bank',
+        }
       }
     } catch (error) {
-      logger.error('Stripe payment processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('Stripe payment processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         status: PaymentStatus.FAILED,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 
   async refundPayment(request: RefundRequest): Promise<RefundResponse> {
     try {
-      logger.info('Processing Stripe refund', { transactionId: request.transactionId, amount: request.amount });
+      logger.info('Processing Stripe refund', {
+        transactionId: request.transactionId,
+        amount: request.amount,
+      })
 
       // Simulate Stripe refund API call
-      const success = Math.random() > 0.02; // 98% success rate
-      
+      const success = Math.random() > 0.02 // 98% success rate
+
       if (success) {
-        const refundId = `re_${Math.random().toString(36).substr(2, 24)}`;
-        
+        const refundId = `re_${Math.random().toString(36).substr(2, 24)}`
+
         return {
           success: true,
           refundId,
           amount: request.amount || 0,
-          message: 'Refund processed successfully'
-        };
+          message: 'Refund processed successfully',
+        }
       } else {
         return {
           success: false,
           amount: 0,
-          message: 'Refund failed - transaction not found'
-        };
+          message: 'Refund failed - transaction not found',
+        }
       }
     } catch (error) {
-      logger.error('Stripe refund processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('Stripe refund processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         amount: 0,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 
-  verifyWebhook(payload: any, signature: string): boolean {
+  verifyWebhook(_payload: unknown, _signature: string): boolean {
     // Implement Stripe webhook signature verification
     // This is a simplified version
-    return signature.startsWith('whsec_');
+    return _signature.startsWith('whsec_')
   }
 
-  async handleWebhook(payload: any): Promise<void> {
-    logger.info('Handling Stripe webhook', { type: payload.type });
-    
-    switch (payload.type) {
+  async handleWebhook(_payload: Record<string, unknown>): Promise<void> {
+    logger.info('Handling Stripe webhook', { type: _payload.type })
+
+    switch (_payload.type) {
       case 'payment_intent.succeeded':
         // Handle successful payment
-        break;
+        break
       case 'payment_intent.payment_failed':
         // Handle failed payment
-        break;
+        break
       case 'charge.dispute.created':
         // Handle chargeback
-        break;
+        break
       default:
-        logger.info('Unhandled Stripe webhook type', { type: payload.type });
+        logger.info('Unhandled Stripe webhook type', { type: _payload.type })
     }
   }
 }
 
 // PayPal Gateway Implementation
 export class PayPalGateway implements PaymentGateway {
-  name = 'paypal';
-  private clientId: string;
-  private clientSecret: string;
+  name = 'paypal'
+  private clientId: string
+  private clientSecret: string
 
   constructor(clientId: string, clientSecret: string) {
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
+    this.clientId = clientId
+    this.clientSecret = clientSecret
   }
 
   async processPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      logger.info('Processing PayPal payment', { amount: request.amount, currency: request.currency });
+      logger.info('Processing PayPal payment', {
+        amount: request.amount,
+        currency: request.currency,
+      })
 
       // Simulate PayPal API call
-      const success = Math.random() > 0.03; // 97% success rate
-      
+      const success = Math.random() > 0.03 // 97% success rate
+
       if (success) {
-        const transactionId = `PAY-${Math.random().toString(36).substr(2, 17).toUpperCase()}`;
-        
+        const transactionId = `PAY-${Math.random().toString(36).substr(2, 17).toUpperCase()}`
+
         return {
           success: true,
           transactionId,
@@ -184,81 +201,95 @@ export class PayPalGateway implements PaymentGateway {
           message: 'Payment processed successfully',
           metadata: {
             gateway: 'paypal',
-            processingTime: Date.now()
-          }
-        };
+            processingTime: Date.now(),
+          },
+        }
       } else {
         return {
           success: false,
           status: PaymentStatus.FAILED,
-          message: 'Payment declined'
-        };
+          message: 'Payment declined',
+        }
       }
     } catch (error) {
-      logger.error('PayPal payment processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('PayPal payment processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         status: PaymentStatus.FAILED,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 
   async refundPayment(request: RefundRequest): Promise<RefundResponse> {
     try {
-      logger.info('Processing PayPal refund', { transactionId: request.transactionId, amount: request.amount });
+      logger.info('Processing PayPal refund', {
+        transactionId: request.transactionId,
+        amount: request.amount,
+      })
 
       // Simulate PayPal refund API call
-      const success = Math.random() > 0.01; // 99% success rate
-      
+      const success = Math.random() > 0.01 // 99% success rate
+
       if (success) {
-        const refundId = `REF-${Math.random().toString(36).substr(2, 17).toUpperCase()}`;
-        
+        const refundId = `REF-${Math.random().toString(36).substr(2, 17).toUpperCase()}`
+
         return {
           success: true,
           refundId,
           amount: request.amount || 0,
-          message: 'Refund processed successfully'
-        };
+          message: 'Refund processed successfully',
+        }
       } else {
         return {
           success: false,
           amount: 0,
-          message: 'Refund failed'
-        };
+          message: 'Refund failed',
+        }
       }
     } catch (error) {
-      logger.error('PayPal refund processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('PayPal refund processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         amount: 0,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 }
 
 // Square Gateway Implementation
 export class SquareGateway implements PaymentGateway {
-  name = 'square';
-  private accessToken: string;
-  private applicationId: string;
+  name = 'square'
+  private accessToken: string
+  private applicationId: string
 
   constructor(accessToken: string, applicationId: string) {
-    this.accessToken = accessToken;
-    this.applicationId = applicationId;
+    this.accessToken = accessToken
+    this.applicationId = applicationId
   }
 
   async processPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      logger.info('Processing Square payment', { amount: request.amount, currency: request.currency });
+      logger.info('Processing Square payment', {
+        amount: request.amount,
+        currency: request.currency,
+      })
 
       // Simulate Square API call
-      const success = Math.random() > 0.04; // 96% success rate
-      
+      const success = Math.random() > 0.04 // 96% success rate
+
       if (success) {
-        const transactionId = Math.random().toString(36).substr(2, 22);
-        
+        const transactionId = Math.random().toString(36).substr(2, 22)
+
         return {
           success: true,
           transactionId,
@@ -266,195 +297,222 @@ export class SquareGateway implements PaymentGateway {
           message: 'Payment processed successfully',
           metadata: {
             gateway: 'square',
-            processingTime: Date.now()
-          }
-        };
+            processingTime: Date.now(),
+          },
+        }
       } else {
         return {
           success: false,
           status: PaymentStatus.FAILED,
-          message: 'Payment declined'
-        };
+          message: 'Payment declined',
+        }
       }
     } catch (error) {
-      logger.error('Square payment processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('Square payment processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         status: PaymentStatus.FAILED,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 
   async refundPayment(request: RefundRequest): Promise<RefundResponse> {
     try {
-      logger.info('Processing Square refund', { transactionId: request.transactionId, amount: request.amount });
+      logger.info('Processing Square refund', {
+        transactionId: request.transactionId,
+        amount: request.amount,
+      })
 
       // Simulate Square refund API call
-      const success = Math.random() > 0.02; // 98% success rate
-      
+      const success = Math.random() > 0.02 // 98% success rate
+
       if (success) {
-        const refundId = Math.random().toString(36).substr(2, 22);
-        
+        const refundId = Math.random().toString(36).substr(2, 22)
+
         return {
           success: true,
           refundId,
           amount: request.amount || 0,
-          message: 'Refund processed successfully'
-        };
+          message: 'Refund processed successfully',
+        }
       } else {
         return {
           success: false,
           amount: 0,
-          message: 'Refund failed'
-        };
+          message: 'Refund failed',
+        }
       }
     } catch (error) {
-      logger.error('Square refund processing failed', { error: error.message, request });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('Square refund processing failed', {
+        error: errorMessage,
+        request,
+      })
       return {
         success: false,
         amount: 0,
-        message: error.message
-      };
+        message: errorMessage,
+      }
     }
   }
 }
 
 // Payment Gateway Manager
 export class PaymentGatewayService {
-  private gateways: Map<string, PaymentGateway> = new Map();
-  private defaultGateway: string;
+  private gateways: Map<string, PaymentGateway> = new Map()
+  private defaultGateway: string = 'stripe'
 
   constructor() {
-    this.initializeGateways();
+    this.initializeGateways()
   }
 
   private initializeGateways() {
     // Initialize gateways based on environment configuration
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    const stripeKey = process.env.STRIPE_SECRET_KEY
     if (stripeKey) {
-      this.gateways.set('stripe', new StripeGateway(stripeKey));
+      this.gateways.set('stripe', new StripeGateway(stripeKey))
     }
 
-    const paypalClientId = process.env.PAYPAL_CLIENT_ID;
-    const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    const paypalClientId = process.env.PAYPAL_CLIENT_ID
+    const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET
     if (paypalClientId && paypalClientSecret) {
-      this.gateways.set('paypal', new PayPalGateway(paypalClientId, paypalClientSecret));
+      this.gateways.set(
+        'paypal',
+        new PayPalGateway(paypalClientId, paypalClientSecret)
+      )
     }
 
-    const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN;
-    const squareApplicationId = process.env.SQUARE_APPLICATION_ID;
+    const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN
+    const squareApplicationId = process.env.SQUARE_APPLICATION_ID
     if (squareAccessToken && squareApplicationId) {
-      this.gateways.set('square', new SquareGateway(squareAccessToken, squareApplicationId));
+      this.gateways.set(
+        'square',
+        new SquareGateway(squareAccessToken, squareApplicationId)
+      )
     }
 
     // Set default gateway
-    this.defaultGateway = process.env.DEFAULT_PAYMENT_GATEWAY || 'stripe';
+    this.defaultGateway = process.env.DEFAULT_PAYMENT_GATEWAY || 'stripe'
 
-    logger.info('Payment gateways initialized', { 
+    logger.info('Payment gateways initialized', {
       gateways: Array.from(this.gateways.keys()),
-      default: this.defaultGateway
-    });
+      default: this.defaultGateway,
+    })
   }
 
   getGateway(name?: string): PaymentGateway {
-    const gatewayName = name || this.defaultGateway;
-    const gateway = this.gateways.get(gatewayName);
-    
+    const gatewayName = name || this.defaultGateway
+    const gateway = this.gateways.get(gatewayName)
+
     if (!gateway) {
-      throw new AppError(`Payment gateway '${gatewayName}' not configured`, 500);
+      throw new ServiceUnavailableError(`Payment gateway '${gatewayName}' not configured`)
     }
-    
-    return gateway;
+
+    return gateway
   }
 
-  async processPayment(request: PaymentRequest, gatewayName?: string): Promise<PaymentResponse> {
-    const gateway = this.getGateway(gatewayName);
-    
-    logger.info('Processing payment', { 
-      gateway: gateway.name, 
-      amount: request.amount, 
-      currency: request.currency,
-      method: request.method
-    });
+  async processPayment(
+    request: PaymentRequest,
+    gatewayName?: string
+  ): Promise<PaymentResponse> {
+    const gateway = this.getGateway(gatewayName)
 
-    const startTime = Date.now();
-    const response = await gateway.processPayment(request);
-    const processingTime = Date.now() - startTime;
+    logger.info('Processing payment', {
+      gateway: gateway.name,
+      amount: request.amount,
+      currency: request.currency,
+      method: request.method,
+    })
+
+    const startTime = Date.now()
+    const response = await gateway.processPayment(request)
+    const processingTime = Date.now() - startTime
 
     logger.info('Payment processing completed', {
       gateway: gateway.name,
       success: response.success,
       status: response.status,
       processingTime,
-      transactionId: response.transactionId
-    });
+      transactionId: response.transactionId,
+    })
 
-    return response;
+    return response
   }
 
-  async refundPayment(request: RefundRequest, gatewayName?: string): Promise<RefundResponse> {
-    const gateway = this.getGateway(gatewayName);
-    
-    logger.info('Processing refund', { 
-      gateway: gateway.name, 
-      transactionId: request.transactionId,
-      amount: request.amount
-    });
+  async refundPayment(
+    request: RefundRequest,
+    gatewayName?: string
+  ): Promise<RefundResponse> {
+    const gateway = this.getGateway(gatewayName)
 
-    const startTime = Date.now();
-    const response = await gateway.refundPayment(request);
-    const processingTime = Date.now() - startTime;
+    logger.info('Processing refund', {
+      gateway: gateway.name,
+      transactionId: request.transactionId,
+      amount: request.amount,
+    })
+
+    const startTime = Date.now()
+    const response = await gateway.refundPayment(request)
+    const processingTime = Date.now() - startTime
 
     logger.info('Refund processing completed', {
       gateway: gateway.name,
       success: response.success,
       processingTime,
       refundId: response.refundId,
-      amount: response.amount
-    });
+      amount: response.amount,
+    })
 
-    return response;
+    return response
   }
 
-  async handleWebhook(gatewayName: string, payload: any, signature?: string): Promise<void> {
-    const gateway = this.gateways.get(gatewayName);
-    
+  async handleWebhook(
+    gatewayName: string,
+    payload: Record<string, unknown>,
+    signature?: string
+  ): Promise<void> {
+    const gateway = this.gateways.get(gatewayName)
+
     if (!gateway) {
-      throw new AppError(`Payment gateway '${gatewayName}' not found`, 404);
+      throw new NotFoundError(`Payment gateway '${gatewayName}'`)
     }
 
     // Verify webhook signature if gateway supports it
     if (gateway.verifyWebhook && signature) {
-      const isValid = gateway.verifyWebhook(payload, signature);
+      const isValid = gateway.verifyWebhook(payload, signature)
       if (!isValid) {
-        throw new AppError('Invalid webhook signature', 401);
+        throw new ApiError(401, 'Invalid webhook signature')
       }
     }
 
     // Handle webhook if gateway supports it
     if (gateway.handleWebhook) {
-      await gateway.handleWebhook(payload);
+      await gateway.handleWebhook(payload)
     }
 
-    logger.info('Webhook processed', { gateway: gatewayName });
+    logger.info('Webhook processed', { gateway: gatewayName })
   }
 
   getAvailableGateways(): string[] {
-    return Array.from(this.gateways.keys());
+    return Array.from(this.gateways.keys())
   }
 
   getDefaultGateway(): string {
-    return this.defaultGateway;
+    return this.defaultGateway
   }
 
   setDefaultGateway(gatewayName: string): void {
     if (!this.gateways.has(gatewayName)) {
-      throw new AppError(`Payment gateway '${gatewayName}' not configured`, 400);
+      throw new ServiceUnavailableError(`Payment gateway '${gatewayName}' not configured`)
     }
-    
-    this.defaultGateway = gatewayName;
-    logger.info('Default payment gateway changed', { gateway: gatewayName });
+
+    this.defaultGateway = gatewayName
+    logger.info('Default payment gateway changed', { gateway: gatewayName })
   }
 
   /**
@@ -471,68 +529,72 @@ export class PaymentGatewayService {
     // - Success rates
 
     if (request.method === PaymentMethod.PAYPAL) {
-      return 'paypal';
+      return 'paypal'
     }
 
     if (request.amount > 10000) {
       // Use most reliable gateway for high-value transactions
-      return 'stripe';
+      return 'stripe'
     }
 
     if (request.currency !== 'USD') {
       // Use gateway with best international support
-      return 'stripe';
+      return 'stripe'
     }
 
     // Default routing
-    return this.defaultGateway;
+    return this.defaultGateway
   }
 
   /**
    * Process payment with automatic failover
    */
-  async processPaymentWithFailover(request: PaymentRequest): Promise<PaymentResponse> {
-    const primaryGateway = this.getRecommendedGateway(request);
-    const availableGateways = this.getAvailableGateways();
-    
+  async processPaymentWithFailover(
+    request: PaymentRequest
+  ): Promise<PaymentResponse> {
+    const primaryGateway = this.getRecommendedGateway(request)
+    const availableGateways = this.getAvailableGateways()
+
     // Try primary gateway first
     try {
-      const response = await this.processPayment(request, primaryGateway);
+      const response = await this.processPayment(request, primaryGateway)
       if (response.success) {
-        return response;
+        return response
       }
     } catch (error) {
-      logger.warn('Primary gateway failed, trying failover', { 
-        primary: primaryGateway, 
-        error: error.message 
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.warn('Primary gateway failed, trying failover', {
+        primary: primaryGateway,
+        error: errorMessage,
+      })
     }
 
     // Try other gateways as failover
     for (const gatewayName of availableGateways) {
-      if (gatewayName === primaryGateway) continue;
+      if (gatewayName === primaryGateway) continue
 
       try {
-        logger.info('Attempting failover payment', { gateway: gatewayName });
-        const response = await this.processPayment(request, gatewayName);
+        logger.info('Attempting failover payment', { gateway: gatewayName })
+        const response = await this.processPayment(request, gatewayName)
         if (response.success) {
-          logger.info('Failover payment successful', { gateway: gatewayName });
-          return response;
+          logger.info('Failover payment successful', { gateway: gatewayName })
+          return response
         }
       } catch (error) {
-        logger.warn('Failover gateway failed', { 
-          gateway: gatewayName, 
-          error: error.message 
-        });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        logger.warn('Failover gateway failed', {
+          gateway: gatewayName,
+          error: errorMessage,
+        })
       }
     }
 
     // All gateways failed
-    logger.error('All payment gateways failed', { request });
+    logger.error('All payment gateways failed', { request })
     return {
       success: false,
       status: PaymentStatus.FAILED,
-      message: 'All payment gateways are currently unavailable'
-    };
+      message: 'All payment gateways are currently unavailable',
+    }
   }
 }

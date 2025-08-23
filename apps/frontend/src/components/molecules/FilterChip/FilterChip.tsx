@@ -8,7 +8,11 @@ export interface FilterChipProps {
   color?: string
 }
 
-export const FilterChip: React.FC<FilterChipProps> = ({ label, onRemove, color }) => {
+export const FilterChip: React.FC<FilterChipProps> = ({
+  label,
+  onRemove,
+  color,
+}) => {
   return (
     <Tag
       closable={!!onRemove}

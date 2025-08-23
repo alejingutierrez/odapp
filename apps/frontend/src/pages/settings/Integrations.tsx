@@ -5,7 +5,9 @@ const Integrations: React.FC = () => {
   return (
     <div>
       <Typography.Title level={2}>Integrations</Typography.Title>
-      <Card><p>Integrations page will be implemented here...</p></Card>
+      <Card>
+        <p>Integrations page will be implemented here...</p>
+      </Card>
     </div>
   )
 }

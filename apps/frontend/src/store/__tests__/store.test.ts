@@ -24,7 +24,7 @@ describe('Store Configuration', () => {
 
   it('should have the correct initial state structure', () => {
     const state = store.getState()
-    
+
     expect(state).toHaveProperty('auth')
     expect(state).toHaveProperty('ui')
     expect(state).toHaveProperty('products')
@@ -221,18 +221,22 @@ describe('Store Configuration', () => {
       updatedAt: '2023-01-01T00:00:00Z',
     }
 
-    store.dispatch(setCredentials({
-      user: mockUser,
-      token: 'test-token',
-      refreshToken: 'test-refresh-token',
-      expiresIn: 3600,
-    }))
+    store.dispatch(
+      setCredentials({
+        user: mockUser,
+        token: 'test-token',
+        refreshToken: 'test-refresh-token',
+        expiresIn: 3600,
+      })
+    )
 
-    store.dispatch(addNotification({
-      type: 'info',
-      title: 'Test',
-      message: 'Test message',
-    }))
+    store.dispatch(
+      addNotification({
+        type: 'info',
+        title: 'Test',
+        message: 'Test message',
+      })
+    )
 
     // Verify state is set
     expect(store.getState().auth.isAuthenticated).toBe(true)
@@ -259,15 +263,15 @@ describe('Store Configuration', () => {
   it('should handle middleware correctly', () => {
     // Test that middleware doesn't break normal operations
     const startTime = Date.now()
-    
+
     store.dispatch(setLoading({ key: 'products', loading: true }))
     store.dispatch(setLoading({ key: 'products', loading: false }))
-    
+
     const endTime = Date.now()
-    
+
     // Middleware should not significantly slow down operations
     expect(endTime - startTime).toBeLessThan(100)
-    
+
     // State should be updated correctly
     expect(store.getState().ui.loading.products).toBe(false)
   })

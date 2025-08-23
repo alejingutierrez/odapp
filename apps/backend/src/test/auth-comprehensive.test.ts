@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import { createTestApp } from './test-app'
@@ -17,7 +17,9 @@ describe('Comprehensive Authentication System Tests', () => {
     await prisma.auditLog.deleteMany()
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'comprehensive-test' } } })
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'comprehensive-test' } },
+    })
   })
 
   afterAll(async () => {
@@ -27,7 +29,9 @@ describe('Comprehensive Authentication System Tests', () => {
     await prisma.auditLog.deleteMany()
     await prisma.userSession.deleteMany()
     await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({ where: { email: { contains: 'comprehensive-test' } } })
+    await prisma.user.deleteMany({
+      where: { email: { contains: 'comprehensive-test' } },
+    })
     await prisma.$disconnect()
   })
 
@@ -64,7 +68,14 @@ describe('Comprehensive Authentication System Tests', () => {
   })
 
   describe('Two-Factor Authentication with Backup Codes', () => {
-    let testUser: any
+    let testUser: {
+      id: string
+      email: string
+      firstName: string
+      lastName: string
+      passwordHash: string
+      emailVerified: boolean
+    }
     let accessToken: string
 
     beforeAll(async () => {
@@ -75,15 +86,17 @@ describe('Comprehensive Authentication System Tests', () => {
           firstName: 'TwoFactor',
           lastName: 'Test',
           passwordHash: await AuthService.hashPassword('TestPassword123!'),
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       })
 
       // Assign role
-      const userRole = await prisma.role.findUnique({ where: { name: 'employee' } })
+      const userRole = await prisma.role.findUnique({
+        where: { name: 'employee' },
+      })
       if (userRole) {
         await prisma.userRole.create({
-          data: { userId: testUser.id, roleId: userRole.id }
+          data: { userId: testUser.id, roleId: userRole.id },
         })
       }
 
@@ -92,7 +105,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .post('/api/v1/auth/login')
         .send({
           email: 'comprehensive-test-2fa@example.com',
-          password: 'TestPassword123!'
+          password: 'TestPassword123!',
         })
         .expect(200)
 
@@ -114,7 +127,9 @@ describe('Comprehensive Authentication System Tests', () => {
     })
 
     it('should enable TOTP with valid token', async () => {
-      const setupData = TwoFactorService.generateTOTPSecret('comprehensive-test-2fa@example.com')
+      const setupData = TwoFactorService.generateTOTPSecret(
+        'comprehensive-test-2fa@example.com'
+      )
       const token = '123456' // Mock token for testing
 
       // Mock the TOTP verification to return true
@@ -126,12 +141,14 @@ describe('Comprehensive Authentication System Tests', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           secret: setupData.secret,
-          token: token
+          token: token,
         })
         .expect(200)
 
       expect(response.body.success).toBe(true)
-      expect(response.body.message).toBe('Two-factor authentication enabled successfully')
+      expect(response.body.message).toBe(
+        'Two-factor authentication enabled successfully'
+      )
 
       // Restore original function
       TwoFactorService.verifyTOTPToken = originalVerify
@@ -139,26 +156,35 @@ describe('Comprehensive Authentication System Tests', () => {
 
     it('should store and verify backup codes', async () => {
       const backupCodes = TwoFactorService.generateBackupCodes()
-      
+
       // Store backup codes
       await TwoFactorService.storeBackupCodes(testUser.id, backupCodes)
 
       // Verify a backup code
-      const isValid = await TwoFactorService.verifyBackupCode(testUser.id, backupCodes[0])
+      const isValid = await TwoFactorService.verifyBackupCode(
+        testUser.id,
+        backupCodes[0]
+      )
       expect(isValid).toBe(true)
 
       // Try to use the same backup code again (should fail)
-      const isValidAgain = await TwoFactorService.verifyBackupCode(testUser.id, backupCodes[0])
+      const isValidAgain = await TwoFactorService.verifyBackupCode(
+        testUser.id,
+        backupCodes[0]
+      )
       expect(isValidAgain).toBe(false)
 
       // Verify another backup code
-      const isValid2 = await TwoFactorService.verifyBackupCode(testUser.id, backupCodes[1])
+      const isValid2 = await TwoFactorService.verifyBackupCode(
+        testUser.id,
+        backupCodes[1]
+      )
       expect(isValid2).toBe(true)
     })
 
     it('should get correct 2FA status with backup codes count', async () => {
       const status = await TwoFactorService.getTwoFactorStatus(testUser.id)
-      
+
       expect(status.enabled).toBe(true)
       expect(status.hasSecret).toBe(true)
       expect(status.backupCodesCount).toBe(8) // 10 - 2 used = 8
@@ -178,7 +204,10 @@ describe('Comprehensive Authentication System Tests', () => {
       expect(isValid).toBe(true)
 
       // Try to use the same code again (should fail)
-      const isValidAgain = await TwoFactorService.verifySMSCode(phoneNumber, code)
+      const isValidAgain = await TwoFactorService.verifySMSCode(
+        phoneNumber,
+        code
+      )
       expect(isValidAgain).toBe(false)
     })
 
@@ -191,8 +220,8 @@ describe('Comprehensive Authentication System Tests', () => {
         data: {
           phoneNumber,
           code,
-          expiresAt: new Date(Date.now() - 10 * 60 * 1000) // 10 minutes ago
-        }
+          expiresAt: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+        },
       })
 
       // Try to verify expired code
@@ -209,8 +238,8 @@ describe('Comprehensive Authentication System Tests', () => {
         data: {
           phoneNumber,
           code,
-          expiresAt: new Date(Date.now() - 10 * 60 * 1000) // 10 minutes ago
-        }
+          expiresAt: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+        },
       })
 
       // Clean up expired codes
@@ -218,14 +247,21 @@ describe('Comprehensive Authentication System Tests', () => {
 
       // Verify the expired code was deleted
       const expiredCode = await prisma.smsVerificationCode.findFirst({
-        where: { phoneNumber }
+        where: { phoneNumber },
       })
       expect(expiredCode).toBeNull()
     })
   })
 
   describe('Security Audit Logging', () => {
-    let auditTestUser: any
+    let auditTestUser: {
+      id: string
+      email: string
+      firstName: string
+      lastName: string
+      passwordHash: string
+      emailVerified: boolean
+    }
 
     beforeAll(async () => {
       auditTestUser = await prisma.user.create({
@@ -234,8 +270,8 @@ describe('Comprehensive Authentication System Tests', () => {
           firstName: 'Audit',
           lastName: 'Test',
           passwordHash: await AuthService.hashPassword('TestPassword123!'),
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       })
     })
 
@@ -245,10 +281,12 @@ describe('Comprehensive Authentication System Tests', () => {
         userId: auditTestUser.id,
         ipAddress: '127.0.0.1',
         userAgent: 'test-agent',
-        severity: 'low'
+        severity: 'low',
       })
 
-      const events = await SecurityAuditService.getUserSecurityEvents(auditTestUser.id)
+      const events = await SecurityAuditService.getUserSecurityEvents(
+        auditTestUser.id
+      )
       expect(events.length).toBeGreaterThan(0)
       expect(events[0].action).toBe(SecurityEventType.LOGIN_SUCCESS)
     })
@@ -260,7 +298,7 @@ describe('Comprehensive Authentication System Tests', () => {
         userId: auditTestUser.id,
         ipAddress: '127.0.0.1',
         userAgent: 'test-agent',
-        severity: 'medium'
+        severity: 'medium',
       })
 
       await SecurityAuditService.logSecurityEvent({
@@ -269,7 +307,7 @@ describe('Comprehensive Authentication System Tests', () => {
         ipAddress: '192.168.1.1',
         userAgent: 'suspicious-agent',
         metadata: { reason: 'Multiple IP addresses' },
-        severity: 'high'
+        severity: 'high',
       })
 
       const stats = await SecurityAuditService.getSecurityStatistics(1)
@@ -280,7 +318,14 @@ describe('Comprehensive Authentication System Tests', () => {
   })
 
   describe('Suspicious Activity Detection', () => {
-    let suspiciousTestUser: any
+    let suspiciousTestUser: {
+      id: string
+      email: string
+      firstName: string
+      lastName: string
+      passwordHash: string
+      emailVerified: boolean
+    }
 
     beforeAll(async () => {
       suspiciousTestUser = await prisma.user.create({
@@ -289,8 +334,8 @@ describe('Comprehensive Authentication System Tests', () => {
           firstName: 'Suspicious',
           lastName: 'Test',
           passwordHash: await AuthService.hashPassword('TestPassword123!'),
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       })
     })
 
@@ -350,7 +395,14 @@ describe('Comprehensive Authentication System Tests', () => {
   })
 
   describe('Session Management', () => {
-    let sessionTestUser: any
+    let sessionTestUser: {
+      id: string
+      email: string
+      firstName: string
+      lastName: string
+      passwordHash: string
+      emailVerified: boolean
+    }
     let sessionToken: string
 
     beforeAll(async () => {
@@ -360,8 +412,8 @@ describe('Comprehensive Authentication System Tests', () => {
           firstName: 'Session',
           lastName: 'Test',
           passwordHash: await AuthService.hashPassword('TestPassword123!'),
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       })
 
       // Login to get token
@@ -369,7 +421,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .post('/api/v1/auth/login')
         .send({
           email: 'comprehensive-test-session@example.com',
-          password: 'TestPassword123!'
+          password: 'TestPassword123!',
         })
         .expect(200)
 
@@ -400,7 +452,7 @@ describe('Comprehensive Authentication System Tests', () => {
     it('should revoke specific session', async () => {
       // Create another session
       const session = await AuthService.createSession(sessionTestUser.id)
-      
+
       const response = await request(app)
         .delete(`/api/v1/auth/sessions/${session.id}`)
         .set('Authorization', `Bearer ${sessionToken}`)
@@ -411,7 +463,7 @@ describe('Comprehensive Authentication System Tests', () => {
 
       // Verify session was deleted
       const deletedSession = await prisma.userSession.findUnique({
-        where: { id: session.id }
+        where: { id: session.id },
       })
       expect(deletedSession).toBeNull()
     })
@@ -426,7 +478,7 @@ describe('Comprehensive Authentication System Tests', () => {
           email: 'comprehensive-test-integration@example.com',
           password: 'TestPassword123!',
           firstName: 'Integration',
-          lastName: 'Test'
+          lastName: 'Test',
         })
         .expect(201)
 
@@ -437,7 +489,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .post('/api/v1/auth/verify-email')
         .send({
           token: 'valid-token',
-          email: 'comprehensive-test-integration@example.com'
+          email: 'comprehensive-test-integration@example.com',
         })
         .expect(200)
 
@@ -446,7 +498,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .post('/api/v1/auth/login')
         .send({
           email: 'comprehensive-test-integration@example.com',
-          password: 'TestPassword123!'
+          password: 'TestPassword123!',
         })
         .expect(200)
 
@@ -469,7 +521,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           secret: setupResponse.body.data.secret,
-          token: '123456'
+          token: '123456',
         })
         .expect(200)
 
@@ -481,7 +533,7 @@ describe('Comprehensive Authentication System Tests', () => {
         .send({
           email: 'comprehensive-test-integration@example.com',
           password: 'TestPassword123!',
-          backupCode: backupCodes[0]
+          backupCode: backupCodes[0],
         })
         .expect(200)
 

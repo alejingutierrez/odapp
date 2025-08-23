@@ -3,6 +3,8 @@
  * This file ensures all components are properly exported and testable
  */
 
+import { describe, it, expect } from 'vitest'
+
 // Import all new components to verify they export correctly
 import {
   Tooltip,

@@ -32,7 +32,7 @@ export const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   direction = 'horizontal',
   split = false,
   className = '',
-  moreMenuPlacement = 'bottomRight'
+  moreMenuPlacement = 'bottomRight',
 }) => {
   if (actions.length === 0) {
     return null
@@ -57,22 +57,28 @@ export const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   )
 
   const renderMoreMenu = (): MenuProps['items'] => {
-    return hiddenActions.map(action => ({
+    return hiddenActions.map((action) => ({
       key: action.key,
       label: action.label,
       icon: action.icon,
       disabled: action.disabled,
       danger: action.danger,
-      onClick: action.onClick
+      onClick: action.onClick,
     }))
   }
 
   if (hiddenActions.length === 0) {
     return (
-      <Space 
+      <Space
         direction={direction}
-        size="small"
-        split={split && <Divider type={direction === 'horizontal' ? 'vertical' : 'horizontal'} />}
+        size='small'
+        split={
+          split && (
+            <Divider
+              type={direction === 'horizontal' ? 'vertical' : 'horizontal'}
+            />
+          )
+        }
         className={`action-button-group ${className}`}
       >
         {visibleActions.map(renderButton)}
@@ -81,10 +87,16 @@ export const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   }
 
   return (
-    <Space 
+    <Space
       direction={direction}
-      size="small"
-      split={split && <Divider type={direction === 'horizontal' ? 'vertical' : 'horizontal'} />}
+      size='small'
+      split={
+        split && (
+          <Divider
+            type={direction === 'horizontal' ? 'vertical' : 'horizontal'}
+          />
+        )
+      }
       className={`action-button-group ${className}`}
     >
       {visibleActions.map(renderButton)}
@@ -96,7 +108,7 @@ export const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
         <Button
           icon={<MoreOutlined />}
           size={size}
-          className="action-button-group__more"
+          className='action-button-group__more'
         />
       </Dropdown>
     </Space>

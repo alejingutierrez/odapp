@@ -1,19 +1,24 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { PrismaClient, AdjustmentType } from '@prisma/client'
+import { AdjustmentType } from '@prisma/client'
 import { authMiddleware } from '../middleware/auth'
 import { errorHandler } from '../middleware/error-handler'
 
 // Mock dependencies first
 vi.mock('../middleware/auth', () => ({
-  authMiddleware: vi.fn((req: any, res: any, next: any) => {
-    req.user = { id: 'user1', roles: ['admin'] }
-    next()
-  })
+  authMiddleware: vi.fn((req: unknown, res: unknown, next: unknown) => {
+    const reqTyped = req as { user: unknown }
+    const nextTyped = next as () => void
+    reqTyped.user = { id: 'user1', roles: ['admin'] }
+    nextTyped()
+  }),
 }))
 vi.mock('../middleware/validation', () => ({
-  validate: vi.fn(() => (req: any, res: any, next: any) => next())
+  validate: vi.fn(() => (_req: unknown, _res: unknown, next: unknown) => {
+    const nextTyped = next as () => void
+    nextTyped()
+  }),
 }))
 vi.mock('../services/inventory.service')
 vi.mock('../services/websocket.service')
@@ -23,15 +28,15 @@ import inventoryRoutes, { initializeInventoryRoutes } from '../routes/inventory'
 import { InventoryService } from '../services/inventory.service'
 import { WebSocketService } from '../services/websocket.service'
 
-const mockAuthMiddleware = vi.mocked(authMiddleware)
-const MockInventoryService = vi.mocked(InventoryService)
-const MockWebSocketService = vi.mocked(WebSocketService)
+const _mockAuthMiddleware = vi.mocked(authMiddleware)
+const _MockInventoryService = vi.mocked(InventoryService)
+const _MockWebSocketService = vi.mocked(WebSocketService)
 
 describe('Inventory Routes', () => {
   let app: express.Application
-  let mockInventoryService: any
-  let mockWebSocketService: any
-  let mockPrisma: any
+  let mockInventoryService: Record<string, ReturnType<typeof vi.fn>>
+  let mockWebSocketService: Record<string, unknown>
+  let mockPrisma: Record<string, unknown>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -61,14 +66,18 @@ describe('Inventory Routes', () => {
       updateLowStockThreshold: vi.fn(),
       getInventoryReport: vi.fn(),
       getInventoryTrends: vi.fn(),
-      cleanupExpiredReservations: vi.fn()
+      cleanupExpiredReservations: vi.fn(),
     }
 
     mockWebSocketService = {}
     mockPrisma = {}
 
     // Initialize routes with mocked services
-    initializeInventoryRoutes(mockPrisma, mockInventoryService, mockWebSocketService)
+    initializeInventoryRoutes(
+      mockPrisma,
+      mockInventoryService,
+      mockWebSocketService
+    )
     app.use('/api/v1/inventory', inventoryRoutes)
     app.use(errorHandler)
   })
@@ -80,11 +89,13 @@ describe('Inventory Routes', () => {
           id: 'inv1',
           locationId: 'loc1',
           quantity: 100,
-          product: { name: 'Test Product' }
-        }
+          product: { name: 'Test Product' },
+        },
       ]
 
-      mockInventoryService.getInventoryByLocation.mockResolvedValue(mockInventory)
+      mockInventoryService.getInventoryByLocation.mockResolvedValue(
+        mockInventory
+      )
 
       const response = await request(app)
         .get('/api/v1/inventory')
@@ -93,11 +104,14 @@ describe('Inventory Routes', () => {
 
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual(mockInventory)
-      expect(mockInventoryService.getInventoryByLocation).toHaveBeenCalledWith('loc1', {
-        productIds: undefined,
-        lowStockOnly: undefined,
-        includeZeroStock: undefined
-      })
+      expect(mockInventoryService.getInventoryByLocation).toHaveBeenCalledWith(
+        'loc1',
+        {
+          productIds: undefined,
+          lowStockOnly: undefined,
+          includeZeroStock: undefined,
+        }
+      )
     })
 
     it('should handle query parameters correctly', async () => {
@@ -109,24 +123,25 @@ describe('Inventory Routes', () => {
           locationId: 'loc1',
           productIds: 'prod1,prod2',
           lowStockOnly: 'true',
-          includeZeroStock: 'false'
+          includeZeroStock: 'false',
         })
         .expect(200)
 
-      expect(mockInventoryService.getInventoryByLocation).toHaveBeenCalledWith('loc1', {
-        productIds: ['prod1', 'prod2'],
-        lowStockOnly: true,
-        includeZeroStock: false
-      })
+      expect(mockInventoryService.getInventoryByLocation).toHaveBeenCalledWith(
+        'loc1',
+        {
+          productIds: ['prod1', 'prod2'],
+          lowStockOnly: true,
+          includeZeroStock: false,
+        }
+      )
     })
 
     it('should use inventory report when no location specified', async () => {
       const mockReport = { items: [], totals: {} }
       mockInventoryService.getInventoryReport.mockResolvedValue(mockReport)
 
-      const response = await request(app)
-        .get('/api/v1/inventory')
-        .expect(200)
+      const response = await request(app).get('/api/v1/inventory').expect(200)
 
       expect(response.body.data).toEqual(mockReport)
       expect(mockInventoryService.getInventoryReport).toHaveBeenCalled()
@@ -137,15 +152,17 @@ describe('Inventory Routes', () => {
     it('should retrieve inventory for a specific product', async () => {
       const mockInventory = [
         { id: 'inv1', locationId: 'loc1', quantity: 50 },
-        { id: 'inv2', locationId: 'loc2', quantity: 30 }
+        { id: 'inv2', locationId: 'loc2', quantity: 30 },
       ]
       const mockTotals = {
         totalQuantity: 80,
         totalReserved: 10,
-        totalAvailable: 70
+        totalAvailable: 70,
       }
 
-      mockInventoryService.getInventoryByProduct.mockResolvedValue(mockInventory)
+      mockInventoryService.getInventoryByProduct.mockResolvedValue(
+        mockInventory
+      )
       mockInventoryService.getTotalInventory.mockResolvedValue(mockTotals)
 
       const response = await request(app)
@@ -155,10 +172,16 @@ describe('Inventory Routes', () => {
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual({
         inventory: mockInventory,
-        totals: mockTotals
+        totals: mockTotals,
       })
-      expect(mockInventoryService.getInventoryByProduct).toHaveBeenCalledWith('prod1', undefined)
-      expect(mockInventoryService.getTotalInventory).toHaveBeenCalledWith('prod1', undefined)
+      expect(mockInventoryService.getInventoryByProduct).toHaveBeenCalledWith(
+        'prod1',
+        undefined
+      )
+      expect(mockInventoryService.getTotalInventory).toHaveBeenCalledWith(
+        'prod1',
+        undefined
+      )
     })
 
     it('should handle variant ID parameter', async () => {
@@ -170,8 +193,14 @@ describe('Inventory Routes', () => {
         .query({ variantId: 'var1' })
         .expect(200)
 
-      expect(mockInventoryService.getInventoryByProduct).toHaveBeenCalledWith('prod1', 'var1')
-      expect(mockInventoryService.getTotalInventory).toHaveBeenCalledWith('prod1', 'var1')
+      expect(mockInventoryService.getInventoryByProduct).toHaveBeenCalledWith(
+        'prod1',
+        'var1'
+      )
+      expect(mockInventoryService.getTotalInventory).toHaveBeenCalledWith(
+        'prod1',
+        'var1'
+      )
     })
   })
 
@@ -180,7 +209,7 @@ describe('Inventory Routes', () => {
       const updatedItem = {
         id: 'inv1',
         quantity: 150,
-        availableQuantity: 140
+        availableQuantity: 140,
       }
 
       mockInventoryService.updateStockLevel.mockResolvedValue(updatedItem)
@@ -189,7 +218,7 @@ describe('Inventory Routes', () => {
         .put('/api/v1/inventory/inv1/stock')
         .send({
           quantity: 150,
-          reason: 'Stock replenishment'
+          reason: 'Stock replenishment',
         })
         .expect(200)
 
@@ -207,7 +236,7 @@ describe('Inventory Routes', () => {
       await request(app)
         .put('/api/v1/inventory/inv1/stock')
         .send({
-          quantity: -10 // Invalid negative quantity
+          quantity: -10, // Invalid negative quantity
         })
         .expect(400)
 
@@ -218,7 +247,7 @@ describe('Inventory Routes', () => {
       await request(app)
         .put('/api/v1/inventory/inv1/stock')
         .send({
-          reason: 'Test'
+          reason: 'Test',
         })
         .expect(400)
 
@@ -230,7 +259,7 @@ describe('Inventory Routes', () => {
     it('should perform bulk update successfully', async () => {
       const mockResults = [
         { success: true, inventoryItemId: 'inv1', result: { id: 'inv1' } },
-        { success: true, inventoryItemId: 'inv2', result: { id: 'inv2' } }
+        { success: true, inventoryItemId: 'inv2', result: { id: 'inv2' } },
       ]
 
       mockInventoryService.bulkUpdateStockLevels.mockResolvedValue(mockResults)
@@ -240,8 +269,8 @@ describe('Inventory Routes', () => {
         .send({
           updates: [
             { inventoryItemId: 'inv1', quantity: 100, reason: 'Restock' },
-            { inventoryItemId: 'inv2', quantity: 50, reason: 'Adjustment' }
-          ]
+            { inventoryItemId: 'inv2', quantity: 50, reason: 'Adjustment' },
+          ],
         })
         .expect(200)
 
@@ -250,14 +279,14 @@ describe('Inventory Routes', () => {
       expect(response.body.data.summary).toEqual({
         total: 2,
         successful: 2,
-        failed: 0
+        failed: 0,
       })
     })
 
     it('should handle partial failures', async () => {
       const mockResults = [
         { success: true, inventoryItemId: 'inv1', result: { id: 'inv1' } },
-        { success: false, inventoryItemId: 'inv2', error: 'Not found' }
+        { success: false, inventoryItemId: 'inv2', error: 'Not found' },
       ]
 
       mockInventoryService.bulkUpdateStockLevels.mockResolvedValue(mockResults)
@@ -267,15 +296,15 @@ describe('Inventory Routes', () => {
         .send({
           updates: [
             { inventoryItemId: 'inv1', quantity: 100 },
-            { inventoryItemId: 'inv2', quantity: 50 }
-          ]
+            { inventoryItemId: 'inv2', quantity: 50 },
+          ],
         })
         .expect(200)
 
       expect(response.body.data.summary).toEqual({
         total: 2,
         successful: 1,
-        failed: 1
+        failed: 1,
       })
     })
 
@@ -283,7 +312,7 @@ describe('Inventory Routes', () => {
       await request(app)
         .put('/api/v1/inventory/bulk-update')
         .send({
-          updates: [] // Empty array
+          updates: [], // Empty array
         })
         .expect(400)
 
@@ -297,7 +326,7 @@ describe('Inventory Routes', () => {
         id: 'res1',
         inventoryItemId: 'inv1',
         quantity: 20,
-        reason: 'Order pending'
+        reason: 'Order pending',
       }
 
       mockInventoryService.createReservation.mockResolvedValue(mockReservation)
@@ -307,7 +336,7 @@ describe('Inventory Routes', () => {
         .send({
           quantity: 20,
           reason: 'Order pending',
-          referenceId: 'order1'
+          referenceId: 'order1',
         })
         .expect(201)
 
@@ -318,7 +347,7 @@ describe('Inventory Routes', () => {
         quantity: 20,
         reason: 'Order pending',
         referenceId: 'order1',
-        expiresAt: undefined
+        expiresAt: undefined,
       })
     })
 
@@ -326,7 +355,7 @@ describe('Inventory Routes', () => {
       await request(app)
         .post('/api/v1/inventory/inv1/reservations')
         .send({
-          quantity: 20
+          quantity: 20,
           // Missing reason
         })
         .expect(400)
@@ -339,7 +368,7 @@ describe('Inventory Routes', () => {
         .post('/api/v1/inventory/inv1/reservations')
         .send({
           quantity: 0,
-          reason: 'Test'
+          reason: 'Test',
         })
         .expect(400)
 
@@ -356,7 +385,9 @@ describe('Inventory Routes', () => {
         .expect(200)
 
       expect(response.body.success).toBe(true)
-      expect(mockInventoryService.releaseReservation).toHaveBeenCalledWith('res1')
+      expect(mockInventoryService.releaseReservation).toHaveBeenCalledWith(
+        'res1'
+      )
     })
   })
 
@@ -367,19 +398,22 @@ describe('Inventory Routes', () => {
       const response = await request(app)
         .post('/api/v1/inventory/reservations/res1/fulfill')
         .send({
-          quantityFulfilled: 15
+          quantityFulfilled: 15,
         })
         .expect(200)
 
       expect(response.body.success).toBe(true)
-      expect(mockInventoryService.fulfillReservation).toHaveBeenCalledWith('res1', 15)
+      expect(mockInventoryService.fulfillReservation).toHaveBeenCalledWith(
+        'res1',
+        15
+      )
     })
 
     it('should validate quantityFulfilled is positive', async () => {
       await request(app)
         .post('/api/v1/inventory/reservations/res1/fulfill')
         .send({
-          quantityFulfilled: 0
+          quantityFulfilled: 0,
         })
         .expect(400)
 
@@ -393,7 +427,7 @@ describe('Inventory Routes', () => {
         id: 'adj1',
         inventoryItemId: 'inv1',
         type: AdjustmentType.INCREASE,
-        quantityChange: 25
+        quantityChange: 25,
       }
 
       mockInventoryService.createAdjustment.mockResolvedValue(mockAdjustment)
@@ -404,7 +438,7 @@ describe('Inventory Routes', () => {
           type: 'INCREASE',
           quantityChange: 25,
           reason: 'Stock replenishment',
-          notes: 'Received new shipment'
+          notes: 'Received new shipment',
         })
         .expect(201)
 
@@ -419,7 +453,7 @@ describe('Inventory Routes', () => {
         unitCost: undefined,
         referenceType: undefined,
         referenceId: undefined,
-        userId: 'user1'
+        userId: 'user1',
       })
     })
 
@@ -428,7 +462,7 @@ describe('Inventory Routes', () => {
         .post('/api/v1/inventory/inv1/adjustments')
         .send({
           type: 'INVALID_TYPE',
-          quantityChange: 25
+          quantityChange: 25,
         })
         .expect(400)
 
@@ -440,7 +474,7 @@ describe('Inventory Routes', () => {
         .post('/api/v1/inventory/inv1/adjustments')
         .send({
           type: 'INCREASE',
-          quantityChange: -5
+          quantityChange: -5,
         })
         .expect(400)
 
@@ -455,11 +489,13 @@ describe('Inventory Routes', () => {
           id: 'adj1',
           type: AdjustmentType.INCREASE,
           quantityChange: 25,
-          createdAt: new Date('2023-01-01')
-        }
+          createdAt: new Date('2023-01-01'),
+        },
       ]
 
-      mockInventoryService.getInventoryMovementHistory.mockResolvedValue(mockHistory)
+      mockInventoryService.getInventoryMovementHistory.mockResolvedValue(
+        mockHistory
+      )
 
       const response = await request(app)
         .get('/api/v1/inventory/inv1/history')
@@ -467,11 +503,9 @@ describe('Inventory Routes', () => {
 
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual(mockHistory)
-      expect(mockInventoryService.getInventoryMovementHistory).toHaveBeenCalledWith(
-        'inv1',
-        undefined,
-        undefined
-      )
+      expect(
+        mockInventoryService.getInventoryMovementHistory
+      ).toHaveBeenCalledWith('inv1', undefined, undefined)
     })
 
     it('should handle date range parameters', async () => {
@@ -481,11 +515,13 @@ describe('Inventory Routes', () => {
         .get('/api/v1/inventory/inv1/history')
         .query({
           dateFrom: '2023-01-01',
-          dateTo: '2023-01-31'
+          dateTo: '2023-01-31',
         })
         .expect(200)
 
-      expect(mockInventoryService.getInventoryMovementHistory).toHaveBeenCalledWith(
+      expect(
+        mockInventoryService.getInventoryMovementHistory
+      ).toHaveBeenCalledWith(
         'inv1',
         new Date('2023-01-01'),
         new Date('2023-01-31')
@@ -499,7 +535,7 @@ describe('Inventory Routes', () => {
         id: 'transfer1',
         fromLocationId: 'loc1',
         toLocationId: 'loc2',
-        status: 'PENDING'
+        status: 'PENDING',
       }
 
       mockInventoryService.createTransfer.mockResolvedValue(mockTransfer)
@@ -511,9 +547,9 @@ describe('Inventory Routes', () => {
           toLocationId: 'loc2',
           items: [
             { productId: 'prod1', quantity: 10 },
-            { variantId: 'var1', quantity: 5 }
+            { variantId: 'var1', quantity: 5 },
           ],
-          notes: 'Transfer for restocking'
+          notes: 'Transfer for restocking',
         })
         .expect(201)
 
@@ -524,10 +560,10 @@ describe('Inventory Routes', () => {
         toLocationId: 'loc2',
         items: [
           { productId: 'prod1', quantity: 10 },
-          { variantId: 'var1', quantity: 5 }
+          { variantId: 'var1', quantity: 5 },
         ],
         notes: 'Transfer for restocking',
-        userId: 'user1'
+        userId: 'user1',
       })
     })
 
@@ -549,7 +585,7 @@ describe('Inventory Routes', () => {
         .send({
           fromLocationId: 'loc1',
           toLocationId: 'loc2',
-          items: [] // Empty array
+          items: [], // Empty array
         })
         .expect(400)
 
@@ -564,7 +600,7 @@ describe('Inventory Routes', () => {
       const response = await request(app)
         .post('/api/v1/inventory/transfers/transfer1/ship')
         .send({
-          trackingNumber: 'TRACK123'
+          trackingNumber: 'TRACK123',
         })
         .expect(200)
 
@@ -601,8 +637,8 @@ describe('Inventory Routes', () => {
         .send({
           receivedItems: [
             { transferItemId: 'item1', quantityReceived: 10 },
-            { transferItemId: 'item2', quantityReceived: 5 }
-          ]
+            { transferItemId: 'item2', quantityReceived: 5 },
+          ],
         })
         .expect(200)
 
@@ -611,7 +647,7 @@ describe('Inventory Routes', () => {
         'transfer1',
         [
           { transferItemId: 'item1', quantityReceived: 10 },
-          { transferItemId: 'item2', quantityReceived: 5 }
+          { transferItemId: 'item2', quantityReceived: 5 },
         ],
         'user1'
       )
@@ -621,7 +657,7 @@ describe('Inventory Routes', () => {
       await request(app)
         .post('/api/v1/inventory/transfers/transfer1/receive')
         .send({
-          receivedItems: [] // Empty array
+          receivedItems: [], // Empty array
         })
         .expect(400)
 
@@ -636,8 +672,8 @@ describe('Inventory Routes', () => {
           id: 'inv1',
           quantity: 5,
           lowStockThreshold: 10,
-          product: { name: 'Low Stock Product' }
-        }
+          product: { name: 'Low Stock Product' },
+        },
       ]
 
       mockInventoryService.getLowStockItems.mockResolvedValue(mockLowStockItems)
@@ -648,7 +684,9 @@ describe('Inventory Routes', () => {
 
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual(mockLowStockItems)
-      expect(mockInventoryService.getLowStockItems).toHaveBeenCalledWith(undefined)
+      expect(mockInventoryService.getLowStockItems).toHaveBeenCalledWith(
+        undefined
+      )
     })
 
     it('should filter by location when provided', async () => {
@@ -667,32 +705,39 @@ describe('Inventory Routes', () => {
     it('should update threshold successfully', async () => {
       const updatedItem = {
         id: 'inv1',
-        lowStockThreshold: 15
+        lowStockThreshold: 15,
       }
 
-      mockInventoryService.updateLowStockThreshold.mockResolvedValue(updatedItem)
+      mockInventoryService.updateLowStockThreshold.mockResolvedValue(
+        updatedItem
+      )
 
       const response = await request(app)
         .put('/api/v1/inventory/inv1/threshold')
         .send({
-          threshold: 15
+          threshold: 15,
         })
         .expect(200)
 
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual(updatedItem)
-      expect(mockInventoryService.updateLowStockThreshold).toHaveBeenCalledWith('inv1', 15)
+      expect(mockInventoryService.updateLowStockThreshold).toHaveBeenCalledWith(
+        'inv1',
+        15
+      )
     })
 
     it('should validate threshold is non-negative', async () => {
       await request(app)
         .put('/api/v1/inventory/inv1/threshold')
         .send({
-          threshold: -5
+          threshold: -5,
         })
         .expect(400)
 
-      expect(mockInventoryService.updateLowStockThreshold).not.toHaveBeenCalled()
+      expect(
+        mockInventoryService.updateLowStockThreshold
+      ).not.toHaveBeenCalled()
     })
   })
 
@@ -703,12 +748,12 @@ describe('Inventory Routes', () => {
         totals: {
           totalItems: 100,
           totalQuantity: 5000,
-          totalValue: 50000
+          totalValue: 50000,
         },
         summary: {
           averageValue: 500,
-          fillRate: 85
-        }
+          fillRate: 85,
+        },
       }
 
       mockInventoryService.getInventoryReport.mockResolvedValue(mockReport)
@@ -724,7 +769,7 @@ describe('Inventory Routes', () => {
         productIds: undefined,
         lowStockOnly: undefined,
         dateFrom: undefined,
-        dateTo: undefined
+        dateTo: undefined,
       })
     })
 
@@ -738,7 +783,7 @@ describe('Inventory Routes', () => {
           productIds: 'prod1,prod2',
           lowStockOnly: 'true',
           dateFrom: '2023-01-01',
-          dateTo: '2023-01-31'
+          dateTo: '2023-01-31',
         })
         .expect(200)
 
@@ -747,7 +792,7 @@ describe('Inventory Routes', () => {
         productIds: ['prod1', 'prod2'],
         lowStockOnly: true,
         dateFrom: new Date('2023-01-01'),
-        dateTo: new Date('2023-01-31')
+        dateTo: new Date('2023-01-31'),
       })
     })
   })
@@ -760,8 +805,8 @@ describe('Inventory Routes', () => {
         periodSummary: {
           totalIncreases: 1000,
           totalDecreases: 500,
-          netChange: 500
-        }
+          netChange: 500,
+        },
       }
 
       mockInventoryService.getInventoryTrends.mockResolvedValue(mockTrends)
@@ -787,7 +832,7 @@ describe('Inventory Routes', () => {
         .query({
           locationId: 'loc1',
           productIds: 'prod1,prod2',
-          days: '60'
+          days: '60',
         })
         .expect(200)
 
@@ -823,7 +868,7 @@ describe('Inventory Routes', () => {
       const response = await request(app)
         .put('/api/v1/inventory/inv1/stock')
         .send({
-          quantity: 100
+          quantity: 100,
         })
         .expect(500)
 
@@ -834,7 +879,7 @@ describe('Inventory Routes', () => {
       const response = await request(app)
         .put('/api/v1/inventory/inv1/stock')
         .send({
-          quantity: 'invalid' // Should be number
+          quantity: 'invalid', // Should be number
         })
         .expect(400)
 

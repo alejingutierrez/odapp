@@ -1,7 +1,11 @@
-import { PrismaClient, InventoryItem, InventoryAdjustment, InventoryReservation, InventoryTransfer, AdjustmentType, TransferStatus } from '@prisma/client'
+import { PrismaClient, AdjustmentType, TransferStatus } from '@prisma/client'
 import { EventEmitter } from 'events'
 import { logger } from '../lib/logger'
-import { AppError } from '../lib/errors'
+import { 
+  NotFoundError, 
+  BusinessLogicError, 
+  ConflictError 
+} from '../lib/errors'
 
 export interface InventoryUpdateData {
   inventoryItemId: string
@@ -68,7 +72,7 @@ export interface InventoryReportFilters {
 }
 
 export class InventoryService extends EventEmitter {
-  constructor(private prisma: PrismaClient) {
+  constructor(private _prisma: PrismaClient) {
     super()
   }
 
@@ -76,74 +80,77 @@ export class InventoryService extends EventEmitter {
   // INVENTORY TRACKING
   // ============================================================================
 
-  async getInventoryByLocation(locationId: string, filters?: {
-    productIds?: string[]
-    lowStockOnly?: boolean
-    includeZeroStock?: boolean
-  }) {
-    const where: any = {
+  async getInventoryByLocation(
+    locationId: string,
+    filters?: {
+      productIds?: string[]
+      lowStockOnly?: boolean
+      includeZeroStock?: boolean
+    }
+  ) {
+    const where: Record<string, unknown> = {
       locationId,
       ...(filters?.productIds && {
         OR: [
           { productId: { in: filters.productIds } },
-          { variantId: { in: filters.productIds } }
-        ]
+          { variantId: { in: filters.productIds } },
+        ],
       }),
       ...(filters?.lowStockOnly && {
-        quantity: { lte: this.prisma.inventoryItem.fields.lowStockThreshold }
+        quantity: { lte: this._prisma.inventoryItem.fields.lowStockThreshold },
       }),
       ...(filters?.includeZeroStock === false && {
-        quantity: { gt: 0 }
-      })
+        quantity: { gt: 0 },
+      }),
     }
 
-    return this.prisma.inventoryItem.findMany({
+    return this._prisma.inventoryItem.findMany({
       where,
       include: {
         product: {
           include: {
-            images: { take: 1, orderBy: { sortOrder: 'asc' } }
-          }
+            images: { take: 1, orderBy: { sortOrder: 'asc' } },
+          },
         },
         variant: true,
-        location: true
+        location: true,
       },
-      orderBy: [
-        { product: { name: 'asc' } },
-        { variant: { name: 'asc' } }
-      ]
+      orderBy: [{ product: { name: 'asc' } }, { variant: { name: 'asc' } }],
     })
   }
 
   async getInventoryByProduct(productId: string, variantId?: string) {
-    const where: any = {
+    const where: Record<string, unknown> = {
       productId,
-      ...(variantId && { variantId })
+      ...(variantId && { variantId }),
     }
 
-    return this.prisma.inventoryItem.findMany({
+    return this._prisma.inventoryItem.findMany({
       where,
       include: {
         location: true,
         product: true,
-        variant: true
+        variant: true,
       },
-      orderBy: { location: { name: 'asc' } }
+      orderBy: { location: { name: 'asc' } },
     })
   }
 
   async getTotalInventory(productId: string, variantId?: string) {
     const items = await this.getInventoryByProduct(productId, variantId)
-    
-    return items.reduce((totals, item) => ({
-      totalQuantity: totals.totalQuantity + item.quantity,
-      totalReserved: totals.totalReserved + item.reservedQuantity,
-      totalAvailable: totals.totalAvailable + item.availableQuantity
-    }), {
-      totalQuantity: 0,
-      totalReserved: 0,
-      totalAvailable: 0
-    })
+
+    return items.reduce(
+      (totals, item) => ({
+        totalQuantity: totals.totalQuantity + item.quantity,
+        totalReserved: totals.totalReserved + item.reservedQuantity,
+        totalAvailable: totals.totalAvailable + item.availableQuantity,
+      }),
+      {
+        totalQuantity: 0,
+        totalReserved: 0,
+        totalAvailable: 0,
+      }
+    )
   }
 
   // ============================================================================
@@ -156,20 +163,23 @@ export class InventoryService extends EventEmitter {
     reason?: string,
     userId?: string
   ) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Get current inventory item
       const currentItem = await tx.inventoryItem.findUnique({
         where: { id: inventoryItemId },
-        include: { product: true, variant: true, location: true }
+        include: { product: true, variant: true, location: true },
       })
 
       if (!currentItem) {
-        throw new AppError('Inventory item not found', 404)
+        throw new NotFoundError('Inventory item')
       }
 
       const oldQuantity = currentItem.quantity
       const quantityChange = newQuantity - oldQuantity
-      const newAvailableQuantity = Math.max(0, newQuantity - currentItem.reservedQuantity)
+      const newAvailableQuantity = Math.max(
+        0,
+        newQuantity - currentItem.reservedQuantity
+      )
 
       // Update inventory item
       const updatedItem = await tx.inventoryItem.update({
@@ -177,25 +187,28 @@ export class InventoryService extends EventEmitter {
         data: {
           quantity: newQuantity,
           availableQuantity: newAvailableQuantity,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         include: {
           product: true,
           variant: true,
-          location: true
-        }
+          location: true,
+        },
       })
 
       // Create adjustment record
       await tx.inventoryAdjustment.create({
         data: {
           inventoryItemId,
-          type: quantityChange > 0 ? AdjustmentType.INCREASE : AdjustmentType.DECREASE,
+          type:
+            quantityChange > 0
+              ? AdjustmentType.INCREASE
+              : AdjustmentType.DECREASE,
           quantityChange: Math.abs(quantityChange),
           reason: reason || 'Stock level update',
           referenceType: 'manual',
-          createdBy: userId
-        }
+          createdBy: userId,
+        },
       })
 
       // Emit real-time update event
@@ -208,13 +221,16 @@ export class InventoryService extends EventEmitter {
         newQuantity,
         availableQuantity: newAvailableQuantity,
         reason,
-        userId
+        userId,
       }
 
       this.emit('inventory:updated', updateData)
 
       // Check for low stock alert
-      if (newQuantity <= currentItem.lowStockThreshold && oldQuantity > currentItem.lowStockThreshold) {
+      if (
+        newQuantity <= currentItem.lowStockThreshold &&
+        oldQuantity > currentItem.lowStockThreshold
+      ) {
         const alertData: LowStockAlert = {
           inventoryItemId,
           productId: currentItem.productId || undefined,
@@ -223,8 +239,8 @@ export class InventoryService extends EventEmitter {
           currentQuantity: newQuantity,
           threshold: currentItem.lowStockThreshold,
           productName: currentItem.product?.name,
-          variantName: currentItem.variant?.name,
-          locationName: currentItem.location.name
+          variantName: currentItem.variant?.name || undefined,
+          locationName: currentItem.location.name,
         }
 
         this.emit('inventory:lowStock', alertData)
@@ -236,18 +252,21 @@ export class InventoryService extends EventEmitter {
         newQuantity,
         quantityChange,
         reason,
-        userId
+        userId,
       })
 
       return updatedItem
     })
   }
 
-  async bulkUpdateStockLevels(updates: {
-    inventoryItemId: string
-    quantity: number
-    reason?: string
-  }[], userId?: string) {
+  async bulkUpdateStockLevels(
+    updates: {
+      inventoryItemId: string
+      quantity: number
+      reason?: string
+    }[],
+    userId?: string
+  ) {
     const results = []
 
     for (const update of updates) {
@@ -258,16 +277,20 @@ export class InventoryService extends EventEmitter {
           update.reason,
           userId
         )
-        results.push({ success: true, inventoryItemId: update.inventoryItemId, result })
-      } catch (error) {
+        results.push({
+          success: true,
+          inventoryItemId: update.inventoryItemId,
+          result,
+        })
+      } catch (error: unknown) {
         logger.error('Failed to update inventory item', {
           inventoryItemId: update.inventoryItemId,
-          error: error.message
+          error: error instanceof Error ? error.message : String(error),
         })
-        results.push({ 
-          success: false, 
-          inventoryItemId: update.inventoryItemId, 
-          error: error.message 
+        results.push({
+          success: false,
+          inventoryItemId: update.inventoryItemId,
+          error: error instanceof Error ? error.message : String(error),
         })
       }
     }
@@ -280,21 +303,20 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async createReservation(request: ReservationRequest) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Get current inventory item
       const inventoryItem = await tx.inventoryItem.findUnique({
-        where: { id: request.inventoryItemId }
+        where: { id: request.inventoryItemId },
       })
 
       if (!inventoryItem) {
-        throw new AppError('Inventory item not found', 404)
+        throw new NotFoundError('Inventory item')
       }
 
       // Check if enough quantity is available
       if (inventoryItem.availableQuantity < request.quantity) {
-        throw new AppError(
-          `Insufficient inventory. Available: ${inventoryItem.availableQuantity}, Requested: ${request.quantity}`,
-          400
+        throw new BusinessLogicError(
+          `Insufficient inventory. Available: ${inventoryItem.availableQuantity}, Requested: ${request.quantity}`
         )
       }
 
@@ -305,20 +327,21 @@ export class InventoryService extends EventEmitter {
           quantity: request.quantity,
           reason: request.reason,
           referenceId: request.referenceId,
-          expiresAt: request.expiresAt
-        }
+          expiresAt: request.expiresAt,
+        },
       })
 
       // Update inventory item reserved quantity
-      const newReservedQuantity = inventoryItem.reservedQuantity + request.quantity
+      const newReservedQuantity =
+        inventoryItem.reservedQuantity + request.quantity
       const newAvailableQuantity = inventoryItem.quantity - newReservedQuantity
 
       await tx.inventoryItem.update({
         where: { id: request.inventoryItemId },
         data: {
           reservedQuantity: newReservedQuantity,
-          availableQuantity: newAvailableQuantity
-        }
+          availableQuantity: newAvailableQuantity,
+        },
       })
 
       // Emit reservation event
@@ -327,14 +350,14 @@ export class InventoryService extends EventEmitter {
         reservationId: reservation.id,
         quantity: request.quantity,
         reason: request.reason,
-        referenceId: request.referenceId
+        referenceId: request.referenceId,
       })
 
       logger.info('Inventory reserved', {
         inventoryItemId: request.inventoryItemId,
         reservationId: reservation.id,
         quantity: request.quantity,
-        reason: request.reason
+        reason: request.reason,
       })
 
       return reservation
@@ -342,40 +365,43 @@ export class InventoryService extends EventEmitter {
   }
 
   async releaseReservation(reservationId: string) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Get reservation
       const reservation = await tx.inventoryReservation.findUnique({
-        where: { id: reservationId }
+        where: { id: reservationId },
       })
 
       if (!reservation) {
-        throw new AppError('Reservation not found', 404)
+        throw new NotFoundError('Reservation')
       }
 
       // Get inventory item
       const inventoryItem = await tx.inventoryItem.findUnique({
-        where: { id: reservation.inventoryItemId }
+        where: { id: reservation.inventoryItemId },
       })
 
       if (!inventoryItem) {
-        throw new AppError('Inventory item not found', 404)
+        throw new NotFoundError('Inventory item')
       }
 
       // Delete reservation
       await tx.inventoryReservation.delete({
-        where: { id: reservationId }
+        where: { id: reservationId },
       })
 
       // Update inventory item reserved quantity
-      const newReservedQuantity = Math.max(0, inventoryItem.reservedQuantity - reservation.quantity)
+      const newReservedQuantity = Math.max(
+        0,
+        inventoryItem.reservedQuantity - reservation.quantity
+      )
       const newAvailableQuantity = inventoryItem.quantity - newReservedQuantity
 
       await tx.inventoryItem.update({
         where: { id: reservation.inventoryItemId },
         data: {
           reservedQuantity: newReservedQuantity,
-          availableQuantity: newAvailableQuantity
-        }
+          availableQuantity: newAvailableQuantity,
+        },
       })
 
       // Emit release event
@@ -383,13 +409,13 @@ export class InventoryService extends EventEmitter {
         inventoryItemId: reservation.inventoryItemId,
         reservationId,
         quantity: reservation.quantity,
-        reason: reservation.reason
+        reason: reservation.reason,
       })
 
       logger.info('Inventory reservation released', {
         inventoryItemId: reservation.inventoryItemId,
         reservationId,
-        quantity: reservation.quantity
+        quantity: reservation.quantity,
       })
 
       return true
@@ -397,32 +423,33 @@ export class InventoryService extends EventEmitter {
   }
 
   async fulfillReservation(reservationId: string, quantityFulfilled: number) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Get reservation
       const reservation = await tx.inventoryReservation.findUnique({
-        where: { id: reservationId }
+        where: { id: reservationId },
       })
 
       if (!reservation) {
-        throw new AppError('Reservation not found', 404)
+        throw new NotFoundError('Reservation')
       }
 
       if (quantityFulfilled > reservation.quantity) {
-        throw new AppError('Cannot fulfill more than reserved quantity', 400)
+        throw new BusinessLogicError('Cannot fulfill more than reserved quantity')
       }
 
       // Get inventory item
       const inventoryItem = await tx.inventoryItem.findUnique({
-        where: { id: reservation.inventoryItemId }
+        where: { id: reservation.inventoryItemId },
       })
 
       if (!inventoryItem) {
-        throw new AppError('Inventory item not found', 404)
+        throw new NotFoundError('Inventory item')
       }
 
       // Update inventory quantities
       const newQuantity = inventoryItem.quantity - quantityFulfilled
-      const newReservedQuantity = inventoryItem.reservedQuantity - quantityFulfilled
+      const newReservedQuantity =
+        inventoryItem.reservedQuantity - quantityFulfilled
       const newAvailableQuantity = newQuantity - newReservedQuantity
 
       await tx.inventoryItem.update({
@@ -430,8 +457,8 @@ export class InventoryService extends EventEmitter {
         data: {
           quantity: newQuantity,
           reservedQuantity: newReservedQuantity,
-          availableQuantity: newAvailableQuantity
-        }
+          availableQuantity: newAvailableQuantity,
+        },
       })
 
       // Create adjustment record
@@ -442,23 +469,23 @@ export class InventoryService extends EventEmitter {
           quantityChange: quantityFulfilled,
           reason: `Fulfilled reservation: ${reservation.reason}`,
           referenceType: 'reservation',
-          referenceId: reservationId
-        }
+          referenceId: reservationId,
+        },
       })
 
       // Update or delete reservation
       if (quantityFulfilled === reservation.quantity) {
         // Fully fulfilled - delete reservation
         await tx.inventoryReservation.delete({
-          where: { id: reservationId }
+          where: { id: reservationId },
         })
       } else {
         // Partially fulfilled - update reservation
         await tx.inventoryReservation.update({
           where: { id: reservationId },
           data: {
-            quantity: reservation.quantity - quantityFulfilled
-          }
+            quantity: reservation.quantity - quantityFulfilled,
+          },
         })
       }
 
@@ -467,14 +494,14 @@ export class InventoryService extends EventEmitter {
         inventoryItemId: reservation.inventoryItemId,
         reservationId,
         quantityFulfilled,
-        remainingQuantity: reservation.quantity - quantityFulfilled
+        remainingQuantity: reservation.quantity - quantityFulfilled,
       })
 
       logger.info('Inventory reservation fulfilled', {
         inventoryItemId: reservation.inventoryItemId,
         reservationId,
         quantityFulfilled,
-        remainingQuantity: reservation.quantity - quantityFulfilled
+        remainingQuantity: reservation.quantity - quantityFulfilled,
       })
 
       return true
@@ -486,14 +513,14 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async createAdjustment(request: AdjustmentRequest) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Get current inventory item
       const inventoryItem = await tx.inventoryItem.findUnique({
-        where: { id: request.inventoryItemId }
+        where: { id: request.inventoryItemId },
       })
 
       if (!inventoryItem) {
-        throw new AppError('Inventory item not found', 404)
+        throw new NotFoundError('Inventory item')
       }
 
       let newQuantity: number
@@ -505,7 +532,10 @@ export class InventoryService extends EventEmitter {
           actualQuantityChange = request.quantityChange
           break
         case AdjustmentType.DECREASE:
-          newQuantity = Math.max(0, inventoryItem.quantity - request.quantityChange)
+          newQuantity = Math.max(
+            0,
+            inventoryItem.quantity - request.quantityChange
+          )
           actualQuantityChange = inventoryItem.quantity - newQuantity
           break
         case AdjustmentType.SET:
@@ -513,12 +543,15 @@ export class InventoryService extends EventEmitter {
           actualQuantityChange = newQuantity - inventoryItem.quantity
           break
         default:
-          throw new AppError('Invalid adjustment type', 400)
+          throw new BusinessLogicError('Invalid adjustment type')
       }
 
       // Update inventory item
-      const newAvailableQuantity = Math.max(0, newQuantity - inventoryItem.reservedQuantity)
-      
+      const newAvailableQuantity = Math.max(
+        0,
+        newQuantity - inventoryItem.reservedQuantity
+      )
+
       await tx.inventoryItem.update({
         where: { id: request.inventoryItemId },
         data: {
@@ -527,11 +560,13 @@ export class InventoryService extends EventEmitter {
           ...(request.unitCost && {
             lastCost: request.unitCost,
             // Update average cost using weighted average
-            averageCost: inventoryItem.averageCost 
-              ? ((inventoryItem.averageCost.toNumber() * inventoryItem.quantity) + (request.unitCost * actualQuantityChange)) / newQuantity
-              : request.unitCost
-          })
-        }
+            averageCost: inventoryItem.averageCost
+              ? (inventoryItem.averageCost.toNumber() * inventoryItem.quantity +
+                  request.unitCost * actualQuantityChange) /
+                newQuantity
+              : request.unitCost,
+          }),
+        },
       })
 
       // Create adjustment record
@@ -543,11 +578,13 @@ export class InventoryService extends EventEmitter {
           reason: request.reason,
           notes: request.notes,
           unitCost: request.unitCost,
-          totalCostImpact: request.unitCost ? request.unitCost * actualQuantityChange : null,
+          totalCostImpact: request.unitCost
+            ? request.unitCost * actualQuantityChange
+            : null,
           referenceType: request.referenceType,
           referenceId: request.referenceId,
-          createdBy: request.userId
-        }
+          createdBy: request.userId,
+        },
       })
 
       // Emit adjustment event
@@ -559,7 +596,7 @@ export class InventoryService extends EventEmitter {
         newQuantity,
         quantityChange: actualQuantityChange,
         reason: request.reason,
-        userId: request.userId
+        userId: request.userId,
       })
 
       logger.info('Inventory adjusted', {
@@ -568,7 +605,7 @@ export class InventoryService extends EventEmitter {
         type: request.type,
         oldQuantity: inventoryItem.quantity,
         newQuantity,
-        quantityChange: actualQuantityChange
+        quantityChange: actualQuantityChange,
       })
 
       return adjustment
@@ -580,19 +617,19 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async createTransfer(request: TransferRequest) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Validate locations exist
       const [fromLocation, toLocation] = await Promise.all([
         tx.location.findUnique({ where: { id: request.fromLocationId } }),
-        tx.location.findUnique({ where: { id: request.toLocationId } })
+        tx.location.findUnique({ where: { id: request.toLocationId } }),
       ])
 
       if (!fromLocation || !toLocation) {
-        throw new AppError('Invalid location(s)', 404)
+        throw new NotFoundError('Location')
       }
 
       if (request.fromLocationId === request.toLocationId) {
-        throw new AppError('Cannot transfer to the same location', 400)
+        throw new ConflictError('Cannot transfer to the same location')
       }
 
       // Create transfer
@@ -602,8 +639,8 @@ export class InventoryService extends EventEmitter {
           toLocationId: request.toLocationId,
           status: TransferStatus.PENDING,
           notes: request.notes,
-          createdBy: request.userId
-        }
+          createdBy: request.userId,
+        },
       })
 
       // Create transfer items and validate inventory
@@ -613,21 +650,19 @@ export class InventoryService extends EventEmitter {
           where: {
             locationId: request.fromLocationId,
             ...(item.productId && { productId: item.productId }),
-            ...(item.variantId && { variantId: item.variantId })
-          }
+            ...(item.variantId && { variantId: item.variantId }),
+          },
         })
 
         if (!inventoryItem) {
-          throw new AppError(
-            `Inventory item not found at source location for ${item.productId || item.variantId}`,
-            404
+          throw new NotFoundError(
+            `Inventory item at source location for ${item.productId || item.variantId}`
           )
         }
 
         if (inventoryItem.availableQuantity < item.quantity) {
-          throw new AppError(
-            `Insufficient inventory for transfer. Available: ${inventoryItem.availableQuantity}, Requested: ${item.quantity}`,
-            400
+          throw new BusinessLogicError(
+            `Insufficient inventory for transfer. Available: ${inventoryItem.availableQuantity}, Requested: ${item.quantity}`
           )
         }
 
@@ -637,8 +672,8 @@ export class InventoryService extends EventEmitter {
             transferId: transfer.id,
             productId: item.productId,
             variantId: item.variantId,
-            quantityRequested: item.quantity
-          }
+            quantityRequested: item.quantity,
+          },
         })
 
         // Reserve inventory at source location
@@ -646,7 +681,7 @@ export class InventoryService extends EventEmitter {
           inventoryItemId: inventoryItem.id,
           quantity: item.quantity,
           reason: `Transfer to ${toLocation.name}`,
-          referenceId: transfer.id
+          referenceId: transfer.id,
         })
       }
 
@@ -656,33 +691,37 @@ export class InventoryService extends EventEmitter {
         fromLocationId: request.fromLocationId,
         toLocationId: request.toLocationId,
         items: request.items,
-        userId: request.userId
+        userId: request.userId,
       })
 
       logger.info('Inventory transfer created', {
         transferId: transfer.id,
         fromLocationId: request.fromLocationId,
         toLocationId: request.toLocationId,
-        itemCount: request.items.length
+        itemCount: request.items.length,
       })
 
       return transfer
     })
   }
 
-  async shipTransfer(transferId: string, trackingNumber?: string, userId?: string) {
-    return this.prisma.$transaction(async (tx) => {
+  async shipTransfer(
+    transferId: string,
+    trackingNumber?: string,
+    userId?: string
+  ) {
+    return this._prisma.$transaction(async (tx) => {
       const transfer = await tx.inventoryTransfer.findUnique({
         where: { id: transferId },
-        include: { items: true }
+        include: { items: true },
       })
 
       if (!transfer) {
-        throw new AppError('Transfer not found', 404)
+        throw new NotFoundError('Transfer')
       }
 
       if (transfer.status !== TransferStatus.PENDING) {
-        throw new AppError('Transfer is not in pending status', 400)
+        throw new BusinessLogicError('Transfer is not in pending status')
       }
 
       // Update transfer status
@@ -691,8 +730,8 @@ export class InventoryService extends EventEmitter {
         data: {
           status: TransferStatus.SHIPPED,
           trackingNumber,
-          shippedAt: new Date()
-        }
+          shippedAt: new Date(),
+        },
       })
 
       // Update transfer items with shipped quantities
@@ -700,8 +739,8 @@ export class InventoryService extends EventEmitter {
         await tx.inventoryTransferItem.update({
           where: { id: item.id },
           data: {
-            quantityShipped: item.quantityRequested
-          }
+            quantityShipped: item.quantityRequested,
+          },
         })
       }
 
@@ -710,64 +749,76 @@ export class InventoryService extends EventEmitter {
         transferId,
         trackingNumber,
         shippedAt: new Date(),
-        userId
+        userId,
       })
 
       logger.info('Inventory transfer shipped', {
         transferId,
         trackingNumber,
-        itemCount: transfer.items.length
+        itemCount: transfer.items.length,
       })
 
       return true
     })
   }
 
-  async receiveTransfer(transferId: string, receivedItems: {
-    transferItemId: string
-    quantityReceived: number
-  }[], userId?: string) {
-    return this.prisma.$transaction(async (tx) => {
+  async receiveTransfer(
+    transferId: string,
+    receivedItems: {
+      transferItemId: string
+      quantityReceived: number
+    }[],
+    userId?: string
+  ) {
+    return this._prisma.$transaction(async (tx) => {
       const transfer = await tx.inventoryTransfer.findUnique({
         where: { id: transferId },
-        include: { items: true }
+        include: { items: true },
       })
 
       if (!transfer) {
-        throw new AppError('Transfer not found', 404)
+        throw new NotFoundError('Transfer')
       }
 
       if (transfer.status !== TransferStatus.SHIPPED) {
-        throw new AppError('Transfer is not in shipped status', 400)
+        throw new BusinessLogicError('Transfer is not in shipped status')
       }
 
       // Process received items
       for (const receivedItem of receivedItems) {
-        const transferItem = transfer.items.find(item => item.id === receivedItem.transferItemId)
-        
+        const transferItem = transfer.items.find(
+          (item) => item.id === receivedItem.transferItemId
+        )
+
         if (!transferItem) {
-          throw new AppError(`Transfer item ${receivedItem.transferItemId} not found`, 404)
+          throw new NotFoundError(
+            `Transfer item ${receivedItem.transferItemId}`
+          )
         }
 
         if (receivedItem.quantityReceived > transferItem.quantityShipped) {
-          throw new AppError('Cannot receive more than shipped quantity', 400)
+          throw new BusinessLogicError('Cannot receive more than shipped quantity')
         }
 
         // Update transfer item
         await tx.inventoryTransferItem.update({
           where: { id: receivedItem.transferItemId },
           data: {
-            quantityReceived: receivedItem.quantityReceived
-          }
+            quantityReceived: receivedItem.quantityReceived,
+          },
         })
 
         // Find or create inventory item at destination location
         let destinationInventory = await tx.inventoryItem.findFirst({
           where: {
             locationId: transfer.toLocationId,
-            ...(transferItem.productId && { productId: transferItem.productId }),
-            ...(transferItem.variantId && { variantId: transferItem.variantId })
-          }
+            ...(transferItem.productId && {
+              productId: transferItem.productId,
+            }),
+            ...(transferItem.variantId && {
+              variantId: transferItem.variantId,
+            }),
+          },
         })
 
         if (!destinationInventory) {
@@ -778,17 +829,20 @@ export class InventoryService extends EventEmitter {
               productId: transferItem.productId,
               variantId: transferItem.variantId,
               quantity: receivedItem.quantityReceived,
-              availableQuantity: receivedItem.quantityReceived
-            }
+              availableQuantity: receivedItem.quantityReceived,
+            },
           })
         } else {
           // Update existing inventory item
           await tx.inventoryItem.update({
             where: { id: destinationInventory.id },
             data: {
-              quantity: destinationInventory.quantity + receivedItem.quantityReceived,
-              availableQuantity: destinationInventory.availableQuantity + receivedItem.quantityReceived
-            }
+              quantity:
+                destinationInventory.quantity + receivedItem.quantityReceived,
+              availableQuantity:
+                destinationInventory.availableQuantity +
+                receivedItem.quantityReceived,
+            },
           })
         }
 
@@ -796,9 +850,13 @@ export class InventoryService extends EventEmitter {
         const sourceInventory = await tx.inventoryItem.findFirst({
           where: {
             locationId: transfer.fromLocationId,
-            ...(transferItem.productId && { productId: transferItem.productId }),
-            ...(transferItem.variantId && { variantId: transferItem.variantId })
-          }
+            ...(transferItem.productId && {
+              productId: transferItem.productId,
+            }),
+            ...(transferItem.variantId && {
+              variantId: transferItem.variantId,
+            }),
+          },
         })
 
         if (sourceInventory) {
@@ -806,12 +864,15 @@ export class InventoryService extends EventEmitter {
           const reservation = await tx.inventoryReservation.findFirst({
             where: {
               inventoryItemId: sourceInventory.id,
-              referenceId: transferId
-            }
+              referenceId: transferId,
+            },
           })
 
           if (reservation) {
-            await this.fulfillReservation(reservation.id, receivedItem.quantityReceived)
+            await this.fulfillReservation(
+              reservation.id,
+              receivedItem.quantityReceived
+            )
           }
         }
 
@@ -824,15 +885,19 @@ export class InventoryService extends EventEmitter {
             reason: `Transfer received from location ${transfer.fromLocationId}`,
             referenceType: 'transfer',
             referenceId: transferId,
-            createdBy: userId
-          }
+            createdBy: userId,
+          },
         })
       }
 
       // Check if all items are fully received
-      const allItemsReceived = transfer.items.every(item => {
-        const receivedItem = receivedItems.find(ri => ri.transferItemId === item.id)
-        return receivedItem && receivedItem.quantityReceived === item.quantityShipped
+      const allItemsReceived = transfer.items.every((item) => {
+        const receivedItem = receivedItems.find(
+          (ri) => ri.transferItemId === item.id
+        )
+        return (
+          receivedItem && receivedItem.quantityReceived === item.quantityShipped
+        )
       })
 
       if (allItemsReceived) {
@@ -840,8 +905,8 @@ export class InventoryService extends EventEmitter {
           where: { id: transferId },
           data: {
             status: TransferStatus.RECEIVED,
-            receivedAt: new Date()
-          }
+            receivedAt: new Date(),
+          },
         })
       }
 
@@ -850,13 +915,13 @@ export class InventoryService extends EventEmitter {
         transferId,
         receivedItems,
         fullyReceived: allItemsReceived,
-        userId
+        userId,
       })
 
       logger.info('Inventory transfer received', {
         transferId,
         receivedItemCount: receivedItems.length,
-        fullyReceived: allItemsReceived
+        fullyReceived: allItemsReceived,
       })
 
       return true
@@ -868,44 +933,41 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async getLowStockItems(locationId?: string) {
-    const where: any = {
-      quantity: { lte: this.prisma.inventoryItem.fields.lowStockThreshold },
-      ...(locationId && { locationId })
+    const where: Record<string, unknown> = {
+      quantity: { lte: this._prisma.inventoryItem.fields.lowStockThreshold },
+      ...(locationId && { locationId }),
     }
 
-    return this.prisma.inventoryItem.findMany({
+    return this._prisma.inventoryItem.findMany({
       where,
       include: {
         product: {
           include: {
-            images: { take: 1, orderBy: { sortOrder: 'asc' } }
-          }
+            images: { take: 1, orderBy: { sortOrder: 'asc' } },
+          },
         },
         variant: true,
-        location: true
+        location: true,
       },
-      orderBy: [
-        { quantity: 'asc' },
-        { product: { name: 'asc' } }
-      ]
+      orderBy: [{ quantity: 'asc' }, { product: { name: 'asc' } }],
     })
   }
 
   async updateLowStockThreshold(inventoryItemId: string, threshold: number) {
-    const inventoryItem = await this.prisma.inventoryItem.update({
+    const inventoryItem = await this._prisma.inventoryItem.update({
       where: { id: inventoryItemId },
-      data: { lowStockThreshold: threshold }
+      data: { lowStockThreshold: threshold },
     })
 
     // Check if item is now below threshold
     if (inventoryItem.quantity <= threshold) {
-      const item = await this.prisma.inventoryItem.findUnique({
+      const item = await this._prisma.inventoryItem.findUnique({
         where: { id: inventoryItemId },
         include: {
           product: true,
           variant: true,
-          location: true
-        }
+          location: true,
+        },
       })
 
       if (item) {
@@ -917,8 +979,8 @@ export class InventoryService extends EventEmitter {
           currentQuantity: item.quantity,
           threshold,
           productName: item.product?.name,
-          variantName: item.variant?.name,
-          locationName: item.location.name
+          variantName: item.variant?.name || undefined,
+          locationName: item.location.name,
         }
 
         this.emit('inventory:lowStock', alertData)
@@ -933,54 +995,64 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async getInventoryReport(filters: InventoryReportFilters = {}) {
-    const where: any = {
+    const where: Record<string, unknown> = {
       ...(filters.locationIds && { locationId: { in: filters.locationIds } }),
       ...(filters.productIds && {
         OR: [
           { productId: { in: filters.productIds } },
-          { variantId: { in: filters.productIds } }
-        ]
+          { variantId: { in: filters.productIds } },
+        ],
       }),
       ...(filters.lowStockOnly && {
-        quantity: { lte: this.prisma.inventoryItem.fields.lowStockThreshold }
-      })
+        quantity: { lte: this._prisma.inventoryItem.fields.lowStockThreshold },
+      }),
     }
 
-    const items = await this.prisma.inventoryItem.findMany({
+    const items = await this._prisma.inventoryItem.findMany({
       where,
       include: {
         product: true,
         variant: true,
-        location: true
-      }
+        location: true,
+      },
     })
 
     // Calculate totals
-    const totals = items.reduce((acc, item) => ({
-      totalItems: acc.totalItems + 1,
-      totalQuantity: acc.totalQuantity + item.quantity,
-      totalReserved: acc.totalReserved + item.reservedQuantity,
-      totalAvailable: acc.totalAvailable + item.availableQuantity,
-      totalValue: acc.totalValue + (item.averageCost ? item.averageCost.toNumber() * item.quantity : 0),
-      lowStockItems: acc.lowStockItems + (item.quantity <= item.lowStockThreshold ? 1 : 0)
-    }), {
-      totalItems: 0,
-      totalQuantity: 0,
-      totalReserved: 0,
-      totalAvailable: 0,
-      totalValue: 0,
-      lowStockItems: 0
-    })
+    const totals = items.reduce(
+      (acc, item) => ({
+        totalItems: acc.totalItems + 1,
+        totalQuantity: acc.totalQuantity + item.quantity,
+        totalReserved: acc.totalReserved + item.reservedQuantity,
+        totalAvailable: acc.totalAvailable + item.availableQuantity,
+        totalValue:
+          acc.totalValue +
+          (item.averageCost ? item.averageCost.toNumber() * item.quantity : 0),
+        lowStockItems:
+          acc.lowStockItems + (item.quantity <= item.lowStockThreshold ? 1 : 0),
+      }),
+      {
+        totalItems: 0,
+        totalQuantity: 0,
+        totalReserved: 0,
+        totalAvailable: 0,
+        totalValue: 0,
+        lowStockItems: 0,
+      }
+    )
 
     return {
       items,
       totals,
       summary: {
         ...totals,
-        averageValue: totals.totalItems > 0 ? totals.totalValue / totals.totalItems : 0,
+        averageValue:
+          totals.totalItems > 0 ? totals.totalValue / totals.totalItems : 0,
         stockTurnover: 0, // TODO: Calculate based on sales data
-        fillRate: totals.totalQuantity > 0 ? (totals.totalAvailable / totals.totalQuantity) * 100 : 0
-      }
+        fillRate:
+          totals.totalQuantity > 0
+            ? (totals.totalAvailable / totals.totalQuantity) * 100
+            : 0,
+      },
     }
   }
 
@@ -989,16 +1061,16 @@ export class InventoryService extends EventEmitter {
     dateFrom?: Date,
     dateTo?: Date
   ) {
-    const where: any = {
+    const where: Record<string, unknown> = {
       inventoryItemId,
       ...(dateFrom && { createdAt: { gte: dateFrom } }),
-      ...(dateTo && { createdAt: { lte: dateTo } })
+      ...(dateTo && { createdAt: { lte: dateTo } }),
     }
 
-    return this.prisma.inventoryAdjustment.findMany({
+    return this._prisma.inventoryAdjustment.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 100 // Limit to last 100 movements
+      take: 100, // Limit to last 100 movements
     })
   }
 
@@ -1012,7 +1084,7 @@ export class InventoryService extends EventEmitter {
 
     // This would typically involve more complex aggregation queries
     // For now, return basic trend data
-    const adjustments = await this.prisma.inventoryAdjustment.findMany({
+    const adjustments = await this._prisma.inventoryAdjustment.findMany({
       where: {
         createdAt: { gte: dateFrom },
         inventoryItem: {
@@ -1020,52 +1092,68 @@ export class InventoryService extends EventEmitter {
           ...(productIds && {
             OR: [
               { productId: { in: productIds } },
-              { variantId: { in: productIds } }
-            ]
-          })
-        }
+              { variantId: { in: productIds } },
+            ],
+          }),
+        },
       },
       include: {
         inventoryItem: {
           include: {
             product: true,
             variant: true,
-            location: true
-          }
-        }
+            location: true,
+          },
+        },
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
     })
 
     // Group by date and calculate daily changes
-    const dailyChanges = adjustments.reduce((acc, adjustment) => {
-      const date = adjustment.createdAt.toISOString().split('T')[0]
-      if (!acc[date]) {
-        acc[date] = { increases: 0, decreases: 0, net: 0 }
-      }
+    const dailyChanges = adjustments.reduce(
+      (acc, adjustment) => {
+        const date = adjustment.createdAt.toISOString().split('T')[0]
+        if (!acc[date]) {
+          acc[date] = { increases: 0, decreases: 0, net: 0 }
+        }
 
-      const change = adjustment.type === AdjustmentType.INCREASE 
-        ? adjustment.quantityChange 
-        : -adjustment.quantityChange
+        const change =
+          adjustment.type === AdjustmentType.INCREASE
+            ? adjustment.quantityChange
+            : -adjustment.quantityChange
 
-      if (change > 0) {
-        acc[date].increases += change
-      } else {
-        acc[date].decreases += Math.abs(change)
-      }
-      acc[date].net += change
+        if (change > 0) {
+          acc[date].increases += change
+        } else {
+          acc[date].decreases += Math.abs(change)
+        }
+        acc[date].net += change
 
-      return acc
-    }, {} as Record<string, { increases: number; decreases: number; net: number }>)
+        return acc
+      },
+      {} as Record<
+        string,
+        { increases: number; decreases: number; net: number }
+      >
+    )
 
     return {
       dailyChanges,
       totalAdjustments: adjustments.length,
       periodSummary: {
-        totalIncreases: Object.values(dailyChanges).reduce((sum, day) => sum + day.increases, 0),
-        totalDecreases: Object.values(dailyChanges).reduce((sum, day) => sum + day.decreases, 0),
-        netChange: Object.values(dailyChanges).reduce((sum, day) => sum + day.net, 0)
-      }
+        totalIncreases: Object.values(dailyChanges).reduce(
+          (sum, day) => sum + day.increases,
+          0
+        ),
+        totalDecreases: Object.values(dailyChanges).reduce(
+          (sum, day) => sum + day.decreases,
+          0
+        ),
+        netChange: Object.values(dailyChanges).reduce(
+          (sum, day) => sum + day.net,
+          0
+        ),
+      },
     }
   }
 
@@ -1074,18 +1162,19 @@ export class InventoryService extends EventEmitter {
   // ============================================================================
 
   async cleanupExpiredReservations() {
-    const expiredReservations = await this.prisma.inventoryReservation.findMany({
-      where: {
-        expiresAt: { lte: new Date() }
-      }
-    })
+    const expiredReservations =
+      await this._prisma.inventoryReservation.findMany({
+        where: {
+          expiresAt: { lte: new Date() },
+        },
+      })
 
     for (const reservation of expiredReservations) {
       await this.releaseReservation(reservation.id)
     }
 
     logger.info('Cleaned up expired reservations', {
-      count: expiredReservations.length
+      count: expiredReservations.length,
     })
 
     return expiredReservations.length
@@ -1096,12 +1185,12 @@ export class InventoryService extends EventEmitter {
     variantId: string | null,
     locationId: string
   ) {
-    const existingItem = await this.prisma.inventoryItem.findFirst({
+    const existingItem = await this._prisma.inventoryItem.findFirst({
       where: {
         productId,
         variantId,
-        locationId
-      }
+        locationId,
+      },
     })
 
     if (existingItem) {
@@ -1109,14 +1198,14 @@ export class InventoryService extends EventEmitter {
     }
 
     // Create new inventory item with zero quantity
-    return this.prisma.inventoryItem.create({
+    return this._prisma.inventoryItem.create({
       data: {
         productId,
         variantId,
         locationId,
         quantity: 0,
-        availableQuantity: 0
-      }
+        availableQuantity: 0,
+      },
     })
   }
 }

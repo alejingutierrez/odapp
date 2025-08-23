@@ -1,19 +1,19 @@
-import React from 'react';
-import { Empty, Button, EmptyProps } from 'antd';
+import React from 'react'
+import { Empty, Button, EmptyProps } from 'antd'
 
-export type EmptyStateSize = 'small' | 'default';
+export type EmptyStateSize = 'small' | 'default'
 
 export interface EmptyStateProps extends Omit<EmptyProps, 'children'> {
-  title?: string;
-  description?: React.ReactNode;
-  actionText?: string;
-  onAction?: () => void;
-  actionIcon?: React.ReactNode;
-  actionType?: 'primary' | 'default' | 'dashed';
-  size?: EmptyStateSize;
-  showImage?: boolean;
-  icon?: React.ReactNode;
-  children?: React.ReactNode;
+  title?: string
+  description?: React.ReactNode
+  actionText?: string
+  onAction?: () => void
+  actionIcon?: React.ReactNode
+  actionType?: 'primary' | 'default' | 'dashed'
+  size?: EmptyStateSize
+  showImage?: boolean
+  icon?: React.ReactNode
+  children?: React.ReactNode
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -31,8 +31,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   ...props
 }) => {
   const getImageSize = () => {
-    return size === 'small' ? 60 : 100;
-  };
+    return size === 'small' ? 60 : 100
+  }
 
   const renderAction = () => {
     if (actionText && onAction) {
@@ -45,14 +45,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         >
           {actionText}
         </Button>
-      );
+      )
     }
-    return children;
-  };
+    return children
+  }
 
   return (
     <Empty
-      image={showImage ? (icon || image || Empty.PRESENTED_IMAGE_DEFAULT) : false}
+      image={showImage ? icon || image || Empty.PRESENTED_IMAGE_DEFAULT : false}
       styles={{
         image: {
           height: showImage ? getImageSize() : 0,
@@ -61,18 +61,22 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       }}
       description={
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            fontSize: size === 'small' ? 14 : 16, 
-            fontWeight: 500,
-            marginBottom: description ? 4 : 0,
-          }}>
+          <div
+            style={{
+              fontSize: size === 'small' ? 14 : 16,
+              fontWeight: 500,
+              marginBottom: description ? 4 : 0,
+            }}
+          >
             {title}
           </div>
           {description && (
-            <div style={{ 
-              fontSize: size === 'small' ? 12 : 14,
-              color: '#666',
-            }}>
+            <div
+              style={{
+                fontSize: size === 'small' ? 12 : 14,
+                color: '#666',
+              }}
+            >
               {description}
             </div>
           )}
@@ -82,5 +86,5 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     >
       {renderAction()}
     </Empty>
-  );
-};
+  )
+}

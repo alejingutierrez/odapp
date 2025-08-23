@@ -1,5 +1,5 @@
 // Export all atoms
-export * from './atoms';
+export * from './atoms'
 
 // Future exports for molecules and organisms
 // export * from './molecules';

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { InputNumber, InputNumberProps, Button } from 'antd'
+import { InputNumber, Button } from 'antd'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
 import './QuantityCounter.css'
 
-export interface QuantityCounterProps
-  extends Omit<InputNumberProps, 'value' | 'onChange'> {
+export interface QuantityCounterProps {
   /** Current quantity value */
   value?: number
   /** Change handler */
@@ -38,6 +37,10 @@ export interface QuantityCounterProps
   validateOnChange?: boolean
   /** Custom validation function */
   validator?: (value: number) => string | undefined
+  /** Whether component is disabled */
+  disabled?: boolean
+  /** CSS class name */
+  className?: string
 }
 
 export const QuantityCounter: React.FC<QuantityCounterProps> = ({
@@ -94,16 +97,17 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
     return undefined
   }
 
-  const handleChange = (newValue: number | null) => {
-    setInputValue(newValue)
+  const handleChange = (newValue: number | string | null) => {
+    const numericValue = typeof newValue === 'string' ? parseFloat(newValue) || null : newValue
+    setInputValue(numericValue)
 
     if (validateOnChange) {
-      const validationError = validateValue(newValue)
+      const validationError = validateValue(numericValue)
       setError(validationError)
     }
 
     if (onChange) {
-      onChange(newValue)
+      onChange(numericValue)
     }
   }
 
@@ -145,7 +149,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   const renderCompactCounter = () => (
     <div className='oda-quantity-counter__compact'>
       <Button
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         icon={decrementIcon}
         onClick={handleDecrement}
         disabled={!canDecrement}
@@ -157,14 +161,14 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         controls={false}
         className='oda-quantity-counter__input'
         disabled={disabled}
         {...props}
       />
       <Button
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         icon={incrementIcon}
         onClick={handleIncrement}
         disabled={!canIncrement}
@@ -205,7 +209,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         controls={{
           upIcon: incrementIcon,
           downIcon: decrementIcon,
@@ -221,7 +225,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
     <div className='oda-quantity-counter__default'>
       {showButtons && (
         <Button
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           icon={decrementIcon}
           onClick={handleDecrement}
           disabled={!canDecrement}
@@ -234,7 +238,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'middle' : size}
+        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
         controls={false}
         className='oda-quantity-counter__input'
         disabled={disabled}
@@ -242,7 +246,7 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
       />
       {showButtons && (
         <Button
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           icon={incrementIcon}
           onClick={handleIncrement}
           disabled={!canIncrement}

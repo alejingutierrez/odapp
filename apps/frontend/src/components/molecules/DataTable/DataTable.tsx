@@ -148,7 +148,7 @@ export const DataTable = <T extends Record<string, unknown>>({
             <div key={column.key} className='data-table__filter-item'>
               <Input
                 placeholder={`Filter by ${column.title}`}
-                value={activeFilters[column.key] || ''}
+                value={String(activeFilters[column.key] || '')}
                 onChange={(e) => handleFilterChange(column.key, e.target.value)}
                 allowClear
                 size='small'

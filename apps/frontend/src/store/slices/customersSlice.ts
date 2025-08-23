@@ -1,4 +1,8 @@
-import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createEntityAdapter,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import type { RootState } from '../index'
 
 // Types
@@ -96,7 +100,13 @@ export interface CustomerSegment {
 
 export interface SegmentRule {
   field: string
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains'
+  operator:
+    | 'equals'
+    | 'not_equals'
+    | 'greater_than'
+    | 'less_than'
+    | 'contains'
+    | 'not_contains'
   value: string | number
   logicalOperator?: 'and' | 'or'
 }
@@ -170,17 +180,14 @@ export interface CustomersStats {
 
 // Entity adapters
 const customersAdapter = createEntityAdapter<Customer>({
-  selectId: (customer) => customer.id,
   sortComparer: (a, b) => b.updatedAt.localeCompare(a.updatedAt),
 })
 
 const segmentsAdapter = createEntityAdapter<CustomerSegment>({
-  selectId: (segment) => segment.id,
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 })
 
 const communicationsAdapter = createEntityAdapter<CustomerCommunication>({
-  selectId: (communication) => communication.id,
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 })
 
@@ -290,7 +297,7 @@ const customersSlice = createSlice({
         if (address.isDefault) {
           customer.defaultAddressId = address.id
           // Remove default from other addresses
-          customer.addresses.forEach(addr => {
+          customer.addresses.forEach((addr) => {
             if (addr.id !== address.id) {
               addr.isDefault = false
             }
@@ -311,9 +318,14 @@ const customersSlice = createSlice({
       const { customerId, addressId, changes } = action.payload
       const customer = state.customers.entities[customerId]
       if (customer) {
-        const addressIndex = customer.addresses.findIndex(addr => addr.id === addressId)
+        const addressIndex = customer.addresses.findIndex(
+          (addr) => addr.id === addressId
+        )
         if (addressIndex !== -1) {
-          customer.addresses[addressIndex] = { ...customer.addresses[addressIndex], ...changes }
+          customer.addresses[addressIndex] = {
+            ...customer.addresses[addressIndex],
+            ...changes,
+          }
           if (changes.isDefault) {
             customer.defaultAddressId = addressId
             // Remove default from other addresses
@@ -335,7 +347,9 @@ const customersSlice = createSlice({
       const { customerId, addressId } = action.payload
       const customer = state.customers.entities[customerId]
       if (customer) {
-        customer.addresses = customer.addresses.filter(addr => addr.id !== addressId)
+        customer.addresses = customer.addresses.filter(
+          (addr) => addr.id !== addressId
+        )
         if (customer.defaultAddressId === addressId) {
           customer.defaultAddressId = customer.addresses[0]?.id
           if (customer.addresses[0]) {
@@ -369,12 +383,18 @@ const customersSlice = createSlice({
       }
     },
 
-    setSelectedSegment: (state, action: PayloadAction<CustomerSegment | null>) => {
+    setSelectedSegment: (
+      state,
+      action: PayloadAction<CustomerSegment | null>
+    ) => {
       state.selectedSegment = action.payload
     },
 
     // Communications actions
-    setCommunications: (state, action: PayloadAction<CustomerCommunication[]>) => {
+    setCommunications: (
+      state,
+      action: PayloadAction<CustomerCommunication[]>
+    ) => {
       communicationsAdapter.setAll(state.communications, action.payload)
     },
 
@@ -384,12 +404,18 @@ const customersSlice = createSlice({
 
     updateCommunication: (
       state,
-      action: PayloadAction<{ id: string; changes: Partial<CustomerCommunication> }>
+      action: PayloadAction<{
+        id: string
+        changes: Partial<CustomerCommunication>
+      }>
     ) => {
       communicationsAdapter.updateOne(state.communications, action.payload)
     },
 
-    setSelectedCommunication: (state, action: PayloadAction<CustomerCommunication | null>) => {
+    setSelectedCommunication: (
+      state,
+      action: PayloadAction<CustomerCommunication | null>
+    ) => {
       state.selectedCommunication = action.payload
     },
 
@@ -421,7 +447,10 @@ const customersSlice = createSlice({
     // Loading actions
     setLoading: (
       state,
-      action: PayloadAction<{ key: keyof CustomersState['loading']; loading: boolean }>
+      action: PayloadAction<{
+        key: keyof CustomersState['loading']
+        loading: boolean
+      }>
     ) => {
       const { key, loading } = action.payload
       state.loading[key] = loading
@@ -459,8 +488,8 @@ const customersSlice = createSlice({
     ) => {
       const { ids, status } = action.payload
       const timestamp = new Date().toISOString()
-      
-      ids.forEach(id => {
+
+      ids.forEach((id) => {
         const customer = state.customers.entities[id]
         if (customer) {
           customer.status = status
@@ -475,8 +504,8 @@ const customersSlice = createSlice({
     ) => {
       const { customerIds, segmentId } = action.payload
       const timestamp = new Date().toISOString()
-      
-      customerIds.forEach(id => {
+
+      customerIds.forEach((id) => {
         const customer = state.customers.entities[id]
         if (customer && !customer.segments.includes(segmentId)) {
           customer.segments.push(segmentId)
@@ -491,11 +520,13 @@ const customersSlice = createSlice({
     ) => {
       const { customerIds, segmentId } = action.payload
       const timestamp = new Date().toISOString()
-      
-      customerIds.forEach(id => {
+
+      customerIds.forEach((id) => {
         const customer = state.customers.entities[id]
         if (customer) {
-          customer.segments = customer.segments.filter(seg => seg !== segmentId)
+          customer.segments = customer.segments.filter(
+            (seg) => seg !== segmentId
+          )
           customer.updatedAt = timestamp
         }
       })
@@ -549,7 +580,9 @@ export const {
   selectIds: selectCustomerIds,
   selectEntities: selectCustomerEntities,
   selectTotal: selectCustomersTotal,
-} = customersAdapter.getSelectors((state: RootState) => state.customers.customers)
+} = customersAdapter.getSelectors(
+  (state: RootState) => state.customers.customers
+)
 
 export const {
   selectAll: selectAllSegments,
@@ -565,16 +598,25 @@ export const {
   selectIds: selectCommunicationIds,
   selectEntities: selectCommunicationEntities,
   selectTotal: selectCommunicationsTotal,
-} = communicationsAdapter.getSelectors((state: RootState) => state.customers.communications)
+} = communicationsAdapter.getSelectors(
+  (state: RootState) => state.customers.communications
+)
 
 // Custom selectors
-export const selectSelectedCustomer = (state: RootState) => state.customers.selectedCustomer
-export const selectSelectedSegment = (state: RootState) => state.customers.selectedSegment
-export const selectSelectedCommunication = (state: RootState) => state.customers.selectedCommunication
-export const selectCustomerFilters = (state: RootState) => state.customers.filters
-export const selectCustomerPagination = (state: RootState) => state.customers.pagination
-export const selectCustomerSorting = (state: RootState) => state.customers.sorting
-export const selectCustomersLoading = (state: RootState) => state.customers.loading
+export const selectSelectedCustomer = (state: RootState) =>
+  state.customers.selectedCustomer
+export const selectSelectedSegment = (state: RootState) =>
+  state.customers.selectedSegment
+export const selectSelectedCommunication = (state: RootState) =>
+  state.customers.selectedCommunication
+export const selectCustomerFilters = (state: RootState) =>
+  state.customers.filters
+export const selectCustomerPagination = (state: RootState) =>
+  state.customers.pagination
+export const selectCustomerSorting = (state: RootState) =>
+  state.customers.sorting
+export const selectCustomersLoading = (state: RootState) =>
+  state.customers.loading
 export const selectCustomersError = (state: RootState) => state.customers.error
 export const selectCustomersStats = (state: RootState) => state.customers.stats
 
@@ -582,134 +624,171 @@ export const selectCustomersStats = (state: RootState) => state.customers.stats
 export const selectFilteredCustomers = (state: RootState) => {
   const customers = selectAllCustomers(state)
   const filters = selectCustomerFilters(state)
-  
+
   return customers.filter((customer) => {
     // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase()
-      const matchesSearch = 
+      const matchesSearch =
         customer.email.toLowerCase().includes(searchTerm) ||
-        `${customer.firstName} ${customer.lastName}`.toLowerCase().includes(searchTerm) ||
+        `${customer.firstName} ${customer.lastName}`
+          .toLowerCase()
+          .includes(searchTerm) ||
         customer.phone?.toLowerCase().includes(searchTerm) ||
-        customer.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-      
+        customer.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+
       if (!matchesSearch) return false
     }
-    
+
     // Status filter
-    if (filters.status.length > 0 && !filters.status.includes(customer.status)) {
+    if (
+      filters.status.length > 0 &&
+      !filters.status.includes(customer.status)
+    ) {
       return false
     }
-    
+
     // Segments filter
     if (filters.segments.length > 0) {
-      const hasMatchingSegment = customer.segments.some(segment =>
+      const hasMatchingSegment = customer.segments.some((segment) =>
         filters.segments.includes(segment)
       )
       if (!hasMatchingSegment) return false
     }
-    
+
     // Tags filter
     if (filters.tags.length > 0) {
-      const hasMatchingTag = customer.tags.some(tag =>
+      const hasMatchingTag = customer.tags.some((tag) =>
         filters.tags.includes(tag)
       )
       if (!hasMatchingTag) return false
     }
-    
+
     // Source filter
-    if (filters.source.length > 0 && !filters.source.includes(customer.source)) {
+    if (
+      filters.source.length > 0 &&
+      !filters.source.includes(customer.source)
+    ) {
       return false
     }
-    
+
     // Marketing acceptance filter
-    if (filters.acceptsMarketing !== null && customer.acceptsMarketing !== filters.acceptsMarketing) {
+    if (
+      filters.acceptsMarketing !== null &&
+      customer.acceptsMarketing !== filters.acceptsMarketing
+    ) {
       return false
     }
-    
+
     // Order count range filter
     if (filters.orderCountRange) {
       const [minOrders, maxOrders] = filters.orderCountRange
-      if (customer.stats.totalOrders < minOrders || customer.stats.totalOrders > maxOrders) {
+      if (
+        customer.stats.totalOrders < minOrders ||
+        customer.stats.totalOrders > maxOrders
+      ) {
         return false
       }
     }
-    
+
     // Spent range filter
     if (filters.spentRange) {
       const [minSpent, maxSpent] = filters.spentRange
-      if (customer.stats.totalSpent < minSpent || customer.stats.totalSpent > maxSpent) {
+      if (
+        customer.stats.totalSpent < minSpent ||
+        customer.stats.totalSpent > maxSpent
+      ) {
         return false
       }
     }
-    
+
     // Last order range filter
     if (filters.lastOrderRange && customer.lastOrderAt) {
       const [startDate, endDate] = filters.lastOrderRange
       const lastOrderDate = new Date(customer.lastOrderAt)
-      if (lastOrderDate < new Date(startDate) || lastOrderDate > new Date(endDate)) {
+      if (
+        lastOrderDate < new Date(startDate) ||
+        lastOrderDate > new Date(endDate)
+      ) {
         return false
       }
     }
-    
+
     // Created range filter
     if (filters.createdRange) {
       const [startDate, endDate] = filters.createdRange
       const createdDate = new Date(customer.createdAt)
-      if (createdDate < new Date(startDate) || createdDate > new Date(endDate)) {
+      if (
+        createdDate < new Date(startDate) ||
+        createdDate > new Date(endDate)
+      ) {
         return false
       }
     }
-    
+
     return true
   })
 }
 
 // Customers by segment selector
-export const selectCustomersBySegment = (segmentId: string) => (state: RootState) => {
-  const customers = selectAllCustomers(state)
-  return customers.filter(customer => customer.segments.includes(segmentId))
-}
+export const selectCustomersBySegment =
+  (segmentId: string) => (state: RootState) => {
+    const customers = selectAllCustomers(state)
+    return customers.filter((customer) => customer.segments.includes(segmentId))
+  }
 
 // High value customers selector
-export const selectHighValueCustomers = (threshold = 1000) => (state: RootState) => {
-  const customers = selectAllCustomers(state)
-  return customers.filter(customer => customer.stats.lifetimeValue >= threshold)
-}
+export const selectHighValueCustomers =
+  (threshold = 1000) =>
+  (state: RootState) => {
+    const customers = selectAllCustomers(state)
+    return customers.filter(
+      (customer) => customer.stats.lifetimeValue >= threshold
+    )
+  }
 
 // Recent customers selector
-export const selectRecentCustomers = (days = 30) => (state: RootState) => {
-  const customers = selectAllCustomers(state)
-  const cutoffDate = new Date()
-  cutoffDate.setDate(cutoffDate.getDate() - days)
-  
-  return customers.filter(customer => new Date(customer.createdAt) >= cutoffDate)
-}
+export const selectRecentCustomers =
+  (days = 30) =>
+  (state: RootState) => {
+    const customers = selectAllCustomers(state)
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - days)
+
+    return customers.filter(
+      (customer) => new Date(customer.createdAt) >= cutoffDate
+    )
+  }
 
 // Active customers selector
 export const selectActiveCustomers = (state: RootState) => {
   const customers = selectAllCustomers(state)
-  return customers.filter(customer => customer.status === 'active')
+  return customers.filter((customer) => customer.status === 'active')
 }
 
 // Customers with no orders selector
 export const selectCustomersWithNoOrders = (state: RootState) => {
   const customers = selectAllCustomers(state)
-  return customers.filter(customer => customer.stats.totalOrders === 0)
+  return customers.filter((customer) => customer.stats.totalOrders === 0)
 }
 
 // Communications by customer selector
-export const selectCommunicationsByCustomer = (customerId: string) => (state: RootState) => {
-  const communications = selectAllCommunications(state)
-  return communications.filter(communication => communication.customerId === customerId)
-}
+export const selectCommunicationsByCustomer =
+  (customerId: string) => (state: RootState) => {
+    const communications = selectAllCommunications(state)
+    return communications.filter(
+      (communication) => communication.customerId === customerId
+    )
+  }
 
 // Top spending customers selector
-export const selectTopSpendingCustomers = (limit = 10) => (state: RootState) => {
-  const customers = selectAllCustomers(state)
-  return [...customers]
-    .sort((a, b) => b.stats.totalSpent - a.stats.totalSpent)
-    .slice(0, limit)
-}
+export const selectTopSpendingCustomers =
+  (limit = 10) =>
+  (state: RootState) => {
+    const customers = selectAllCustomers(state)
+    return [...customers]
+      .sort((a, b) => b.stats.totalSpent - a.stats.totalSpent)
+      .slice(0, limit)
+  }
 
 export default customersSlice.reducer

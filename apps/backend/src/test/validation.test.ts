@@ -1,23 +1,29 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { z } from 'zod'
-import { 
-  validate, 
-  sanitize, 
-  xssProtection, 
+import {
+  validate,
+  sanitize,
+  xssProtection,
   validateFileUpload,
   validateRateLimit,
   formatValidationError,
-  commonValidationSchemas
+  commonValidationSchemas,
 } from '../middleware/validation.js'
 import { ApiError } from '../lib/errors.js'
 
 // Test schemas
 const testUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(50, 'Name must be less than 50 characters'),
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(50, 'Name must be less than 50 characters'),
   email: z.string().email('Invalid email format'),
-  age: z.number().min(18, 'Must be at least 18 years old').max(120, 'Age must be realistic'),
+  age: z
+    .number()
+    .min(18, 'Must be at least 18 years old')
+    .max(120, 'Age must be realistic'),
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
 })
 
@@ -37,18 +43,25 @@ describe('Validation Middleware', () => {
   beforeEach(() => {
     app = express()
     app.use(express.json())
-    
+
     // Add error handler
-    app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (error instanceof ApiError) {
-        res.status(error.statusCode).json({
-          message: error.message,
-          errors: error.errors,
-        })
-      } else {
-        res.status(500).json({ message: error.message })
+    app.use(
+      (
+        error: any,
+        _req: express.Request,
+        res: express.Response,
+        _next: express.NextFunction
+      ) => {
+        if (error instanceof ApiError) {
+          res.status(error.statusCode).json({
+            message: error.message,
+            errors: error.errors,
+          })
+        } else {
+          res.status(500).json({ message: error.message })
+        }
       }
-    })
+    )
   })
 
   describe('validate middleware', () => {
@@ -61,7 +74,7 @@ describe('Validation Middleware', () => {
         name: 'John Doe',
         email: 'john@example.com',
         age: 25,
-        tags: ['developer', 'javascript']
+        tags: ['developer', 'javascript'],
       }
 
       const response = await request(app)
@@ -82,7 +95,7 @@ describe('Validation Middleware', () => {
         name: '', // Invalid: empty string
         email: 'invalid-email', // Invalid: not an email
         age: 15, // Invalid: under 18
-        tags: ['a', 'b', 'c', 'd', 'e', 'f'] // Invalid: too many tags
+        tags: ['a', 'b', 'c', 'd', 'e', 'f'], // Invalid: too many tags
       }
 
       const response = await request(app)
@@ -94,10 +107,22 @@ describe('Validation Middleware', () => {
       expect(response.body.errors).toHaveLength(4)
       expect(response.body.errors).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ field: 'name', message: 'Name is required' }),
-          expect.objectContaining({ field: 'email', message: 'Invalid email format' }),
-          expect.objectContaining({ field: 'age', message: 'Must be at least 18 years old' }),
-          expect.objectContaining({ field: 'tags', message: 'Maximum 5 tags allowed' }),
+          expect.objectContaining({
+            field: 'name',
+            message: 'Name is required',
+          }),
+          expect.objectContaining({
+            field: 'email',
+            message: 'Invalid email format',
+          }),
+          expect.objectContaining({
+            field: 'age',
+            message: 'Must be at least 18 years old',
+          }),
+          expect.objectContaining({
+            field: 'tags',
+            message: 'Maximum 5 tags allowed',
+          }),
         ])
       )
     })
@@ -114,32 +139,36 @@ describe('Validation Middleware', () => {
       expect(response.body.query).toEqual({
         page: 2,
         limit: 50,
-        search: 'test'
+        search: 'test',
       })
     })
 
     it('should validate route parameters', async () => {
-      app.get('/test/:id', validate({ params: testParamsSchema }), (req, res) => {
-        res.json({ success: true, params: req.params })
-      })
+      app.get(
+        '/test/:id',
+        validate({ params: testParamsSchema }),
+        (req, res) => {
+          res.json({ success: true, params: req.params })
+        }
+      )
 
       const validUuid = '123e4567-e89b-12d3-a456-426614174000'
-      
-      const response = await request(app)
-        .get(`/test/${validUuid}`)
-        .expect(200)
+
+      const response = await request(app).get(`/test/${validUuid}`).expect(200)
 
       expect(response.body.params.id).toBe(validUuid)
     })
 
     it('should return error for invalid route parameters', async () => {
-      app.get('/test/:id', validate({ params: testParamsSchema }), (req, res) => {
-        res.json({ success: true })
-      })
+      app.get(
+        '/test/:id',
+        validate({ params: testParamsSchema }),
+        (req, res) => {
+          res.json({ success: true })
+        }
+      )
 
-      const response = await request(app)
-        .get('/test/invalid-uuid')
-        .expect(400)
+      const response = await request(app).get('/test/invalid-uuid').expect(400)
 
       expect(response.body.message).toBe('Validation failed')
       expect(response.body.errors[0].field).toBe('id')
@@ -151,13 +180,11 @@ describe('Validation Middleware', () => {
         res.json({ success: true, query: req.query })
       })
 
-      const response = await request(app)
-        .get('/test')
-        .expect(200)
+      const response = await request(app).get('/test').expect(200)
 
       expect(response.body.query).toEqual({
         page: 1,
-        limit: 20
+        limit: 20,
       })
     })
   })
@@ -173,7 +200,7 @@ describe('Validation Middleware', () => {
         .send({
           name: '  John Doe  <script>alert("xss")</script>  ',
           description: 'Test description<>',
-          email: 'john@example.com' // Should not be sanitized
+          email: 'john@example.com', // Should not be sanitized
         })
         .expect(200)
 
@@ -188,7 +215,9 @@ describe('Validation Middleware', () => {
       })
 
       const response = await request(app)
-        .get('/test?search=<script>alert("xss")</script>&other=<script>test</script>')
+        .get(
+          '/test?search=<script>alert("xss")</script>&other=<script>test</script>'
+        )
         .expect(200)
 
       expect(response.body.query.search).toBe('alert("xss")')
@@ -208,8 +237,8 @@ describe('Validation Middleware', () => {
           name: '<script>alert("xss")</script>John',
           nested: {
             description: 'javascript:alert("xss")',
-            tags: ['<script>tag1</script>', 'tag2']
-          }
+            tags: ['<script>tag1</script>', 'tag2'],
+          },
         })
         .expect(200)
 
@@ -228,7 +257,8 @@ describe('Validation Middleware', () => {
         size: 1024 * 1024, // 1MB
       } as Express.Multer.File
 
-      app.post('/test', 
+      app.post(
+        '/test',
         (req, res, next) => {
           req.file = mockFile
           next()
@@ -236,16 +266,14 @@ describe('Validation Middleware', () => {
         validateFileUpload({
           allowedMimeTypes: ['image/jpeg', 'image/png'],
           maxFileSize: 5 * 1024 * 1024, // 5MB
-          required: true
+          required: true,
         }),
         (req, res) => {
           res.json({ success: true })
         }
       )
 
-      await request(app)
-        .post('/test')
-        .expect(200)
+      await request(app).post('/test').expect(200)
     })
 
     it('should reject files that are too large', async () => {
@@ -255,7 +283,8 @@ describe('Validation Middleware', () => {
         size: 10 * 1024 * 1024, // 10MB
       } as Express.Multer.File
 
-      app.post('/test', 
+      app.post(
+        '/test',
         (req, res, next) => {
           req.file = mockFile
           next()
@@ -268,9 +297,7 @@ describe('Validation Middleware', () => {
         }
       )
 
-      const response = await request(app)
-        .post('/test')
-        .expect(400)
+      const response = await request(app).post('/test').expect(400)
 
       expect(response.body.message).toContain('File size must be less than')
     })
@@ -282,7 +309,8 @@ describe('Validation Middleware', () => {
         size: 1024,
       } as Express.Multer.File
 
-      app.post('/test', 
+      app.post(
+        '/test',
         (req, res, next) => {
           req.file = mockFile
           next()
@@ -295,9 +323,7 @@ describe('Validation Middleware', () => {
         }
       )
 
-      const response = await request(app)
-        .post('/test')
-        .expect(400)
+      const response = await request(app).post('/test').expect(400)
 
       expect(response.body.message).toContain('File type')
       expect(response.body.message).toContain('is not allowed')
@@ -310,7 +336,8 @@ describe('Validation Middleware', () => {
         size: 1024,
       } as Express.Multer.File
 
-      app.post('/test', 
+      app.post(
+        '/test',
         (req, res, next) => {
           req.file = mockFile
           next()
@@ -321,11 +348,11 @@ describe('Validation Middleware', () => {
         }
       )
 
-      const response = await request(app)
-        .post('/test')
-        .expect(400)
+      const response = await request(app).post('/test').expect(400)
 
-      expect(response.body.message).toBe('File type is not allowed for security reasons')
+      expect(response.body.message).toBe(
+        'File type is not allowed for security reasons'
+      )
     })
   })
 
@@ -342,9 +369,7 @@ describe('Validation Middleware', () => {
 
       // Make 5 requests (should all succeed)
       for (let i = 0; i < 5; i++) {
-        await request(app)
-          .get('/test')
-          .expect(200)
+        await request(app).get('/test').expect(200)
       }
     })
 
@@ -363,9 +388,7 @@ describe('Validation Middleware', () => {
       await request(app).get('/test').expect(200)
 
       // Third request should be blocked
-      const response = await request(app)
-        .get('/test')
-        .expect(429)
+      const response = await request(app).get('/test').expect(429)
 
       expect(response.body.message).toContain('Too many requests')
       expect(response.headers['x-ratelimit-limit']).toBe('2')
@@ -385,13 +408,19 @@ describe('Validation Middleware', () => {
       } catch (error) {
         if (error instanceof z.ZodError) {
           const formatted = formatValidationError(error)
-          
+
           expect(formatted.message).toBe('Validation failed')
           expect(formatted.errors).toHaveLength(2)
           expect(formatted.errors).toEqual(
             expect.arrayContaining([
-              expect.objectContaining({ field: 'name', message: 'Name is required' }),
-              expect.objectContaining({ field: 'email', message: 'Invalid email' }),
+              expect.objectContaining({
+                field: 'name',
+                message: 'Name is required',
+              }),
+              expect.objectContaining({
+                field: 'email',
+                message: 'Invalid email',
+              }),
             ])
           )
         }
@@ -403,7 +432,7 @@ describe('Validation Middleware', () => {
     it('should validate ID schema', () => {
       const validId = '123e4567-e89b-12d3-a456-426614174000'
       const result = commonValidationSchemas.id.safeParse({ id: validId })
-      
+
       expect(result.success).toBe(true)
       if (result.success) {
         expect(result.data.id).toBe(validId)
@@ -415,16 +444,16 @@ describe('Validation Middleware', () => {
         page: '2',
         limit: '50',
         sortBy: 'name',
-        sortOrder: 'asc'
+        sortOrder: 'asc',
       })
-      
+
       expect(result.success).toBe(true)
       if (result.success) {
         expect(result.data).toEqual({
           page: 2,
           limit: 50,
           sortBy: 'name',
-          sortOrder: 'asc'
+          sortOrder: 'asc',
         })
       }
     })
@@ -432,9 +461,9 @@ describe('Validation Middleware', () => {
     it('should validate date range schema', () => {
       const validRange = {
         startDate: '2024-01-01T00:00:00Z',
-        endDate: '2024-12-31T23:59:59Z'
+        endDate: '2024-12-31T23:59:59Z',
       }
-      
+
       const result = commonValidationSchemas.dateRange.safeParse(validRange)
       expect(result.success).toBe(true)
     })
@@ -442,9 +471,9 @@ describe('Validation Middleware', () => {
     it('should reject invalid date range', () => {
       const invalidRange = {
         startDate: '2024-12-31T23:59:59Z',
-        endDate: '2024-01-01T00:00:00Z'
+        endDate: '2024-01-01T00:00:00Z',
       }
-      
+
       const result = commonValidationSchemas.dateRange.safeParse(invalidRange)
       expect(result.success).toBe(false)
     })
@@ -452,20 +481,28 @@ describe('Validation Middleware', () => {
 
   describe('Error handling', () => {
     it('should handle non-Zod errors gracefully', async () => {
-      app.post('/test', 
-        (req, res, next) => {
+      app.post(
+        '/test',
+        (_req, _res, _next) => {
           throw new Error('Unexpected error')
         },
         validate({ body: testUserSchema }),
-        (req, res) => {
+        (_req, res) => {
           res.json({ success: true })
         }
       )
 
       // Add error handler
-      app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-        res.status(500).json({ message: error.message })
-      })
+      app.use(
+        (
+          error: any,
+          _req: express.Request,
+          res: express.Response,
+          _next: express.NextFunction
+        ) => {
+          res.status(500).json({ message: error.message })
+        }
+      )
 
       const response = await request(app)
         .post('/test')

@@ -11,10 +11,9 @@ const ProductList: React.FC = () => {
 
   useEffect(() => {
     dispatch(setPageTitle('Products'))
-    dispatch(setBreadcrumbs([
-      { label: 'Dashboard', path: '/' },
-      { label: 'Products' }
-    ]))
+    dispatch(
+      setBreadcrumbs([{ label: 'Dashboard', path: '/' }, { label: 'Products' }])
+    )
   }, [dispatch])
 
   return (

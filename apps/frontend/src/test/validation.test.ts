@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import * as yup from 'yup'
@@ -578,7 +579,7 @@ describe('Form Validation Hooks', () => {
       getItem: vi.fn(),
       setItem: vi.fn(),
       removeItem: vi.fn(),
-    } as Storage
+    } as unknown as Storage
 
     beforeEach(() => {
       vi.clearAllMocks()
@@ -606,7 +607,7 @@ describe('Form Validation Hooks', () => {
 
     it('should load form data', () => {
       const savedData = { name: 'John', email: 'john@example.com' }
-      mockStorage.getItem.mockReturnValue(JSON.stringify(savedData))
+      ;(mockStorage.getItem as any).mockReturnValue(JSON.stringify(savedData))
 
       const { result } = renderHook(() =>
         useFormPersistence({

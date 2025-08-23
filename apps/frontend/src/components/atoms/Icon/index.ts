@@ -1,4 +1,4 @@
-export { 
+export {
   Icon,
   SearchIcon,
   EditIcon,
@@ -9,6 +9,6 @@ export {
   CheckIcon,
   WarningIcon,
   InfoIcon,
-  LoadingIcon
+  LoadingIcon,
 } from './Icon'
 export type { IconProps } from './Icon'

@@ -89,7 +89,7 @@ export const TaxRateDisplay: React.FC<TaxRateDisplayProps> = ({
             <div key={index} className='oda-tax-rate-display__breakdown-item'>
               <div className='oda-tax-rate-display__breakdown-name'>
                 <span>{tax.name}</span>
-                <Tag size='small' color={getTaxTypeColor(tax.type)}>
+                <Tag color={getTaxTypeColor(tax.type)}>
                   {tax.type.toUpperCase()}
                 </Tag>
               </div>

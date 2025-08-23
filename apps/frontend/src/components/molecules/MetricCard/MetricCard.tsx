@@ -1,11 +1,11 @@
 import React from 'react'
 import { Card, Space, Tooltip, Progress } from 'antd'
-import { 
-  ArrowUpOutlined, 
-  ArrowDownOutlined, 
-  InfoCircleOutlined 
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons'
-import { Typography } from '../../atoms'
+import { Typography } from 'antd'
 import './MetricCard.css'
 
 export interface MetricCardProps {
@@ -42,7 +42,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   size = 'default',
   color = 'default',
   className = '',
-  onClick
+  onClick,
 }) => {
   const formatValue = (val: string | number) => {
     if (typeof val === 'number') {
@@ -53,28 +53,28 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   const getTrendIcon = () => {
     if (!trend) return null
-    
+
     const isPositive = trend.isPositive ?? trend.value > 0
     const Icon = isPositive ? ArrowUpOutlined : ArrowDownOutlined
-    const trendColor = isPositive ? 'var(--ant-color-success)' : 'var(--ant-color-error)'
-    
-    return (
-      <Icon style={{ color: trendColor, fontSize: '12px' }} />
-    )
+    const trendColor = isPositive
+      ? 'var(--ant-color-success)'
+      : 'var(--ant-color-error)'
+
+    return <Icon style={{ color: trendColor, fontSize: '12px' }} />
   }
 
   const renderHeader = () => (
-    <div className="metric-card__header">
-      <Space size="small">
-        <Typography.Text 
-          type="secondary" 
+    <div className='metric-card__header'>
+      <Space size='small'>
+        <Typography.Text
+          type='secondary'
           className={`metric-card__title metric-card__title--${size}`}
         >
           {title}
         </Typography.Text>
         {tooltip && (
           <Tooltip title={tooltip}>
-            <InfoCircleOutlined className="metric-card__info-icon" />
+            <InfoCircleOutlined className='metric-card__info-icon' />
           </Tooltip>
         )}
       </Space>
@@ -87,18 +87,18 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   )
 
   const renderValue = () => (
-    <div className="metric-card__value-section">
-      <Typography.Title 
+    <div className='metric-card__value-section'>
+      <Typography.Title
         level={size === 'large' ? 2 : size === 'small' ? 5 : 3}
         className={`metric-card__value metric-card__value--${color}`}
         style={{ margin: 0 }}
       >
         {formatValue(value)}
       </Typography.Title>
-      
+
       {subtitle && (
-        <Typography.Text 
-          type="secondary" 
+        <Typography.Text
+          type='secondary'
           className={`metric-card__subtitle metric-card__subtitle--${size}`}
         >
           {subtitle}
@@ -114,16 +114,16 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     const trendColor = isPositive ? 'success' : 'danger'
 
     return (
-      <Space size="small" className="metric-card__trend">
+      <Space size='small' className='metric-card__trend'>
         {getTrendIcon()}
-        <Typography.Text 
+        <Typography.Text
           type={trendColor}
           className={`metric-card__trend-value metric-card__trend-value--${size}`}
         >
           {Math.abs(trend.value)}%
         </Typography.Text>
-        <Typography.Text 
-          type="secondary"
+        <Typography.Text
+          type='secondary'
           className={`metric-card__trend-period metric-card__trend-period--${size}`}
         >
           vs {trend.period}
@@ -140,8 +140,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         percent={progress.percent}
         status={progress.status}
         showInfo={false}
-        size="small"
-        className="metric-card__progress"
+        size='small'
+        className='metric-card__progress'
       />
     )
   }

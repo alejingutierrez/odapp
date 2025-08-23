@@ -24,7 +24,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   tooltip,
   size = 'middle',
-  variant = 'default',
+  variant = 'outlined',
   circular = false,
   style,
   ...props

@@ -1,15 +1,22 @@
-import { PrismaClient, Product, ProductVariant, ProductImage, Category, Collection, Prisma } from '@prisma/client'
-import { 
-  CreateProduct, 
-  UpdateProduct, 
-  ProductQuery, 
-  BulkProductUpdate, 
+import {
+  PrismaClient,
+  Product,
+  ProductVariant,
+  ProductImage,
+  Category,
+  Collection,
+  ProductStatus,
+  Prisma,
+} from '@prisma/client'
+import {
+  CreateProduct,
+  UpdateProduct,
+  ProductQuery,
+  BulkProductUpdate,
   BulkProductDelete,
-  ProductImport,
-  ProductExport
 } from '@oda/shared'
 import { logger } from '../lib/logger.js'
-import { AppError } from '../lib/errors.js'
+import { NotFoundError, BusinessLogicError } from '../lib/errors.js'
 import { CacheManager } from '../lib/cache/cache-manager.js'
 import { SearchService } from './search.service.js'
 import { ImageService } from './image.service.js'
@@ -55,12 +62,12 @@ export interface ProductAnalytics {
 
 export class ProductService extends EventEmitter {
   constructor(
-    private prisma: PrismaClient,
-    private cache: CacheManager,
-    private searchService: SearchService,
-    private imageService: ImageService,
-    private analyticsService: AnalyticsService,
-    private auditService: AuditService
+    private _prisma: PrismaClient,
+    private _cache: CacheManager,
+    private _searchService: SearchService,
+    private _imageService: ImageService,
+    private _analyticsService: AnalyticsService,
+    private _auditService: AuditService
   ) {
     super()
   }
@@ -69,7 +76,10 @@ export class ProductService extends EventEmitter {
   // PRODUCT CRUD OPERATIONS
   // ============================================================================
 
-  async createProduct(data: CreateProduct, userId?: string): Promise<ProductWithRelations> {
+  async createProduct(
+    data: CreateProduct,
+    userId?: string
+  ): Promise<ProductWithRelations> {
     logger.info('Creating product', { name: data.name, userId })
 
     try {
@@ -84,7 +94,7 @@ export class ProductService extends EventEmitter {
       // Generate unique slug if needed
       const slug = await this.generateUniqueSlug(data.slug || data.name)
 
-      const product = await this.prisma.$transaction(async (tx) => {
+      const product = await this._prisma.$transaction(async (tx) => {
         // Create product
         const newProduct = await tx.product.create({
           data: {
@@ -92,7 +102,7 @@ export class ProductService extends EventEmitter {
             slug,
             description: data.description,
             shortDescription: data.shortDescription,
-            status: data.status || 'DRAFT',
+            status: (data.status?.toUpperCase() as ProductStatus) || 'DRAFT',
             brand: data.vendor,
             material: data.productType,
             price: data.variants?.[0]?.price || 0,
@@ -102,56 +112,65 @@ export class ProductService extends EventEmitter {
             metaDescription: data.seo?.description,
             categoryId: data.categoryId,
             variants: {
-              create: data.variants?.map((variant, index) => ({
-                name: variant.size && variant.color ? `${variant.size} / ${variant.color}` : undefined,
-                sku: variant.sku,
-                option1Name: 'Size',
-                option1Value: variant.size,
-                option2Name: 'Color',
-                option2Value: variant.color,
-                option3Name: variant.material ? 'Material' : undefined,
-                option3Value: variant.material,
-                price: variant.price,
-                compareAtPrice: variant.compareAtPrice,
-                costPrice: variant.cost,
-                weight: variant.weight,
-                dimensions: variant.dimensions ? JSON.stringify(variant.dimensions) : undefined,
-                barcode: variant.barcode,
-              })) || []
+              create:
+                data.variants?.map((variant) => ({
+                  name:
+                    variant.size && variant.color
+                      ? `${variant.size} / ${variant.color}`
+                      : undefined,
+                  sku: variant.sku,
+                  option1Name: 'Size',
+                  option1Value: variant.size,
+                  option2Name: 'Color',
+                  option2Value: variant.color,
+                  option3Name: variant.material ? 'Material' : undefined,
+                  option3Value: variant.material,
+                  price: variant.price,
+                  compareAtPrice: variant.compareAtPrice,
+                  costPrice: variant.cost,
+                  weight: variant.weight,
+                  dimensions: variant.dimensions
+                    ? JSON.stringify(variant.dimensions)
+                    : undefined,
+                  barcode: variant.barcode,
+                })) || [],
             },
             images: {
-              create: data.images?.map((image, index) => ({
-                url: image.url,
-                altText: image.altText,
-                sortOrder: image.position || index,
-                width: image.width,
-                height: image.height,
-              })) || []
+              create:
+                data.images?.map((image, index) => ({
+                  url: image.url,
+                  altText: image.altText,
+                  sortOrder: image.position || index,
+                  width: image.width,
+                  height: image.height,
+                })) || [],
             },
             attributes: {
-              create: Object.entries(data.metafields || {}).map(([name, value]) => ({
-                name,
-                value: String(value),
-              }))
-            }
+              create: Object.entries(data.metafields || {}).map(
+                ([name, value]) => ({
+                  name,
+                  value: String(value),
+                })
+              ),
+            },
           },
           include: {
             variants: true,
             images: {
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { sortOrder: 'asc' },
             },
             category: true,
             collections: {
-              include: { collection: true }
+              include: { collection: true },
             },
             _count: {
               select: {
                 variants: true,
                 images: true,
-                collections: true
-              }
-            }
-          }
+                collections: true,
+              },
+            },
+          },
         })
 
         // Create collection associations
@@ -160,27 +179,27 @@ export class ProductService extends EventEmitter {
             data: data.collectionIds.map((collectionId, index) => ({
               collectionId,
               productId: newProduct.id,
-              sortOrder: index
-            }))
+              sortOrder: index,
+            })),
           })
         }
 
         // Create initial inventory records
         if (newProduct.variants.length) {
           const defaultLocation = await tx.location.findFirst({
-            where: { isDefault: true }
+            where: { isDefault: true },
           })
 
           if (defaultLocation) {
             await tx.inventoryItem.createMany({
-              data: newProduct.variants.map(variant => ({
+              data: newProduct.variants.map((variant) => ({
                 productId: newProduct.id,
                 variantId: variant.id,
                 locationId: defaultLocation.id,
                 quantity: 0,
                 availableQuantity: 0,
-                lowStockThreshold: 5
-              }))
+                lowStockThreshold: 5,
+              })),
             })
           }
         }
@@ -189,7 +208,7 @@ export class ProductService extends EventEmitter {
       })
 
       // Index in search engine
-      await this.searchService.indexProduct(product)
+      await this._searchService.indexProduct(product)
 
       // Clear related caches
       await this.invalidateProductCaches()
@@ -198,18 +217,18 @@ export class ProductService extends EventEmitter {
       this.emit('product.created', { product, userId })
 
       // Audit log
-      await this.auditService.log({
+      await this._auditService.log({
         action: 'CREATE',
         entity: 'Product',
         entityId: product.id,
         newValues: product,
-        userId
+        userId,
       })
 
-      logger.info('Product created successfully', { 
-        productId: product.id, 
+      logger.info('Product created successfully', {
+        productId: product.id,
         name: product.name,
-        userId 
+        userId,
       })
 
       return product
@@ -219,59 +238,66 @@ export class ProductService extends EventEmitter {
     }
   }
 
-  async getProduct(id: string, includeInactive = false): Promise<ProductWithRelations | null> {
+  async getProduct(
+    id: string,
+    includeInactive = false
+  ): Promise<ProductWithRelations | null> {
     const cacheKey = `product:${id}:${includeInactive}`
-    
+
     // Try cache first
-    const cached = await this.cache.get<ProductWithRelations>(cacheKey)
+    const cached = await this._cache.get<ProductWithRelations>(cacheKey)
     if (cached) {
       return cached
     }
 
-    const product = await this.prisma.product.findFirst({
+    const product = await this._prisma.product.findFirst({
       where: {
         id,
-        ...(includeInactive ? {} : { isActive: true, deletedAt: null })
+        ...(includeInactive ? {} : { isActive: true, deletedAt: null }),
       },
       include: {
         variants: {
           where: { isActive: true },
-          orderBy: { createdAt: 'asc' }
+          orderBy: { createdAt: 'asc' },
         },
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { sortOrder: 'asc' },
         },
         category: true,
         collections: {
-          include: { collection: true }
+          include: { collection: true },
         },
         attributes: true,
         _count: {
           select: {
             variants: true,
             images: true,
-            collections: true
-          }
-        }
-      }
+            collections: true,
+          },
+        },
+      },
     })
 
     if (product) {
       // Cache for 5 minutes
-      await this.cache.set(cacheKey, product, 300)
+      await this._cache.set(cacheKey, product, { ttl: 300 })
     }
 
     return product
   }
 
-  async updateProduct(id: string, data: Partial<UpdateProduct>, userId?: string): Promise<ProductWithRelations> {
+  async updateProduct(
+    id: string,
+    data: Partial<UpdateProduct>,
+    userId?: string
+  ): Promise<ProductWithRelations> {
     logger.info('Updating product', { productId: id, userId })
 
     try {
       // Get existing product
       const existingProduct = await this.getProduct(id, true)
       if (!existingProduct) {
-        throw new AppError('Product not found', 404)
+        throw new NotFoundError('Product')
       }
 
       // Validate business rules
@@ -285,52 +311,62 @@ export class ProductService extends EventEmitter {
         slug = await this.generateUniqueSlug(data.name, id)
       }
 
-      const updatedProduct = await this.prisma.$transaction(async (tx) => {
+      const updatedProduct = await this._prisma.$transaction(async (tx) => {
         // Update product
         const product = await tx.product.update({
           where: { id },
           data: {
             ...(data.name && { name: data.name }),
             ...(slug && { slug }),
-            ...(data.description !== undefined && { description: data.description }),
-            ...(data.shortDescription !== undefined && { shortDescription: data.shortDescription }),
-            ...(data.status && { status: data.status }),
+            ...(data.description !== undefined && {
+              description: data.description,
+            }),
+            ...(data.shortDescription !== undefined && {
+              shortDescription: data.shortDescription,
+            }),
+            ...(data.status && { status: data.status.toUpperCase() as ProductStatus }),
             ...(data.vendor !== undefined && { brand: data.vendor }),
-            ...(data.productType !== undefined && { material: data.productType }),
-            ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
+            ...(data.productType !== undefined && {
+              material: data.productType,
+            }),
+            ...(data.categoryId !== undefined && {
+              categoryId: data.categoryId,
+            }),
             ...(data.seo?.title !== undefined && { metaTitle: data.seo.title }),
-            ...(data.seo?.description !== undefined && { metaDescription: data.seo.description }),
-            updatedAt: new Date()
+            ...(data.seo?.description !== undefined && {
+              metaDescription: data.seo.description,
+            }),
+            updatedAt: new Date(),
           },
           include: {
             variants: true,
             images: {
-              orderBy: { sortOrder: 'asc' }
+              orderBy: { sortOrder: 'asc' },
             },
             category: true,
             collections: {
-              include: { collection: true }
+              include: { collection: true },
             },
             _count: {
               select: {
                 variants: true,
                 images: true,
-                collections: true
-              }
-            }
-          }
+                collections: true,
+              },
+            },
+          },
         })
 
         // Update variants if provided
         if (data.variants) {
           // Delete existing variants not in the update
-          const variantIds = data.variants.filter(v => v.id).map(v => v.id!)
+          const variantIds = data.variants.filter((v) => v.id).map((v) => v.id!)
           if (variantIds.length > 0) {
             await tx.productVariant.deleteMany({
               where: {
                 productId: id,
-                id: { notIn: variantIds }
-              }
+                id: { notIn: variantIds },
+              },
             })
           }
 
@@ -341,7 +377,10 @@ export class ProductService extends EventEmitter {
               await tx.productVariant.update({
                 where: { id: variant.id },
                 data: {
-                  name: variant.size && variant.color ? `${variant.size} / ${variant.color}` : undefined,
+                  name:
+                    variant.size && variant.color
+                      ? `${variant.size} / ${variant.color}`
+                      : undefined,
                   sku: variant.sku,
                   option1Value: variant.size,
                   option2Value: variant.color,
@@ -350,16 +389,21 @@ export class ProductService extends EventEmitter {
                   compareAtPrice: variant.compareAtPrice,
                   costPrice: variant.cost,
                   weight: variant.weight,
-                  dimensions: variant.dimensions ? JSON.stringify(variant.dimensions) : undefined,
+                  dimensions: variant.dimensions
+                    ? JSON.stringify(variant.dimensions)
+                    : undefined,
                   barcode: variant.barcode,
-                }
+                },
               })
             } else {
               // Create new variant
               await tx.productVariant.create({
                 data: {
                   productId: id,
-                  name: variant.size && variant.color ? `${variant.size} / ${variant.color}` : undefined,
+                  name:
+                    variant.size && variant.color
+                      ? `${variant.size} / ${variant.color}`
+                      : undefined,
                   sku: variant.sku,
                   option1Name: 'Size',
                   option1Value: variant.size,
@@ -371,9 +415,11 @@ export class ProductService extends EventEmitter {
                   compareAtPrice: variant.compareAtPrice,
                   costPrice: variant.cost,
                   weight: variant.weight,
-                  dimensions: variant.dimensions ? JSON.stringify(variant.dimensions) : undefined,
+                  dimensions: variant.dimensions
+                    ? JSON.stringify(variant.dimensions)
+                    : undefined,
                   barcode: variant.barcode,
-                }
+                },
               })
             }
           }
@@ -382,7 +428,7 @@ export class ProductService extends EventEmitter {
         // Update collection associations if provided
         if (data.collectionIds !== undefined) {
           await tx.collectionProduct.deleteMany({
-            where: { productId: id }
+            where: { productId: id },
           })
 
           if (data.collectionIds.length > 0) {
@@ -390,8 +436,8 @@ export class ProductService extends EventEmitter {
               data: data.collectionIds.map((collectionId, index) => ({
                 collectionId,
                 productId: id,
-                sortOrder: index
-              }))
+                sortOrder: index,
+              })),
             })
           }
         }
@@ -400,26 +446,26 @@ export class ProductService extends EventEmitter {
       })
 
       // Update search index
-      await this.searchService.indexProduct(updatedProduct)
+      await this._searchService.indexProduct(updatedProduct)
 
       // Clear caches
       await this.invalidateProductCaches(id)
 
       // Emit event
-      this.emit('product.updated', { 
-        product: updatedProduct, 
+      this.emit('product.updated', {
+        product: updatedProduct,
         previousProduct: existingProduct,
-        userId 
+        userId,
       })
 
       // Audit log
-      await this.auditService.log({
+      await this._auditService.log({
         action: 'UPDATE',
         entity: 'Product',
         entityId: id,
-        oldValues: existingProduct,
-        newValues: updatedProduct,
-        userId
+        oldValues: existingProduct as unknown as Record<string, unknown>,
+        newValues: updatedProduct as unknown as Record<string, unknown>,
+        userId,
       })
 
       logger.info('Product updated successfully', { productId: id, userId })
@@ -437,42 +483,41 @@ export class ProductService extends EventEmitter {
     try {
       const product = await this.getProduct(id, true)
       if (!product) {
-        throw new AppError('Product not found', 404)
+        throw new NotFoundError('Product')
       }
 
       // Check if product has orders
-      const orderCount = await this.prisma.orderItem.count({
+      const orderCount = await this._prisma.orderItem.count({
         where: {
-          OR: [
-            { productId: id },
-            { variant: { productId: id } }
-          ]
-        }
+          OR: [{ productId: id }, { variant: { productId: id } }],
+        },
       })
 
       if (orderCount > 0) {
-        throw new AppError('Cannot delete product with existing orders. Archive it instead.', 400)
+        throw new BusinessLogicError(
+          'Cannot delete product with existing orders. Archive it instead.'
+        )
       }
 
-      await this.prisma.$transaction(async (tx) => {
+      await this._prisma.$transaction(async (tx) => {
         // Soft delete product
         await tx.product.update({
           where: { id },
           data: {
             deletedAt: new Date(),
-            isActive: false
-          }
+            isActive: false,
+          },
         })
 
         // Soft delete variants
         await tx.productVariant.updateMany({
           where: { productId: id },
-          data: { isActive: false }
+          data: { isActive: false },
         })
       })
 
       // Remove from search index
-      await this.searchService.removeProduct(id)
+      await this._searchService.removeProduct(id)
 
       // Clear caches
       await this.invalidateProductCaches(id)
@@ -481,12 +526,12 @@ export class ProductService extends EventEmitter {
       this.emit('product.deleted', { product, userId })
 
       // Audit log
-      await this.auditService.log({
+      await this._auditService.log({
         action: 'DELETE',
         entity: 'Product',
         entityId: id,
-        oldValues: product,
-        userId
+        oldValues: product as unknown as Record<string, unknown>,
+        userId,
       })
 
       logger.info('Product deleted successfully', { productId: id, userId })
@@ -502,10 +547,10 @@ export class ProductService extends EventEmitter {
 
   async searchProducts(query: ProductQuery): Promise<ProductSearchResult> {
     const cacheKey = `products:search:${JSON.stringify(query)}`
-    
+
     // Try cache first for non-real-time queries
     if (!query.inStock) {
-      const cached = await this.cache.get<ProductSearchResult>(cacheKey)
+      const cached = await this._cache.get<ProductSearchResult>(cacheKey)
       if (cached) {
         return cached
       }
@@ -513,8 +558,12 @@ export class ProductService extends EventEmitter {
 
     try {
       // Use Elasticsearch for advanced search if available
-      if (this.searchService.isAvailable() && (query.search || query.tags?.length)) {
-        return await this.searchService.searchProducts(query)
+      if (
+        this._searchService.isAvailable() &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((query as any).search || query.tags?.length)
+      ) {
+        return await this._searchService.searchProducts(query)
       }
 
       // Fallback to database search
@@ -526,56 +575,63 @@ export class ProductService extends EventEmitter {
     }
   }
 
-  private async searchProductsInDatabase(query: ProductQuery): Promise<ProductSearchResult> {
+  private async searchProductsInDatabase(
+    query: ProductQuery
+  ): Promise<ProductSearchResult> {
     const {
-      search,
+      q: searchQuery,
       status,
       categoryId,
       collectionId,
       vendor,
       productType,
-      tags,
       priceMin,
       priceMax,
       inStock,
       page = 1,
       limit = 20,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = query
 
     // Build where clause
     const where: Prisma.ProductWhereInput = {
       isActive: true,
       deletedAt: null,
-      ...(search && {
+      ...(searchQuery && {
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { brand: { contains: search, mode: 'insensitive' } },
-          { variants: { some: { sku: { contains: search, mode: 'insensitive' } } } }
-        ]
+          { name: { contains: searchQuery, mode: 'insensitive' } },
+          { description: { contains: searchQuery, mode: 'insensitive' } },
+          { brand: { contains: searchQuery, mode: 'insensitive' } },
+          {
+            variants: {
+              some: { sku: { contains: searchQuery, mode: 'insensitive' } },
+            },
+          },
+        ],
       }),
-      ...(status && { status }),
+      ...(status && { status: status.toUpperCase() as ProductStatus }),
       ...(categoryId && { categoryId }),
       ...(vendor && { brand: { contains: vendor, mode: 'insensitive' } }),
-      ...(productType && { material: { contains: productType, mode: 'insensitive' } }),
+      ...(productType && {
+        material: { contains: productType, mode: 'insensitive' },
+      }),
       ...(priceMin !== undefined && { price: { gte: priceMin } }),
       ...(priceMax !== undefined && { price: { lte: priceMax } }),
       ...(collectionId && {
-        collections: { some: { collectionId } }
+        collections: { some: { collectionId } },
       }),
       ...(inStock && {
         variants: {
           some: {
             inventory: {
               some: {
-                availableQuantity: { gt: 0 }
-              }
-            }
-          }
-        }
-      })
+                availableQuantity: { gt: 0 },
+              },
+            },
+          },
+        },
+      }),
     }
 
     // Build order by
@@ -586,40 +642,40 @@ export class ProductService extends EventEmitter {
     else if (sortBy === 'updatedAt') orderBy.updatedAt = sortOrder
 
     const [products, total] = await Promise.all([
-      this.prisma.product.findMany({
+      this._prisma.product.findMany({
         where,
         include: {
           variants: {
             where: { isActive: true },
-            orderBy: { createdAt: 'asc' }
+            orderBy: { createdAt: 'asc' },
           },
           images: {
-            orderBy: { sortOrder: 'asc' }
+            orderBy: { sortOrder: 'asc' },
           },
           category: true,
           collections: {
-            include: { collection: true }
+            include: { collection: true },
           },
           _count: {
             select: {
               variants: true,
               images: true,
-              collections: true
-            }
-          }
+              collections: true,
+            },
+          },
         },
         orderBy,
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      this.prisma.product.count({ where })
+      this._prisma.product.count({ where }),
     ])
 
     const result = { products, total }
 
     // Cache results for 2 minutes
     const cacheKey = `products:search:${JSON.stringify(query)}`
-    await this.cache.set(cacheKey, result, 120)
+    await this._cache.set(cacheKey, result, { ttl: 120 })
 
     return result
   }
@@ -628,40 +684,51 @@ export class ProductService extends EventEmitter {
   // BULK OPERATIONS
   // ============================================================================
 
-  async bulkUpdateProducts(data: BulkProductUpdate, userId?: string): Promise<{ updatedCount: number }> {
-    logger.info('Bulk updating products', { 
+  async bulkUpdateProducts(
+    data: BulkProductUpdate,
+    userId?: string
+  ): Promise<{ updatedCount: number }> {
+    logger.info('Bulk updating products', {
       productCount: data.productIds.length,
       updates: data.updates,
-      userId 
+      userId,
     })
 
     try {
       // Validate all products exist
-      const existingProducts = await this.prisma.product.findMany({
+      const existingProducts = await this._prisma.product.findMany({
         where: {
           id: { in: data.productIds },
-          deletedAt: null
+          deletedAt: null,
         },
-        select: { id: true, name: true }
+        select: { id: true, name: true },
       })
 
       if (existingProducts.length !== data.productIds.length) {
-        const foundIds = existingProducts.map(p => p.id)
-        const missingIds = data.productIds.filter(id => !foundIds.includes(id))
-        throw new AppError(`Products not found: ${missingIds.join(', ')}`, 404)
+        const foundIds = existingProducts.map((p) => p.id)
+        const missingIds = data.productIds.filter(
+          (id) => !foundIds.includes(id)
+        )
+        throw new NotFoundError(`Products: ${missingIds.join(', ')}`)
       }
 
-      const updatedCount = await this.prisma.product.updateMany({
+      const updatedCount = await this._prisma.product.updateMany({
         where: {
-          id: { in: data.productIds }
+          id: { in: data.productIds },
         },
         data: {
-          ...(data.updates.status && { status: data.updates.status }),
-          ...(data.updates.categoryId !== undefined && { categoryId: data.updates.categoryId }),
-          ...(data.updates.vendor !== undefined && { brand: data.updates.vendor }),
-          ...(data.updates.productType !== undefined && { material: data.updates.productType }),
-          updatedAt: new Date()
-        }
+          ...(data.updates.status && { status: data.updates.status.toUpperCase() as ProductStatus }),
+          ...(data.updates.categoryId !== undefined && {
+            categoryId: data.updates.categoryId,
+          }),
+          ...(data.updates.vendor !== undefined && {
+            brand: data.updates.vendor,
+          }),
+          ...(data.updates.productType !== undefined && {
+            material: data.updates.productType,
+          }),
+          updatedAt: new Date(),
+        },
       })
 
       // Update collection associations if provided
@@ -674,25 +741,25 @@ export class ProductService extends EventEmitter {
       await this.invalidateProductCaches()
 
       // Emit event
-      this.emit('products.bulk.updated', { 
+      this.emit('products.bulk.updated', {
         productIds: data.productIds,
         updates: data.updates,
         updatedCount: updatedCount.count,
-        userId 
+        userId,
       })
 
       // Audit log
-      await this.auditService.log({
+      await this._auditService.log({
         action: 'BULK_UPDATE',
         entity: 'Product',
         entityId: data.productIds.join(','),
         newValues: data.updates,
-        userId
+        userId,
       })
 
-      logger.info('Bulk update completed', { 
+      logger.info('Bulk update completed', {
         updatedCount: updatedCount.count,
-        userId 
+        userId,
       })
 
       return { updatedCount: updatedCount.count }
@@ -702,79 +769,81 @@ export class ProductService extends EventEmitter {
     }
   }
 
-  async bulkDeleteProducts(data: BulkProductDelete, userId?: string): Promise<{ deletedCount: number }> {
-    logger.info('Bulk deleting products', { 
+  async bulkDeleteProducts(
+    data: BulkProductDelete,
+    userId?: string
+  ): Promise<{ deletedCount: number }> {
+    logger.info('Bulk deleting products', {
       productCount: data.productIds.length,
-      userId 
+      userId,
     })
 
     try {
       // Check if any products have orders
-      const productsWithOrders = await this.prisma.orderItem.findMany({
+      const productsWithOrders = await this._prisma.orderItem.findMany({
         where: {
           OR: [
             { productId: { in: data.productIds } },
-            { variant: { productId: { in: data.productIds } } }
-          ]
+            { variant: { productId: { in: data.productIds } } },
+          ],
         },
         select: { productId: true, product: { select: { name: true } } },
-        distinct: ['productId']
+        distinct: ['productId'],
       })
 
       if (productsWithOrders.length > 0) {
         const productNames = productsWithOrders
-          .map(item => item.product?.name)
+          .map((item) => item.product?.name)
           .filter(Boolean)
           .join(', ')
-        throw new AppError(
-          `Cannot delete products with existing orders: ${productNames}. Archive them instead.`,
-          400
+        throw new BusinessLogicError(
+          `Cannot delete products with existing orders: ${productNames}. Archive them instead.`
         )
       }
 
-      const deletedCount = await this.prisma.product.updateMany({
+      const deletedCount = await this._prisma.product.updateMany({
         where: {
           id: { in: data.productIds },
-          deletedAt: null
+          deletedAt: null,
         },
         data: {
           deletedAt: new Date(),
-          isActive: false
-        }
+          isActive: false,
+        },
       })
 
       // Soft delete variants
-      await this.prisma.productVariant.updateMany({
+      await this._prisma.productVariant.updateMany({
         where: { productId: { in: data.productIds } },
-        data: { isActive: false }
+        data: { isActive: false },
       })
 
       // Remove from search index
       await Promise.all(
-        data.productIds.map(id => this.searchService.removeProduct(id))
+        data.productIds.map((id) => this._searchService.removeProduct(id))
       )
 
       // Clear caches
       await this.invalidateProductCaches()
 
       // Emit event
-      this.emit('products.bulk.deleted', { 
+      this.emit('products.bulk.deleted', {
         productIds: data.productIds,
         deletedCount: deletedCount.count,
-        userId 
+        userId,
       })
 
       // Audit log
-      await this.auditService.log({
+      await this._auditService.log({
         action: 'BULK_DELETE',
         entity: 'Product',
         entityId: data.productIds.join(','),
-        userId
+        userId,
       })
 
-      logger.info('Bulk delete completed', { 
+      logger.info('Bulk delete completed', {
         deletedCount: deletedCount.count,
-        userId 
+        userId,
       })
 
       return { deletedCount: deletedCount.count }
@@ -790,9 +859,9 @@ export class ProductService extends EventEmitter {
 
   async getProductAnalytics(): Promise<ProductAnalytics> {
     const cacheKey = 'products:analytics'
-    
+
     // Try cache first
-    const cached = await this.cache.get<ProductAnalytics>(cacheKey)
+    const cached = await this._cache.get<ProductAnalytics>(cacheKey)
     if (cached) {
       return cached
     }
@@ -804,112 +873,117 @@ export class ProductService extends EventEmitter {
       avgPrice,
       topCategories,
       topBrands,
-      recentCounts
+      recentCounts,
     ] = await Promise.all([
       // Total products
-      this.prisma.product.count({
-        where: { deletedAt: null }
+      this._prisma.product.count({
+        where: { deletedAt: null },
       }),
 
       // Status counts
-      this.prisma.product.groupBy({
+      this._prisma.product.groupBy({
         by: ['status'],
         where: { deletedAt: null },
-        _count: { id: true }
+        _count: { id: true },
       }),
 
       // Total variants
-      this.prisma.productVariant.count({
-        where: { 
+      this._prisma.productVariant.count({
+        where: {
           isActive: true,
-          product: { deletedAt: null }
-        }
+          product: { deletedAt: null },
+        },
       }),
 
       // Average price
-      this.prisma.product.aggregate({
-        where: { 
+      this._prisma.product.aggregate({
+        where: {
           deletedAt: null,
-          isActive: true 
+          isActive: true,
         },
-        _avg: { price: true }
+        _avg: { price: true },
       }),
 
       // Top categories
-      this.prisma.product.groupBy({
+      this._prisma.product.groupBy({
         by: ['categoryId'],
-        where: { 
+        where: {
           deletedAt: null,
-          categoryId: { not: null }
+          categoryId: { not: null },
         },
         _count: { id: true },
         orderBy: { _count: { id: 'desc' } },
-        take: 10
+        take: 10,
       }),
 
       // Top brands
-      this.prisma.product.groupBy({
+      this._prisma.product.groupBy({
         by: ['brand'],
-        where: { 
+        where: {
           deletedAt: null,
-          brand: { not: null }
+          brand: { not: null },
         },
         _count: { id: true },
         orderBy: { _count: { id: 'desc' } },
-        take: 10
+        take: 10,
       }),
 
       // Recent counts
       Promise.all([
-        this.prisma.product.count({
+        this._prisma.product.count({
           where: {
             deletedAt: null,
-            createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-          }
+            createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+          },
         }),
-        this.prisma.product.count({
+        this._prisma.product.count({
           where: {
             deletedAt: null,
-            updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-          }
-        })
-      ])
+            updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+          },
+        }),
+      ]),
     ])
 
     // Get category names for top categories
     const categoryIds = topCategories
-      .filter(cat => cat.categoryId)
-      .map(cat => cat.categoryId!)
+      .filter((cat) => cat.categoryId)
+      .map((cat) => cat.categoryId!)
 
-    const categories = categoryIds.length > 0 
-      ? await this.prisma.category.findMany({
-          where: { id: { in: categoryIds } },
-          select: { id: true, name: true }
-        })
-      : []
+    const categories =
+      categoryIds.length > 0
+        ? await this._prisma.category.findMany({
+            where: { id: { in: categoryIds } },
+            select: { id: true, name: true },
+          })
+        : []
 
     const analytics: ProductAnalytics = {
       totalProducts,
-      activeProducts: statusCounts.find(s => s.status === 'ACTIVE')?._count.id || 0,
-      draftProducts: statusCounts.find(s => s.status === 'DRAFT')?._count.id || 0,
-      archivedProducts: statusCounts.find(s => s.status === 'ARCHIVED')?._count.id || 0,
+      activeProducts:
+        statusCounts.find((s) => s.status === 'ACTIVE')?._count.id || 0,
+      draftProducts:
+        statusCounts.find((s) => s.status === 'DRAFT')?._count.id || 0,
+      archivedProducts:
+        statusCounts.find((s) => s.status === 'ARCHIVED')?._count.id || 0,
       totalVariants,
       averagePrice: Number(avgPrice._avg.price) || 0,
-      topCategories: topCategories.map(cat => ({
+      topCategories: topCategories.map((cat) => ({
         categoryId: cat.categoryId!,
-        categoryName: categories.find(c => c.id === cat.categoryId)?.name || 'Unknown',
-        count: cat._count.id
+        categoryName:
+          categories.find((c) => c.id === cat.categoryId)?.name || 'Unknown',
+        count: cat._count.id,
       })),
-      topBrands: topBrands.map(brand => ({
+      topBrands: topBrands.map((brand) => ({
         brand: brand.brand!,
-        count: brand._count.id
+        count: brand._count.id,
       })),
       recentlyCreated: recentCounts[0],
-      recentlyUpdated: recentCounts[1]
+      recentlyUpdated: recentCounts[1],
     }
 
     // Cache for 10 minutes
-    await this.cache.set(cacheKey, analytics, 600)
+    await this._cache.set(cacheKey, analytics, { ttl: 600 })
 
     return analytics
   }
@@ -921,67 +995,73 @@ export class ProductService extends EventEmitter {
   private async validateProductData(data: CreateProduct): Promise<void> {
     // Validate required fields
     if (!data.name?.trim()) {
-      throw new AppError('Product name is required', 400)
+      throw new Error('Product name is required')
     }
 
     if (!data.variants?.length) {
-      throw new AppError('At least one variant is required', 400)
+      throw new Error('At least one variant is required')
     }
 
     // Validate category exists
     if (data.categoryId) {
-      const category = await this.prisma.category.findFirst({
-        where: { id: data.categoryId, isActive: true }
+      const category = await this._prisma.category.findFirst({
+        where: { id: data.categoryId, isActive: true },
       })
       if (!category) {
-        throw new AppError('Category not found', 404)
+        throw new Error('Category not found')
       }
     }
 
     // Validate collections exist
     if (data.collectionIds?.length) {
-      const collections = await this.prisma.collection.findMany({
-        where: { 
+      const collections = await this._prisma.collection.findMany({
+        where: {
           id: { in: data.collectionIds },
-          isActive: true 
-        }
+          isActive: true,
+        },
       })
       if (collections.length !== data.collectionIds.length) {
-        throw new AppError('One or more collections not found', 404)
+        throw new Error('One or more collections not found')
       }
     }
   }
 
-  private async validateVariantSkus(variants: any[], excludeProductId?: string): Promise<void> {
-    const skus = variants.map(v => v.sku).filter(Boolean)
+  private async validateVariantSkus(
+    variants: Record<string, unknown>[],
+    excludeProductId?: string
+  ): Promise<void> {
+    const skus = variants.map((v) => v.sku as string).filter(Boolean)
     if (skus.length === 0) return
 
     // Check for duplicates within the variants
     const duplicates = skus.filter((sku, index) => skus.indexOf(sku) !== index)
     if (duplicates.length > 0) {
-      throw new AppError(`Duplicate SKUs found: ${duplicates.join(', ')}`, 400)
+      throw new Error(`Duplicate SKUs found: ${duplicates.join(', ')}`)
     }
 
     // Check for existing SKUs in database
-    const existingVariants = await this.prisma.productVariant.findMany({
+    const existingVariants = await this._prisma.productVariant.findMany({
       where: {
         sku: { in: skus },
         isActive: true,
         ...(excludeProductId && {
-          product: { id: { not: excludeProductId } }
-        })
+          product: { id: { not: excludeProductId } },
+        }),
       },
-      select: { sku: true }
+      select: { sku: true },
     })
 
     if (existingVariants.length > 0) {
-      const existingSkus = existingVariants.map(v => v.sku)
-      throw new AppError(`SKUs already exist: ${existingSkus.join(', ')}`, 400)
+      const existingSkus = existingVariants.map((v) => v.sku)
+      throw new Error(`SKUs already exist: ${existingSkus.join(', ')}`)
     }
   }
 
-  private async generateUniqueSlug(name: string, excludeId?: string): Promise<string> {
-    let baseSlug = name
+  private async generateUniqueSlug(
+    name: string,
+    excludeId?: string
+  ): Promise<string> {
+    const baseSlug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
@@ -989,13 +1069,14 @@ export class ProductService extends EventEmitter {
     let slug = baseSlug
     let counter = 1
 
-    while (true) {
-      const existing = await this.prisma.product.findFirst({
+    while (counter < 1000) {
+      // Prevent infinite loop
+      const existing = await this._prisma.product.findFirst({
         where: {
           slug,
           deletedAt: null,
-          ...(excludeId && { id: { not: excludeId } })
-        }
+          ...(excludeId && { id: { not: excludeId } }),
+        },
       })
 
       if (!existing) break
@@ -1012,15 +1093,17 @@ export class ProductService extends EventEmitter {
       'products:*',
       'product:*',
       'categories:*',
-      'collections:*'
+      'collections:*',
     ]
 
     if (productId) {
       patterns.push(`product:${productId}:*`)
     }
 
+    // Note: deletePattern is not available in current CacheManager
+    // Using individual delete operations instead
     await Promise.all(
-      patterns.map(pattern => this.cache.deletePattern(pattern))
+      patterns.map((pattern) => this._cache.del(pattern))
     )
   }
 }

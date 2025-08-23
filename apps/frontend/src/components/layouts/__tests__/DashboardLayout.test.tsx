@@ -1,4 +1,5 @@
-import React from 'react'
+import { describe, it, expect, vi } from 'vitest'
+
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
@@ -8,8 +9,8 @@ import authReducer from '../../../store/slices/authSlice'
 import uiReducer from '../../../store/slices/uiSlice'
 
 // Mock the Outlet component
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   Outlet: () => <div data-testid='outlet'>Page Content</div>,
 }))
 
@@ -27,11 +28,11 @@ const createMockStore = (initialState: Record<string, unknown> = {}) => {
           email: 'test@example.com',
           firstName: 'John',
           lastName: 'Doe',
-          avatar: null,
+          avatar: undefined,
           role: 'admin',
           permissions: [],
           preferences: {
-            theme: 'light',
+            theme: 'light' as const,
             language: 'en',
             timezone: 'UTC',
             notifications: {
@@ -40,7 +41,7 @@ const createMockStore = (initialState: Record<string, unknown> = {}) => {
               sms: false,
             },
             dashboard: {
-              layout: 'grid',
+              layout: 'grid' as const,
               widgets: [],
             },
           },
@@ -56,13 +57,13 @@ const createMockStore = (initialState: Record<string, unknown> = {}) => {
         sessionExpiry: Date.now() + 3600000,
         lastActivity: Date.now(),
         rememberMe: false,
-        ...initialState.auth,
+        ...(initialState.auth as Record<string, unknown>),
       },
       ui: {
         sidebarCollapsed: false,
         sidebarWidth: 256,
         headerHeight: 64,
-        theme: 'light',
+        theme: 'light' as const,
         primaryColor: '#1890ff',
         modals: {
           productCreate: { id: 'productCreate', isOpen: false },
@@ -93,14 +94,14 @@ const createMockStore = (initialState: Record<string, unknown> = {}) => {
         pageTitle: '',
         globalSearch: '',
         activeFilters: {},
-        viewMode: 'grid',
+        viewMode: 'grid' as const,
         pageSize: 20,
         sortBy: 'createdAt',
-        sortOrder: 'desc',
+        sortOrder: 'desc' as const,
         isOnline: true,
         websocketConnected: false,
         errorBoundaries: {},
-        ...initialState.ui,
+        ...(initialState.ui as Record<string, unknown>),
       },
     },
   })
@@ -116,6 +117,8 @@ const renderWithProviders = (initialState: Record<string, unknown> = {}) => {
     </Provider>
   )
 }
+
+// Fix the spread type errors by properly typing the props
 
 describe('DashboardLayout', () => {
   it('should render the layout with sidebar and header', () => {

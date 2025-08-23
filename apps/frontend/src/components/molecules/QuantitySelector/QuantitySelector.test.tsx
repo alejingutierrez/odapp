@@ -1,7 +1,7 @@
-import React from 'react'
+
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
+import { vi, expect } from 'vitest'
 import { QuantitySelector } from './QuantitySelector'
 
 describe('QuantitySelector', () => {

@@ -1,5 +1,5 @@
-import type { Preview } from '@storybook/react';
-import 'antd/dist/reset.css';
+import type { Preview } from '@storybook/react'
+import 'antd/dist/reset.css'
 
 const preview: Preview = {
   parameters: {
@@ -11,6 +11,6 @@ const preview: Preview = {
     },
     layout: 'centered',
   },
-};
+}
 
-export default preview;
+export default preview

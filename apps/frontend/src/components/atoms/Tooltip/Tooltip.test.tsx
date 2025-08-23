@@ -5,7 +5,7 @@ import { Tooltip } from './Tooltip'
 describe('Tooltip', () => {
   it('renders with trigger element', () => {
     render(
-      <Tooltip title='Tooltip text'>
+      <Tooltip content='Tooltip text'>
         <span>Hover me</span>
       </Tooltip>
     )
@@ -14,7 +14,7 @@ describe('Tooltip', () => {
 
   it('shows tooltip on hover', async () => {
     render(
-      <Tooltip title='Tooltip text'>
+      <Tooltip content='Tooltip text'>
         <span>Hover me</span>
       </Tooltip>
     )
@@ -25,7 +25,7 @@ describe('Tooltip', () => {
 
   it('applies placement correctly', () => {
     const { container } = render(
-      <Tooltip title='Tooltip text' placement='top'>
+      <Tooltip content='Tooltip text' placement='top'>
         <span>Hover me</span>
       </Tooltip>
     )
@@ -35,7 +35,7 @@ describe('Tooltip', () => {
 
   it('handles different triggers', () => {
     render(
-      <Tooltip title='Tooltip text' trigger='click'>
+      <Tooltip content='Tooltip text' trigger='click'>
         <span>Click me</span>
       </Tooltip>
     )
@@ -46,7 +46,7 @@ describe('Tooltip', () => {
 
   it('applies color variants', () => {
     const { container } = render(
-      <Tooltip title='Tooltip text' color='blue'>
+      <Tooltip content='Tooltip text' color='blue'>
         <span>Hover me</span>
       </Tooltip>
     )

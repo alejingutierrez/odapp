@@ -4,6 +4,7 @@ import { TwoFactorService } from '../lib/two-factor'
 
 // Extend Express Request type to include user
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: UserWithRoles
@@ -27,29 +28,29 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
 
     const token = authHeader.substring(7) // Remove 'Bearer ' prefix
-    
+
     // Verify JWT token
     const tokenPayload = await AuthService.verifyToken(token)
-    
+
     // Validate session
     const user = await AuthService.validateSession(tokenPayload.sessionId)
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
         error: 'Invalid or expired session',
-        code: 'SESSION_INVALID'
+        code: 'SESSION_INVALID',
       })
       return
     }
@@ -59,7 +60,7 @@ export const authenticate = async (
       res.status(423).json({
         success: false,
         error: 'Account is temporarily locked',
-        code: 'ACCOUNT_LOCKED'
+        code: 'ACCOUNT_LOCKED',
       })
       return
     }
@@ -74,7 +75,7 @@ export const authenticate = async (
     res.status(401).json({
       success: false,
       error: 'Invalid authentication token',
-      code: 'TOKEN_INVALID'
+      code: 'TOKEN_INVALID',
     })
   }
 }
@@ -89,7 +90,7 @@ export const optionalAuthenticate = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       next()
       return
@@ -98,7 +99,7 @@ export const optionalAuthenticate = async (
     const token = authHeader.substring(7)
     const tokenPayload = await AuthService.verifyToken(token)
     const user = await AuthService.validateSession(tokenPayload.sessionId)
-    
+
     if (user && !AuthService.isAccountLocked(user)) {
       req.user = user
       req.tokenPayload = tokenPayload
@@ -124,13 +125,15 @@ export const requireTwoFactor = async (
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
 
-    const twoFactorEnabled = await TwoFactorService.isTwoFactorEnabled(req.user.id)
-    
+    const twoFactorEnabled = await TwoFactorService.isTwoFactorEnabled(
+      req.user.id
+    )
+
     if (!twoFactorEnabled) {
       next()
       return
@@ -138,12 +141,12 @@ export const requireTwoFactor = async (
 
     const twoFactorToken = req.headers['x-two-factor-token'] as string
     const backupCode = req.headers['x-backup-code'] as string
-    
+
     if (!twoFactorToken && !backupCode) {
       res.status(403).json({
         success: false,
         error: 'Two-factor authentication required',
-        code: 'TWO_FACTOR_REQUIRED'
+        code: 'TWO_FACTOR_REQUIRED',
       })
       return
     }
@@ -152,19 +155,22 @@ export const requireTwoFactor = async (
 
     // Try TOTP token first
     if (twoFactorToken) {
-      isValid = await TwoFactorService.verifyUserTwoFactor(req.user.id, twoFactorToken)
+      isValid = await TwoFactorService.verifyUserTwoFactor(
+        req.user.id,
+        twoFactorToken
+      )
     }
 
     // If TOTP failed, try backup code
     if (!isValid && backupCode) {
       isValid = await TwoFactorService.verifyBackupCode(req.user.id, backupCode)
     }
-    
+
     if (!isValid) {
       res.status(403).json({
         success: false,
         error: 'Invalid two-factor authentication code or backup code',
-        code: 'TWO_FACTOR_INVALID'
+        code: 'TWO_FACTOR_INVALID',
       })
       return
     }
@@ -175,7 +181,7 @@ export const requireTwoFactor = async (
     res.status(500).json({
       success: false,
       error: 'Two-factor authentication failed',
-      code: 'TWO_FACTOR_ERROR'
+      code: 'TWO_FACTOR_ERROR',
     })
   }
 }
@@ -189,7 +195,7 @@ export const requirePermission = (permission: string) => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
@@ -199,7 +205,7 @@ export const requirePermission = (permission: string) => {
         success: false,
         error: 'Insufficient permissions',
         code: 'PERMISSION_DENIED',
-        required: permission
+        required: permission,
       })
       return
     }
@@ -217,7 +223,7 @@ export const requireAnyPermission = (permissions: string[]) => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
@@ -227,7 +233,7 @@ export const requireAnyPermission = (permissions: string[]) => {
         success: false,
         error: 'Insufficient permissions',
         code: 'PERMISSION_DENIED',
-        required: permissions
+        required: permissions,
       })
       return
     }
@@ -245,7 +251,7 @@ export const requireAllPermissions = (permissions: string[]) => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
@@ -255,7 +261,7 @@ export const requireAllPermissions = (permissions: string[]) => {
         success: false,
         error: 'Insufficient permissions',
         code: 'PERMISSION_DENIED',
-        required: permissions
+        required: permissions,
       })
       return
     }
@@ -273,7 +279,7 @@ export const requireRole = (roleName: string) => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
@@ -283,7 +289,7 @@ export const requireRole = (roleName: string) => {
         success: false,
         error: 'Insufficient role privileges',
         code: 'ROLE_DENIED',
-        required: roleName
+        required: roleName,
       })
       return
     }
@@ -301,19 +307,21 @@ export const requireAnyRole = (roleNames: string[]) => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
 
-    const hasAnyRole = roleNames.some(roleName => AuthService.hasRole(req.user!, roleName))
-    
+    const hasAnyRole = roleNames.some((roleName) =>
+      AuthService.hasRole(req.user!, roleName)
+    )
+
     if (!hasAnyRole) {
       res.status(403).json({
         success: false,
         error: 'Insufficient role privileges',
         code: 'ROLE_DENIED',
-        required: roleNames
+        required: roleNames,
       })
       return
     }
@@ -336,7 +344,7 @@ export const requireSelfOrAdmin = (userIdParam: string = 'userId') => {
       res.status(401).json({
         success: false,
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       })
       return
     }
@@ -349,7 +357,39 @@ export const requireSelfOrAdmin = (userIdParam: string = 'userId') => {
       res.status(403).json({
         success: false,
         error: 'Access denied - can only access own data or admin required',
-        code: 'ACCESS_DENIED'
+        code: 'ACCESS_DENIED',
+      })
+      return
+    }
+
+    next()
+  }
+}
+
+/**
+ * Authorization middleware - checks if user has required permissions
+ */
+export const authorize = (permissions: string[]) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        code: 'AUTH_REQUIRED',
+      })
+      return
+    }
+
+    const hasPermission = permissions.some((permission) =>
+      AuthService.hasPermission(req.user!, permission)
+    )
+
+    if (!hasPermission) {
+      res.status(403).json({
+        success: false,
+        error: 'Insufficient permissions',
+        code: 'PERMISSION_DENIED',
+        required: permissions,
       })
       return
     }
@@ -361,7 +401,10 @@ export const requireSelfOrAdmin = (userIdParam: string = 'userId') => {
 /**
  * Rate limiting middleware for authentication endpoints
  */
-export const authRateLimit = (maxAttempts: number = 5, windowMinutes: number = 15) => {
+export const authRateLimit = (
+  maxAttempts: number = 5,
+  windowMinutes: number = 15
+) => {
   const attempts = new Map<string, { count: number; resetTime: number }>()
 
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -382,7 +425,7 @@ export const authRateLimit = (maxAttempts: number = 5, windowMinutes: number = 1
         success: false,
         error: 'Too many authentication attempts',
         code: 'RATE_LIMIT_EXCEEDED',
-        retryAfter: Math.ceil((clientAttempts.resetTime - now) / 1000)
+        retryAfter: Math.ceil((clientAttempts.resetTime - now) / 1000),
       })
       return
     }

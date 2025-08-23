@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { notification } from 'antd'
-import { 
-  selectNotifications, 
+import {
+  selectNotifications,
   removeNotification,
-  markNotificationAsRead 
+  markNotificationAsRead,
 } from '../../store/slices/uiSlice'
 import { AppDispatch } from '../../store'
 
@@ -12,7 +12,9 @@ interface NotificationProviderProps {
   children: React.ReactNode
 }
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
+export const NotificationProvider: React.FC<NotificationProviderProps> = ({
+  children,
+}) => {
   const dispatch = useDispatch<AppDispatch>()
   const notifications = useSelector(selectNotifications)
   const [api, contextHolder] = notification.useNotification()
@@ -31,7 +33,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           },
           onClick: () => {
             dispatch(markNotificationAsRead(notif.id))
-            
+
             // Handle notification actions
             if (notif.actions && notif.actions.length > 0) {
               const primaryAction = notif.actions[0]
@@ -43,9 +45,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           style: {
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          }
+          },
         })
-        
+
         // Mark as read after showing
         setTimeout(() => {
           dispatch(markNotificationAsRead(notif.id))

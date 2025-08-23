@@ -6,6 +6,7 @@ import { ApiError } from '../lib/errors.js'
 const createLogger = () => {
   try {
     // Use dynamic import but handle it synchronously for now
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const loggerModule = require('../lib/logger.js')
     return loggerModule.logger || loggerModule.default
   } catch {
@@ -51,11 +52,11 @@ export const validate = (schema: {
       next()
     } catch (error) {
       if (error instanceof ZodError) {
-        const validationErrors = error.errors.map(err => ({
+        const validationErrors = error.errors.map((err) => ({
           field: err.path.join('.'),
           message: err.message,
           code: err.code,
-          received: (err as any).received || undefined,
+          received: (err as { received?: unknown }).received || undefined,
         }))
 
         logger.warn('Validation error', {
@@ -150,7 +151,9 @@ export const validateFileUpload = (options: {
       // Validate multiple files
       if (files) {
         if (options.maxFiles && files.length > options.maxFiles) {
-          return next(new ApiError(400, `Maximum ${options.maxFiles} files allowed`))
+          return next(
+            new ApiError(400, `Maximum ${options.maxFiles} files allowed`)
+          )
         }
 
         for (const uploadedFile of files) {
@@ -166,24 +169,35 @@ export const validateFileUpload = (options: {
 }
 
 // Validate individual file
-const validateSingleFile = (file: Express.Multer.File, options: {
-  allowedMimeTypes?: string[]
-  maxFileSize?: number
-}) => {
+const validateSingleFile = (
+  file: Express.Multer.File,
+  options: {
+    allowedMimeTypes?: string[]
+    maxFileSize?: number
+  }
+) => {
   // Check file size
   if (options.maxFileSize && file.size > options.maxFileSize) {
-    throw new ApiError(400, `File size must be less than ${options.maxFileSize} bytes`)
+    throw new ApiError(
+      400,
+      `File size must be less than ${options.maxFileSize} bytes`
+    )
   }
 
   // Check MIME type
-  if (options.allowedMimeTypes && !options.allowedMimeTypes.includes(file.mimetype)) {
+  if (
+    options.allowedMimeTypes &&
+    !options.allowedMimeTypes.includes(file.mimetype)
+  ) {
     throw new ApiError(400, `File type ${file.mimetype} is not allowed`)
   }
 
   // Check for malicious file extensions
   const dangerousExtensions = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com']
-  const fileExtension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'))
-  
+  const fileExtension = file.originalname
+    .toLowerCase()
+    .substring(file.originalname.lastIndexOf('.'))
+
   if (dangerousExtensions.includes(fileExtension)) {
     throw new ApiError(400, 'File type is not allowed for security reasons')
   }
@@ -207,7 +221,7 @@ const sanitizeObject = (obj: unknown): unknown => {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeObject(item))
+    return obj.map((item) => sanitizeObject(item))
   }
 
   if (obj && typeof obj === 'object') {
@@ -225,36 +239,43 @@ const sanitizeObject = (obj: unknown): unknown => {
 export const validateRateLimit = (options: {
   windowMs: number
   maxRequests: number
-  keyGenerator?: (req: Request) => string
+  keyGenerator?: (_req: Request) => string
 }) => {
   const requests = new Map<string, { count: number; resetTime: number }>()
 
-  return (req: Request, res: Response, next: NextFunction) => {
-    const key = options.keyGenerator ? options.keyGenerator(req) : (req.ip || 'unknown')
+  return (_req: Request, res: Response, next: NextFunction) => {
+    const key = options.keyGenerator
+      ? options.keyGenerator(_req)
+      : _req.ip || 'unknown'
     const now = Date.now()
     const windowStart = now - options.windowMs
 
     // Clean up old entries
-    for (const [k, v] of requests.entries()) {
+    for (const [k, v] of Array.from(requests.entries())) {
       if (v.resetTime < windowStart) {
         requests.delete(k)
       }
     }
 
     // Get or create request count for this key
-    const requestData = requests.get(key) || { count: 0, resetTime: now + options.windowMs }
+    const requestData = requests.get(key) || {
+      count: 0,
+      resetTime: now + options.windowMs,
+    }
 
     // Check if limit exceeded
     if (requestData.count >= options.maxRequests) {
       const resetIn = Math.ceil((requestData.resetTime - now) / 1000)
-      
+
       res.set({
         'X-RateLimit-Limit': options.maxRequests.toString(),
         'X-RateLimit-Remaining': '0',
         'X-RateLimit-Reset': requestData.resetTime.toString(),
       })
 
-      return next(new ApiError(429, `Too many requests. Try again in ${resetIn} seconds`))
+      return next(
+        new ApiError(429, `Too many requests. Try again in ${resetIn} seconds`)
+      )
     }
 
     // Increment request count
@@ -264,7 +285,9 @@ export const validateRateLimit = (options: {
     // Set rate limit headers
     res.set({
       'X-RateLimit-Limit': options.maxRequests.toString(),
-      'X-RateLimit-Remaining': (options.maxRequests - requestData.count).toString(),
+      'X-RateLimit-Remaining': (
+        options.maxRequests - requestData.count
+      ).toString(),
       'X-RateLimit-Reset': requestData.resetTime.toString(),
     })
 
@@ -274,14 +297,14 @@ export const validateRateLimit = (options: {
 
 // Conditional validation middleware
 export const validateIf = (
-  condition: (req: Request) => boolean,
+  condition: (_req: Request) => boolean,
   schema: ZodSchema
 ) => {
-  return async (_req: Request, _res: Response, _next: NextFunction) => {
+  return async (_req: Request, res: Response, next: NextFunction) => {
     if (condition(_req)) {
-      return validate({ body: schema })(_req, _res, _next)
+      return validate({ body: schema })(_req, res, next)
     }
-    _next()
+    next()
   }
 }
 
@@ -289,18 +312,18 @@ export const validateIf = (
 export const formatValidationError = (_error: ZodError) => {
   return {
     message: 'Validation failed',
-    errors: _error.errors.map(err => ({
+    errors: _error.errors.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
       code: err.code,
-      received: (err as any).received || undefined,
+      received: (err as { received?: unknown }).received || undefined,
     })),
   }
 }
 
 // Custom validation helpers
 export const createCustomValidator = <T>(
-  validator: (value: T) => boolean | Promise<boolean>,
+  validator: (_value: T) => boolean | Promise<boolean>,
   message: string
 ) => {
   return z.custom<T>((value) => validator(value as T), { message })
@@ -309,7 +332,7 @@ export const createCustomValidator = <T>(
 // Async validation helper
 export const asyncValidate = <T>(
   schema: ZodSchema<T>,
-  asyncValidator: (value: T) => Promise<boolean>,
+  asyncValidator: (_value: T) => Promise<boolean>,
   errorMessage: string
 ) => {
   return schema.refine(asyncValidator, { message: errorMessage })
@@ -320,7 +343,7 @@ export const commonValidationSchemas = {
   id: z.object({
     id: z.string().uuid('Invalid ID format'),
   }),
-  
+
   pagination: z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(20),
@@ -333,11 +356,16 @@ export const commonValidationSchemas = {
     filters: z.record(z.unknown()).optional(),
   }),
 
-  dateRange: z.object({
-    startDate: z.string().datetime().optional(),
-    endDate: z.string().datetime().optional(),
-  }).refine(
-    (data) => !data.startDate || !data.endDate || new Date(data.startDate) <= new Date(data.endDate),
-    { message: 'Start date must be before end date', path: ['endDate'] }
-  ),
+  dateRange: z
+    .object({
+      startDate: z.string().datetime().optional(),
+      endDate: z.string().datetime().optional(),
+    })
+    .refine(
+      (data) =>
+        !data.startDate ||
+        !data.endDate ||
+        new Date(data.startDate) <= new Date(data.endDate),
+      { message: 'Start date must be before end date', path: ['endDate'] }
+    ),
 }

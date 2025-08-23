@@ -1,12 +1,5 @@
 import { z } from 'zod'
-import { 
-  uuidSchema, 
-  emailSchema, 
-  phoneSchema,
-  urlSchema,
-  sanitizeString,
-  paginationSchema
-} from './common.js'
+import { uuidSchema, paginationSchema } from './common.js'
 
 // Shopify webhook event types
 export const shopifyWebhookTopicSchema = z.enum([
@@ -33,14 +26,14 @@ export const shopifySyncStatusSchema = z.enum([
   'syncing',
   'completed',
   'failed',
-  'paused'
+  'paused',
 ])
 
 // Shopify sync direction
 export const shopifySyncDirectionSchema = z.enum([
   'to_shopify',
   'from_shopify',
-  'bidirectional'
+  'bidirectional',
 ])
 
 // Shopify product sync schema
@@ -52,7 +45,9 @@ export const shopifyProductSyncSchema = z.object({
   lastSyncAt: z.string().datetime().optional(),
   syncStatus: shopifySyncStatusSchema.default('idle'),
   syncDirection: shopifySyncDirectionSchema.default('bidirectional'),
-  conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('manual'),
+  conflictResolution: z
+    .enum(['local_wins', 'shopify_wins', 'manual'])
+    .default('manual'),
   errors: z.array(z.string()).default([]),
   metadata: z.record(z.any()).optional(),
 })
@@ -68,7 +63,9 @@ export const shopifyInventorySyncSchema = z.object({
   syncStatus: shopifySyncStatusSchema.default('idle'),
   localQuantity: z.number().int().min(0),
   shopifyQuantity: z.number().int().min(0),
-  conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('manual'),
+  conflictResolution: z
+    .enum(['local_wins', 'shopify_wins', 'manual'])
+    .default('manual'),
   errors: z.array(z.string()).default([]),
 })
 
@@ -80,7 +77,9 @@ export const shopifyOrderSyncSchema = z.object({
   shopifyOrderNumber: z.string(),
   lastSyncAt: z.string().datetime().optional(),
   syncStatus: shopifySyncStatusSchema.default('idle'),
-  importStatus: z.enum(['pending', 'imported', 'failed', 'skipped']).default('pending'),
+  importStatus: z
+    .enum(['pending', 'imported', 'failed', 'skipped'])
+    .default('pending'),
   errors: z.array(z.string()).default([]),
   metadata: z.record(z.any()).optional(),
 })
@@ -93,7 +92,9 @@ export const shopifyCustomerSyncSchema = z.object({
   lastSyncAt: z.string().datetime().optional(),
   syncStatus: shopifySyncStatusSchema.default('idle'),
   syncDirection: shopifySyncDirectionSchema.default('from_shopify'),
-  conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('shopify_wins'),
+  conflictResolution: z
+    .enum(['local_wins', 'shopify_wins', 'manual'])
+    .default('shopify_wins'),
   errors: z.array(z.string()).default([]),
   metadata: z.record(z.any()).optional(),
 })
@@ -115,63 +116,94 @@ export const shopifyWebhookSchema = z.object({
 
 // Shopify API configuration schema
 export const shopifyConfigSchema = z.object({
-  shopDomain: z.string().regex(/^[a-zA-Z0-9-]+\.myshopify\.com$/, 'Invalid Shopify domain format'),
+  shopDomain: z
+    .string()
+    .regex(/^[a-zA-Z0-9-]+\.myshopify\.com$/, 'Invalid Shopify domain format'),
   accessToken: z.string().min(1, 'Access token is required'),
-  apiVersion: z.string().regex(/^\d{4}-\d{2}$/, 'Invalid API version format (YYYY-MM)').default('2024-01'),
+  apiVersion: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, 'Invalid API version format (YYYY-MM)')
+    .default('2024-01'),
   webhookSecret: z.string().min(1, 'Webhook secret is required'),
-  scopes: z.array(z.string()).default([
-    'read_products',
-    'write_products',
-    'read_inventory',
-    'write_inventory',
-    'read_orders',
-    'read_customers',
-    'write_customers'
-  ]),
+  scopes: z
+    .array(z.string())
+    .default([
+      'read_products',
+      'write_products',
+      'read_inventory',
+      'write_inventory',
+      'read_orders',
+      'read_customers',
+      'write_customers',
+    ]),
   isActive: z.boolean().default(true),
-  rateLimitSettings: z.object({
-    maxRequestsPerSecond: z.number().min(1).max(10).default(2),
-    burstLimit: z.number().min(1).max(40).default(40),
-    retryDelay: z.number().min(1000).max(60000).default(1000),
-    maxRetries: z.number().min(1).max(5).default(3),
-  }).default({}),
+  rateLimitSettings: z
+    .object({
+      maxRequestsPerSecond: z.number().min(1).max(10).default(2),
+      burstLimit: z.number().min(1).max(40).default(40),
+      retryDelay: z.number().min(1000).max(60000).default(1000),
+      maxRetries: z.number().min(1).max(5).default(3),
+    })
+    .default({}),
 })
 
 // Shopify sync configuration schema
 export const shopifySyncConfigSchema = z.object({
-  products: z.object({
-    enabled: z.boolean().default(true),
-    direction: shopifySyncDirectionSchema.default('bidirectional'),
-    autoSync: z.boolean().default(true),
-    syncInterval: z.number().min(300).max(86400).default(3600), // 5 minutes to 24 hours
-    conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('manual'),
-    fieldsToSync: z.array(z.string()).default([
-      'title', 'description', 'vendor', 'product_type', 'tags', 'images', 'variants'
-    ]),
-  }).default({}),
-  inventory: z.object({
-    enabled: z.boolean().default(true),
-    direction: shopifySyncDirectionSchema.default('to_shopify'),
-    autoSync: z.boolean().default(true),
-    syncInterval: z.number().min(60).max(3600).default(300), // 1 minute to 1 hour
-    conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('local_wins'),
-    locations: z.array(z.string()).default([]), // Shopify location IDs
-  }).default({}),
-  orders: z.object({
-    enabled: z.boolean().default(true),
-    direction: shopifySyncDirectionSchema.default('from_shopify'),
-    autoImport: z.boolean().default(true),
-    importInterval: z.number().min(300).max(3600).default(600), // 5 minutes to 1 hour
-    statusesToImport: z.array(z.string()).default(['open', 'closed']),
-    createCustomers: z.boolean().default(true),
-  }).default({}),
-  customers: z.object({
-    enabled: z.boolean().default(true),
-    direction: shopifySyncDirectionSchema.default('from_shopify'),
-    autoSync: z.boolean().default(false),
-    syncInterval: z.number().min(3600).max(86400).default(86400), // 1 hour to 24 hours
-    conflictResolution: z.enum(['local_wins', 'shopify_wins', 'manual']).default('shopify_wins'),
-  }).default({}),
+  products: z
+    .object({
+      enabled: z.boolean().default(true),
+      direction: shopifySyncDirectionSchema.default('bidirectional'),
+      autoSync: z.boolean().default(true),
+      syncInterval: z.number().min(300).max(86400).default(3600), // 5 minutes to 24 hours
+      conflictResolution: z
+        .enum(['local_wins', 'shopify_wins', 'manual'])
+        .default('manual'),
+      fieldsToSync: z
+        .array(z.string())
+        .default([
+          'title',
+          'description',
+          'vendor',
+          'product_type',
+          'tags',
+          'images',
+          'variants',
+        ]),
+    })
+    .default({}),
+  inventory: z
+    .object({
+      enabled: z.boolean().default(true),
+      direction: shopifySyncDirectionSchema.default('to_shopify'),
+      autoSync: z.boolean().default(true),
+      syncInterval: z.number().min(60).max(3600).default(300), // 1 minute to 1 hour
+      conflictResolution: z
+        .enum(['local_wins', 'shopify_wins', 'manual'])
+        .default('local_wins'),
+      locations: z.array(z.string()).default([]), // Shopify location IDs
+    })
+    .default({}),
+  orders: z
+    .object({
+      enabled: z.boolean().default(true),
+      direction: shopifySyncDirectionSchema.default('from_shopify'),
+      autoImport: z.boolean().default(true),
+      importInterval: z.number().min(300).max(3600).default(600), // 5 minutes to 1 hour
+      statusesToImport: z.array(z.string()).default(['open', 'closed']),
+      createCustomers: z.boolean().default(true),
+    })
+    .default({}),
+  customers: z
+    .object({
+      enabled: z.boolean().default(true),
+      direction: shopifySyncDirectionSchema.default('from_shopify'),
+      autoSync: z.boolean().default(false),
+      syncInterval: z.number().min(3600).max(86400).default(86400), // 1 hour to 24 hours
+      conflictResolution: z
+        .enum(['local_wins', 'shopify_wins', 'manual'])
+        .default('shopify_wins'),
+    })
+    .default({}),
 })
 
 // Shopify sync operation schema
@@ -180,20 +212,26 @@ export const shopifySyncOperationSchema = z.object({
   type: z.enum(['products', 'inventory', 'orders', 'customers', 'full_sync']),
   direction: shopifySyncDirectionSchema,
   status: shopifySyncStatusSchema.default('idle'),
-  progress: z.object({
-    total: z.number().int().min(0).default(0),
-    processed: z.number().int().min(0).default(0),
-    successful: z.number().int().min(0).default(0),
-    failed: z.number().int().min(0).default(0),
-    skipped: z.number().int().min(0).default(0),
-  }).default({}),
+  progress: z
+    .object({
+      total: z.number().int().min(0).default(0),
+      processed: z.number().int().min(0).default(0),
+      successful: z.number().int().min(0).default(0),
+      failed: z.number().int().min(0).default(0),
+      skipped: z.number().int().min(0).default(0),
+    })
+    .default({}),
   filters: z.record(z.any()).optional(),
-  errors: z.array(z.object({
-    entityId: z.string(),
-    entityType: z.string(),
-    error: z.string(),
-    timestamp: z.string().datetime(),
-  })).default([]),
+  errors: z
+    .array(
+      z.object({
+        entityId: z.string(),
+        entityType: z.string(),
+        error: z.string(),
+        timestamp: z.string().datetime(),
+      })
+    )
+    .default([]),
   startedAt: z.string().datetime().optional(),
   completedAt: z.string().datetime().optional(),
   createdBy: uuidSchema.optional(),
@@ -219,20 +257,35 @@ export const shopifyWebhookVerificationSchema = z.object({
 export const shopifyProductMappingSchema = z.object({
   localField: z.string(),
   shopifyField: z.string(),
-  transformation: z.enum(['none', 'string_to_array', 'array_to_string', 'price_to_cents', 'cents_to_price']).default('none'),
+  transformation: z
+    .enum([
+      'none',
+      'string_to_array',
+      'array_to_string',
+      'price_to_cents',
+      'cents_to_price',
+    ])
+    .default('none'),
   defaultValue: z.any().optional(),
   required: z.boolean().default(false),
 })
 
 // Shopify bulk operation schema
 export const shopifyBulkOperationSchema = z.object({
-  operation: z.enum(['product_sync', 'inventory_sync', 'order_import', 'customer_sync']),
+  operation: z.enum([
+    'product_sync',
+    'inventory_sync',
+    'order_import',
+    'customer_sync',
+  ]),
   entityIds: z.array(z.string()).min(1, 'At least one entity ID is required'),
-  options: z.object({
-    forceSync: z.boolean().default(false),
-    skipValidation: z.boolean().default(false),
-    batchSize: z.number().min(1).max(100).default(10),
-  }).optional(),
+  options: z
+    .object({
+      forceSync: z.boolean().default(false),
+      skipValidation: z.boolean().default(false),
+      batchSize: z.number().min(1).max(100).default(10),
+    })
+    .optional(),
 })
 
 // Query schemas
@@ -272,9 +325,13 @@ export type ShopifyConfig = z.infer<typeof shopifyConfigSchema>
 export type ShopifySyncConfig = z.infer<typeof shopifySyncConfigSchema>
 export type ShopifySyncOperation = z.infer<typeof shopifySyncOperationSchema>
 export type ShopifyApiRequest = z.infer<typeof shopifyApiRequestSchema>
-export type ShopifyWebhookVerification = z.infer<typeof shopifyWebhookVerificationSchema>
+export type ShopifyWebhookVerification = z.infer<
+  typeof shopifyWebhookVerificationSchema
+>
 export type ShopifyProductMapping = z.infer<typeof shopifyProductMappingSchema>
 export type ShopifyBulkOperation = z.infer<typeof shopifyBulkOperationSchema>
-export type ShopifyProductSyncQuery = z.infer<typeof shopifyProductSyncQuerySchema>
+export type ShopifyProductSyncQuery = z.infer<
+  typeof shopifyProductSyncQuerySchema
+>
 export type ShopifyOrderSyncQuery = z.infer<typeof shopifyOrderSyncQuerySchema>
 export type ShopifyWebhookQuery = z.infer<typeof shopifyWebhookQuerySchema>

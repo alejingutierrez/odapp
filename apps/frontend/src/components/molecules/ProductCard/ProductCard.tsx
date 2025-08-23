@@ -7,7 +7,7 @@ import {
   HeartOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons'
-import { Typography, Badge } from '../../atoms'
+import { Typography, Badge } from 'antd'
 import { StatusIndicator } from '../StatusIndicator'
 import { PriceDisplay } from '../PriceDisplay'
 import { ActionButtonGroup, type ActionButton } from '../ActionButtonGroup'
@@ -179,8 +179,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <Tooltip title={product.name}>
             <Typography.Title
               level={5}
-              ellipsis={{ rows: 2 }}
               className='product-card__title'
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+              }}
             >
               {product.name}
             </Typography.Title>
@@ -206,8 +212,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
               {showInventory && (
                 <Typography.Text
-                  type={totalInventory > 0 ? 'success' : 'danger'}
                   className='product-card__inventory'
+                  style={{ color: totalInventory > 0 ? '#52c41a' : '#ff4d4f' }}
                 >
                   {totalInventory > 0
                     ? `${totalInventory} in stock`
@@ -218,8 +224,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             {product.category && (
               <Typography.Text
-                type='secondary'
                 className='product-card__category'
+                style={{ color: 'rgba(0, 0, 0, 0.45)' }}
               >
                 {product.category}
               </Typography.Text>

@@ -8,24 +8,25 @@ const meta: Meta<typeof SeasonalTag> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A seasonal tag for fashion collections with trend indicators and animations.'
-      }
-    }
+        component:
+          'A seasonal tag for fashion collections with trend indicators and animations.',
+      },
+    },
   },
   argTypes: {
     season: {
       control: { type: 'select' },
-      options: ['spring', 'summer', 'autumn', 'winter']
+      options: ['spring', 'summer', 'autumn', 'winter'],
     },
     trendLevel: {
       control: { type: 'select' },
-      options: ['low', 'medium', 'high', 'trending']
+      options: ['low', 'medium', 'high', 'trending'],
     },
     size: {
       control: { type: 'select' },
-      options: ['small', 'default', 'large']
-    }
-  }
+      options: ['small', 'default', 'large'],
+    },
+  },
 }
 
 export default meta
@@ -35,8 +36,8 @@ export const Spring: Story = {
   args: {
     season: 'spring',
     year: 2024,
-    collection: 'Fresh Blooms'
-  }
+    collection: 'Fresh Blooms',
+  },
 }
 
 export const Summer: Story = {
@@ -44,8 +45,8 @@ export const Summer: Story = {
     season: 'summer',
     year: 2024,
     collection: 'Beach Vibes',
-    trendLevel: 'trending'
-  }
+    trendLevel: 'trending',
+  },
 }
 
 export const Autumn: Story = {
@@ -53,8 +54,8 @@ export const Autumn: Story = {
     season: 'autumn',
     year: 2024,
     collection: 'Cozy Layers',
-    trendLevel: 'high'
-  }
+    trendLevel: 'high',
+  },
 }
 
 export const Winter: Story = {
@@ -62,23 +63,23 @@ export const Winter: Story = {
     season: 'winter',
     year: 2024,
     collection: 'Winter Warmth',
-    animated: true
-  }
+    animated: true,
+  },
 }
 
 export const WithoutYear: Story = {
   args: {
     season: 'spring',
-    collection: 'Timeless Collection'
-  }
+    collection: 'Timeless Collection',
+  },
 }
 
 export const WithoutCollection: Story = {
   args: {
     season: 'summer',
     year: 2024,
-    trendLevel: 'trending'
-  }
+    trendLevel: 'trending',
+  },
 }
 
 export const Trending: Story = {
@@ -87,16 +88,16 @@ export const Trending: Story = {
     year: 2024,
     collection: 'Hot Trends',
     trendLevel: 'trending',
-    animated: true
-  }
+    animated: true,
+  },
 }
 
 export const Small: Story = {
   args: {
     season: 'winter',
     year: 2024,
-    size: 'small'
-  }
+    size: 'small',
+  },
 }
 
 export const Large: Story = {
@@ -105,17 +106,27 @@ export const Large: Story = {
     year: 2024,
     collection: 'Premium Collection',
     size: 'large',
-    trendLevel: 'high'
-  }
+    trendLevel: 'high',
+  },
 }
 
 export const AllSeasons: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <SeasonalTag season="spring" year={2024} collection="Fresh" />
-      <SeasonalTag season="summer" year={2024} collection="Bright" trendLevel="trending" />
-      <SeasonalTag season="autumn" year={2024} collection="Warm" trendLevel="high" />
-      <SeasonalTag season="winter" year={2024} collection="Cozy" animated />
+      <SeasonalTag season='spring' year={2024} collection='Fresh' />
+      <SeasonalTag
+        season='summer'
+        year={2024}
+        collection='Bright'
+        trendLevel='trending'
+      />
+      <SeasonalTag
+        season='autumn'
+        year={2024}
+        collection='Warm'
+        trendLevel='high'
+      />
+      <SeasonalTag season='winter' year={2024} collection='Cozy' animated />
     </div>
-  )
+  ),
 }

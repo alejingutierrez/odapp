@@ -1,11 +1,17 @@
 import React from 'react'
-import { Typography as AntTypography, TypographyProps as AntTypographyProps } from 'antd'
+import {
+  Typography as AntTypography,
+} from 'antd'
 import './Typography.css'
 
-const { Title: AntTitle, Text: AntText, Paragraph: AntParagraph } = AntTypography
+const {
+  Title: AntTitle,
+  Text: AntText,
+  Paragraph: AntParagraph,
+} = AntTypography
 
 // Title Component
-export interface TitleProps extends AntTypographyProps {
+export interface TitleProps {
   level?: 1 | 2 | 3 | 4 | 5
   children: React.ReactNode
   color?: 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'primary'
@@ -35,21 +41,24 @@ export const Title: React.FC<TitleProps> = ({
     .join(' ')
 
   return (
-    <AntTitle
-      level={level}
-      className={titleClasses}
-      {...props}
-    >
+    <AntTitle level={level} className={titleClasses} {...props}>
       {children}
     </AntTitle>
   )
 }
 
 // Text Component
-export interface TextProps extends AntTypographyProps {
+export interface TextProps {
   children: React.ReactNode
   size?: 'xs' | 'sm' | 'base' | 'lg' | 'xl'
-  color?: 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'primary' | 'white'
+  color?:
+    | 'default'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'primary'
+    | 'white'
   weight?: 'light' | 'normal' | 'medium' | 'semibold' | 'bold'
   align?: 'left' | 'center' | 'right'
   transform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize'
@@ -86,7 +95,7 @@ export const Text: React.FC<TextProps> = ({
 }
 
 // Paragraph Component
-export interface ParagraphProps extends AntTypographyProps {
+export interface ParagraphProps {
   children: React.ReactNode
   size?: 'sm' | 'base' | 'lg'
   color?: 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'primary'
@@ -126,7 +135,7 @@ export const Paragraph: React.FC<ParagraphProps> = ({
 }
 
 // Link Component
-export interface LinkProps extends AntTypographyProps {
+export interface LinkProps {
   children: React.ReactNode
   href?: string
   size?: 'xs' | 'sm' | 'base' | 'lg'
@@ -172,7 +181,7 @@ export const Link: React.FC<LinkProps> = ({
   return (
     <AntText className={linkClasses} {...linkProps}>
       {children}
-      {external && <span className="oda-link__external-icon">↗</span>}
+      {external && <span className='oda-link__external-icon'>↗</span>}
     </AntText>
   )
 }
@@ -189,6 +198,7 @@ export interface CodeProps {
 export const Code: React.FC<CodeProps> = ({
   size = 'base',
   variant = 'inline',
+  language,
   className = '',
   children,
   ...props
@@ -197,6 +207,7 @@ export const Code: React.FC<CodeProps> = ({
     'oda-code',
     `oda-code--${size}`,
     `oda-code--${variant}`,
+    language && `oda-code--${language}`,
     className,
   ]
     .filter(Boolean)
@@ -217,17 +228,11 @@ export const Code: React.FC<CodeProps> = ({
   )
 }
 
-// Export compound component
-export const Typography = {
+// Default export for convenience
+export default {
   Title,
   Text,
   Paragraph,
   Link,
   Code,
 }
-
-Title.displayName = 'Title'
-Text.displayName = 'Text'
-Paragraph.displayName = 'Paragraph'
-Link.displayName = 'Link'
-Code.displayName = 'Code'

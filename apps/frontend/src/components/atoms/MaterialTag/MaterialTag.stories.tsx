@@ -1,5 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { MaterialTag, MaterialComposition, CareInstructions } from './MaterialTag';
+import type { Meta, StoryObj } from '@storybook/react'
+import {
+  MaterialTag,
+  MaterialComposition,
+  CareInstructions,
+} from './MaterialTag'
 
 const meta: Meta<typeof MaterialTag> = {
   title: 'Atoms/MaterialTag',
@@ -8,7 +12,8 @@ const meta: Meta<typeof MaterialTag> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A material tag component for fashion applications, showing fabric composition and certifications.',
+        component:
+          'A material tag component for fashion applications, showing fabric composition and certifications.',
       },
     },
   },
@@ -24,7 +29,14 @@ const meta: Meta<typeof MaterialTag> = {
     },
     certification: {
       control: 'select',
-      options: ['organic', 'recycled', 'sustainable', 'fair-trade', 'gots', 'oeko-tex'],
+      options: [
+        'organic',
+        'recycled',
+        'sustainable',
+        'fair-trade',
+        'gots',
+        'oeko-tex',
+      ],
       description: 'Material certification',
     },
     variant: {
@@ -46,17 +58,17 @@ const meta: Meta<typeof MaterialTag> = {
       description: 'Show material percentage',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
     material: 'Cotton',
     percentage: 95,
   },
-};
+}
 
 export const WithCertification: Story = {
   args: {
@@ -64,7 +76,7 @@ export const WithCertification: Story = {
     percentage: 100,
     certification: 'organic',
   },
-};
+}
 
 export const Recycled: Story = {
   args: {
@@ -72,7 +84,7 @@ export const Recycled: Story = {
     percentage: 80,
     certification: 'recycled',
   },
-};
+}
 
 export const Sustainable: Story = {
   args: {
@@ -80,46 +92,58 @@ export const Sustainable: Story = {
     percentage: 70,
     certification: 'sustainable',
   },
-};
+}
 
 export const Variants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-      <MaterialTag material="Cotton" percentage={95} variant="default" />
-      <MaterialTag material="Cotton" percentage={95} variant="compact" />
-      <MaterialTag material="Cotton" percentage={95} variant="minimal" />
-      <MaterialTag material="Cotton" percentage={95} certification="organic" variant="detailed" />
+    <div
+      style={{
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+      }}
+    >
+      <MaterialTag material='Cotton' percentage={95} variant='default' />
+      <MaterialTag material='Cotton' percentage={95} variant='compact' />
+      <MaterialTag material='Cotton' percentage={95} variant='minimal' />
+      <MaterialTag
+        material='Cotton'
+        percentage={95}
+        certification='organic'
+        variant='detailed'
+      />
     </div>
   ),
-};
+}
 
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <MaterialTag material="Cotton" percentage={95} size="small" />
-      <MaterialTag material="Cotton" percentage={95} size="medium" />
-      <MaterialTag material="Cotton" percentage={95} size="large" />
+      <MaterialTag material='Cotton' percentage={95} size='small' />
+      <MaterialTag material='Cotton' percentage={95} size='medium' />
+      <MaterialTag material='Cotton' percentage={95} size='large' />
     </div>
   ),
-};
+}
 
 export const Certifications: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <MaterialTag material="Cotton" certification="organic" />
-      <MaterialTag material="Polyester" certification="recycled" />
-      <MaterialTag material="Hemp" certification="sustainable" />
-      <MaterialTag material="Cotton" certification="fair-trade" />
-      <MaterialTag material="Cotton" certification="gots" />
-      <MaterialTag material="Cotton" certification="oeko-tex" />
+      <MaterialTag material='Cotton' certification='organic' />
+      <MaterialTag material='Polyester' certification='recycled' />
+      <MaterialTag material='Hemp' certification='sustainable' />
+      <MaterialTag material='Cotton' certification='fair-trade' />
+      <MaterialTag material='Cotton' certification='gots' />
+      <MaterialTag material='Cotton' certification='oeko-tex' />
     </div>
   ),
-};
+}
 
 const materialComposition = [
   { material: 'Cotton', percentage: 95, certification: 'organic' as const },
   { material: 'Elastane', percentage: 5 },
-];
+]
 
 export const MaterialCompositionExample: Story = {
   render: () => (
@@ -128,7 +152,7 @@ export const MaterialCompositionExample: Story = {
       onMaterialClick={(material) => console.log('Clicked material:', material)}
     />
   ),
-};
+}
 
 const careInstructions = [
   { type: 'wash' as const, temperature: 30, method: 'gentle cycle' },
@@ -136,10 +160,8 @@ const careInstructions = [
   { type: 'iron' as const, temperature: 110, warning: false },
   { type: 'bleach' as const, warning: true },
   { type: 'dry-clean' as const, warning: false },
-];
+]
 
 export const CareInstructionsExample: Story = {
-  render: () => (
-    <CareInstructions instructions={careInstructions} />
-  ),
-};
+  render: () => <CareInstructions instructions={careInstructions} />,
+}

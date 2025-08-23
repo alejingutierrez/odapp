@@ -1,12 +1,12 @@
 import React from 'react'
 import { Card, Progress, Tooltip } from 'antd'
-import { 
-  ArrowUpOutlined, 
-  ArrowDownOutlined, 
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
   FireOutlined,
   HeartOutlined,
   ShareAltOutlined,
-  EyeOutlined
+  EyeOutlined,
 } from '@ant-design/icons'
 // import { designTokens } from '../../../config/theme'
 import './TrendIndicator.css'
@@ -109,17 +109,17 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
     if (!metrics) return null
 
     return (
-      <div className="oda-trend-indicator__metrics">
-        <div className="oda-trend-indicator__metric">
-          <HeartOutlined className="oda-trend-indicator__metric-icon" />
+      <div className='oda-trend-indicator__metrics'>
+        <div className='oda-trend-indicator__metric'>
+          <HeartOutlined className='oda-trend-indicator__metric-icon' />
           <span>{formatNumber(metrics.engagement)}</span>
         </div>
-        <div className="oda-trend-indicator__metric">
-          <ShareAltOutlined className="oda-trend-indicator__metric-icon" />
+        <div className='oda-trend-indicator__metric'>
+          <ShareAltOutlined className='oda-trend-indicator__metric-icon' />
           <span>{formatNumber(metrics.socialMentions)}</span>
         </div>
-        <div className="oda-trend-indicator__metric">
-          <EyeOutlined className="oda-trend-indicator__metric-icon" />
+        <div className='oda-trend-indicator__metric'>
+          <EyeOutlined className='oda-trend-indicator__metric-icon' />
           <span>{formatNumber(metrics.searchVolume)}</span>
         </div>
       </div>
@@ -130,12 +130,12 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
     if (!forecast) return null
 
     return (
-      <div className="oda-trend-indicator__forecast">
-        <div className="oda-trend-indicator__forecast-direction">
+      <div className='oda-trend-indicator__forecast'>
+        <div className='oda-trend-indicator__forecast-direction'>
           {getTrendIcon()}
           <span>{forecast.prediction}</span>
         </div>
-        <div className="oda-trend-indicator__forecast-confidence">
+        <div className='oda-trend-indicator__forecast-confidence'>
           {forecast.confidence}% confidence • {forecast.timeframe}
         </div>
       </div>
@@ -146,9 +146,9 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
     if (tags.length === 0) return null
 
     return (
-      <div className="oda-trend-indicator__tags">
+      <div className='oda-trend-indicator__tags'>
         {tags.slice(0, 3).map((tag, index) => (
-          <span key={index} className="oda-trend-indicator__tag">
+          <span key={index} className='oda-trend-indicator__tag'>
             #{tag}
           </span>
         ))}
@@ -158,10 +158,10 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
 
   const renderCompactVariant = () => (
     <div className={indicatorClasses} onClick={onClick}>
-      <div className="oda-trend-indicator__compact-content">
-        <div className="oda-trend-indicator__compact-header">
-          <span className="oda-trend-indicator__title">{title}</span>
-          <div className="oda-trend-indicator__score-badge">
+      <div className='oda-trend-indicator__compact-content'>
+        <div className='oda-trend-indicator__compact-header'>
+          <span className='oda-trend-indicator__title'>{title}</span>
+          <div className='oda-trend-indicator__score-badge'>
             {getTrendIcon()}
             <span>{score}</span>
           </div>
@@ -170,7 +170,7 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
           percent={score}
           strokeColor={getTrendColor()}
           showInfo={false}
-          size="small"
+          size='small'
         />
       </div>
     </div>
@@ -178,9 +178,9 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
 
   const renderMinimalVariant = () => (
     <div className={indicatorClasses} onClick={onClick}>
-      <div className="oda-trend-indicator__minimal-content">
-        <span className="oda-trend-indicator__title">{title}</span>
-        <div className="oda-trend-indicator__minimal-score">
+      <div className='oda-trend-indicator__minimal-content'>
+        <span className='oda-trend-indicator__title'>{title}</span>
+        <div className='oda-trend-indicator__minimal-score'>
           {getTrendIcon()}
           <span>{score}%</span>
         </div>
@@ -193,29 +193,29 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
       className={indicatorClasses}
       onClick={onClick}
       hoverable={!!onClick}
-      size="small"
+      size='small'
     >
-      <div className="oda-trend-indicator__header">
-        <div className="oda-trend-indicator__title-section">
-          <h4 className="oda-trend-indicator__title">{title}</h4>
-          <span className="oda-trend-indicator__category">{category}</span>
+      <div className='oda-trend-indicator__header'>
+        <div className='oda-trend-indicator__title-section'>
+          <h4 className='oda-trend-indicator__title'>{title}</h4>
+          <span className='oda-trend-indicator__category'>{category}</span>
         </div>
-        <div className="oda-trend-indicator__score-section">
-          {isHot && <FireOutlined className="oda-trend-indicator__hot-icon" />}
-          <span className="oda-trend-indicator__score">{score}</span>
+        <div className='oda-trend-indicator__score-section'>
+          {isHot && <FireOutlined className='oda-trend-indicator__hot-icon' />}
+          <span className='oda-trend-indicator__score'>{score}</span>
         </div>
       </div>
 
-      <div className="oda-trend-indicator__progress-section">
+      <div className='oda-trend-indicator__progress-section'>
         <Progress
           percent={score}
           strokeColor={getTrendColor()}
           showInfo={false}
           strokeWidth={8}
         />
-        <div className="oda-trend-indicator__direction">
+        <div className='oda-trend-indicator__direction'>
           {getTrendIcon()}
-          <span className="oda-trend-indicator__velocity">
+          <span className='oda-trend-indicator__velocity'>
             {velocity > 0 ? `+${velocity}%` : `${velocity}%`}
           </span>
         </div>
@@ -228,22 +228,27 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
   )
 
   const tooltipContent = metrics ? (
-    <div className="oda-trend-indicator__tooltip">
-      <div className="oda-trend-indicator__tooltip-title">{title}</div>
-      <div className="oda-trend-indicator__tooltip-metrics">
+    <div className='oda-trend-indicator__tooltip'>
+      <div className='oda-trend-indicator__tooltip-title'>{title}</div>
+      <div className='oda-trend-indicator__tooltip-metrics'>
         <div>Popularity: {metrics.popularity}%</div>
         <div>Social Mentions: {formatNumber(metrics.socialMentions)}</div>
         <div>Search Volume: {formatNumber(metrics.searchVolume)}</div>
-        <div>Sales Growth: {metrics.salesGrowth > 0 ? '+' : ''}{metrics.salesGrowth}%</div>
+        <div>
+          Sales Growth: {metrics.salesGrowth > 0 ? '+' : ''}
+          {metrics.salesGrowth}%
+        </div>
         <div>Engagement: {formatNumber(metrics.engagement)}</div>
       </div>
       {forecast && (
-        <div className="oda-trend-indicator__tooltip-forecast">
+        <div className='oda-trend-indicator__tooltip-forecast'>
           Forecast: {forecast.prediction} ({forecast.confidence}% confidence)
         </div>
       )}
     </div>
-  ) : title
+  ) : (
+    title
+  )
 
   const content = () => {
     switch (variant) {
@@ -257,7 +262,7 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
   }
 
   return (
-    <Tooltip title={tooltipContent} placement="top">
+    <Tooltip title={tooltipContent} placement='top'>
       {content()}
     </Tooltip>
   )

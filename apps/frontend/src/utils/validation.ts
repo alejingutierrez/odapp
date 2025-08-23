@@ -554,13 +554,19 @@ export const zodToYup = (zodSchema: z.ZodSchema): yup.Schema<unknown> => {
           yupSchema = yupSchema.email(check.message)
           break
         case 'min':
-          yupSchema = yupSchema.min(check.value, check.message)
+          if (check.value !== undefined) {
+            yupSchema = yupSchema.min(check.value, check.message)
+          }
           break
         case 'max':
-          yupSchema = yupSchema.max(check.value, check.message)
+          if (check.value !== undefined) {
+            yupSchema = yupSchema.max(check.value, check.message)
+          }
           break
         case 'regex':
-          yupSchema = yupSchema.matches(check.regex, check.message)
+          if (check.regex !== undefined) {
+            yupSchema = yupSchema.matches(check.regex, check.message)
+          }
           break
       }
     }
@@ -590,7 +596,7 @@ export const zodToYup = (zodSchema: z.ZodSchema): yup.Schema<unknown> => {
       shape[key] = zodToYup(value as z.ZodSchema)
     }
 
-    return yup.object(shape)
+    return yup.object(shape as Record<string, yup.Schema>)
   }
 
   // Fallback for unsupported types
@@ -604,13 +610,13 @@ export const fileValidation = {
     .test(
       'fileSize',
       'File size must be less than 5MB',
-      (value: File | null) => {
-        if (!value) return true
+      (value: unknown) => {
+        if (!value || !(value instanceof File)) return true
         return value.size <= 5 * 1024 * 1024
       }
     )
-    .test('fileType', 'Only image files are allowed', (value: File | null) => {
-      if (!value) return true
+    .test('fileType', 'Only image files are allowed', (value: unknown) => {
+      if (!value || !(value instanceof File)) return true
       return [
         'image/jpeg',
         'image/jpg',
@@ -625,16 +631,16 @@ export const fileValidation = {
     .test(
       'fileSize',
       'File size must be less than 10MB',
-      (value: File | null) => {
-        if (!value) return true
+      (value: unknown) => {
+        if (!value || !(value instanceof File)) return true
         return value.size <= 10 * 1024 * 1024
       }
     )
     .test(
       'fileType',
       'Only PDF, DOC, and DOCX files are allowed',
-      (value: File | null) => {
-        if (!value) return true
+      (value: unknown) => {
+        if (!value || !(value instanceof File)) return true
         return [
           'application/pdf',
           'application/msword',

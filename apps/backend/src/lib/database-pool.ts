@@ -49,7 +49,7 @@ export class DatabasePool {
   private setupEventListeners(): void {
     this.pool.on('connect', (client) => {
       console.log('🔗 New database client connected')
-      
+
       // Set up client-specific configuration
       client.query(`SET statement_timeout = ${this.config.statementTimeout}`)
       client.query(`SET lock_timeout = ${this.config.statementTimeout}`)
@@ -74,15 +74,17 @@ export class DatabasePool {
 
   async query(text: string, params?: unknown[]): Promise<unknown> {
     const start = Date.now()
-    
+
     try {
       const result = await this.pool.query(text, params)
       const duration = Date.now() - start
-      
+
       if (duration > (env.DB_SLOW_QUERY_THRESHOLD || 1000)) {
-        console.warn(`🐌 Slow query detected: ${text.substring(0, 100)}... took ${duration}ms`)
+        console.warn(
+          `🐌 Slow query detected: ${text.substring(0, 100)}... took ${duration}ms`
+        )
       }
-      
+
       return result
     } catch (error) {
       console.error('❌ Database query error:', error)
@@ -96,7 +98,7 @@ export class DatabasePool {
 
   async transaction<T>(callback: (_client: unknown) => Promise<T>): Promise<T> {
     const client = await this.pool.connect()
-    
+
     try {
       await client.query('BEGIN')
       const result = await callback(client)
@@ -124,12 +126,16 @@ export class DatabasePool {
     }
   }
 
-  async healthCheck(): Promise<{ healthy: boolean; stats: Record<string, unknown>; error?: string }> {
+  async healthCheck(): Promise<{
+    healthy: boolean
+    stats: Record<string, unknown>
+    error?: string
+  }> {
     try {
       const start = Date.now()
       await this.query('SELECT 1')
       const duration = Date.now() - start
-      
+
       return {
         healthy: true,
         stats: {

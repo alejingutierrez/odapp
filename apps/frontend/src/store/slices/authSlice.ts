@@ -338,7 +338,7 @@ export const selectUserPreferences = (state: RootState) =>
 export const selectHasPermission =
   (resource: string, action: string) => (state: RootState) => {
     return state.auth.permissions.some(
-      (permission) =>
+      (permission: { resource: string; action: string }) =>
         permission.resource === resource && permission.action === action
     )
   }
@@ -346,7 +346,7 @@ export const selectHasPermission =
 export const selectCanAccessResource =
   (resource: string) => (state: RootState) => {
     return state.auth.permissions.some(
-      (permission) => permission.resource === resource
+      (permission: { resource: string; action: string }) => permission.resource === resource
     )
   }
 

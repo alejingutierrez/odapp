@@ -1,13 +1,12 @@
 import { z } from 'zod'
-import { 
-  uuidSchema, 
-  emailSchema, 
+import {
+  uuidSchema,
+  emailSchema,
   phoneSchema,
   currencySchema,
   sanitizeString,
-  paginationSchema,
   searchSchema,
-  dateRangeSchema
+  dateRangeSchema,
 } from './common.js'
 import { customerAddressSchema } from './customer.js'
 
@@ -20,7 +19,7 @@ export const orderStatusSchema = z.enum([
   'delivered',
   'cancelled',
   'refunded',
-  'partially_refunded'
+  'partially_refunded',
 ])
 
 export const paymentStatusSchema = z.enum([
@@ -31,14 +30,14 @@ export const paymentStatusSchema = z.enum([
   'refunded',
   'partially_refunded',
   'voided',
-  'failed'
+  'failed',
 ])
 
 export const fulfillmentStatusSchema = z.enum([
   'unfulfilled',
   'partial',
   'fulfilled',
-  'restocked'
+  'restocked',
 ])
 
 // Order line item schema
@@ -48,26 +47,45 @@ export const orderLineItemSchema = z.object({
   variantId: uuidSchema,
   quantity: z.number().int().min(1, 'Quantity must be at least 1'),
   price: z.number().min(0, 'Price must be non-negative'),
-  compareAtPrice: z.number().min(0, 'Compare at price must be non-negative').optional(),
-  totalDiscount: z.number().min(0, 'Total discount must be non-negative').default(0),
-  title: z.string().min(1, 'Product title is required').max(255, 'Title must be less than 255 characters'),
-  variantTitle: z.string().max(255, 'Variant title must be less than 255 characters').optional(),
+  compareAtPrice: z
+    .number()
+    .min(0, 'Compare at price must be non-negative')
+    .optional(),
+  totalDiscount: z
+    .number()
+    .min(0, 'Total discount must be non-negative')
+    .default(0),
+  title: z
+    .string()
+    .min(1, 'Product title is required')
+    .max(255, 'Title must be less than 255 characters'),
+  variantTitle: z
+    .string()
+    .max(255, 'Variant title must be less than 255 characters')
+    .optional(),
   sku: z.string().max(50, 'SKU must be less than 50 characters').optional(),
   weight: z.number().min(0, 'Weight must be non-negative').optional(),
   requiresShipping: z.boolean().default(true),
   taxable: z.boolean().default(true),
-  taxLines: z.array(z.object({
-    title: z.string(),
-    rate: z.number().min(0).max(1),
-    price: z.number().min(0),
-  })).default([]),
+  taxLines: z
+    .array(
+      z.object({
+        title: z.string(),
+        rate: z.number().min(0).max(1),
+        price: z.number().min(0),
+      })
+    )
+    .default([]),
   properties: z.record(z.string()).optional(),
 })
 
 // Order discount schema
 export const orderDiscountSchema = z.object({
   id: uuidSchema.optional(),
-  code: z.string().max(50, 'Discount code must be less than 50 characters').optional(),
+  code: z
+    .string()
+    .max(50, 'Discount code must be less than 50 characters')
+    .optional(),
   type: z.enum(['percentage', 'fixed_amount', 'shipping']),
   value: z.number().min(0, 'Discount value must be non-negative'),
   amount: z.number().min(0, 'Discount amount must be non-negative'),
@@ -77,29 +95,56 @@ export const orderDiscountSchema = z.object({
 // Order shipping line schema
 export const orderShippingLineSchema = z.object({
   id: uuidSchema.optional(),
-  title: z.string().min(1, 'Shipping title is required').max(255, 'Title must be less than 255 characters'),
+  title: z
+    .string()
+    .min(1, 'Shipping title is required')
+    .max(255, 'Title must be less than 255 characters'),
   price: z.number().min(0, 'Shipping price must be non-negative'),
-  code: z.string().max(50, 'Shipping code must be less than 50 characters').optional(),
-  carrier: z.string().max(100, 'Carrier must be less than 100 characters').optional(),
+  code: z
+    .string()
+    .max(50, 'Shipping code must be less than 50 characters')
+    .optional(),
+  carrier: z
+    .string()
+    .max(100, 'Carrier must be less than 100 characters')
+    .optional(),
   requestedFulfillmentServiceId: z.string().optional(),
-  taxLines: z.array(z.object({
-    title: z.string(),
-    rate: z.number().min(0).max(1),
-    price: z.number().min(0),
-  })).default([]),
+  taxLines: z
+    .array(
+      z.object({
+        title: z.string(),
+        rate: z.number().min(0).max(1),
+        price: z.number().min(0),
+      })
+    )
+    .default([]),
 })
 
 // Order payment schema
 export const orderPaymentSchema = z.object({
   id: uuidSchema.optional(),
   status: paymentStatusSchema,
-  gateway: z.string().max(50, 'Payment gateway must be less than 50 characters'),
+  gateway: z
+    .string()
+    .max(50, 'Payment gateway must be less than 50 characters'),
   amount: z.number().min(0, 'Payment amount must be non-negative'),
   currency: currencySchema,
-  transactionId: z.string().max(255, 'Transaction ID must be less than 255 characters').optional(),
-  authorizationCode: z.string().max(255, 'Authorization code must be less than 255 characters').optional(),
-  avsResultCode: z.string().max(10, 'AVS result code must be less than 10 characters').optional(),
-  cvvResultCode: z.string().max(10, 'CVV result code must be less than 10 characters').optional(),
+  transactionId: z
+    .string()
+    .max(255, 'Transaction ID must be less than 255 characters')
+    .optional(),
+  authorizationCode: z
+    .string()
+    .max(255, 'Authorization code must be less than 255 characters')
+    .optional(),
+  avsResultCode: z
+    .string()
+    .max(10, 'AVS result code must be less than 10 characters')
+    .optional(),
+  cvvResultCode: z
+    .string()
+    .max(10, 'CVV result code must be less than 10 characters')
+    .optional(),
   processedAt: z.string().datetime().optional(),
   createdAt: z.string().datetime().optional(),
 })
@@ -108,13 +153,21 @@ export const orderPaymentSchema = z.object({
 export const orderFulfillmentSchema = z.object({
   id: uuidSchema.optional(),
   status: fulfillmentStatusSchema,
-  trackingCompany: z.string().max(100, 'Tracking company must be less than 100 characters').optional(),
-  trackingNumber: z.string().max(255, 'Tracking number must be less than 255 characters').optional(),
+  trackingCompany: z
+    .string()
+    .max(100, 'Tracking company must be less than 100 characters')
+    .optional(),
+  trackingNumber: z
+    .string()
+    .max(255, 'Tracking number must be less than 255 characters')
+    .optional(),
   trackingUrl: z.string().url('Invalid tracking URL').optional(),
-  lineItems: z.array(z.object({
-    lineItemId: uuidSchema,
-    quantity: z.number().int().min(1),
-  })),
+  lineItems: z.array(
+    z.object({
+      lineItemId: uuidSchema,
+      quantity: z.number().int().min(1),
+    })
+  ),
   notifyCustomer: z.boolean().default(true),
   locationId: uuidSchema.optional(),
   createdAt: z.string().datetime().optional(),
@@ -129,19 +182,28 @@ export const orderRefundSchema = z.object({
   amount: z.number().min(0, 'Refund amount must be non-negative'),
   currency: currencySchema,
   reason: z.enum(['duplicate', 'fraudulent', 'requested_by_customer', 'other']),
-  note: z.string().max(1000, 'Refund note must be less than 1000 characters').optional(),
-  refundLineItems: z.array(z.object({
-    lineItemId: uuidSchema,
-    quantity: z.number().int().min(1),
-    restockType: z.enum(['no_restock', 'cancel', 'return']).default('no_restock'),
-  })),
-  transactions: z.array(z.object({
-    amount: z.number().min(0),
-    gateway: z.string(),
-    kind: z.enum(['refund', 'void']),
-    status: z.enum(['success', 'failure', 'error']),
-    transactionId: z.string().optional(),
-  })),
+  note: z
+    .string()
+    .max(1000, 'Refund note must be less than 1000 characters')
+    .optional(),
+  refundLineItems: z.array(
+    z.object({
+      lineItemId: uuidSchema,
+      quantity: z.number().int().min(1),
+      restockType: z
+        .enum(['no_restock', 'cancel', 'return'])
+        .default('no_restock'),
+    })
+  ),
+  transactions: z.array(
+    z.object({
+      amount: z.number().min(0),
+      gateway: z.string(),
+      kind: z.enum(['refund', 'void']),
+      status: z.enum(['success', 'failure', 'error']),
+      transactionId: z.string().optional(),
+    })
+  ),
   processedAt: z.string().datetime().optional(),
   createdAt: z.string().datetime().optional(),
 })
@@ -149,18 +211,29 @@ export const orderRefundSchema = z.object({
 // Main order schema
 export const orderSchema = z.object({
   id: uuidSchema.optional(),
-  orderNumber: z.string().max(50, 'Order number must be less than 50 characters').optional(),
+  orderNumber: z
+    .string()
+    .max(50, 'Order number must be less than 50 characters')
+    .optional(),
   customerId: uuidSchema.optional(),
   email: emailSchema,
   phone: phoneSchema.optional(),
   status: orderStatusSchema.default('pending'),
   paymentStatus: paymentStatusSchema.default('pending'),
   fulfillmentStatus: fulfillmentStatusSchema.default('unfulfilled'),
-  
+
   // Customer information
   customerInfo: z.object({
-    firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters').transform(sanitizeString),
-    lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters').transform(sanitizeString),
+    firstName: z
+      .string()
+      .min(1, 'First name is required')
+      .max(50, 'First name must be less than 50 characters')
+      .transform(sanitizeString),
+    lastName: z
+      .string()
+      .min(1, 'Last name is required')
+      .max(50, 'Last name must be less than 50 characters')
+      .transform(sanitizeString),
     email: emailSchema,
     phone: phoneSchema.optional(),
   }),
@@ -170,27 +243,48 @@ export const orderSchema = z.object({
   shippingAddress: customerAddressSchema,
 
   // Order items and pricing
-  lineItems: z.array(orderLineItemSchema).min(1, 'At least one line item is required'),
+  lineItems: z
+    .array(orderLineItemSchema)
+    .min(1, 'At least one line item is required'),
   discounts: z.array(orderDiscountSchema).default([]),
   shippingLines: z.array(orderShippingLineSchema).default([]),
-  taxLines: z.array(z.object({
-    title: z.string(),
-    rate: z.number().min(0).max(1),
-    price: z.number().min(0),
-  })).default([]),
+  taxLines: z
+    .array(
+      z.object({
+        title: z.string(),
+        rate: z.number().min(0).max(1),
+        price: z.number().min(0),
+      })
+    )
+    .default([]),
 
   // Totals
   subtotalPrice: z.number().min(0, 'Subtotal must be non-negative'),
   totalTax: z.number().min(0, 'Total tax must be non-negative').default(0),
-  totalDiscounts: z.number().min(0, 'Total discounts must be non-negative').default(0),
-  totalShipping: z.number().min(0, 'Total shipping must be non-negative').default(0),
+  totalDiscounts: z
+    .number()
+    .min(0, 'Total discounts must be non-negative')
+    .default(0),
+  totalShipping: z
+    .number()
+    .min(0, 'Total shipping must be non-negative')
+    .default(0),
   totalPrice: z.number().min(0, 'Total price must be non-negative'),
   currency: currencySchema.default('USD'),
 
   // Additional information
-  note: z.string().max(2000, 'Order note must be less than 2000 characters').optional(),
-  tags: z.array(z.string().max(50, 'Tag must be less than 50 characters')).max(20, 'Maximum 20 tags allowed').default([]),
-  source: z.string().max(50, 'Source must be less than 50 characters').default('web'),
+  note: z
+    .string()
+    .max(2000, 'Order note must be less than 2000 characters')
+    .optional(),
+  tags: z
+    .array(z.string().max(50, 'Tag must be less than 50 characters'))
+    .max(20, 'Maximum 20 tags allowed')
+    .default([]),
+  source: z
+    .string()
+    .max(50, 'Source must be less than 50 characters')
+    .default('web'),
   referringSite: z.string().url('Invalid referring site URL').optional(),
   landingSite: z.string().url('Invalid landing site URL').optional(),
 
@@ -250,15 +344,21 @@ export const orderQuerySchema = searchSchema.extend({
 export const orderAnalyticsSchema = z.object({
   dateRange: dateRangeSchema.optional(),
   groupBy: z.enum(['day', 'week', 'month', 'quarter', 'year']).default('month'),
-  metrics: z.array(z.enum([
-    'total_orders',
-    'total_sales',
-    'average_order_value',
-    'conversion_rate',
-    'refund_rate',
-    'fulfillment_rate'
-  ])).min(1, 'At least one metric is required'),
-  segmentBy: z.enum(['status', 'source', 'customer_type', 'product_category']).optional(),
+  metrics: z
+    .array(
+      z.enum([
+        'total_orders',
+        'total_sales',
+        'average_order_value',
+        'conversion_rate',
+        'refund_rate',
+        'fulfillment_rate',
+      ])
+    )
+    .min(1, 'At least one metric is required'),
+  segmentBy: z
+    .enum(['status', 'source', 'customer_type', 'product_category'])
+    .optional(),
 })
 
 // Bulk order operations

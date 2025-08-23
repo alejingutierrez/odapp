@@ -2,9 +2,9 @@ import React from 'react'
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd'
 import './Button.css'
 
-export interface ButtonProps extends Omit<AntButtonProps, 'type'> {
+export interface ButtonProps extends Omit<AntButtonProps, 'type' | 'variant'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'link' | 'text'
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'middle' | 'large'
   fullWidth?: boolean
   loading?: boolean
   icon?: React.ReactNode
@@ -31,7 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
       case 'danger':
         return 'primary'
       case 'ghost':
-        return 'ghost'
+        return 'default' // Ant Design doesn't have 'ghost' type, use 'default'
       case 'link':
         return 'link'
       case 'text':
@@ -46,7 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
     switch (size) {
       case 'small':
         return 'small'
-      case 'medium':
+      case 'middle':
         return 'middle'
       case 'large':
         return 'large'

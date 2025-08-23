@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { validate, xssProtection } from '../middleware/validation.js'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { productCollectionSchema, commonValidationSchemas } from '@oda/shared'
-import { ApiResponse } from '../lib/api-response.js'
+import { sendSuccess, sendCreated, sendError, sendPaginated } from '../lib/api-response.js'
 import { logger } from '../lib/logger.js'
 import { prisma } from '../lib/prisma.js'
 import { CacheManager } from '../lib/cache/cache-manager.js'
@@ -18,103 +18,108 @@ router.use(xssProtection())
 // Collection validation schemas
 const createCollectionSchema = productCollectionSchema.omit({ id: true })
 const updateCollectionSchema = productCollectionSchema.partial().extend({
-  id: commonValidationSchemas.id.shape.id
+  id: commonValidationSchemas.id,
 })
 
 const addProductsSchema = z.object({
-  productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required')
+  productIds: z
+    .array(z.string().uuid())
+    .min(1, 'At least one product ID is required'),
 })
 
 const removeProductsSchema = z.object({
-  productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required')
+  productIds: z
+    .array(z.string().uuid())
+    .min(1, 'At least one product ID is required'),
 })
 
 // GET /collections - List collections
-router.get('/',
-  authorize(['products:read']),
-  async (req, res, next) => {
-    try {
-      const { includeInactive, page = 1, limit = 20 } = req.query
-      
-      logger.info('Fetching collections', { 
-        includeInactive,
-        page,
-        limit,
-        userId: req.user?.id 
-      })
+router.get('/', authorize(['products:read']), async (req, res, next) => {
+  try {
+    const { includeInactive, page = 1, limit = 20 } = req.query
 
-      const pageNum = parseInt(String(page))
-      const limitNum = parseInt(String(limit))
-      const skip = (pageNum - 1) * limitNum
+    logger.info('Fetching collections', {
+      includeInactive,
+      page,
+      limit,
+      userId: req.user?.id,
+    })
 
-      const cacheKey = `collections:list:${includeInactive}:${page}:${limit}`
-      
-      // Try cache first
-      let result = await cache.get(cacheKey)
-      
-      if (!result) {
-        const [collections, total] = await Promise.all([
-          prisma.collection.findMany({
-            where: includeInactive !== 'true' ? { isActive: true } : {},
-            include: {
-              _count: {
-                select: {
-                  products: {
-                    where: {
-                      product: { deletedAt: null, isActive: true }
-                    }
-                  }
-                }
-              }
+    const pageNum = parseInt(String(page))
+    const limitNum = parseInt(String(limit))
+    const skip = (pageNum - 1) * limitNum
+
+    const cacheKey = `collections:list:${includeInactive}:${page}:${limit}`
+
+    // Try cache first
+    let result = await cache.get<{
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      collections: any[]
+      total: number
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pagination: any
+    }>(cacheKey)
+
+    if (!result) {
+      const [collections, total] = await Promise.all([
+        prisma.collection.findMany({
+          where: includeInactive !== 'true' ? { isActive: true } : {},
+          include: {
+            _count: {
+              select: {
+                products: {
+                  where: {
+                    product: { deletedAt: null, isActive: true },
+                  },
+                },
+              },
             },
-            orderBy: [
-              { sortOrder: 'asc' },
-              { name: 'asc' }
-            ],
-            skip,
-            take: limitNum
-          }),
-          prisma.collection.count({
-            where: includeInactive !== 'true' ? { isActive: true } : {}
-          })
-        ])
+          },
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+          skip,
+          take: limitNum,
+        }),
+        prisma.collection.count({
+          where: includeInactive !== 'true' ? { isActive: true } : {},
+        }),
+      ])
 
-        result = {
-          collections,
+      result = {
+        collections,
+        total,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
           total,
-          pagination: {
-            page: pageNum,
-            limit: limitNum,
-            total,
-            totalPages: Math.ceil(total / limitNum)
-          }
-        }
-
-        // Cache for 5 minutes
-        await cache.set(cacheKey, result, 300)
+          totalPages: Math.ceil(total / limitNum),
+        },
       }
 
-      const response = ApiResponse.success(result)
-      res.json(response)
-    } catch (error) {
-      next(error)
+      // Cache for 5 minutes
+      await cache.set(cacheKey, result, { ttl: 300 })
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendPaginated(res, (result as any).collections, (result as any).pagination)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 // GET /collections/:id - Get single collection
-router.get('/:id',
+router.get(
+  '/:id',
   validate({ params: commonValidationSchemas.id }),
   authorize(['products:read']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const { includeProducts = 'true', productLimit = 20 } = req.query
-      
-      logger.info('Fetching collection', { 
+
+      logger.info('Fetching collection', {
         collectionId: id,
         includeProducts,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       const collection = await prisma.collection.findFirst({
@@ -123,47 +128,44 @@ router.get('/:id',
           ...(includeProducts === 'true' && {
             products: {
               where: {
-                product: { deletedAt: null, isActive: true }
+                product: { deletedAt: null, isActive: true },
               },
               include: {
                 product: {
                   include: {
                     images: {
                       take: 1,
-                      orderBy: { sortOrder: 'asc' }
+                      orderBy: { sortOrder: 'asc' },
                     },
                     variants: {
                       where: { isActive: true },
                       take: 1,
-                      orderBy: { createdAt: 'asc' }
-                    }
-                  }
-                }
+                      orderBy: { createdAt: 'asc' },
+                    },
+                  },
+                },
               },
               orderBy: { sortOrder: 'asc' },
-              take: parseInt(String(productLimit))
-            }
+              take: parseInt(String(productLimit)),
+            },
           }),
           _count: {
             select: {
               products: {
                 where: {
-                  product: { deletedAt: null, isActive: true }
-                }
-              }
-            }
-          }
-        }
+                  product: { deletedAt: null, isActive: true },
+                },
+              },
+            },
+          },
+        },
       })
 
       if (!collection) {
-        return res.status(404).json(
-          ApiResponse.error('Collection not found', 404)
-        )
+        return sendError(res, 'NOT_FOUND', 'Collection not found', 404)
       }
 
-      const response = ApiResponse.success({ collection })
-      res.json(response)
+      sendSuccess(res, { collection })
     } catch (error) {
       next(error)
     }
@@ -171,26 +173,25 @@ router.get('/:id',
 )
 
 // POST /collections - Create new collection
-router.post('/',
+router.post(
+  '/',
   validate({ body: createCollectionSchema }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const collectionData = req.body
-      
-      logger.info('Creating collection', { 
+
+      logger.info('Creating collection', {
         collectionName: collectionData.name,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Check for duplicate slug
       const existingCollection = await prisma.collection.findFirst({
-        where: { slug: collectionData.slug }
+        where: { slug: collectionData.slug },
       })
       if (existingCollection) {
-        return res.status(400).json(
-          ApiResponse.error('Collection with this slug already exists', 400)
-        )
+        return sendError(res, 'DUPLICATE_SLUG', 'Collection with this slug already exists', 400)
       }
 
       const newCollection = await prisma.collection.create({
@@ -201,30 +202,31 @@ router.post('/',
           image: collectionData.image?.url,
           isActive: collectionData.isActive !== false,
           sortOrder: collectionData.sortOrder || 0,
-          rules: collectionData.conditions ? JSON.stringify(collectionData.conditions) : null,
+          rules: collectionData.conditions
+            ? JSON.stringify(collectionData.conditions)
+            : undefined,
           metaTitle: collectionData.seo?.title,
-          metaDescription: collectionData.seo?.description
+          metaDescription: collectionData.seo?.description,
         },
         include: {
           _count: {
             select: {
-              products: true
-            }
-          }
-        }
+              products: true,
+            },
+          },
+        },
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections')
 
-      logger.info('Collection created successfully', { 
+      logger.info('Collection created successfully', {
         collectionId: newCollection.id,
         collectionName: newCollection.name,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
-      const response = ApiResponse.success({ collection: newCollection }, 'Collection created successfully', 201)
-      res.status(201).json(response)
+      sendCreated(res, { collection: newCollection })
     } catch (error) {
       next(error)
     }
@@ -232,44 +234,41 @@ router.post('/',
 )
 
 // PUT /collections/:id - Update collection
-router.put('/:id',
-  validate({ 
+router.put(
+  '/:id',
+  validate({
     params: commonValidationSchemas.id,
-    body: updateCollectionSchema.omit({ id: true })
+    body: updateCollectionSchema.omit({ id: true }),
   }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const updateData = req.body
-      
-      logger.info('Updating collection', { 
+
+      logger.info('Updating collection', {
         collectionId: id,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Check if collection exists
       const existingCollection = await prisma.collection.findFirst({
-        where: { id }
+        where: { id },
       })
       if (!existingCollection) {
-        return res.status(404).json(
-          ApiResponse.error('Collection not found', 404)
-        )
+        return sendError(res, 'NOT_FOUND', 'Collection not found', 404)
       }
 
       // Check for duplicate slug if slug is being updated
       if (updateData.slug && updateData.slug !== existingCollection.slug) {
         const duplicateSlug = await prisma.collection.findFirst({
-          where: { 
+          where: {
             slug: updateData.slug,
-            id: { not: id }
-          }
+            id: { not: id },
+          },
         })
         if (duplicateSlug) {
-          return res.status(400).json(
-            ApiResponse.error('Collection with this slug already exists', 400)
-          )
+          return sendError(res, 'DUPLICATE_SLUG', 'Collection with this slug already exists', 400)
         }
       }
 
@@ -278,34 +277,49 @@ router.put('/:id',
         data: {
           ...(updateData.name && { name: updateData.name }),
           ...(updateData.slug && { slug: updateData.slug }),
-          ...(updateData.description !== undefined && { description: updateData.description }),
-          ...(updateData.image && { image: updateData.image.url }),
-          ...(updateData.isActive !== undefined && { isActive: updateData.isActive }),
-          ...(updateData.sortOrder !== undefined && { sortOrder: updateData.sortOrder }),
-          ...(updateData.conditions !== undefined && { 
-            rules: updateData.conditions ? JSON.stringify(updateData.conditions) : null 
+          ...(updateData.description !== undefined && {
+            description: updateData.description,
           }),
-          ...(updateData.seo?.title !== undefined && { metaTitle: updateData.seo.title }),
-          ...(updateData.seo?.description !== undefined && { metaDescription: updateData.seo.description })
+          ...(updateData.image && { image: updateData.image.url }),
+          ...(updateData.isActive !== undefined && {
+            isActive: updateData.isActive,
+          }),
+          ...(updateData.sortOrder !== undefined && {
+            sortOrder: updateData.sortOrder,
+          }),
+          ...(updateData.conditions !== undefined && {
+            rules: updateData.conditions
+              ? JSON.stringify(updateData.conditions)
+              : null,
+          }),
+          ...(updateData.seo?.title !== undefined && {
+            metaTitle: updateData.seo.title,
+          }),
+          ...(updateData.seo?.description !== undefined && {
+            metaDescription: updateData.seo.description,
+          }),
         },
         include: {
           _count: {
             select: {
-              products: true
-            }
-          }
-        }
+              products: true,
+            },
+          },
+        },
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections')
 
-      logger.info('Collection updated successfully', { 
+      logger.info('Collection updated successfully', {
         collectionId: id,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
-      const response = ApiResponse.success({ collection: updatedCollection }, 'Collection updated successfully')
+      const response = sendSuccess(res, 
+        { collection: updatedCollection },
+        'Collection updated successfully'
+      )
       res.json(response)
     } catch (error) {
       next(error)
@@ -314,50 +328,54 @@ router.put('/:id',
 )
 
 // DELETE /collections/:id - Delete collection
-router.delete('/:id',
+router.delete(
+  '/:id',
   validate({ params: commonValidationSchemas.id }),
   authorize(['products:delete', 'collections:delete']),
   async (req, res, next) => {
     try {
       const { id } = req.params
-      
-      logger.info('Deleting collection', { 
+
+      logger.info('Deleting collection', {
         collectionId: id,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Check if collection exists
       const collection = await prisma.collection.findFirst({
-        where: { id }
+        where: { id },
       })
 
       if (!collection) {
-        return res.status(404).json(
-          ApiResponse.error('Collection not found', 404)
-        )
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Collection not found', 404))
       }
 
       await prisma.$transaction(async (tx) => {
         // Remove all product associations
         await tx.collectionProduct.deleteMany({
-          where: { collectionId: id }
+          where: { collectionId: id },
         })
 
         // Delete the collection
         await tx.collection.delete({
-          where: { id }
+          where: { id },
         })
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections:*')
 
-      logger.info('Collection deleted successfully', { 
+      logger.info('Collection deleted successfully', {
         collectionId: id,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
-      const response = ApiResponse.success(null, 'Collection deleted successfully')
+      const response = sendSuccess(res, 
+        null,
+        'Collection deleted successfully'
+      )
       res.json(response)
     } catch (error) {
       next(error)
@@ -366,68 +384,75 @@ router.delete('/:id',
 )
 
 // POST /collections/:id/products - Add products to collection
-router.post('/:id/products',
-  validate({ 
+router.post(
+  '/:id/products',
+  validate({
     params: commonValidationSchemas.id,
-    body: addProductsSchema
+    body: addProductsSchema,
   }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const { productIds } = req.body
-      
-      logger.info('Adding products to collection', { 
+
+      logger.info('Adding products to collection', {
         collectionId: id,
         productCount: productIds.length,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Check if collection exists
       const collection = await prisma.collection.findFirst({
-        where: { id }
+        where: { id },
       })
       if (!collection) {
-        return res.status(404).json(
-          ApiResponse.error('Collection not found', 404)
-        )
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Collection not found', 404))
       }
 
       // Validate all products exist
       const existingProducts = await prisma.product.findMany({
         where: {
           id: { in: productIds },
-          deletedAt: null
+          deletedAt: null,
         },
-        select: { id: true }
+        select: { id: true },
       })
 
       if (existingProducts.length !== productIds.length) {
-        const foundIds = existingProducts.map(p => p.id)
-        const missingIds = productIds.filter(id => !foundIds.includes(id))
-        return res.status(404).json(
-          ApiResponse.error(`Products not found: ${missingIds.join(', ')}`, 404)
-        )
+        const foundIds = existingProducts.map((p) => p.id)
+        const missingIds = productIds.filter((id: string) => !foundIds.includes(id))
+        return res
+          .status(404)
+          .json(
+            sendError(res, 
+              'PRODUCTS_NOT_FOUND',
+              `Products not found: ${missingIds.join(', ')}`,
+              404
+            )
+          )
       }
 
       // Get current max sort order
       const maxSortOrder = await prisma.collectionProduct.aggregate({
         where: { collectionId: id },
-        _max: { sortOrder: true }
+        _max: { sortOrder: true },
       })
 
       const startSortOrder = (maxSortOrder._max.sortOrder || 0) + 1
 
       // Add products to collection (ignore duplicates)
-      const collectionProducts = productIds.map((productId, index) => ({
+      const collectionProducts = productIds.map((productId: string, index: number) => ({
         collectionId: id,
         productId,
-        sortOrder: startSortOrder + index
+        sortOrder: startSortOrder + index,
       }))
 
       await prisma.collectionProduct.createMany({
         data: collectionProducts,
-        skipDuplicates: true
+        skipDuplicates: true,
       })
 
       // Get updated collection with product count
@@ -436,25 +461,25 @@ router.post('/:id/products',
         include: {
           _count: {
             select: {
-              products: true
-            }
-          }
-        }
+              products: true,
+            },
+          },
+        },
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections:*')
 
-      logger.info('Products added to collection successfully', { 
+      logger.info('Products added to collection successfully', {
         collectionId: id,
         addedCount: productIds.length,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
-      const response = ApiResponse.success(
-        { 
+      const response = sendSuccess(res, 
+        {
           collection: updatedCollection,
-          addedCount: productIds.length
+          addedCount: productIds.length,
         },
         `${productIds.length} products added to collection`
       )
@@ -466,39 +491,40 @@ router.post('/:id/products',
 )
 
 // DELETE /collections/:id/products - Remove products from collection
-router.delete('/:id/products',
-  validate({ 
+router.delete(
+  '/:id/products',
+  validate({
     params: commonValidationSchemas.id,
-    body: removeProductsSchema
+    body: removeProductsSchema,
   }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const { productIds } = req.body
-      
-      logger.info('Removing products from collection', { 
+
+      logger.info('Removing products from collection', {
         collectionId: id,
         productCount: productIds.length,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Check if collection exists
       const collection = await prisma.collection.findFirst({
-        where: { id }
+        where: { id },
       })
       if (!collection) {
-        return res.status(404).json(
-          ApiResponse.error('Collection not found', 404)
-        )
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Collection not found', 404))
       }
 
       // Remove products from collection
       const result = await prisma.collectionProduct.deleteMany({
         where: {
           collectionId: id,
-          productId: { in: productIds }
-        }
+          productId: { in: productIds },
+        },
       })
 
       // Get updated collection with product count
@@ -507,25 +533,25 @@ router.delete('/:id/products',
         include: {
           _count: {
             select: {
-              products: true
-            }
-          }
-        }
+              products: true,
+            },
+          },
+        },
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections:*')
 
-      logger.info('Products removed from collection successfully', { 
+      logger.info('Products removed from collection successfully', {
         collectionId: id,
         removedCount: result.count,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
-      const response = ApiResponse.success(
-        { 
+      const response = sendSuccess(res, 
+        {
           collection: updatedCollection,
-          removedCount: result.count
+          removedCount: result.count,
         },
         `${result.count} products removed from collection`
       )
@@ -537,34 +563,38 @@ router.delete('/:id/products',
 )
 
 // POST /collections/:id/reorder - Reorder collection
-router.post('/:id/reorder',
-  validate({ 
+router.post(
+  '/:id/reorder',
+  validate({
     params: commonValidationSchemas.id,
     body: z.object({
-      sortOrder: z.number().int().min(0)
-    })
+      sortOrder: z.number().int().min(0),
+    }),
   }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const { sortOrder } = req.body
-      
-      logger.info('Reordering collection', { 
+
+      logger.info('Reordering collection', {
         collectionId: id,
         sortOrder,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       const updatedCollection = await prisma.collection.update({
         where: { id },
-        data: { sortOrder }
+        data: { sortOrder },
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections:*')
 
-      const response = ApiResponse.success({ collection: updatedCollection }, 'Collection reordered successfully')
+      const response = sendSuccess(res, 
+        { collection: updatedCollection },
+        'Collection reordered successfully'
+      )
       res.json(response)
     } catch (error) {
       next(error)
@@ -573,26 +603,31 @@ router.post('/:id/reorder',
 )
 
 // POST /collections/:id/products/reorder - Reorder products within collection
-router.post('/:id/products/reorder',
-  validate({ 
+router.post(
+  '/:id/products/reorder',
+  validate({
     params: commonValidationSchemas.id,
     body: z.object({
-      productOrders: z.array(z.object({
-        productId: z.string().uuid(),
-        sortOrder: z.number().int().min(0)
-      })).min(1)
-    })
+      productOrders: z
+        .array(
+          z.object({
+            productId: z.string().uuid(),
+            sortOrder: z.number().int().min(0),
+          })
+        )
+        .min(1),
+    }),
   }),
   authorize(['products:write', 'collections:write']),
   async (req, res, next) => {
     try {
       const { id } = req.params
       const { productOrders } = req.body
-      
-      logger.info('Reordering products in collection', { 
+
+      logger.info('Reordering products in collection', {
         collectionId: id,
         productCount: productOrders.length,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       // Update product orders in transaction
@@ -601,17 +636,17 @@ router.post('/:id/products/reorder',
           await tx.collectionProduct.updateMany({
             where: {
               collectionId: id,
-              productId
+              productId,
             },
-            data: { sortOrder }
+            data: { sortOrder },
           })
         }
       })
 
       // Clear collection caches
-      await cache.deletePattern('collections:*')
+      await cache.clear('collections:*')
 
-      const response = ApiResponse.success(
+      const response = sendSuccess(res, 
         { reorderedCount: productOrders.length },
         'Products reordered successfully'
       )
@@ -623,21 +658,27 @@ router.post('/:id/products/reorder',
 )
 
 // GET /collections/:id/products - Get collection products
-router.get('/:id/products',
+router.get(
+  '/:id/products',
   validate({ params: commonValidationSchemas.id }),
   authorize(['products:read']),
   async (req, res, next) => {
     try {
       const { id } = req.params
-      const { page = 1, limit = 20, sortBy = 'sortOrder', sortOrder = 'asc' } = req.query
-      
-      logger.info('Fetching collection products', { 
+      const {
+        page = 1,
+        limit = 20,
+        sortBy = 'sortOrder',
+        sortOrder = 'asc',
+      } = req.query
+
+      logger.info('Fetching collection products', {
         collectionId: id,
         page,
         limit,
         sortBy,
         sortOrder,
-        userId: req.user?.id 
+        userId: req.user?.id,
       })
 
       const pageNum = parseInt(String(page))
@@ -645,7 +686,7 @@ router.get('/:id/products',
       const skip = (pageNum - 1) * limitNum
 
       // Build order by
-      const orderBy: any = {}
+      const orderBy: Record<string, unknown> = {}
       if (sortBy === 'sortOrder') {
         orderBy.sortOrder = sortOrder
       } else if (sortBy === 'name') {
@@ -660,50 +701,50 @@ router.get('/:id/products',
         prisma.collectionProduct.findMany({
           where: {
             collectionId: id,
-            product: { deletedAt: null, isActive: true }
+            product: { deletedAt: null, isActive: true },
           },
           include: {
             product: {
               include: {
                 images: {
                   take: 1,
-                  orderBy: { sortOrder: 'asc' }
+                  orderBy: { sortOrder: 'asc' },
                 },
                 variants: {
                   where: { isActive: true },
                   take: 1,
-                  orderBy: { createdAt: 'asc' }
+                  orderBy: { createdAt: 'asc' },
                 },
-                category: true
-              }
-            }
+                category: true,
+              },
+            },
           },
           orderBy,
           skip,
-          take: limitNum
+          take: limitNum,
         }),
         prisma.collectionProduct.count({
           where: {
             collectionId: id,
-            product: { deletedAt: null, isActive: true }
-          }
-        })
+            product: { deletedAt: null, isActive: true },
+          },
+        }),
       ])
 
-      const products = collectionProducts.map(cp => ({
+      const products = collectionProducts.map((cp) => ({
         ...cp.product,
-        collectionSortOrder: cp.sortOrder
+        collectionSortOrder: cp.sortOrder,
       }))
 
-      const response = ApiResponse.success({
+      const response = sendSuccess(res, {
         products,
         total,
         pagination: {
           page: pageNum,
           limit: limitNum,
           total,
-          totalPages: Math.ceil(total / limitNum)
-        }
+          totalPages: Math.ceil(total / limitNum),
+        },
       })
       res.json(response)
     } catch (error) {

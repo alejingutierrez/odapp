@@ -45,7 +45,12 @@ export const SizeIndicator: React.FC<SizeIndicatorProps> = ({
   }
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if ((event.key === 'Enter' || event.key === ' ') && !disabled && available && onClick) {
+    if (
+      (event.key === 'Enter' || event.key === ' ') &&
+      !disabled &&
+      available &&
+      onClick
+    ) {
       event.preventDefault()
       onClick(size)
     }
@@ -54,16 +59,16 @@ export const SizeIndicator: React.FC<SizeIndicatorProps> = ({
   const getDisplaySize = () => {
     // Handle common size mappings
     const sizeMap: Record<string, string> = {
-      'xs': 'XS',
-      'sm': 'S',
-      'md': 'M',
-      'lg': 'L',
-      'xl': 'XL',
-      'xxl': 'XXL',
+      xs: 'XS',
+      sm: 'S',
+      md: 'M',
+      lg: 'L',
+      xl: 'XL',
+      xxl: 'XXL',
       '2xl': 'XXL',
       '3xl': 'XXXL',
     }
-    
+
     return sizeMap[size.toLowerCase()] || size.toUpperCase()
   }
 
@@ -78,18 +83,18 @@ export const SizeIndicator: React.FC<SizeIndicatorProps> = ({
       aria-pressed={selected}
       aria-disabled={disabled || !available}
     >
-      <span className="oda-size-indicator__text">
+      <span className='oda-size-indicator__text'>
         {variant === 'detailed' && label ? label : getDisplaySize()}
       </span>
       {!available && (
-        <div className="oda-size-indicator__unavailable-overlay" />
+        <div className='oda-size-indicator__unavailable-overlay' />
       )}
     </div>
   )
 
   if (label && variant !== 'detailed') {
     return (
-      <Tooltip title={label} placement="top">
+      <Tooltip title={label} placement='top'>
         {indicator}
       </Tooltip>
     )
@@ -171,16 +176,11 @@ export const SizeGuide: React.FC<SizeGuideProps> = ({
   unit = 'cm',
   className = '',
 }) => {
-  const guideClasses = [
-    'oda-size-guide',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const guideClasses = ['oda-size-guide', className].filter(Boolean).join(' ')
 
   const measurementKeys = sizes.reduce((keys, size) => {
     if (size.measurements) {
-      Object.keys(size.measurements).forEach(key => {
+      Object.keys(size.measurements).forEach((key) => {
         if (!keys.includes(key)) {
           keys.push(key)
         }
@@ -191,11 +191,11 @@ export const SizeGuide: React.FC<SizeGuideProps> = ({
 
   return (
     <div className={guideClasses}>
-      <table className="oda-size-guide__table">
+      <table className='oda-size-guide__table'>
         <thead>
           <tr>
             <th>Size</th>
-            {measurementKeys.map(key => (
+            {measurementKeys.map((key) => (
               <th key={key}>
                 {key.charAt(0).toUpperCase() + key.slice(1)} ({unit})
               </th>
@@ -205,13 +205,11 @@ export const SizeGuide: React.FC<SizeGuideProps> = ({
         <tbody>
           {sizes.map(({ size, label, measurements }) => (
             <tr key={size}>
-              <td className="oda-size-guide__size">
+              <td className='oda-size-guide__size'>
                 <strong>{label || size.toUpperCase()}</strong>
               </td>
-              {measurementKeys.map(key => (
-                <td key={key}>
-                  {measurements?.[key] || '-'}
-                </td>
+              {measurementKeys.map((key) => (
+                <td key={key}>{measurements?.[key] || '-'}</td>
               ))}
             </tr>
           ))}

@@ -8,7 +8,10 @@ export abstract class AppError extends Error {
   abstract readonly isOperational: boolean
   abstract readonly errorCode: string
 
-  constructor(message: string, public readonly context?: Record<string, unknown>) {
+  constructor(
+    message: string,
+    public readonly _context?: Record<string, unknown>
+  ) {
     super(message)
     this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
@@ -20,7 +23,7 @@ export abstract class AppError extends Error {
       message: this.message,
       statusCode: this.statusCode,
       errorCode: this.errorCode,
-      context: this.context,
+      context: this._context,
       stack: this.stack,
     }
   }
@@ -33,7 +36,12 @@ export class ApiError extends AppError {
   readonly isOperational = true
   readonly errorCode: string
 
-  constructor(public readonly statusCode: number, message: string, public readonly details?: unknown, context?: Record<string, unknown>) {
+  constructor(
+    public readonly statusCode: number,
+    message: string,
+    public readonly details?: unknown,
+    context?: Record<string, unknown>
+  ) {
     super(message, { ...context, details })
     // Map common status codes to generic error codes, fallback to API_ERROR
     const codeMap: Record<number, string> = {
@@ -67,12 +75,19 @@ export class ValidationError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'VALIDATION_ERROR'
 
-  constructor(message: string, public readonly _errors?: unknown[], context?: Record<string, unknown>) {
+  constructor(
+    message: string,
+    public readonly _errors?: unknown[],
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 
-  static fromZodError(error: ZodError, context?: Record<string, unknown>): ValidationError {
-    const errors = error.errors.map(err => ({
+  static fromZodError(
+    error: ZodError,
+    context?: Record<string, unknown>
+  ): ValidationError {
+    const errors = error.errors.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
       code: err.code,
@@ -97,7 +112,10 @@ export class AuthenticationError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'AUTHENTICATION_ERROR'
 
-  constructor(message: string = 'Authentication required', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Authentication required',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }
@@ -110,7 +128,10 @@ export class AuthorizationError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'AUTHORIZATION_ERROR'
 
-  constructor(message: string = 'Insufficient permissions', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Insufficient permissions',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }
@@ -123,7 +144,10 @@ export class NotFoundError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'NOT_FOUND_ERROR'
 
-  constructor(resource: string = 'Resource', context?: Record<string, unknown>) {
+  constructor(
+    resource: string = 'Resource',
+    context?: Record<string, unknown>
+  ) {
     super(`${resource} not found`, context)
   }
 }
@@ -149,7 +173,10 @@ export class RateLimitError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'RATE_LIMIT_ERROR'
 
-  constructor(message: string = 'Rate limit exceeded', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Rate limit exceeded',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }
@@ -162,7 +189,11 @@ export class ExternalServiceError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'EXTERNAL_SERVICE_ERROR'
 
-  constructor(service: string, message?: string, context?: Record<string, unknown>) {
+  constructor(
+    service: string,
+    message?: string,
+    context?: Record<string, unknown>
+  ) {
     super(message || `External service ${service} is unavailable`, context)
   }
 }
@@ -175,7 +206,10 @@ export class DatabaseError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'DATABASE_ERROR'
 
-  constructor(message: string = 'Database operation failed', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Database operation failed',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }
@@ -188,7 +222,10 @@ export class InternalServerError extends AppError {
   readonly isOperational = false
   readonly errorCode = 'INTERNAL_SERVER_ERROR'
 
-  constructor(message: string = 'Internal server error', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Internal server error',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }
@@ -201,7 +238,10 @@ export class ServiceUnavailableError extends AppError {
   readonly isOperational = true
   readonly errorCode = 'SERVICE_UNAVAILABLE_ERROR'
 
-  constructor(message: string = 'Service temporarily unavailable', context?: Record<string, unknown>) {
+  constructor(
+    message: string = 'Service temporarily unavailable',
+    context?: Record<string, unknown>
+  ) {
     super(message, context)
   }
 }

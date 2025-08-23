@@ -1,6 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { MetricCard } from './MetricCard';
-import { DollarOutlined, UserOutlined, ShoppingCartOutlined, EyeOutlined } from '@ant-design/icons';
+import type { Meta, StoryObj } from '@storybook/react'
+import { MetricCard } from './MetricCard'
+import {
+  DollarOutlined,
+  UserOutlined,
+  ShoppingCartOutlined,
+  EyeOutlined,
+} from '@ant-design/icons'
 
 const meta: Meta<typeof MetricCard> = {
   title: 'Atoms/MetricCard',
@@ -25,10 +30,10 @@ const meta: Meta<typeof MetricCard> = {
       control: 'boolean',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -36,7 +41,7 @@ export const Default: Story = {
     value: 125430,
     prefix: <DollarOutlined />,
   },
-};
+}
 
 export const WithTrend: Story = {
   args: {
@@ -46,63 +51,70 @@ export const WithTrend: Story = {
     trendValue: '+12.5%',
     prefix: <DollarOutlined />,
   },
-};
+}
 
 export const Dashboard: Story = {
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, width: 600 }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 16,
+        width: 600,
+      }}
+    >
       <MetricCard
-        title="Total Revenue"
+        title='Total Revenue'
         value={125430}
-        trend="up"
-        trendValue="+8.2%"
+        trend='up'
+        trendValue='+8.2%'
         prefix={<DollarOutlined />}
       />
       <MetricCard
-        title="Active Users"
+        title='Active Users'
         value={2847}
-        trend="up"
-        trendValue="+15.3%"
+        trend='up'
+        trendValue='+15.3%'
         prefix={<UserOutlined />}
       />
       <MetricCard
-        title="Orders"
+        title='Orders'
         value={1234}
-        trend="down"
-        trendValue="-2.1%"
+        trend='down'
+        trendValue='-2.1%'
         prefix={<ShoppingCartOutlined />}
       />
       <MetricCard
-        title="Page Views"
+        title='Page Views'
         value={98765}
-        trend="up"
-        trendValue="+5.7%"
+        trend='up'
+        trendValue='+5.7%'
         prefix={<EyeOutlined />}
       />
     </div>
   ),
-};
+}
 
 export const DifferentSizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16 }}>
       <MetricCard
-        title="Small Card"
+        title='Small Card'
         value={1234}
-        size="small"
-        trend="up"
-        trendValue="+5%"
+        size='small'
+        trend='up'
+        trendValue='+5%'
       />
       <MetricCard
-        title="Default Card"
+        title='Default Card'
         value={5678}
-        size="default"
-        trend="down"
-        trendValue="-2%"
+        size='default'
+        trend='down'
+        trendValue='-2%'
       />
     </div>
   ),
-};
+}
 
 export const WithPrecision: Story = {
   args: {
@@ -113,7 +125,7 @@ export const WithPrecision: Story = {
     trend: 'up',
     trendValue: '+0.5%',
   },
-};
+}
 
 export const Loading: Story = {
   args: {
@@ -121,7 +133,7 @@ export const Loading: Story = {
     value: 0,
     loading: true,
   },
-};
+}
 
 export const Clickable: Story = {
   args: {
@@ -131,7 +143,7 @@ export const Clickable: Story = {
     trendValue: '+3.2%',
     onClick: () => alert('Metric clicked!'),
   },
-};
+}
 
 export const WithoutBorder: Story = {
   args: {
@@ -141,4 +153,4 @@ export const WithoutBorder: Story = {
     trend: 'neutral',
     trendValue: '0%',
   },
-};
+}

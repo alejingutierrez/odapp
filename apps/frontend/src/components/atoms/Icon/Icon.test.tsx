@@ -13,6 +13,7 @@ import {
   InfoIcon,
   LoadingIcon,
 } from './Icon'
+import * as AntIcons from '@ant-design/icons'
 
 // Mock console.warn to test warning behavior
 const mockConsoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -81,7 +82,7 @@ describe('Icon', () => {
   })
 
   it('returns null and warns for invalid icon name', () => {
-    const { container } = render(<Icon name='InvalidIcon' as any />)
+    const { container } = render(<Icon name={'InvalidIcon' as keyof typeof AntIcons} />)
     expect(container.firstChild).toBeNull()
     expect(mockConsoleWarn).toHaveBeenCalledWith(
       'Icon "InvalidIcon" not found in Ant Design icons'

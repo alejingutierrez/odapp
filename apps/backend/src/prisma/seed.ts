@@ -36,7 +36,7 @@ async function main() {
     },
   })
 
-  const _managerRole = await prisma.role.upsert({
+  await prisma.role.upsert({
     where: { name: 'manager' },
     update: {},
     create: {
@@ -56,7 +56,7 @@ async function main() {
     },
   })
 
-  const _employeeRole = await prisma.role.upsert({
+  await prisma.role.upsert({
     where: { name: 'employee' },
     update: {},
     create: {
@@ -126,7 +126,7 @@ async function main() {
     },
   })
 
-  const _retailStore = await prisma.location.upsert({
+  await prisma.location.upsert({
     where: { code: 'STORE-01' },
     update: {},
     create: {
@@ -153,7 +153,7 @@ async function main() {
     create: {
       name: 'Women',
       slug: 'women',
-      description: 'Women\'s fashion and accessories',
+      description: "Women's fashion and accessories",
       isActive: true,
       sortOrder: 1,
     },
@@ -165,7 +165,7 @@ async function main() {
     create: {
       name: 'Men',
       slug: 'men',
-      description: 'Men\'s fashion and accessories',
+      description: "Men's fashion and accessories",
       isActive: true,
       sortOrder: 2,
     },
@@ -178,33 +178,33 @@ async function main() {
     create: {
       name: 'Tops',
       slug: 'women-tops',
-      description: 'Women\'s tops, blouses, and shirts',
+      description: "Women's tops, blouses, and shirts",
       parentId: womenCategory.id,
       isActive: true,
       sortOrder: 1,
     },
   })
 
-  const _womenBottoms = await prisma.category.upsert({
+  await prisma.category.upsert({
     where: { slug: 'women-bottoms' },
     update: {},
     create: {
       name: 'Bottoms',
       slug: 'women-bottoms',
-      description: 'Women\'s pants, skirts, and shorts',
+      description: "Women's pants, skirts, and shorts",
       parentId: womenCategory.id,
       isActive: true,
       sortOrder: 2,
     },
   })
 
-  const _menTops = await prisma.category.upsert({
+  await prisma.category.upsert({
     where: { slug: 'men-tops' },
     update: {},
     create: {
       name: 'Tops',
       slug: 'men-tops',
-      description: 'Men\'s shirts, t-shirts, and sweaters',
+      description: "Men's shirts, t-shirts, and sweaters",
       parentId: menCategory.id,
       isActive: true,
       sortOrder: 1,
@@ -225,7 +225,7 @@ async function main() {
     },
   })
 
-  const _summerCollection = await prisma.collection.upsert({
+  await prisma.collection.upsert({
     where: { slug: 'summer-2024' },
     update: {},
     create: {
@@ -245,7 +245,8 @@ async function main() {
     create: {
       name: 'Classic White T-Shirt',
       slug: 'classic-white-tee',
-      description: 'A timeless classic white t-shirt made from 100% organic cotton',
+      description:
+        'A timeless classic white t-shirt made from 100% organic cotton',
       shortDescription: 'Classic white t-shirt in organic cotton',
       sku: 'CWT-001',
       brand: 'Oda Basics',
@@ -253,7 +254,7 @@ async function main() {
       careInstructions: 'Machine wash cold, tumble dry low',
       price: 29.99,
       compareAtPrice: 39.99,
-      costPrice: 15.00,
+      costPrice: 15.0,
       status: 'ACTIVE',
       isActive: true,
       isFeatured: true,
@@ -284,7 +285,7 @@ async function main() {
         option2Name: 'Color',
         option2Value: variant.color,
         price: variant.price,
-        costPrice: 15.00,
+        costPrice: 15.0,
         weight: 0.2,
         isActive: true,
       },
@@ -308,8 +309,8 @@ async function main() {
         reservedQuantity: 0,
         availableQuantity: 100,
         lowStockThreshold: 10,
-        averageCost: 15.00,
-        lastCost: 15.00,
+        averageCost: 15.0,
+        lastCost: 15.0,
       },
     })
   }
@@ -348,63 +349,61 @@ async function main() {
       emailOptIn: true,
       status: 'ACTIVE',
       loyaltyPoints: 100,
-      lifetimeValue: 150.00,
-      totalSpent: 150.00,
+      lifetimeValue: 150.0,
+      totalSpent: 150.0,
       totalOrders: 2,
-      averageOrderValue: 75.00,
+      averageOrderValue: 75.0,
       tags: ['vip', 'frequent-buyer'],
     },
   })
 
   // Create customer address
-  await prisma.customerAddress.upsert({
-    where: { id: 'temp-address-id' }, // This will fail and create new
-    update: {},
-    create: {
-      customerId: customer.id,
-      firstName: 'Jane',
-      lastName: 'Doe',
-      address1: '789 Customer Lane',
-      city: 'Customer City',
-      state: 'CC',
-      country: 'US',
-      postalCode: '12347',
-      phone: '+1-555-0199',
-      isDefault: true,
-      type: 'BOTH',
-    },
-  }).catch(() => {
-    // Address creation will fail due to unique constraint, but that's expected
-    console.log('Customer address already exists or created successfully')
-  })
+  await prisma.customerAddress
+    .upsert({
+      where: { id: 'temp-address-id' }, // This will fail and create new
+      update: {},
+      create: {
+        customerId: customer.id,
+        firstName: 'Jane',
+        lastName: 'Doe',
+        address1: '789 Customer Lane',
+        city: 'Customer City',
+        state: 'CC',
+        country: 'US',
+        postalCode: '12347',
+        phone: '+1-555-0199',
+        isDefault: true,
+        type: 'BOTH',
+      },
+    })
+    .catch(() => {
+      // Address creation will fail due to unique constraint, but that's expected
+      console.log('Customer address already exists or created successfully')
+    })
 
   // Create customer segments
   console.log('Creating customer segments...')
-  const _vipSegment = await prisma.customerSegment.upsert({
+  await prisma.customerSegment.upsert({
     where: { name: 'VIP Customers' },
     update: {},
     create: {
       name: 'VIP Customers',
       description: 'High-value customers with lifetime value > $500',
       rules: {
-        conditions: [
-          { field: 'lifetimeValue', operator: 'gte', value: 500 },
-        ],
+        conditions: [{ field: 'lifetimeValue', operator: 'gte', value: 500 }],
       },
       isActive: true,
     },
   })
 
-  const _frequentBuyersSegment = await prisma.customerSegment.upsert({
+  await prisma.customerSegment.upsert({
     where: { name: 'Frequent Buyers' },
     update: {},
     create: {
       name: 'Frequent Buyers',
       description: 'Customers with 5+ orders',
       rules: {
-        conditions: [
-          { field: 'totalOrders', operator: 'gte', value: 5 },
-        ],
+        conditions: [{ field: 'totalOrders', operator: 'gte', value: 5 }],
       },
       isActive: true,
     },

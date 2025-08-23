@@ -18,7 +18,7 @@ interface PanelProps {
   isActive?: boolean
 }
 
-export interface AccordionProps extends Omit<CollapseProps, 'children'> {
+export interface AccordionProps extends Omit<CollapseProps, 'children' | 'items'> {
   /** Accordion items */
   items: AccordionItem[]
   /** Whether to allow multiple panels open */
@@ -30,7 +30,7 @@ export interface AccordionProps extends Omit<CollapseProps, 'children'> {
   /** Accordion variant */
   variant?: 'default' | 'bordered' | 'ghost' | 'filled'
   /** Accordion size */
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'middle' | 'large'
   /** Whether to animate panel transitions */
   animated?: boolean
   /** Custom header renderer */

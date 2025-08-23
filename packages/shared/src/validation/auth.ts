@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { 
-  uuidSchema, 
-  emailSchema, 
-  passwordSchema, 
+import {
+  uuidSchema,
+  emailSchema,
+  passwordSchema,
   phoneSchema,
-  sanitizeString
+  sanitizeString,
 } from './common.js'
 
 // User role and permission schemas
@@ -13,7 +13,7 @@ export const userRoleSchema = z.enum([
   'admin',
   'manager',
   'employee',
-  'viewer'
+  'viewer',
 ])
 
 export const permissionSchema = z.enum([
@@ -23,44 +23,44 @@ export const permissionSchema = z.enum([
   'products:delete',
   'products:import',
   'products:export',
-  
+
   // Inventory permissions
   'inventory:read',
   'inventory:write',
   'inventory:adjust',
   'inventory:transfer',
-  
+
   // Order permissions
   'orders:read',
   'orders:write',
   'orders:fulfill',
   'orders:refund',
   'orders:cancel',
-  
+
   // Customer permissions
   'customers:read',
   'customers:write',
   'customers:delete',
   'customers:export',
-  
+
   // Analytics permissions
   'analytics:read',
   'analytics:export',
-  
+
   // Settings permissions
   'settings:read',
   'settings:write',
-  
+
   // User management permissions
   'users:read',
   'users:write',
   'users:delete',
-  
+
   // Shopify integration permissions
   'shopify:read',
   'shopify:write',
   'shopify:sync',
-  
+
   // System permissions
   'system:backup',
   'system:restore',
@@ -71,8 +71,16 @@ export const permissionSchema = z.enum([
 export const userSchema = z.object({
   id: uuidSchema.optional(),
   email: emailSchema,
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters').transform(sanitizeString),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters').transform(sanitizeString),
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(50, 'First name must be less than 50 characters')
+    .transform(sanitizeString),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be less than 50 characters')
+    .transform(sanitizeString),
   phone: phoneSchema.optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
   role: userRoleSchema,
@@ -95,43 +103,65 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'Password is required'),
   rememberMe: z.boolean().default(false),
-  twoFactorCode: z.string().regex(/^\d{6}$/, 'Two-factor code must be 6 digits').optional(),
+  twoFactorCode: z
+    .string()
+    .regex(/^\d{6}$/, 'Two-factor code must be 6 digits')
+    .optional(),
 })
 
-export const registerSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-  confirmPassword: z.string(),
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters').transform(sanitizeString),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters').transform(sanitizeString),
-  phone: phoneSchema.optional(),
-  acceptTerms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-})
+export const registerSchema = z
+  .object({
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    firstName: z
+      .string()
+      .min(1, 'First name is required')
+      .max(50, 'First name must be less than 50 characters')
+      .transform(sanitizeString),
+    lastName: z
+      .string()
+      .min(1, 'Last name is required')
+      .max(50, 'Last name must be less than 50 characters')
+      .transform(sanitizeString),
+    phone: phoneSchema.optional(),
+    acceptTerms: z
+      .boolean()
+      .refine(
+        (val) => val === true,
+        'You must accept the terms and conditions'
+      ),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
 })
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'Reset token is required'),
-  password: passwordSchema,
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-})
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'Reset token is required'),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: passwordSchema,
-  confirmPassword: z.string(),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-})
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 export const verifyEmailSchema = z.object({
   token: z.string().min(1, 'Verification token is required'),
@@ -179,35 +209,48 @@ export const verifySmsSchema = z.object({
 })
 
 // User management schemas
-export const createUserSchema = userSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  lastLoginAt: true,
-  lastLoginIp: true,
-  passwordChangedAt: true,
-  twoFactorSecret: true,
-  backupCodes: true,
-}).extend({
-  password: passwordSchema,
-  sendWelcomeEmail: z.boolean().default(true),
-})
+export const createUserSchema = userSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    lastLoginAt: true,
+    lastLoginIp: true,
+    passwordChangedAt: true,
+    twoFactorSecret: true,
+    backupCodes: true,
+  })
+  .extend({
+    password: passwordSchema,
+    sendWelcomeEmail: z.boolean().default(true),
+  })
 
-export const updateUserSchema = userSchema.partial().extend({
-  id: uuidSchema,
-}).omit({
-  createdAt: true,
-  updatedAt: true,
-  lastLoginAt: true,
-  lastLoginIp: true,
-  passwordChangedAt: true,
-  twoFactorSecret: true,
-  backupCodes: true,
-})
+export const updateUserSchema = userSchema
+  .partial()
+  .extend({
+    id: uuidSchema,
+  })
+  .omit({
+    createdAt: true,
+    updatedAt: true,
+    lastLoginAt: true,
+    lastLoginIp: true,
+    passwordChangedAt: true,
+    twoFactorSecret: true,
+    backupCodes: true,
+  })
 
 export const updateUserProfileSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters').transform(sanitizeString),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters').transform(sanitizeString),
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(50, 'First name must be less than 50 characters')
+    .transform(sanitizeString),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be less than 50 characters')
+    .transform(sanitizeString),
   phone: phoneSchema.optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
 })
@@ -242,9 +285,14 @@ export const sessionSchema = z.object({
 // API key schemas
 export const apiKeySchema = z.object({
   id: uuidSchema.optional(),
-  name: z.string().min(1, 'API key name is required').max(100, 'Name must be less than 100 characters'),
+  name: z
+    .string()
+    .min(1, 'API key name is required')
+    .max(100, 'Name must be less than 100 characters'),
   key: z.string().optional(), // Generated server-side
-  permissions: z.array(permissionSchema).min(1, 'At least one permission is required'),
+  permissions: z
+    .array(permissionSchema)
+    .min(1, 'At least one permission is required'),
   isActive: z.boolean().default(true),
   expiresAt: z.string().datetime().optional(),
   lastUsedAt: z.string().datetime().optional(),
@@ -259,14 +307,17 @@ export const createApiKeySchema = apiKeySchema.omit({
   createdAt: true,
 })
 
-export const updateApiKeySchema = apiKeySchema.partial().extend({
-  id: uuidSchema,
-}).omit({
-  key: true,
-  lastUsedAt: true,
-  createdAt: true,
-  createdBy: true,
-})
+export const updateApiKeySchema = apiKeySchema
+  .partial()
+  .extend({
+    id: uuidSchema,
+  })
+  .omit({
+    key: true,
+    lastUsedAt: true,
+    createdAt: true,
+    createdBy: true,
+  })
 
 // Audit log schema
 export const auditLogSchema = z.object({

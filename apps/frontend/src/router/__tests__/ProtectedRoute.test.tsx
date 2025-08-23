@@ -1,18 +1,20 @@
+import { describe, it, expect } from 'vitest'
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, type Reducer } from '@reduxjs/toolkit'
 import { ProtectedRoute } from '../ProtectedRoute'
 import authReducer from '../../store/slices/authSlice'
 import uiReducer from '../../store/slices/uiSlice'
+import type { UIState } from '../../store/slices/uiSlice'
 
 // Mock store factory
 const createMockStore = (authState: Record<string, unknown>) => {
   return configureStore({
     reducer: {
       auth: authReducer,
-      ui: uiReducer,
+      ui: uiReducer as Reducer<UIState>,
     },
     preloadedState: {
       auth: {
@@ -34,7 +36,19 @@ const createMockStore = (authState: Record<string, unknown>) => {
         headerHeight: 64,
         theme: 'light' as const,
         primaryColor: '#1890ff',
-        modals: {},
+        modals: {
+          productCreate: { id: 'productCreate', isOpen: false },
+          productEdit: { id: 'productEdit', isOpen: false },
+          productDelete: { id: 'productDelete', isOpen: false },
+          orderDetail: { id: 'orderDetail', isOpen: false },
+          orderCreate: { id: 'orderCreate', isOpen: false },
+          customerEdit: { id: 'customerEdit', isOpen: false },
+          customerDelete: { id: 'customerDelete', isOpen: false },
+          inventoryAdjust: { id: 'inventoryAdjust', isOpen: false },
+          bulkActions: { id: 'bulkActions', isOpen: false },
+          settings: { id: 'settings', isOpen: false },
+          shopifySync: { id: 'shopifySync', isOpen: false },
+        },
         loading: {
           global: false,
           products: false,

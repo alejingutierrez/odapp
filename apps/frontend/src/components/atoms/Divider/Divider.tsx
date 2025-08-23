@@ -2,7 +2,7 @@ import React from 'react'
 import { Divider as AntDivider, DividerProps as AntDividerProps } from 'antd'
 import './Divider.css'
 
-export interface DividerProps extends AntDividerProps {
+export interface DividerProps extends Omit<AntDividerProps, 'variant'> {
   variant?: 'solid' | 'dashed' | 'dotted' | 'gradient'
   thickness?: 'thin' | 'medium' | 'thick'
   spacing?: 'tight' | 'normal' | 'loose'
@@ -31,10 +31,7 @@ export const Divider: React.FC<DividerProps> = ({
     .join(' ')
 
   return (
-    <AntDivider
-      className={dividerClasses}
-      {...props}
-    >
+    <AntDivider className={dividerClasses} {...props}>
       {children}
     </AntDivider>
   )
@@ -73,21 +70,11 @@ export const SectionDivider: React.FC<SectionDividerProps> = ({
 
   return (
     <div className={sectionClasses}>
-      <div className="oda-section-divider__content">
-        {icon && (
-          <div className="oda-section-divider__icon">
-            {icon}
-          </div>
-        )}
-        {title && (
-          <h3 className="oda-section-divider__title">
-            {title}
-          </h3>
-        )}
+      <div className='oda-section-divider__content'>
+        {icon && <div className='oda-section-divider__icon'>{icon}</div>}
+        {title && <h3 className='oda-section-divider__title'>{title}</h3>}
         {subtitle && (
-          <p className="oda-section-divider__subtitle">
-            {subtitle}
-          </p>
+          <p className='oda-section-divider__subtitle'>{subtitle}</p>
         )}
       </div>
     </div>
@@ -108,7 +95,7 @@ export const Spacer: React.FC<SpacerProps> = ({
 }) => {
   const getSpacing = () => {
     if (typeof size === 'number') return `${size}px`
-    
+
     const spacingMap = {
       xs: '4px',
       sm: '8px',
@@ -117,21 +104,18 @@ export const Spacer: React.FC<SpacerProps> = ({
       xl: '32px',
       '2xl': '48px',
     }
-    
+
     return spacingMap[size] || '16px'
   }
 
-  const spacerClasses = [
-    'oda-spacer',
-    `oda-spacer--${direction}`,
-    className,
-  ]
+  const spacerClasses = ['oda-spacer', `oda-spacer--${direction}`, className]
     .filter(Boolean)
     .join(' ')
 
-  const style = direction === 'vertical' 
-    ? { height: getSpacing() }
-    : { width: getSpacing() }
+  const style =
+    direction === 'vertical'
+      ? { height: getSpacing() }
+      : { width: getSpacing() }
 
   return <div className={spacerClasses} style={style} />
 }

@@ -8,17 +8,18 @@ const meta: Meta<typeof ProductRating> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A product rating component with stars, review count, and interactive rating functionality.'
-      }
-    }
+        component:
+          'A product rating component with stars, review count, and interactive rating functionality.',
+      },
+    },
   },
   argTypes: {
     onChange: { action: 'rating changed' },
     size: {
       control: { type: 'select' },
-      options: ['small', 'default', 'large']
-    }
-  }
+      options: ['small', 'default', 'large'],
+    },
+  },
 }
 
 export default meta
@@ -29,8 +30,8 @@ export const Default: Story = {
     rating: 4.2,
     reviewCount: 127,
     showCount: true,
-    showValue: false
-  }
+    showValue: false,
+  },
 }
 
 export const WithValue: Story = {
@@ -38,8 +39,8 @@ export const WithValue: Story = {
     rating: 4.8,
     reviewCount: 89,
     showCount: true,
-    showValue: true
-  }
+    showValue: true,
+  },
 }
 
 export const Interactive: Story = {
@@ -47,16 +48,16 @@ export const Interactive: Story = {
     rating: 3.5,
     reviewCount: 45,
     interactive: true,
-    onChange: (rating) => console.log('New rating:', rating)
-  }
+    onChange: (rating) => console.log('New rating:', rating),
+  },
 }
 
 export const Small: Story = {
   args: {
     rating: 4.0,
     reviewCount: 23,
-    size: 'small'
-  }
+    size: 'small',
+  },
 }
 
 export const Large: Story = {
@@ -64,16 +65,16 @@ export const Large: Story = {
     rating: 4.7,
     reviewCount: 234,
     size: 'large',
-    showValue: true
-  }
+    showValue: true,
+  },
 }
 
 export const NoReviews: Story = {
   args: {
     rating: 0,
     reviewCount: 0,
-    showCount: true
-  }
+    showCount: true,
+  },
 }
 
 export const SingleReview: Story = {
@@ -81,6 +82,6 @@ export const SingleReview: Story = {
     rating: 5.0,
     reviewCount: 1,
     showCount: true,
-    showValue: true
-  }
+    showValue: true,
+  },
 }

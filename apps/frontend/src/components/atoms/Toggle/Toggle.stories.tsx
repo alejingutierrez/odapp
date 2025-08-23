@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Toggle } from './Toggle';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Toggle } from './Toggle'
 
 const meta: Meta<typeof Toggle> = {
   title: 'Atoms/Toggle',
@@ -20,28 +20,28 @@ const meta: Meta<typeof Toggle> = {
       control: 'boolean',
     },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
-};
+}
 
 export const WithLabels: Story = {
   args: {
-    checkedChildren: 'ON',
-    unCheckedChildren: 'OFF',
+    onLabel: 'ON',
+    offLabel: 'OFF',
   },
-};
+}
 
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
         <label>Small</label>
-        <Toggle size="small" />
+        <Toggle size='small' />
       </div>
       <div>
         <label>Default</label>
@@ -49,7 +49,7 @@ export const Sizes: Story = {
       </div>
     </div>
   ),
-};
+}
 
 export const States: Story = {
   render: () => (
@@ -72,11 +72,11 @@ export const States: Story = {
       </div>
     </div>
   ),
-};
+}
 
 export const Interactive: Story = {
   args: {
-    checkedChildren: '✓',
-    unCheckedChildren: '✗',
+    onLabel: '✓',
+    offLabel: '✗',
   },
-};
+}

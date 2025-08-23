@@ -7,11 +7,12 @@ import {
   RouteObject,
 } from 'react-router-dom'
 import { configureStore } from '@reduxjs/toolkit'
+import { describe, it, expect, vi } from 'vitest'
 import authReducer from '../../store/slices/authSlice'
 import uiReducer from '../../store/slices/uiSlice'
 
 // Mock components to avoid complex dependencies
-jest.mock('../../components/layouts/DashboardLayout', () => ({
+vi.mock('../../components/layouts/DashboardLayout', () => ({
   DashboardLayout: () => (
     <div data-testid='dashboard-layout'>
       <div>Dashboard Layout</div>
@@ -20,7 +21,7 @@ jest.mock('../../components/layouts/DashboardLayout', () => ({
   ),
 }))
 
-jest.mock('../../components/layouts/AuthLayout', () => ({
+vi.mock('../../components/layouts/AuthLayout', () => ({
   AuthLayout: () => (
     <div data-testid='auth-layout'>
       <div>Auth Layout</div>
@@ -29,34 +30,35 @@ jest.mock('../../components/layouts/AuthLayout', () => ({
   ),
 }))
 
-jest.mock('../../pages/Dashboard', () => ({
+vi.mock('../../pages/Dashboard', () => ({
   __esModule: true,
   default: () => <div data-testid='dashboard-page'>Dashboard Page</div>,
 }))
 
-jest.mock('../../pages/auth/Login', () => ({
+vi.mock('../../pages/auth/Login', () => ({
   __esModule: true,
   default: () => <div data-testid='login-page'>Login Page</div>,
 }))
 
-jest.mock('../../pages/NotFound', () => ({
+vi.mock('../../pages/NotFound', () => ({
   NotFoundPage: () => <div data-testid='not-found'>404 Not Found</div>,
 }))
 
 // Mock route guards
-jest.mock('../../router/ProtectedRoute', () => ({
+vi.mock('../../router/ProtectedRoute', () => ({
   ProtectedRoute: ({ children }: { children: React.ReactNode }) => (
     <div data-testid='protected-route'>{children}</div>
   ),
 }))
 
-jest.mock('../../router/PublicRoute', () => ({
+vi.mock('../../router/PublicRoute', () => ({
   PublicRoute: ({ children }: { children: React.ReactNode }) => (
     <div data-testid='public-route'>{children}</div>
   ),
 }))
 
-const createTestStore = (initialState = {}) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createTestStore = (initialState: any = {}) => {
   return configureStore({
     reducer: {
       auth: authReducer,

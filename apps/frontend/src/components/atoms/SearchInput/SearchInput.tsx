@@ -9,7 +9,10 @@ import {
 } from '@ant-design/icons'
 import './SearchInput.css'
 
-const { Option, OptGroup } = AutoComplete
+// Removed unused imports - we're now using DefaultOptionType instead
+
+// Import the correct type from antd
+import type { DefaultOptionType } from 'antd/es/select'
 
 export interface SearchSuggestion {
   value: string
@@ -54,7 +57,7 @@ export interface SearchInputProps {
   /** Whether to show clear button */
   showClear?: boolean
   /** Component size */
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'middle' | 'large'
   /** Whether component is disabled */
   disabled?: boolean
   /** Whether to show search button */
@@ -194,8 +197,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     return activeFilters.filter((f) => f.active).length
   }
 
-  const renderSuggestions = () => {
-    const options: React.ReactNode[] = []
+  const renderSuggestions = (): DefaultOptionType[] => {
+    const options: DefaultOptionType[] = []
 
     // Recent searches
     if (showRecentSearches && recentSearches.length > 0) {
@@ -204,22 +207,24 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         .filter((search) =>
           search.toLowerCase().includes(internalValue.toLowerCase())
         )
-        .map((search) => (
-          <Option key={`recent-${search}`} value={search}>
+        .map((search) => ({
+          value: search,
+          label: (
             <div className='oda-search-input__suggestion'>
               <HistoryOutlined className='oda-search-input__suggestion-icon' />
               <span>{search}</span>
               <span className='oda-search-input__suggestion-type'>Recent</span>
             </div>
-          </Option>
-        ))
+          ),
+        }))
 
       if (recentOptions.length > 0) {
-        options.push(
-          <OptGroup key='recent' label='Recent Searches'>
-            {recentOptions}
-          </OptGroup>
-        )
+        options.push({
+          label: 'Recent Searches',
+          value: 'recent-group',
+          disabled: true,
+          children: recentOptions,
+        })
       }
     }
 
@@ -238,8 +243,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       )
 
       Object.entries(groupedSuggestions).forEach(([category, items]) => {
-        const categoryOptions = items.map((suggestion) => (
-          <Option key={suggestion.value} value={suggestion.value}>
+        const categoryOptions = items.map((suggestion) => ({
+          value: suggestion.value,
+          label: (
             <div className='oda-search-input__suggestion'>
               <span>{suggestion.label}</span>
               {suggestion.count && (
@@ -248,14 +254,15 @@ export const SearchInput: React.FC<SearchInputProps> = ({
                 </span>
               )}
             </div>
-          </Option>
-        ))
+          ),
+        }))
 
-        options.push(
-          <OptGroup key={category} label={category}>
-            {categoryOptions}
-          </OptGroup>
-        )
+        options.push({
+          label: category,
+          value: `${category}-group`,
+          disabled: true,
+          children: categoryOptions,
+        })
       })
     }
 
@@ -297,7 +304,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             <div className='oda-search-input__filter-content'>
               <span>{filter.label}</span>
               {filter.active && (
-                <Tag size='small' color='blue'>
+                <Tag color='blue'>
                   Active
                 </Tag>
               )}
@@ -311,7 +318,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       <Dropdown overlay={menu} trigger={['click']} placement='bottomRight'>
         <Button
           icon={<FilterOutlined />}
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           className='oda-search-input__filters-button'
         >
           {getActiveFilterCount() > 0 && (
@@ -336,7 +343,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             closable
             onClose={() => handleFilterChange(filter)}
             color='blue'
-            size='small'
           >
             {filter.label}
           </Tag>
@@ -359,7 +365,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         <Button
           type='primary'
           icon={searchIcon}
-          size={size === 'large' ? 'middle' : size}
+          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
           onClick={() => handleSearch()}
           disabled={disabled || internalValue.length < minSearchLength}
           className='oda-search-input__search-button'
@@ -389,7 +395,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
               placeholder={placeholder}
               prefix={!showSearchButton ? searchIcon : undefined}
               suffix={suffix}
-              size={size === 'large' ? 'middle' : size}
+              size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
               disabled={disabled}
               onKeyPress={handleKeyPress}
               className='oda-search-input__input'
@@ -402,7 +408,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             placeholder={placeholder}
             prefix={!showSearchButton ? searchIcon : undefined}
             suffix={suffix}
-            size={size === 'large' ? 'middle' : size}
+            size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
             disabled={disabled}
             onKeyPress={handleKeyPress}
             className='oda-search-input__input'

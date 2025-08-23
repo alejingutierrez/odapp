@@ -1,6 +1,11 @@
 #!/usr/bin/env tsx
 
-import { prisma, connectDatabase, disconnectDatabase, getDatabaseMetrics } from '../lib/prisma.js'
+import {
+  prisma,
+  connectDatabase,
+  disconnectDatabase,
+  getDatabaseMetrics,
+} from '../lib/prisma.js'
 import { databaseHealthChecker } from '../lib/database-health.js'
 import { migrationManager } from '../lib/database-migrations.js'
 
@@ -30,7 +35,7 @@ async function verifyDatabase() {
       console.log('✅ All migrations are valid')
     } else {
       console.log('❌ Migration validation failed:')
-      validation.errors.forEach(error => console.log(`   - ${error}`))
+      validation.errors.forEach((error) => console.log(`   - ${error}`))
     }
     console.log()
 
@@ -38,9 +43,15 @@ async function verifyDatabase() {
     console.log('4. Performing health check...')
     const healthResult = await databaseHealthChecker.performHealthCheck()
     console.log(`✅ Database health: ${healthResult.status}`)
-    console.log(`   Connection: ${healthResult.checks.connection.status} (${healthResult.checks.connection.duration}ms)`)
-    console.log(`   Performance: ${healthResult.checks.performance.status} (${healthResult.checks.performance.duration}ms)`)
-    console.log(`   Storage: ${healthResult.checks.storage.status} (${healthResult.checks.storage.duration}ms)`)
+    console.log(
+      `   Connection: ${healthResult.checks.connection.status} (${healthResult.checks.connection.duration}ms)`
+    )
+    console.log(
+      `   Performance: ${healthResult.checks.performance.status} (${healthResult.checks.performance.duration}ms)`
+    )
+    console.log(
+      `   Storage: ${healthResult.checks.storage.status} (${healthResult.checks.storage.duration}ms)`
+    )
     console.log()
 
     // Get database metrics
@@ -56,7 +67,9 @@ async function verifyDatabase() {
 
     // Check indexes
     console.log('6. Verifying database indexes...')
-    const indexes = await prisma.$queryRaw<Array<{ indexname: string; tablename: string }>>`
+    const indexes = await prisma.$queryRaw<
+      Array<{ indexname: string; tablename: string }>
+    >`
       SELECT indexname, tablename 
       FROM pg_indexes 
       WHERE schemaname = 'public' 
@@ -64,15 +77,18 @@ async function verifyDatabase() {
       ORDER BY tablename, indexname
     `
     console.log(`✅ Custom indexes created: ${indexes.length}`)
-    
+
     // Group indexes by table
-    const indexesByTable = indexes.reduce((acc, index) => {
-      if (!acc[index.tablename]) {
-        acc[index.tablename] = []
-      }
-      acc[index.tablename].push(index.indexname)
-      return acc
-    }, {} as Record<string, string[]>)
+    const indexesByTable = indexes.reduce(
+      (acc, index) => {
+        if (!acc[index.tablename]) {
+          acc[index.tablename] = []
+        }
+        acc[index.tablename].push(index.indexname)
+        return acc
+      },
+      {} as Record<string, string[]>
+    )
 
     Object.entries(indexesByTable).forEach(([table, tableIndexes]) => {
       console.log(`   ${table}: ${tableIndexes.length} indexes`)
@@ -81,9 +97,11 @@ async function verifyDatabase() {
 
     // Test complex queries
     console.log('7. Testing complex queries...')
-    
+
     // Test product search with full-text search
-    const searchResults = await prisma.$queryRaw<Array<{ id: string; name: string }>>`
+    const searchResults = await prisma.$queryRaw<
+      Array<{ id: string; name: string }>
+    >`
       SELECT id, name
       FROM products
       WHERE to_tsvector('english', name || ' ' || COALESCE(description, '')) 
@@ -141,12 +159,14 @@ async function verifyDatabase() {
         totalAmount: true,
       },
     })
-    console.log(`✅ Order analytics: ${orderStats._count.id} orders, $${orderStats._sum.totalAmount || 0} total, $${orderStats._avg.totalAmount || 0} average`)
+    console.log(
+      `✅ Order analytics: ${orderStats._count.id} orders, $${orderStats._sum.totalAmount || 0} total, $${orderStats._avg.totalAmount || 0} average`
+    )
     console.log()
 
     // Test database constraints and relationships
     console.log('8. Testing database relationships...')
-    
+
     const productWithRelations = await prisma.product.findFirst({
       include: {
         variants: true,
@@ -169,8 +189,12 @@ async function verifyDatabase() {
       console.log('✅ Product relationships:')
       console.log(`   Variants: ${productWithRelations.variants.length}`)
       console.log(`   Images: ${productWithRelations.images.length}`)
-      console.log(`   Category: ${productWithRelations.category?.name || 'None'}`)
-      console.log(`   Inventory locations: ${productWithRelations.inventory.length}`)
+      console.log(
+        `   Category: ${productWithRelations.category?.name || 'None'}`
+      )
+      console.log(
+        `   Inventory locations: ${productWithRelations.inventory.length}`
+      )
       console.log(`   Collections: ${productWithRelations.collections.length}`)
     }
     console.log()
@@ -184,14 +208,14 @@ async function verifyDatabase() {
     // Performance test
     console.log('10. Running performance tests...')
     const start = Date.now()
-    
+
     await Promise.all([
       prisma.product.count(),
       prisma.customer.count(),
       prisma.order.count(),
       prisma.inventoryItem.count(),
     ])
-    
+
     const duration = Date.now() - start
     console.log(`✅ Concurrent queries completed in ${duration}ms`)
     console.log()
@@ -199,10 +223,11 @@ async function verifyDatabase() {
     console.log('🎉 Database verification completed successfully!')
     console.log('\n📊 Summary:')
     console.log(`   - Database health: ${healthResult.status}`)
-    console.log(`   - Total entities: ${Object.values(metrics).reduce((sum, count) => typeof count === 'number' ? sum + count : sum, 0)}`)
+    console.log(
+      `   - Total entities: ${Object.values(metrics).reduce((sum, count) => (sum as number) + (typeof count === 'number' ? count : 0), 0)}`
+    )
     console.log(`   - Custom indexes: ${indexes.length}`)
     console.log(`   - Performance: ${duration}ms for concurrent queries`)
-
   } catch (error) {
     console.error('❌ Database verification failed:', error)
     process.exit(1)

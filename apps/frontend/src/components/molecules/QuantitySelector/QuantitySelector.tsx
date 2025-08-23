@@ -40,15 +40,18 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   formatter,
   parser,
   addonBefore,
-  addonAfter
+  addonAfter,
 }) => {
   const [internalValue, setInternalValue] = useState(value)
 
-  const handleChange = useCallback((newValue: number | null) => {
-    const validValue = Math.max(min, Math.min(max, newValue || min))
-    setInternalValue(validValue)
-    onChange?.(validValue)
-  }, [min, max, onChange])
+  const handleChange = useCallback(
+    (newValue: number | null) => {
+      const validValue = Math.max(min, Math.min(max, newValue || min))
+      setInternalValue(validValue)
+      onChange?.(validValue)
+    },
+    [min, max, onChange]
+  )
 
   const handleIncrement = useCallback(() => {
     const newValue = Math.min(max, internalValue + step)
@@ -67,17 +70,17 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
     return (
       <div className={`quantity-selector ${className}`}>
         {showLabel && (
-          <Typography.Text className="quantity-selector__label">
+          <Typography.Text className='quantity-selector__label'>
             {label}
           </Typography.Text>
         )}
-        <Space.Compact className="quantity-selector__controls">
+        <Space.Compact className='quantity-selector__controls'>
           <Button
             icon={<MinusOutlined />}
             onClick={handleDecrement}
             disabled={!canDecrement}
             size={size}
-            className="quantity-selector__decrement"
+            className='quantity-selector__decrement'
           />
           <InputNumber
             value={internalValue}
@@ -91,7 +94,7 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
             precision={precision}
             formatter={formatter}
             parser={parser}
-            className="quantity-selector__input"
+            className='quantity-selector__input'
             controls={false}
           />
           <Button
@@ -99,7 +102,7 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
             onClick={handleIncrement}
             disabled={!canIncrement}
             size={size}
-            className="quantity-selector__increment"
+            className='quantity-selector__increment'
           />
         </Space.Compact>
       </div>
@@ -109,7 +112,7 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   return (
     <div className={`quantity-selector ${className}`}>
       {showLabel && (
-        <Typography.Text className="quantity-selector__label">
+        <Typography.Text className='quantity-selector__label'>
           {label}
         </Typography.Text>
       )}
@@ -127,7 +130,7 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
         parser={parser}
         addonBefore={addonBefore}
         addonAfter={addonAfter}
-        className="quantity-selector__input"
+        className='quantity-selector__input'
       />
     </div>
   )

@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
-import { PrismaClient } from '@prisma/client'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { customerService } from '../services/customer.service.js'
 import { AppError } from '../lib/errors.js'
 import { cacheManager } from '../lib/cache/index.js'
@@ -21,46 +20,46 @@ const mockPrisma = {
     updateMany: vi.fn(),
     count: vi.fn(),
     aggregate: vi.fn(),
-    groupBy: vi.fn()
+    groupBy: vi.fn(),
   },
   customerSegment: {
     findUnique: vi.fn(),
     findMany: vi.fn(),
-    create: vi.fn()
+    create: vi.fn(),
   },
   customerSegmentMember: {
     findUnique: vi.fn(),
     create: vi.fn(),
     createMany: vi.fn(),
     delete: vi.fn(),
-    groupBy: vi.fn()
+    groupBy: vi.fn(),
   },
   customerInteraction: {
-    create: vi.fn()
+    create: vi.fn(),
   },
   loyaltyTransaction: {
-    create: vi.fn()
+    create: vi.fn(),
   },
   customerAddress: {
-    groupBy: vi.fn()
+    groupBy: vi.fn(),
   },
   order: {
     findMany: vi.fn(),
-    aggregate: vi.fn()
+    aggregate: vi.fn(),
   },
   auditLog: {
-    findMany: vi.fn()
+    findMany: vi.fn(),
   },
-  $transaction: vi.fn()
-} as any
+  $transaction: vi.fn(),
+}
 
 vi.mock('../lib/prisma.js', () => ({
-  prisma: mockPrisma
+  prisma: mockPrisma,
 }))
 
 describe('CustomerService', () => {
   const mockUser = { id: 'user-1' }
-  
+
   const mockCustomer = {
     id: 'customer-1',
     email: 'test@example.com',
@@ -84,7 +83,7 @@ describe('CustomerService', () => {
     segmentMembers: [],
     interactions: [],
     loyaltyTransactions: [],
-    _count: { orders: 5 }
+    _count: { orders: 5 },
   }
 
   const mockCreateCustomerData = {
@@ -97,23 +96,25 @@ describe('CustomerService', () => {
     preferences: {
       language: 'en',
       currency: 'USD',
-      emailMarketing: true
+      emailMarketing: true,
     },
-    addresses: [{
-      type: 'both' as const,
-      firstName: 'Jane',
-      lastName: 'Smith',
-      address1: '123 Main St',
-      city: 'New York',
-      country: 'US',
-      zip: '10001',
-      isDefault: true
-    }]
+    addresses: [
+      {
+        type: 'both' as const,
+        firstName: 'Jane',
+        lastName: 'Smith',
+        address1: '123 Main St',
+        city: 'New York',
+        country: 'US',
+        zip: '10001',
+        isDefault: true,
+      },
+    ],
   }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Setup default mock implementations
     vi.mocked(cacheManager.get).mockResolvedValue(null)
     vi.mocked(cacheManager.set).mockResolvedValue(undefined)
@@ -147,10 +148,14 @@ describe('CustomerService', () => {
           segmentMembers: { include: { segment: true } },
           interactions: { orderBy: { createdAt: 'desc' }, take: 50 },
           loyaltyTransactions: { orderBy: { createdAt: 'desc' }, take: 100 },
-          _count: { select: { orders: true } }
-        })
+          _count: { select: { orders: true } },
+        }),
       })
-      expect(cacheManager.set).toHaveBeenCalledWith('customer:customer-1:full', mockCustomer, 300)
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        'customer:customer-1:full',
+        mockCustomer,
+        300
+      )
     })
 
     it('should return null if customer not found', async () => {
@@ -164,9 +169,13 @@ describe('CustomerService', () => {
 
     it('should handle database errors', async () => {
       vi.mocked(cacheManager.get).mockResolvedValue(null)
-      mockPrisma.customer.findUnique.mockRejectedValue(new Error('Database error'))
+      mockPrisma.customer.findUnique.mockRejectedValue(
+        new Error('Database error')
+      )
 
-      await expect(customerService.getCustomerById('customer-1')).rejects.toThrow(AppError)
+      await expect(
+        customerService.getCustomerById('customer-1')
+      ).rejects.toThrow(AppError)
     })
   })
 
@@ -178,8 +187,8 @@ describe('CustomerService', () => {
         totalAmount: 100,
         status: 'COMPLETED',
         orderDate: new Date('2023-01-01'),
-        items: [{ name: 'Product 1', quantity: 1 }]
-      }
+        items: [{ name: 'Product 1', quantity: 1 }],
+      },
     ]
 
     const mockInteractions = [
@@ -190,8 +199,8 @@ describe('CustomerService', () => {
         subject: 'Support inquiry',
         content: 'Customer needs help',
         outcome: 'resolved',
-        createdAt: new Date('2023-01-02')
-      }
+        createdAt: new Date('2023-01-02'),
+      },
     ]
 
     const mockLoyaltyTransactions = [
@@ -202,14 +211,18 @@ describe('CustomerService', () => {
         description: 'Order bonus',
         referenceType: 'order',
         referenceId: 'order-1',
-        createdAt: new Date('2023-01-03')
-      }
+        createdAt: new Date('2023-01-03'),
+      },
     ]
 
     beforeEach(() => {
       mockPrisma.order.findMany.mockResolvedValue(mockOrders)
-      mockPrisma.customerInteraction.findMany.mockResolvedValue(mockInteractions)
-      mockPrisma.loyaltyTransaction.findMany.mockResolvedValue(mockLoyaltyTransactions)
+      mockPrisma.customerInteraction.findMany.mockResolvedValue(
+        mockInteractions
+      )
+      mockPrisma.loyaltyTransaction.findMany.mockResolvedValue(
+        mockLoyaltyTransactions
+      )
       mockPrisma.auditLog.findMany.mockResolvedValue([])
     })
 
@@ -221,37 +234,46 @@ describe('CustomerService', () => {
           title: 'Order ORD-001',
           description: 'Order for $100 with 1 items',
           date: new Date('2023-01-01'),
-          metadata: expect.any(Object)
-        }
+          metadata: expect.any(Object),
+        },
       ]
       vi.mocked(cacheManager.get).mockResolvedValue(mockTimeline)
 
       const result = await customerService.getCustomerTimeline('customer-1')
 
       expect(result).toEqual(mockTimeline)
-      expect(cacheManager.get).toHaveBeenCalledWith('customer:customer-1:timeline')
+      expect(cacheManager.get).toHaveBeenCalledWith(
+        'customer:customer-1:timeline'
+      )
     })
 
     it('should fetch and build timeline from database', async () => {
       vi.mocked(cacheManager.get).mockResolvedValue(null)
 
-      const result = await customerService.getCustomerTimeline('customer-1', 100)
+      const result = await customerService.getCustomerTimeline(
+        'customer-1',
+        100
+      )
 
       expect(result).toHaveLength(3) // 1 order + 1 interaction + 1 loyalty transaction
       expect(result[0]).toMatchObject({
         type: 'loyalty',
-        title: 'Earned 50 points'
+        title: 'Earned 50 points',
       })
       expect(result[1]).toMatchObject({
         type: 'interaction',
-        title: 'Email support'
+        title: 'Email support',
       })
       expect(result[2]).toMatchObject({
         type: 'order',
-        title: 'Order ORD-001'
+        title: 'Order ORD-001',
       })
 
-      expect(cacheManager.set).toHaveBeenCalledWith('customer:customer-1:timeline', result, 300)
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        'customer:customer-1:timeline',
+        result,
+        300
+      )
     })
 
     it('should limit timeline events', async () => {
@@ -269,7 +291,7 @@ describe('CustomerService', () => {
       total: 1,
       page: 1,
       limit: 20,
-      totalPages: 1
+      totalPages: 1,
     }
 
     beforeEach(() => {
@@ -290,13 +312,13 @@ describe('CustomerService', () => {
             { firstName: { contains: 'john', mode: 'insensitive' } },
             { lastName: { contains: 'john', mode: 'insensitive' } },
             { email: { contains: 'john', mode: 'insensitive' } },
-            { phone: { contains: 'john' } }
-          ]
+            { phone: { contains: 'john' } },
+          ],
         },
         include: expect.any(Object),
         orderBy: { createdAt: 'desc' },
         skip: 0,
-        take: 20
+        take: 20,
       })
     })
 
@@ -308,8 +330,8 @@ describe('CustomerService', () => {
       expect(mockPrisma.customer.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            status: 'ACTIVE'
-          })
+            status: 'ACTIVE',
+          }),
         })
       )
     })
@@ -323,15 +345,20 @@ describe('CustomerService', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             segmentMembers: {
-              some: { segmentId: 'segment-1' }
-            }
-          })
+              some: { segmentId: 'segment-1' },
+            },
+          }),
         })
       )
     })
 
     it('should apply total spent range filter', async () => {
-      const query = { totalSpentMin: 100, totalSpentMax: 1000, page: 1, limit: 20 }
+      const query = {
+        totalSpentMin: 100,
+        totalSpentMax: 1000,
+        page: 1,
+        limit: 20,
+      }
 
       await customerService.searchCustomers(query)
 
@@ -340,21 +367,26 @@ describe('CustomerService', () => {
           where: expect.objectContaining({
             totalSpent: {
               gte: 100,
-              lte: 1000
-            }
-          })
+              lte: 1000,
+            },
+          }),
         })
       )
     })
 
     it('should handle sorting', async () => {
-      const query = { sortBy: 'totalSpent', sortOrder: 'asc' as const, page: 1, limit: 20 }
+      const query = {
+        sortBy: 'totalSpent',
+        sortOrder: 'asc' as const,
+        page: 1,
+        limit: 20,
+      }
 
       await customerService.searchCustomers(query)
 
       expect(mockPrisma.customer.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: { totalSpent: 'asc' }
+          orderBy: { totalSpent: 'asc' },
         })
       )
     })
@@ -367,7 +399,10 @@ describe('CustomerService', () => {
     })
 
     it('should create customer successfully', async () => {
-      const result = await customerService.createCustomer(mockCreateCustomerData, mockUser.id)
+      const result = await customerService.createCustomer(
+        mockCreateCustomerData,
+        mockUser.id
+      )
 
       expect(result).toEqual(mockCustomer)
       expect(mockPrisma.customer.create).toHaveBeenCalledWith({
@@ -388,19 +423,19 @@ describe('CustomerService', () => {
                 country: 'US',
                 postalCode: '10001',
                 isDefault: true,
-                type: 'BOTH'
-              })
-            ])
-          }
+                type: 'BOTH',
+              }),
+            ]),
+          },
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'customer_created',
         entity: 'customer',
         entityId: mockCustomer.id,
         newValues: mockCustomer,
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
 
@@ -409,7 +444,9 @@ describe('CustomerService', () => {
 
       await expect(
         customerService.createCustomer(mockCreateCustomerData, mockUser.id)
-      ).rejects.toThrow(new AppError('Customer with this email already exists', 409))
+      ).rejects.toThrow(
+        new AppError('Customer with this email already exists', 409)
+      )
     })
 
     it('should handle database errors', async () => {
@@ -425,18 +462,25 @@ describe('CustomerService', () => {
     const updateData = {
       id: 'customer-1',
       firstName: 'John Updated',
-      email: 'updated@example.com'
+      email: 'updated@example.com',
     }
 
     beforeEach(() => {
       mockPrisma.customer.findUnique
         .mockResolvedValueOnce(mockCustomer) // For getCustomerById
         .mockResolvedValueOnce(null) // For email uniqueness check
-      mockPrisma.customer.update.mockResolvedValue({ ...mockCustomer, ...updateData })
+      mockPrisma.customer.update.mockResolvedValue({
+        ...mockCustomer,
+        ...updateData,
+      })
     })
 
     it('should update customer successfully', async () => {
-      const result = await customerService.updateCustomer('customer-1', updateData, mockUser.id)
+      const result = await customerService.updateCustomer(
+        'customer-1',
+        updateData,
+        mockUser.id
+      )
 
       expect(result).toEqual({ ...mockCustomer, ...updateData })
       expect(mockPrisma.customer.update).toHaveBeenCalledWith({
@@ -444,9 +488,9 @@ describe('CustomerService', () => {
         data: expect.objectContaining({
           firstName: 'John Updated',
           email: 'updated@example.com',
-          updatedAt: expect.any(Date)
+          updatedAt: expect.any(Date),
         }),
-        include: expect.any(Object)
+        include: expect.any(Object),
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'customer_updated',
@@ -454,7 +498,7 @@ describe('CustomerService', () => {
         entityId: 'customer-1',
         oldValues: mockCustomer,
         newValues: { ...mockCustomer, ...updateData },
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
 
@@ -473,14 +517,19 @@ describe('CustomerService', () => {
 
       await expect(
         customerService.updateCustomer('customer-1', updateData, mockUser.id)
-      ).rejects.toThrow(new AppError('Customer with this email already exists', 409))
+      ).rejects.toThrow(
+        new AppError('Customer with this email already exists', 409)
+      )
     })
   })
 
   describe('deleteCustomer', () => {
     beforeEach(() => {
       mockPrisma.customer.findUnique.mockResolvedValue(mockCustomer)
-      mockPrisma.customer.update.mockResolvedValue({ ...mockCustomer, deletedAt: new Date() })
+      mockPrisma.customer.update.mockResolvedValue({
+        ...mockCustomer,
+        deletedAt: new Date(),
+      })
     })
 
     it('should soft delete customer successfully', async () => {
@@ -490,15 +539,15 @@ describe('CustomerService', () => {
         where: { id: 'customer-1' },
         data: {
           deletedAt: expect.any(Date),
-          email: expect.stringContaining('test@example.com_deleted_')
-        }
+          email: expect.stringContaining('test@example.com_deleted_'),
+        },
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'customer_deleted',
         entity: 'customer',
         entityId: 'customer-1',
         oldValues: mockCustomer,
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
 
@@ -517,7 +566,7 @@ describe('CustomerService', () => {
       direction: 'inbound' as const,
       subject: 'Support request',
       content: 'Customer needs help with order',
-      status: 'sent' as const
+      status: 'sent' as const,
     }
 
     const mockInteraction = {
@@ -529,7 +578,7 @@ describe('CustomerService', () => {
       content: 'Customer needs help with order',
       outcome: 'sent',
       createdBy: mockUser.id,
-      createdAt: new Date()
+      createdAt: new Date(),
     }
 
     beforeEach(() => {
@@ -537,7 +586,11 @@ describe('CustomerService', () => {
     })
 
     it('should add interaction successfully', async () => {
-      const result = await customerService.addInteraction('customer-1', interactionData, mockUser.id)
+      const result = await customerService.addInteraction(
+        'customer-1',
+        interactionData,
+        mockUser.id
+      )
 
       expect(result).toEqual(mockInteraction)
       expect(mockPrisma.customerInteraction.create).toHaveBeenCalledWith({
@@ -548,15 +601,15 @@ describe('CustomerService', () => {
           subject: 'Support request',
           content: 'Customer needs help with order',
           outcome: 'sent',
-          createdBy: mockUser.id
-        }
+          createdBy: mockUser.id,
+        },
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'interaction_added',
         entity: 'customer_interaction',
         entityId: mockInteraction.id,
         newValues: mockInteraction,
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
   })
@@ -566,11 +619,11 @@ describe('CustomerService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           loyaltyTransaction: {
-            create: vi.fn().mockResolvedValue({})
+            create: vi.fn().mockResolvedValue({}),
           },
           customer: {
-            update: vi.fn().mockResolvedValue({})
-          }
+            update: vi.fn().mockResolvedValue({}),
+          },
         })
       })
     })
@@ -595,11 +648,11 @@ describe('CustomerService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           loyaltyTransaction: {
-            create: vi.fn().mockResolvedValue({})
+            create: vi.fn().mockResolvedValue({}),
           },
           customer: {
-            update: vi.fn().mockResolvedValue({})
-          }
+            update: vi.fn().mockResolvedValue({}),
+          },
         })
       })
     })
@@ -620,11 +673,18 @@ describe('CustomerService', () => {
     it('should throw error if insufficient points', async () => {
       mockPrisma.customer.findUnique.mockResolvedValue({
         ...mockCustomer,
-        loyaltyPoints: 10 // Less than requested 50
+        loyaltyPoints: 10, // Less than requested 50
       })
 
       await expect(
-        customerService.redeemLoyaltyPoints('customer-1', 50, 'Discount', undefined, undefined, mockUser.id)
+        customerService.redeemLoyaltyPoints(
+          'customer-1',
+          50,
+          'Discount',
+          undefined,
+          undefined,
+          mockUser.id
+        )
       ).rejects.toThrow(new AppError('Insufficient loyalty points', 400))
     })
 
@@ -632,7 +692,14 @@ describe('CustomerService', () => {
       mockPrisma.customer.findUnique.mockResolvedValue(null)
 
       await expect(
-        customerService.redeemLoyaltyPoints('nonexistent', 50, 'Discount', undefined, undefined, mockUser.id)
+        customerService.redeemLoyaltyPoints(
+          'nonexistent',
+          50,
+          'Discount',
+          undefined,
+          undefined,
+          mockUser.id
+        )
       ).rejects.toThrow(new AppError('Customer not found', 404))
     })
   })
@@ -643,17 +710,17 @@ describe('CustomerService', () => {
       orders: [
         {
           totalAmount: 100,
-          orderDate: new Date('2023-01-01')
+          orderDate: new Date('2023-01-01'),
         },
         {
           totalAmount: 200,
-          orderDate: new Date('2023-02-01')
+          orderDate: new Date('2023-02-01'),
         },
         {
           totalAmount: 150,
-          orderDate: new Date('2023-03-01')
-        }
-      ]
+          orderDate: new Date('2023-03-01'),
+        },
+      ],
     }
 
     beforeEach(() => {
@@ -667,14 +734,14 @@ describe('CustomerService', () => {
       expect(result).toBeGreaterThan(0)
       expect(mockPrisma.customer.update).toHaveBeenCalledWith({
         where: { id: 'customer-1' },
-        data: { lifetimeValue: expect.any(Number) }
+        data: { lifetimeValue: expect.any(Number) },
       })
     })
 
     it('should return 0 for customer with no orders', async () => {
       mockPrisma.customer.findUnique.mockResolvedValue({
         ...mockCustomer,
-        orders: []
+        orders: [],
       })
 
       const result = await customerService.calculateLifetimeValue('customer-1')
@@ -695,10 +762,10 @@ describe('CustomerService', () => {
     const mockAnalyticsParams = {
       dateRange: {
         startDate: '2023-01-01',
-        endDate: '2023-12-31'
+        endDate: '2023-12-31',
       },
       groupBy: 'month' as const,
-      metrics: ['total_customers', 'new_customers'] as const
+      metrics: ['total_customers', 'new_customers'] as const,
     }
 
     beforeEach(() => {
@@ -706,8 +773,8 @@ describe('CustomerService', () => {
       mockPrisma.customer.aggregate.mockResolvedValue({
         _avg: {
           averageOrderValue: 150,
-          lifetimeValue: 1000
-        }
+          lifetimeValue: 1000,
+        },
       })
       mockPrisma.customerSegmentMember.groupBy.mockResolvedValue([])
       mockPrisma.customerAddress.groupBy.mockResolvedValue([])
@@ -727,7 +794,7 @@ describe('CustomerService', () => {
         retentionRate: expect.any(Number),
         segmentDistribution: expect.any(Array),
         geographicDistribution: expect.any(Array),
-        loyaltyTierDistribution: expect.any(Array)
+        loyaltyTierDistribution: expect.any(Array),
       })
     })
   })
@@ -737,8 +804,8 @@ describe('CustomerService', () => {
       customerIds: ['customer-1', 'customer-2'],
       updates: {
         status: 'active' as const,
-        acceptsMarketing: true
-      }
+        acceptsMarketing: true,
+      },
     }
 
     beforeEach(() => {
@@ -746,18 +813,21 @@ describe('CustomerService', () => {
     })
 
     it('should bulk update customers successfully', async () => {
-      const result = await customerService.bulkUpdateCustomers(bulkUpdateData, mockUser.id)
+      const result = await customerService.bulkUpdateCustomers(
+        bulkUpdateData,
+        mockUser.id
+      )
 
       expect(result).toEqual({ updated: 2 })
       expect(mockPrisma.customer.updateMany).toHaveBeenCalledWith({
         where: {
           id: { in: ['customer-1', 'customer-2'] },
-          deletedAt: null
+          deletedAt: null,
         },
         data: {
           status: 'ACTIVE',
-          marketingOptIn: true
-        }
+          marketingOptIn: true,
+        },
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'customers_bulk_updated',
@@ -766,9 +836,9 @@ describe('CustomerService', () => {
         newValues: {
           customerIds: ['customer-1', 'customer-2'],
           updates: bulkUpdateData.updates,
-          count: 2
+          count: 2,
         },
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
   })
@@ -776,48 +846,60 @@ describe('CustomerService', () => {
   describe('exportCustomerData', () => {
     const mockCustomerWithFullData = {
       ...mockCustomer,
-      addresses: [{
-        type: 'BOTH',
-        firstName: 'John',
-        lastName: 'Doe',
-        address1: '123 Main St',
-        city: 'New York',
-        country: 'US',
-        postalCode: '10001',
-        isDefault: true
-      }],
-      orders: [{
-        orderNumber: 'ORD-001',
-        orderDate: new Date('2023-01-01'),
-        status: 'COMPLETED',
-        totalAmount: 100,
-        currency: 'USD',
-        items: [{
-          name: 'Product 1',
-          sku: 'SKU-001',
-          quantity: 1,
-          price: 100
-        }],
-        payments: []
-      }],
-      interactions: [{
-        type: 'EMAIL',
-        channel: 'support',
-        subject: 'Support request',
-        createdAt: new Date('2023-01-02')
-      }],
-      loyaltyTransactions: [{
-        type: 'EARNED',
-        points: 50,
-        description: 'Order bonus',
-        createdAt: new Date('2023-01-01')
-      }],
-      segmentMembers: [{
-        segment: {
-          name: 'VIP Customers'
+      addresses: [
+        {
+          type: 'BOTH',
+          firstName: 'John',
+          lastName: 'Doe',
+          address1: '123 Main St',
+          city: 'New York',
+          country: 'US',
+          postalCode: '10001',
+          isDefault: true,
         },
-        addedAt: new Date('2023-01-01')
-      }]
+      ],
+      orders: [
+        {
+          orderNumber: 'ORD-001',
+          orderDate: new Date('2023-01-01'),
+          status: 'COMPLETED',
+          totalAmount: 100,
+          currency: 'USD',
+          items: [
+            {
+              name: 'Product 1',
+              sku: 'SKU-001',
+              quantity: 1,
+              price: 100,
+            },
+          ],
+          payments: [],
+        },
+      ],
+      interactions: [
+        {
+          type: 'EMAIL',
+          channel: 'support',
+          subject: 'Support request',
+          createdAt: new Date('2023-01-02'),
+        },
+      ],
+      loyaltyTransactions: [
+        {
+          type: 'EARNED',
+          points: 50,
+          description: 'Order bonus',
+          createdAt: new Date('2023-01-01'),
+        },
+      ],
+      segmentMembers: [
+        {
+          segment: {
+            name: 'VIP Customers',
+          },
+          addedAt: new Date('2023-01-01'),
+        },
+      ],
     }
 
     beforeEach(() => {
@@ -832,21 +914,21 @@ describe('CustomerService', () => {
           id: 'customer-1',
           email: 'test@example.com',
           firstName: 'John',
-          lastName: 'Doe'
+          lastName: 'Doe',
         }),
         preferences: expect.any(Object),
         addresses: expect.any(Array),
         orderHistory: expect.any(Array),
         loyaltyProgram: expect.any(Object),
         segments: expect.any(Array),
-        interactions: expect.any(Array)
+        interactions: expect.any(Array),
       })
 
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'customer_data_exported',
         entity: 'customer',
         entityId: 'customer-1',
-        newValues: { exportedAt: expect.any(Date) }
+        newValues: { exportedAt: expect.any(Date) },
       })
     })
 
@@ -865,8 +947,8 @@ describe('CustomerService', () => {
       options: {
         updateExisting: false,
         skipInvalid: true,
-        sendWelcomeEmail: true
-      }
+        sendWelcomeEmail: true,
+      },
     }
 
     beforeEach(() => {
@@ -875,13 +957,16 @@ describe('CustomerService', () => {
     })
 
     it('should import customers successfully', async () => {
-      const result = await customerService.importCustomers(importData, mockUser.id)
+      const result = await customerService.importCustomers(
+        importData,
+        mockUser.id
+      )
 
       expect(result).toEqual({
         imported: 1,
         updated: 0,
         skipped: 0,
-        errors: []
+        errors: [],
       })
 
       expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith(
@@ -897,22 +982,25 @@ describe('CustomerService', () => {
           imported: 1,
           updated: 0,
           skipped: 0,
-          errorCount: 0
+          errorCount: 0,
         },
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
 
     it('should skip existing customers when updateExisting is false', async () => {
       mockPrisma.customer.findUnique.mockResolvedValue(mockCustomer) // Existing customer
 
-      const result = await customerService.importCustomers(importData, mockUser.id)
+      const result = await customerService.importCustomers(
+        importData,
+        mockUser.id
+      )
 
       expect(result).toEqual({
         imported: 0,
         updated: 0,
         skipped: 1,
-        errors: []
+        errors: [],
       })
     })
 
@@ -922,29 +1010,37 @@ describe('CustomerService', () => {
 
       const importDataWithUpdate = {
         ...importData,
-        options: { ...importData.options, updateExisting: true }
+        options: { ...importData.options, updateExisting: true },
       }
 
-      const result = await customerService.importCustomers(importDataWithUpdate, mockUser.id)
+      const result = await customerService.importCustomers(
+        importDataWithUpdate,
+        mockUser.id
+      )
 
       expect(result).toEqual({
         imported: 0,
         updated: 1,
         skipped: 0,
-        errors: []
+        errors: [],
       })
     })
 
     it('should handle errors gracefully when skipInvalid is true', async () => {
-      mockPrisma.customer.create.mockRejectedValue(new Error('Validation error'))
+      mockPrisma.customer.create.mockRejectedValue(
+        new Error('Validation error')
+      )
 
-      const result = await customerService.importCustomers(importData, mockUser.id)
+      const result = await customerService.importCustomers(
+        importData,
+        mockUser.id
+      )
 
       expect(result).toEqual({
         imported: 0,
         updated: 0,
         skipped: 1,
-        errors: [{ row: 1, error: 'Validation error' }]
+        errors: [{ row: 1, error: 'Validation error' }],
       })
     })
   })
@@ -957,10 +1053,10 @@ describe('CustomerService', () => {
         {
           field: 'totalSpent',
           operator: 'greater_than' as const,
-          value: 1000
-        }
+          value: 1000,
+        },
       ],
-      isActive: true
+      isActive: true,
     }
 
     const mockSegment = {
@@ -970,17 +1066,22 @@ describe('CustomerService', () => {
       rules: segmentData.conditions,
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
 
     beforeEach(() => {
       mockPrisma.customerSegment.create.mockResolvedValue(mockSegment)
       mockPrisma.customer.findMany.mockResolvedValue([mockCustomer])
-      mockPrisma.customerSegmentMember.createMany.mockResolvedValue({ count: 1 })
+      mockPrisma.customerSegmentMember.createMany.mockResolvedValue({
+        count: 1,
+      })
     })
 
     it('should create segment successfully', async () => {
-      const result = await customerService.createSegment(segmentData, mockUser.id)
+      const result = await customerService.createSegment(
+        segmentData,
+        mockUser.id
+      )
 
       expect(result).toEqual(mockSegment)
       expect(mockPrisma.customerSegment.create).toHaveBeenCalledWith({
@@ -988,15 +1089,15 @@ describe('CustomerService', () => {
           name: 'VIP Customers',
           description: 'High value customers',
           rules: segmentData.conditions,
-          isActive: true
-        }
+          isActive: true,
+        },
       })
       expect(auditService.log).toHaveBeenCalledWith({
         action: 'segment_created',
         entity: 'customer_segment',
         entityId: mockSegment.id,
         newValues: mockSegment,
-        userId: mockUser.id
+        userId: mockUser.id,
       })
     })
   })

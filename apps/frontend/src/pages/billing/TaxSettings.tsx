@@ -5,7 +5,9 @@ const TaxSettings: React.FC = () => {
   return (
     <div>
       <Typography.Title level={2}>Tax Settings</Typography.Title>
-      <Card><p>Tax Settings page will be implemented here...</p></Card>
+      <Card>
+        <p>Tax Settings page will be implemented here...</p>
+      </Card>
     </div>
   )
 }

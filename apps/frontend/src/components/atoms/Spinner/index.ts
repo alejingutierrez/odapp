@@ -1,10 +1,10 @@
-export { 
-  Spinner, 
-  LoadingButton, 
-  PageLoader, 
+export {
+  Spinner,
+  LoadingButton,
+  PageLoader,
   InlineLoader,
   type SpinnerProps,
   type LoadingButtonProps,
   type PageLoaderProps,
-  type InlineLoaderProps
+  type InlineLoaderProps,
 } from './Spinner'

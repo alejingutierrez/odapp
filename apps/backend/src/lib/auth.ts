@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
+import * as jwt from 'jsonwebtoken'
+import * as bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { env } from '../config/env'
 import { prisma } from './prisma'
@@ -36,48 +36,58 @@ export class AuthService {
   /**
    * Verify a password against its hash
    */
-  static async verifyPassword(password: string, hash: string): Promise<boolean> {
+  static async verifyPassword(
+    password: string,
+    hash: string
+  ): Promise<boolean> {
     return bcrypt.compare(password, hash)
   }
 
   /**
    * Generate JWT tokens (access and refresh)
    */
-  static async generateTokens(user: UserWithRoles, sessionId: string): Promise<AuthTokens> {
+  static async generateTokens(
+    user: UserWithRoles,
+    sessionId: string
+  ): Promise<AuthTokens> {
     const permissions = this.extractPermissions(user.roles)
-    const roleNames = user.roles.map(ur => ur.role.name)
+    const roleNames = user.roles.map((ur) => ur.role.name)
 
     const payload: TokenPayload = {
       userId: user.id,
       email: user.email,
       roles: roleNames,
       permissions,
-      sessionId
+      sessionId,
     }
 
+    // @ts-expect-error - JWT secret type compatibility issue
     const accessToken = jwt.sign(payload, env.JWT_SECRET, {
       expiresIn: env.JWT_EXPIRES_IN,
       issuer: 'oda-api',
-      audience: 'oda-client'
+      audience: 'oda-client',
     })
 
+    // @ts-expect-error - JWT secret type compatibility issue
     const refreshToken = jwt.sign(
       { userId: user.id, sessionId },
       env.JWT_SECRET,
       {
         expiresIn: env.JWT_REFRESH_EXPIRES_IN,
         issuer: 'oda-api',
-        audience: 'oda-client'
+        audience: 'oda-client',
       }
     )
 
     const expiresAt = new Date()
-    expiresAt.setTime(expiresAt.getTime() + this.parseExpirationTime(env.JWT_EXPIRES_IN))
+    expiresAt.setTime(
+      expiresAt.getTime() + this.parseExpirationTime(env.JWT_EXPIRES_IN)
+    )
 
     return {
       accessToken,
       refreshToken,
-      expiresAt
+      expiresAt,
     }
   }
 
@@ -88,7 +98,7 @@ export class AuthService {
     try {
       const decoded = jwt.verify(token, env.JWT_SECRET, {
         issuer: 'oda-api',
-        audience: 'oda-client'
+        audience: 'oda-client',
       }) as TokenPayload
 
       return decoded
@@ -108,7 +118,9 @@ export class AuthService {
     const token = crypto.randomBytes(32).toString('hex')
     const refreshToken = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date()
-    expiresAt.setTime(expiresAt.getTime() + this.parseExpirationTime(env.JWT_EXPIRES_IN))
+    expiresAt.setTime(
+      expiresAt.getTime() + this.parseExpirationTime(env.JWT_EXPIRES_IN)
+    )
 
     return prisma.userSession.create({
       data: {
@@ -118,8 +130,8 @@ export class AuthService {
         expiresAt,
         ipAddress,
         userAgent,
-        lastUsedAt: new Date()
-      }
+        lastUsedAt: new Date(),
+      },
     })
   }
 
@@ -129,7 +141,7 @@ export class AuthService {
   static async updateSessionLastUsed(sessionId: string): Promise<void> {
     await prisma.userSession.update({
       where: { id: sessionId },
-      data: { lastUsedAt: new Date() }
+      data: { lastUsedAt: new Date() },
     })
   }
 
@@ -138,7 +150,7 @@ export class AuthService {
    */
   static async revokeSession(sessionId: string): Promise<void> {
     await prisma.userSession.delete({
-      where: { id: sessionId }
+      where: { id: sessionId },
     })
   }
 
@@ -147,7 +159,7 @@ export class AuthService {
    */
   static async revokeAllUserSessions(userId: string): Promise<void> {
     await prisma.userSession.deleteMany({
-      where: { userId }
+      where: { userId },
     })
   }
 
@@ -158,9 +170,9 @@ export class AuthService {
     await prisma.userSession.deleteMany({
       where: {
         expiresAt: {
-          lt: new Date()
-        }
-      }
+          lt: new Date(),
+        },
+      },
     })
   }
 
@@ -173,26 +185,28 @@ export class AuthService {
       include: {
         roles: {
           include: {
-            role: true
-          }
-        }
-      }
+            role: true,
+          },
+        },
+      },
     })
   }
 
   /**
    * Get user by email with roles
    */
-  static async getUserByEmailWithRoles(email: string): Promise<UserWithRoles | null> {
+  static async getUserByEmailWithRoles(
+    email: string
+  ): Promise<UserWithRoles | null> {
     return prisma.user.findUnique({
       where: { email },
       include: {
         roles: {
           include: {
-            role: true
-          }
-        }
-      }
+            role: true,
+          },
+        },
+      },
     })
   }
 
@@ -208,21 +222,28 @@ export class AuthService {
    * Check if user has any of the specified permissions
    */
   static hasAnyPermission(user: UserWithRoles, permissions: string[]): boolean {
-    return permissions.some(permission => this.hasPermission(user, permission))
+    return permissions.some((permission) =>
+      this.hasPermission(user, permission)
+    )
   }
 
   /**
    * Check if user has all specified permissions
    */
-  static hasAllPermissions(user: UserWithRoles, permissions: string[]): boolean {
-    return permissions.every(permission => this.hasPermission(user, permission))
+  static hasAllPermissions(
+    user: UserWithRoles,
+    permissions: string[]
+  ): boolean {
+    return permissions.every((permission) =>
+      this.hasPermission(user, permission)
+    )
   }
 
   /**
    * Check if user has role
    */
   static hasRole(user: UserWithRoles, roleName: string): boolean {
-    return user.roles.some(ur => ur.role.name === roleName)
+    return user.roles.some((ur) => ur.role.name === roleName)
   }
 
   /**
@@ -230,10 +251,10 @@ export class AuthService {
    */
   private static extractPermissions(roles: Array<{ role: Role }>): string[] {
     const permissions = new Set<string>()
-    
-    roles.forEach(userRole => {
+
+    roles.forEach((userRole) => {
       const rolePermissions = userRole.role.permissions as string[]
-      rolePermissions.forEach(permission => permissions.add(permission))
+      rolePermissions.forEach((permission) => permissions.add(permission))
     })
 
     return Array.from(permissions)
@@ -252,11 +273,16 @@ export class AuthService {
     const unit = match[2]
 
     switch (unit) {
-      case 's': return value * 1000
-      case 'm': return value * 60 * 1000
-      case 'h': return value * 60 * 60 * 1000
-      case 'd': return value * 24 * 60 * 60 * 1000
-      default: throw new Error('Invalid time unit')
+      case 's':
+        return value * 1000
+      case 'm':
+        return value * 60 * 1000
+      case 'h':
+        return value * 60 * 60 * 1000
+      case 'd':
+        return value * 24 * 60 * 60 * 1000
+      default:
+        throw new Error('Invalid time unit')
     }
   }
 
@@ -284,7 +310,9 @@ export class AuthService {
   /**
    * Validate session and get user
    */
-  static async validateSession(sessionId: string): Promise<UserWithRoles | null> {
+  static async validateSession(
+    sessionId: string
+  ): Promise<UserWithRoles | null> {
     const session = await prisma.userSession.findUnique({
       where: { id: sessionId },
       include: {
@@ -292,12 +320,12 @@ export class AuthService {
           include: {
             roles: {
               include: {
-                role: true
-              }
-            }
-          }
-        }
-      }
+                role: true,
+              },
+            },
+          },
+        },
+      },
     })
 
     if (!session || session.expiresAt < new Date()) {
@@ -320,7 +348,10 @@ export class AuthService {
   /**
    * Lock user account
    */
-  static async lockAccount(userId: string, lockDurationMinutes: number = 30): Promise<void> {
+  static async lockAccount(
+    userId: string,
+    lockDurationMinutes: number = 30
+  ): Promise<void> {
     const lockedUntil = new Date()
     lockedUntil.setMinutes(lockedUntil.getMinutes() + lockDurationMinutes)
 
@@ -328,8 +359,8 @@ export class AuthService {
       where: { id: userId },
       data: {
         lockedUntil,
-        loginAttempts: 0
-      }
+        loginAttempts: 0,
+      },
     })
   }
 
@@ -341,9 +372,9 @@ export class AuthService {
       where: { id: userId },
       data: {
         loginAttempts: {
-          increment: 1
-        }
-      }
+          increment: 1,
+        },
+      },
     })
 
     // Lock account after 5 failed attempts
@@ -363,21 +394,26 @@ export class AuthService {
       data: {
         loginAttempts: 0,
         lockedUntil: null,
-        lastLoginAt: new Date()
-      }
+        lastLoginAt: new Date(),
+      },
     })
   }
 
   /**
    * Get user login history
    */
-  static async getUserLoginHistory(userId: string, limit: number = 10): Promise<Array<{
-    id: string
-    ipAddress: string | null
-    userAgent: string | null
-    createdAt: Date
-    lastUsedAt: Date | null
-  }>> {
+  static async getUserLoginHistory(
+    userId: string,
+    limit: number = 10
+  ): Promise<
+    Array<{
+      id: string
+      ipAddress: string | null
+      userAgent: string | null
+      createdAt: Date
+      lastUsedAt: Date | null
+    }>
+  > {
     return prisma.userSession.findMany({
       where: { userId },
       select: {
@@ -385,10 +421,10 @@ export class AuthService {
         ipAddress: true,
         userAgent: true,
         createdAt: true,
-        lastUsedAt: true
+        lastUsedAt: true,
       },
       orderBy: { createdAt: 'desc' },
-      take: limit
+      take: limit,
     })
   }
 
@@ -408,23 +444,25 @@ export class AuthService {
       where: {
         userId,
         createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
-        }
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+        },
       },
       select: {
         ipAddress: true,
         userAgent: true,
-        createdAt: true
+        createdAt: true,
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     })
 
     // Check for multiple different IP addresses
-    const uniqueIPs = new Set(recentSessions.map(s => s.ipAddress).filter(Boolean))
+    const uniqueIPs = new Set(
+      recentSessions.map((s) => s.ipAddress).filter(Boolean)
+    )
     if (uniqueIPs.size > 5) {
       return {
         isSuspicious: true,
-        reason: 'Multiple IP addresses detected'
+        reason: 'Multiple IP addresses detected',
       }
     }
 
@@ -432,20 +470,23 @@ export class AuthService {
     if (recentSessions.length > 10) {
       return {
         isSuspicious: true,
-        reason: 'Too many login attempts'
+        reason: 'Too many login attempts',
       }
     }
 
     // Check for completely new device/location
-    const hasKnownSession = recentSessions.some(session => 
-      session.ipAddress === ipAddress || 
-      (session.userAgent && userAgent && session.userAgent.includes(userAgent.split(' ')[0]))
+    const hasKnownSession = recentSessions.some(
+      (session) =>
+        session.ipAddress === ipAddress ||
+        (session.userAgent &&
+          userAgent &&
+          session.userAgent.includes(userAgent.split(' ')[0]))
     )
 
     if (!hasKnownSession && recentSessions.length > 0) {
       return {
         isSuspicious: true,
-        reason: 'Login from unknown device/location'
+        reason: 'Login from unknown device/location',
       }
     }
 
@@ -467,7 +508,8 @@ export class AuthService {
     else feedback.push('Password should be at least 8 characters long')
 
     if (password.length >= 12) score += 1
-    else if (password.length >= 8) feedback.push('Consider using a longer password (12+ characters)')
+    else if (password.length >= 8)
+      feedback.push('Consider using a longer password (12+ characters)')
 
     // Character variety
     if (/[a-z]/.test(password)) score += 1
@@ -488,10 +530,10 @@ export class AuthService {
       /password/i,
       /qwerty/i,
       /abc123/i,
-      /admin/i
+      /admin/i,
     ]
 
-    if (commonPatterns.some(pattern => pattern.test(password))) {
+    if (commonPatterns.some((pattern) => pattern.test(password))) {
       score -= 2
       feedback.push('Avoid common patterns and dictionary words')
     }
@@ -504,7 +546,7 @@ export class AuthService {
 
     return {
       score: Math.max(0, Math.min(6, score)),
-      feedback
+      feedback,
     }
   }
 
@@ -546,17 +588,27 @@ export class AuthService {
 
     // Check for common weak passwords
     const commonPasswords = [
-      'password', 'password123', '123456', 'qwerty', 'abc123',
-      'admin', 'admin123', 'root', 'user', 'guest'
+      'password',
+      'password123',
+      '123456',
+      'qwerty',
+      'abc123',
+      'admin',
+      'admin123',
+      'root',
+      'user',
+      'guest',
     ]
 
-    if (commonPasswords.some(common => password.toLowerCase().includes(common))) {
+    if (
+      commonPasswords.some((common) => password.toLowerCase().includes(common))
+    ) {
       errors.push('Password contains common patterns that are not allowed')
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 }

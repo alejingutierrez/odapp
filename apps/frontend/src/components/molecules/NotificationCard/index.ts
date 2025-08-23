@@ -1,7 +1,7 @@
-export { 
-  NotificationCard, 
-  type NotificationCardProps, 
-  type NotificationType, 
-  type NotificationAction 
+export {
+  NotificationCard,
+  type NotificationCardProps,
+  type NotificationType,
+  type NotificationAction,
 } from './NotificationCard'
 export { default } from './NotificationCard'

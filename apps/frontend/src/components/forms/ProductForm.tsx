@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   Form,
-  Input,
   Select,
   InputNumber,
   Switch,
@@ -16,6 +15,7 @@ import {
   Alert,
   Spin,
 } from 'antd'
+import { Input, TextArea } from '../../components/atoms/Input'
 import {
   PlusOutlined,
   MinusCircleOutlined,
@@ -32,7 +32,7 @@ import {
 } from '../../hooks/useFormValidation'
 import { validationSchemas } from '../../utils/validation'
 
-const { TextArea } = Input
+
 const { Option } = Select
 
 // Product form validation schema
@@ -80,7 +80,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setValue,
     getValues,
     formState: { errors, isSubmitting, isDirty },
-    validateField,
+    // validateField,
     validateForm,
     isFormValid,
     hasErrors,
@@ -222,7 +222,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   // Handle variant operations
   const handleAddVariant = () => {
     if (variantArrayHelper.canAddItem(variantFields.length)) {
-      appendVariant(variantArrayHelper.defaultValue)
+      const defaultVariant = {
+        sku: '',
+        size: '',
+        color: '',
+        price: 0,
+        compareAtPrice: undefined,
+        cost: undefined,
+        weight: undefined,
+        inventoryQuantity: 0,
+        requiresShipping: true,
+        taxable: true,
+      }
+      appendVariant(defaultVariant)
     }
   }
 
@@ -233,10 +245,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }
 
   // Handle image upload
-  const handleImageUpload = (info: {
-    file: { status: string; response: unknown }
-  }) => {
-    if (info.file.status === 'done') {
+  const handleImageUpload = (info: { file?: { status?: string; response?: unknown } }) => {
+    if (info.file?.status === 'done') {
       // Handle file upload response
       console.log('File uploaded:', info.file.response)
     }
@@ -299,10 +309,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     <Input
                       {...field}
                       placeholder='Enter product name'
-                      onBlur={async (e) => {
-                        field.onBlur(e)
-                        await validateField('name', e.target.value)
-                      }}
+                      onBlur={field.onBlur}
                     />
                   )}
                 />,
@@ -463,13 +470,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <Input
                           {...field}
                           placeholder='PROD-001'
-                          onBlur={async (e) => {
-                            field.onBlur(e)
-                            await validateField(
-                              `variants.${index}.sku`,
-                              e.target.value
-                            )
-                          }}
+                          onBlur={field.onBlur}
                         />
                       )}
                     />,

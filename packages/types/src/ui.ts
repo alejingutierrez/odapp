@@ -3,7 +3,7 @@ export interface TableColumn<T = unknown> {
   key: string
   title: string
   dataIndex?: keyof T
-  render?: (value: unknown, record: T, index: number) => unknown
+  render?: (_value: unknown, _record: T, _index: number) => unknown
   sorter?: boolean
   width?: number
   fixed?: 'left' | 'right'

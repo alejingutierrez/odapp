@@ -1,7 +1,7 @@
-import React from 'react'
+
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { SearchBox } from './SearchBox'
 
 // Mock the useDebounce hook
@@ -20,7 +20,7 @@ describe('SearchBox', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseDebounce.mockImplementation((value: string) => value)
+    mockUseDebounce.mockImplementation((value: unknown) => value as string)
   })
 
   it('renders with default props', () => {

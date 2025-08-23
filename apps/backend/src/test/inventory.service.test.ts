@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { PrismaClient, AdjustmentType, TransferStatus } from '@prisma/client'
 import { InventoryService } from '../services/inventory.service'
 import { AppError } from '../lib/errors'
@@ -9,8 +9,8 @@ vi.mock('../lib/logger', () => ({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
-    debug: vi.fn()
-  }
+    debug: vi.fn(),
+  },
 }))
 
 // Mock Prisma Client
@@ -22,12 +22,12 @@ const mockPrisma = {
     create: vi.fn(),
     update: vi.fn(),
     fields: {
-      lowStockThreshold: 'lowStockThreshold'
-    }
+      lowStockThreshold: 'lowStockThreshold',
+    },
   },
   inventoryAdjustment: {
     create: vi.fn(),
-    findMany: vi.fn()
+    findMany: vi.fn(),
   },
   inventoryReservation: {
     create: vi.fn(),
@@ -35,21 +35,21 @@ const mockPrisma = {
     findFirst: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
-    delete: vi.fn()
+    delete: vi.fn(),
   },
   inventoryTransfer: {
     create: vi.fn(),
     findUnique: vi.fn(),
-    update: vi.fn()
+    update: vi.fn(),
   },
   inventoryTransferItem: {
     create: vi.fn(),
-    update: vi.fn()
+    update: vi.fn(),
   },
   location: {
-    findUnique: vi.fn()
+    findUnique: vi.fn(),
   },
-  $transaction: vi.fn()
+  $transaction: vi.fn(),
 } as unknown as PrismaClient
 
 describe('InventoryService', () => {
@@ -78,11 +78,11 @@ describe('InventoryService', () => {
           product: {
             id: 'prod1',
             name: 'Test Product',
-            images: [{ url: 'test.jpg' }]
+            images: [{ url: 'test.jpg' }],
           },
           variant: null,
-          location: { id: 'loc1', name: 'Main Warehouse' }
-        }
+          location: { id: 'loc1', name: 'Main Warehouse' },
+        },
       ]
 
       mockPrisma.inventoryItem.findMany.mockResolvedValue(mockInventoryItems)
@@ -94,16 +94,13 @@ describe('InventoryService', () => {
         include: {
           product: {
             include: {
-              images: { take: 1, orderBy: { sortOrder: 'asc' } }
-            }
+              images: { take: 1, orderBy: { sortOrder: 'asc' } },
+            },
           },
           variant: true,
-          location: true
+          location: true,
         },
-        orderBy: [
-          { product: { name: 'asc' } },
-          { variant: { name: 'asc' } }
-        ]
+        orderBy: [{ product: { name: 'asc' } }, { variant: { name: 'asc' } }],
       })
 
       expect(result).toEqual(mockInventoryItems)
@@ -113,7 +110,7 @@ describe('InventoryService', () => {
       mockPrisma.inventoryItem.findMany.mockResolvedValue([])
 
       await inventoryService.getInventoryByLocation('loc1', {
-        productIds: ['prod1', 'prod2']
+        productIds: ['prod1', 'prod2'],
       })
 
       expect(mockPrisma.inventoryItem.findMany).toHaveBeenCalledWith({
@@ -121,11 +118,11 @@ describe('InventoryService', () => {
           locationId: 'loc1',
           OR: [
             { productId: { in: ['prod1', 'prod2'] } },
-            { variantId: { in: ['prod1', 'prod2'] } }
-          ]
+            { variantId: { in: ['prod1', 'prod2'] } },
+          ],
         },
         include: expect.any(Object),
-        orderBy: expect.any(Array)
+        orderBy: expect.any(Array),
       })
     })
 
@@ -133,16 +130,16 @@ describe('InventoryService', () => {
       mockPrisma.inventoryItem.findMany.mockResolvedValue([])
 
       await inventoryService.getInventoryByLocation('loc1', {
-        lowStockOnly: true
+        lowStockOnly: true,
       })
 
       expect(mockPrisma.inventoryItem.findMany).toHaveBeenCalledWith({
         where: {
           locationId: 'loc1',
-          quantity: { lte: 'lowStockThreshold' }
+          quantity: { lte: 'lowStockThreshold' },
         },
         include: expect.any(Object),
-        orderBy: expect.any(Array)
+        orderBy: expect.any(Array),
       })
     })
   })
@@ -159,25 +156,34 @@ describe('InventoryService', () => {
       lowStockThreshold: 10,
       product: { name: 'Test Product' },
       variant: null,
-      location: { name: 'Main Warehouse' }
+      location: { name: 'Main Warehouse' },
     }
 
     it('should update stock level and create adjustment record', async () => {
-      const updatedItem = { ...mockInventoryItem, quantity: 75, availableQuantity: 70 }
+      const updatedItem = {
+        ...mockInventoryItem,
+        quantity: 75,
+        availableQuantity: 70,
+      }
 
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue(updatedItem)
+            update: vi.fn().mockResolvedValue(updatedItem),
           },
           inventoryAdjustment: {
-            create: vi.fn().mockResolvedValue({ id: 'adj1' })
-          }
+            create: vi.fn().mockResolvedValue({ id: 'adj1' }),
+          },
         })
       })
 
-      const result = await inventoryService.updateStockLevel('inv1', 75, 'Stock replenishment', 'user1')
+      const result = await inventoryService.updateStockLevel(
+        'inv1',
+        75,
+        'Stock replenishment',
+        'user1'
+      )
 
       expect(result).toEqual(updatedItem)
       expect(mockEmit).toHaveBeenCalledWith('inventory:updated', {
@@ -189,7 +195,7 @@ describe('InventoryService', () => {
         newQuantity: 75,
         availableQuantity: 70,
         reason: 'Stock replenishment',
-        userId: 'user1'
+        userId: 'user1',
       })
     })
 
@@ -201,11 +207,11 @@ describe('InventoryService', () => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(lowStockItem),
-            update: vi.fn().mockResolvedValue(updatedItem)
+            update: vi.fn().mockResolvedValue(updatedItem),
           },
           inventoryAdjustment: {
-            create: vi.fn().mockResolvedValue({ id: 'adj1' })
-          }
+            create: vi.fn().mockResolvedValue({ id: 'adj1' }),
+          },
         })
       })
 
@@ -220,7 +226,7 @@ describe('InventoryService', () => {
         threshold: 10,
         productName: 'Test Product',
         variantName: undefined,
-        locationName: 'Main Warehouse'
+        locationName: 'Main Warehouse',
       })
     })
 
@@ -228,8 +234,8 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
-            findUnique: vi.fn().mockResolvedValue(null)
-          }
+            findUnique: vi.fn().mockResolvedValue(null),
+          },
         })
       })
 
@@ -244,7 +250,7 @@ describe('InventoryService', () => {
       id: 'inv1',
       quantity: 100,
       reservedQuantity: 10,
-      availableQuantity: 90
+      availableQuantity: 90,
     }
 
     it('should create reservation when sufficient inventory available', async () => {
@@ -253,18 +259,18 @@ describe('InventoryService', () => {
         inventoryItemId: 'inv1',
         quantity: 20,
         reason: 'Order pending',
-        referenceId: 'order1'
+        referenceId: 'order1',
       }
 
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryReservation: {
-            create: vi.fn().mockResolvedValue(mockReservation)
-          }
+            create: vi.fn().mockResolvedValue(mockReservation),
+          },
         })
       })
 
@@ -272,7 +278,7 @@ describe('InventoryService', () => {
         inventoryItemId: 'inv1',
         quantity: 20,
         reason: 'Order pending',
-        referenceId: 'order1'
+        referenceId: 'order1',
       })
 
       expect(result).toEqual(mockReservation)
@@ -281,7 +287,7 @@ describe('InventoryService', () => {
         reservationId: 'res1',
         quantity: 20,
         reason: 'Order pending',
-        referenceId: 'order1'
+        referenceId: 'order1',
       })
     })
 
@@ -289,8 +295,8 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
-            findUnique: vi.fn().mockResolvedValue(mockInventoryItem)
-          }
+            findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
+          },
         })
       })
 
@@ -298,7 +304,7 @@ describe('InventoryService', () => {
         inventoryService.createReservation({
           inventoryItemId: 'inv1',
           quantity: 100, // More than available (90)
-          reason: 'Order pending'
+          reason: 'Order pending',
         })
       ).rejects.toThrow(AppError)
     })
@@ -307,8 +313,8 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
-            findUnique: vi.fn().mockResolvedValue(null)
-          }
+            findUnique: vi.fn().mockResolvedValue(null),
+          },
         })
       })
 
@@ -316,7 +322,7 @@ describe('InventoryService', () => {
         inventoryService.createReservation({
           inventoryItemId: 'nonexistent',
           quantity: 10,
-          reason: 'Test'
+          reason: 'Test',
         })
       ).rejects.toThrow(AppError)
     })
@@ -327,14 +333,14 @@ describe('InventoryService', () => {
       id: 'res1',
       inventoryItemId: 'inv1',
       quantity: 20,
-      reason: 'Order cancelled'
+      reason: 'Order cancelled',
     }
 
     const mockInventoryItem = {
       id: 'inv1',
       quantity: 100,
       reservedQuantity: 30,
-      availableQuantity: 70
+      availableQuantity: 70,
     }
 
     it('should release reservation and update inventory', async () => {
@@ -342,12 +348,12 @@ describe('InventoryService', () => {
         return callback({
           inventoryReservation: {
             findUnique: vi.fn().mockResolvedValue(mockReservation),
-            delete: vi.fn().mockResolvedValue({})
+            delete: vi.fn().mockResolvedValue({}),
           },
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
-          }
+            update: vi.fn().mockResolvedValue({}),
+          },
         })
       })
 
@@ -358,7 +364,7 @@ describe('InventoryService', () => {
         inventoryItemId: 'inv1',
         reservationId: 'res1',
         quantity: 20,
-        reason: 'Order cancelled'
+        reason: 'Order cancelled',
       })
     })
 
@@ -366,8 +372,8 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryReservation: {
-            findUnique: vi.fn().mockResolvedValue(null)
-          }
+            findUnique: vi.fn().mockResolvedValue(null),
+          },
         })
       })
 
@@ -382,14 +388,14 @@ describe('InventoryService', () => {
       id: 'res1',
       inventoryItemId: 'inv1',
       quantity: 20,
-      reason: 'Order fulfillment'
+      reason: 'Order fulfillment',
     }
 
     const mockInventoryItem = {
       id: 'inv1',
       quantity: 100,
       reservedQuantity: 20,
-      availableQuantity: 80
+      availableQuantity: 80,
     }
 
     it('should fulfill reservation completely and delete it', async () => {
@@ -397,15 +403,15 @@ describe('InventoryService', () => {
         return callback({
           inventoryReservation: {
             findUnique: vi.fn().mockResolvedValue(mockReservation),
-            delete: vi.fn().mockResolvedValue({})
+            delete: vi.fn().mockResolvedValue({}),
           },
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
-            create: vi.fn().mockResolvedValue({})
-          }
+            create: vi.fn().mockResolvedValue({}),
+          },
         })
       })
 
@@ -416,7 +422,7 @@ describe('InventoryService', () => {
         inventoryItemId: 'inv1',
         reservationId: 'res1',
         quantityFulfilled: 20,
-        remainingQuantity: 0
+        remainingQuantity: 0,
       })
     })
 
@@ -425,15 +431,15 @@ describe('InventoryService', () => {
         return callback({
           inventoryReservation: {
             findUnique: vi.fn().mockResolvedValue(mockReservation),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
-            create: vi.fn().mockResolvedValue({})
-          }
+            create: vi.fn().mockResolvedValue({}),
+          },
         })
       })
 
@@ -444,7 +450,7 @@ describe('InventoryService', () => {
         inventoryItemId: 'inv1',
         reservationId: 'res1',
         quantityFulfilled: 10,
-        remainingQuantity: 10
+        remainingQuantity: 10,
       })
     })
 
@@ -452,8 +458,8 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryReservation: {
-            findUnique: vi.fn().mockResolvedValue(mockReservation)
-          }
+            findUnique: vi.fn().mockResolvedValue(mockReservation),
+          },
         })
       })
 
@@ -469,7 +475,7 @@ describe('InventoryService', () => {
       quantity: 50,
       reservedQuantity: 5,
       availableQuantity: 45,
-      averageCost: { toNumber: () => 10.50 }
+      averageCost: { toNumber: () => 10.5 },
     }
 
     it('should create INCREASE adjustment', async () => {
@@ -477,18 +483,18 @@ describe('InventoryService', () => {
         id: 'adj1',
         inventoryItemId: 'inv1',
         type: AdjustmentType.INCREASE,
-        quantityChange: 25
+        quantityChange: 25,
       }
 
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
-            create: vi.fn().mockResolvedValue(mockAdjustment)
-          }
+            create: vi.fn().mockResolvedValue(mockAdjustment),
+          },
         })
       })
 
@@ -497,7 +503,7 @@ describe('InventoryService', () => {
         type: AdjustmentType.INCREASE,
         quantityChange: 25,
         reason: 'Stock replenishment',
-        userId: 'user1'
+        userId: 'user1',
       })
 
       expect(result).toEqual(mockAdjustment)
@@ -509,7 +515,7 @@ describe('InventoryService', () => {
         newQuantity: 75,
         quantityChange: 25,
         reason: 'Stock replenishment',
-        userId: 'user1'
+        userId: 'user1',
       })
     })
 
@@ -518,14 +524,14 @@ describe('InventoryService', () => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
             create: vi.fn().mockResolvedValue({
               id: 'adj1',
-              type: AdjustmentType.DECREASE
-            })
-          }
+              type: AdjustmentType.DECREASE,
+            }),
+          },
         })
       })
 
@@ -534,14 +540,17 @@ describe('InventoryService', () => {
         type: AdjustmentType.DECREASE,
         quantityChange: 10,
         reason: 'Damaged goods',
-        userId: 'user1'
+        userId: 'user1',
       })
 
-      expect(mockEmit).toHaveBeenCalledWith('inventory:adjusted', expect.objectContaining({
-        oldQuantity: 50,
-        newQuantity: 40,
-        quantityChange: 10 // For DECREASE: oldQuantity - newQuantity = 50 - 40 = 10
-      }))
+      expect(mockEmit).toHaveBeenCalledWith(
+        'inventory:adjusted',
+        expect.objectContaining({
+          oldQuantity: 50,
+          newQuantity: 40,
+          quantityChange: 10, // For DECREASE: oldQuantity - newQuantity = 50 - 40 = 10
+        })
+      )
     })
 
     it('should create SET adjustment', async () => {
@@ -549,14 +558,14 @@ describe('InventoryService', () => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
             create: vi.fn().mockResolvedValue({
               id: 'adj1',
-              type: AdjustmentType.SET
-            })
-          }
+              type: AdjustmentType.SET,
+            }),
+          },
         })
       })
 
@@ -565,14 +574,17 @@ describe('InventoryService', () => {
         type: AdjustmentType.SET,
         quantityChange: 100,
         reason: 'Physical count',
-        userId: 'user1'
+        userId: 'user1',
       })
 
-      expect(mockEmit).toHaveBeenCalledWith('inventory:adjusted', expect.objectContaining({
-        oldQuantity: 50,
-        newQuantity: 100,
-        quantityChange: 50
-      }))
+      expect(mockEmit).toHaveBeenCalledWith(
+        'inventory:adjusted',
+        expect.objectContaining({
+          oldQuantity: 50,
+          newQuantity: 100,
+          quantityChange: 50,
+        })
+      )
     })
 
     it('should prevent negative quantities on DECREASE', async () => {
@@ -580,14 +592,14 @@ describe('InventoryService', () => {
         return callback({
           inventoryItem: {
             findUnique: vi.fn().mockResolvedValue(mockInventoryItem),
-            update: vi.fn().mockResolvedValue({})
+            update: vi.fn().mockResolvedValue({}),
           },
           inventoryAdjustment: {
             create: vi.fn().mockResolvedValue({
               id: 'adj1',
-              type: AdjustmentType.DECREASE
-            })
-          }
+              type: AdjustmentType.DECREASE,
+            }),
+          },
         })
       })
 
@@ -596,14 +608,17 @@ describe('InventoryService', () => {
         type: AdjustmentType.DECREASE,
         quantityChange: 100, // More than current quantity (50)
         reason: 'Test',
-        userId: 'user1'
+        userId: 'user1',
       })
 
-      expect(mockEmit).toHaveBeenCalledWith('inventory:adjusted', expect.objectContaining({
-        oldQuantity: 50,
-        newQuantity: 0, // Should be clamped to 0
-        quantityChange: 50 // For DECREASE: oldQuantity - newQuantity = 50 - 0 = 50
-      }))
+      expect(mockEmit).toHaveBeenCalledWith(
+        'inventory:adjusted',
+        expect.objectContaining({
+          oldQuantity: 50,
+          newQuantity: 0, // Should be clamped to 0
+          quantityChange: 50, // For DECREASE: oldQuantity - newQuantity = 50 - 0 = 50
+        })
+      )
     })
   })
 
@@ -612,7 +627,7 @@ describe('InventoryService', () => {
     const mockToLocation = { id: 'loc2', name: 'Warehouse B' }
     const mockInventoryItem = {
       id: 'inv1',
-      availableQuantity: 100
+      availableQuantity: 100,
     }
 
     it('should create transfer with valid locations and inventory', async () => {
@@ -620,41 +635,40 @@ describe('InventoryService', () => {
         id: 'transfer1',
         fromLocationId: 'loc1',
         toLocationId: 'loc2',
-        status: TransferStatus.PENDING
+        status: TransferStatus.PENDING,
       }
 
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         const mockTx = {
           location: {
-            findUnique: vi.fn()
+            findUnique: vi
+              .fn()
               .mockResolvedValueOnce(mockFromLocation)
-              .mockResolvedValueOnce(mockToLocation)
+              .mockResolvedValueOnce(mockToLocation),
           },
           inventoryTransfer: {
-            create: vi.fn().mockResolvedValue(mockTransfer)
+            create: vi.fn().mockResolvedValue(mockTransfer),
           },
           inventoryItem: {
-            findFirst: vi.fn().mockResolvedValue(mockInventoryItem)
+            findFirst: vi.fn().mockResolvedValue(mockInventoryItem),
           },
           inventoryTransferItem: {
-            create: vi.fn().mockResolvedValue({})
-          }
+            create: vi.fn().mockResolvedValue({}),
+          },
         }
-        
+
         // Mock the createReservation call
         inventoryService.createReservation = vi.fn().mockResolvedValue({})
-        
+
         return callback(mockTx)
       })
 
       const result = await inventoryService.createTransfer({
         fromLocationId: 'loc1',
         toLocationId: 'loc2',
-        items: [
-          { productId: 'prod1', quantity: 10 }
-        ],
+        items: [{ productId: 'prod1', quantity: 10 }],
         notes: 'Transfer test',
-        userId: 'user1'
+        userId: 'user1',
       })
 
       expect(result).toEqual(mockTransfer)
@@ -663,7 +677,7 @@ describe('InventoryService', () => {
         fromLocationId: 'loc1',
         toLocationId: 'loc2',
         items: [{ productId: 'prod1', quantity: 10 }],
-        userId: 'user1'
+        userId: 'user1',
       })
     })
 
@@ -671,10 +685,11 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           location: {
-            findUnique: vi.fn()
+            findUnique: vi
+              .fn()
               .mockResolvedValueOnce(mockFromLocation)
-              .mockResolvedValueOnce(mockFromLocation) // Same location
-          }
+              .mockResolvedValueOnce(mockFromLocation), // Same location
+          },
         })
       })
 
@@ -683,7 +698,7 @@ describe('InventoryService', () => {
           fromLocationId: 'loc1',
           toLocationId: 'loc1', // Same as from
           items: [{ productId: 'prod1', quantity: 10 }],
-          userId: 'user1'
+          userId: 'user1',
         })
       ).rejects.toThrow(AppError)
     })
@@ -692,10 +707,11 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           location: {
-            findUnique: vi.fn()
+            findUnique: vi
+              .fn()
               .mockResolvedValueOnce(null) // From location not found
-              .mockResolvedValueOnce(mockToLocation)
-          }
+              .mockResolvedValueOnce(mockToLocation),
+          },
         })
       })
 
@@ -704,7 +720,7 @@ describe('InventoryService', () => {
           fromLocationId: 'nonexistent',
           toLocationId: 'loc2',
           items: [{ productId: 'prod1', quantity: 10 }],
-          userId: 'user1'
+          userId: 'user1',
         })
       ).rejects.toThrow(AppError)
     })
@@ -715,16 +731,17 @@ describe('InventoryService', () => {
       mockPrisma.$transaction.mockImplementation(async (callback) => {
         return callback({
           location: {
-            findUnique: vi.fn()
+            findUnique: vi
+              .fn()
               .mockResolvedValueOnce(mockFromLocation)
-              .mockResolvedValueOnce(mockToLocation)
+              .mockResolvedValueOnce(mockToLocation),
           },
           inventoryTransfer: {
-            create: vi.fn().mockResolvedValue({ id: 'transfer1' })
+            create: vi.fn().mockResolvedValue({ id: 'transfer1' }),
           },
           inventoryItem: {
-            findFirst: vi.fn().mockResolvedValue(lowInventoryItem)
-          }
+            findFirst: vi.fn().mockResolvedValue(lowInventoryItem),
+          },
         })
       })
 
@@ -733,7 +750,7 @@ describe('InventoryService', () => {
           fromLocationId: 'loc1',
           toLocationId: 'loc2',
           items: [{ productId: 'prod1', quantity: 10 }], // More than available (5)
-          userId: 'user1'
+          userId: 'user1',
         })
       ).rejects.toThrow(AppError)
     })
@@ -743,41 +760,49 @@ describe('InventoryService', () => {
     it('should process multiple updates and return results', async () => {
       const updates = [
         { inventoryItemId: 'inv1', quantity: 100, reason: 'Restock' },
-        { inventoryItemId: 'inv2', quantity: 50, reason: 'Adjustment' }
+        { inventoryItemId: 'inv2', quantity: 50, reason: 'Adjustment' },
       ]
 
       // Mock successful updates
-      inventoryService.updateStockLevel = vi.fn()
+      inventoryService.updateStockLevel = vi
+        .fn()
         .mockResolvedValueOnce({ id: 'inv1', quantity: 100 })
         .mockResolvedValueOnce({ id: 'inv2', quantity: 50 })
 
-      const results = await inventoryService.bulkUpdateStockLevels(updates, 'user1')
+      const results = await inventoryService.bulkUpdateStockLevels(
+        updates,
+        'user1'
+      )
 
       expect(results).toHaveLength(2)
       expect(results[0]).toEqual({
         success: true,
         inventoryItemId: 'inv1',
-        result: { id: 'inv1', quantity: 100 }
+        result: { id: 'inv1', quantity: 100 },
       })
       expect(results[1]).toEqual({
         success: true,
         inventoryItemId: 'inv2',
-        result: { id: 'inv2', quantity: 50 }
+        result: { id: 'inv2', quantity: 50 },
       })
     })
 
     it('should handle partial failures gracefully', async () => {
       const updates = [
         { inventoryItemId: 'inv1', quantity: 100, reason: 'Restock' },
-        { inventoryItemId: 'invalid', quantity: 50, reason: 'Adjustment' }
+        { inventoryItemId: 'invalid', quantity: 50, reason: 'Adjustment' },
       ]
 
       // Mock one success and one failure
-      inventoryService.updateStockLevel = vi.fn()
+      inventoryService.updateStockLevel = vi
+        .fn()
         .mockResolvedValueOnce({ id: 'inv1', quantity: 100 })
         .mockRejectedValueOnce(new Error('Inventory item not found'))
 
-      const results = await inventoryService.bulkUpdateStockLevels(updates, 'user1')
+      const results = await inventoryService.bulkUpdateStockLevels(
+        updates,
+        'user1'
+      )
 
       expect(results).toHaveLength(2)
       expect(results[0].success).toBe(true)
@@ -794,8 +819,8 @@ describe('InventoryService', () => {
           quantity: 5,
           lowStockThreshold: 10,
           product: { name: 'Low Stock Product' },
-          location: { name: 'Main Warehouse' }
-        }
+          location: { name: 'Main Warehouse' },
+        },
       ]
 
       mockPrisma.inventoryItem.findMany.mockResolvedValue(mockLowStockItems)
@@ -805,10 +830,10 @@ describe('InventoryService', () => {
       expect(mockPrisma.inventoryItem.findMany).toHaveBeenCalledWith({
         where: {
           quantity: { lte: 'lowStockThreshold' },
-          locationId: 'loc1'
+          locationId: 'loc1',
         },
         include: expect.any(Object),
-        orderBy: expect.any(Array)
+        orderBy: expect.any(Array),
       })
 
       expect(result).toEqual(mockLowStockItems)
@@ -821,10 +846,10 @@ describe('InventoryService', () => {
 
       expect(mockPrisma.inventoryItem.findMany).toHaveBeenCalledWith({
         where: {
-          quantity: { lte: 'lowStockThreshold' }
+          quantity: { lte: 'lowStockThreshold' },
         },
         include: expect.any(Object),
-        orderBy: expect.any(Array)
+        orderBy: expect.any(Array),
       })
     })
   })
@@ -833,10 +858,12 @@ describe('InventoryService', () => {
     it('should release expired reservations', async () => {
       const expiredReservations = [
         { id: 'res1', expiresAt: new Date('2023-01-01') },
-        { id: 'res2', expiresAt: new Date('2023-01-02') }
+        { id: 'res2', expiresAt: new Date('2023-01-02') },
       ]
 
-      mockPrisma.inventoryReservation.findMany.mockResolvedValue(expiredReservations)
+      mockPrisma.inventoryReservation.findMany.mockResolvedValue(
+        expiredReservations
+      )
       inventoryService.releaseReservation = vi.fn().mockResolvedValue(true)
 
       const result = await inventoryService.cleanupExpiredReservations()
@@ -862,12 +889,16 @@ describe('InventoryService', () => {
         id: 'inv1',
         productId: 'prod1',
         variantId: null,
-        locationId: 'loc1'
+        locationId: 'loc1',
       }
 
       mockPrisma.inventoryItem.findFirst.mockResolvedValue(existingItem)
 
-      const result = await inventoryService.ensureInventoryItem('prod1', null, 'loc1')
+      const result = await inventoryService.ensureInventoryItem(
+        'prod1',
+        null,
+        'loc1'
+      )
 
       expect(result).toEqual(existingItem)
       expect(mockPrisma.inventoryItem.create).not.toHaveBeenCalled()
@@ -880,13 +911,17 @@ describe('InventoryService', () => {
         variantId: null,
         locationId: 'loc1',
         quantity: 0,
-        availableQuantity: 0
+        availableQuantity: 0,
       }
 
       mockPrisma.inventoryItem.findFirst.mockResolvedValue(null)
       mockPrisma.inventoryItem.create.mockResolvedValue(newItem)
 
-      const result = await inventoryService.ensureInventoryItem('prod1', null, 'loc1')
+      const result = await inventoryService.ensureInventoryItem(
+        'prod1',
+        null,
+        'loc1'
+      )
 
       expect(result).toEqual(newItem)
       expect(mockPrisma.inventoryItem.create).toHaveBeenCalledWith({
@@ -895,8 +930,8 @@ describe('InventoryService', () => {
           variantId: null,
           locationId: 'loc1',
           quantity: 0,
-          availableQuantity: 0
-        }
+          availableQuantity: 0,
+        },
       })
     })
   })

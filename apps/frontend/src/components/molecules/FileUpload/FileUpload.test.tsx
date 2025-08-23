@@ -12,15 +12,17 @@ describe('FileUpload', () => {
 
   it('renders file upload component', () => {
     render(<FileUpload onChange={mockOnChange} />)
-    
+
     expect(screen.getByText(/click to upload/i)).toBeInTheDocument()
     expect(screen.getByText(/or drag and drop/i)).toBeInTheDocument()
   })
 
   it('has file input element', () => {
     render(<FileUpload onChange={mockOnChange} />)
-    
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+
+    const input = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute('type', 'file')
   })
@@ -31,12 +33,12 @@ describe('FileUpload', () => {
         uid: '1',
         name: 'test.txt',
         status: 'done' as const,
-        url: 'http://example.com/test.txt'
-      }
+        url: 'http://example.com/test.txt',
+      },
     ]
-    
+
     render(<FileUpload onChange={mockOnChange} value={fileList} />)
-    
+
     expect(screen.getByText('test.txt')).toBeInTheDocument()
   })
 
@@ -47,17 +49,12 @@ describe('FileUpload', () => {
         uid: '1',
         name: 'test.txt',
         status: 'done' as const,
-        url: 'http://example.com/test.txt'
-      }
+        url: 'http://example.com/test.txt',
+      },
     ]
-    
-    render(
-      <FileUpload 
-        onChange={mockOnChange}
-        value={fileList}
-      />
-    )
-    
+
+    render(<FileUpload onChange={mockOnChange} value={fileList} />)
+
     const removeButton = document.querySelector('.anticon-delete')
     if (removeButton) {
       await user.click(removeButton)
@@ -67,13 +64,15 @@ describe('FileUpload', () => {
 
   it('applies file type restrictions', () => {
     render(
-      <FileUpload 
+      <FileUpload
         onChange={mockOnChange}
         acceptedTypes={['.jpg', '.png', '.gif']}
       />
     )
-    
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+
+    const input = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement
     expect(input).toHaveAttribute('accept', '.jpg,.png,.gif')
   })
 
@@ -83,44 +82,47 @@ describe('FileUpload', () => {
         uid: '1',
         name: 'uploading.txt',
         status: 'uploading' as const,
-        percent: 50
-      }
+        percent: 50,
+      },
     ]
-    
-    render(<FileUpload onChange={mockOnChange} value={fileList} showProgress={true} />)
-    
+
+    render(
+      <FileUpload
+        onChange={mockOnChange}
+        value={fileList}
+        showProgress={true}
+      />
+    )
+
     // Check for progress indicator in component
     expect(screen.getByText('uploading.txt')).toBeInTheDocument()
   })
 
   it('disables upload when disabled prop is true', () => {
     render(<FileUpload onChange={mockOnChange} disabled={true} />)
-    
+
     const uploadArea = document.querySelector('.ant-upload-disabled')
     expect(uploadArea).toBeInTheDocument()
   })
 
   it('applies custom className', () => {
-    render(
-      <FileUpload 
-        onChange={mockOnChange}
-        className="custom-upload"
-      />
-    )
-    
+    render(<FileUpload onChange={mockOnChange} className='custom-upload' />)
+
     expect(document.querySelector('.custom-upload')).toBeInTheDocument()
   })
 
   it('allows multiple file selection by default', () => {
     render(<FileUpload onChange={mockOnChange} />)
-    
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+
+    const input = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement
     expect(input).toHaveAttribute('multiple')
   })
 
   it('respects maxFiles limit', () => {
     render(<FileUpload onChange={mockOnChange} maxFiles={2} />)
-    
+
     // Check that the upload info shows the correct limit
     expect(screen.getByText(/Max 2 files/)).toBeInTheDocument()
   })

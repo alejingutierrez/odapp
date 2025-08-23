@@ -1,5 +1,6 @@
 import { baseApi } from './baseApi'
 import type { Product, Collection, Category } from '../slices/productsSlice'
+// import type { EndpointBuilder } from '@reduxjs/toolkit/query'
 
 export interface ProductsQuery {
   page?: number
@@ -56,27 +57,30 @@ export interface UpdateProductRequest extends Partial<CreateProductRequest> {
 export const productsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Products
-    getProducts: builder.query<ProductsResponse, ProductsQuery>({
-      query: (params) => ({
+    getProducts: builder.query({
+      query: (params: ProductsQuery) => ({
         url: 'products',
         params,
       }),
-      providesTags: (result) =>
+      providesTags: (result: ProductsResponse | undefined) =>
         result
           ? [
-              ...result.products.map(({ id }) => ({ type: 'Product' as const, id })),
+              ...result.products.map(({ id }: { id: string }) => ({
+                type: 'Product' as const,
+                id,
+              })),
               { type: 'Product', id: 'LIST' },
             ]
           : [{ type: 'Product', id: 'LIST' }],
     }),
 
-    getProduct: builder.query<Product, string>({
-      query: (id) => `products/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Product', id }],
+    getProduct: builder.query({
+      query: (id: string) => `products/${id}`,
+      providesTags: (_result: Product | undefined, _error: unknown, id: string) => [{ type: 'Product', id }],
     }),
 
-    createProduct: builder.mutation<Product, CreateProductRequest>({
-      query: (product) => ({
+    createProduct: builder.mutation({
+      query: (product: CreateProductRequest) => ({
         url: 'products',
         method: 'POST',
         body: product,
@@ -84,34 +88,31 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
 
-    updateProduct: builder.mutation<Product, UpdateProductRequest>({
-      query: ({ id, ...patch }) => ({
+    updateProduct: builder.mutation({
+      query: ({ id, ...patch }: UpdateProductRequest) => ({
         url: `products/${id}`,
         method: 'PATCH',
         body: patch,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result: Product | undefined, _error: unknown, { id }: { id: string }) => [
         { type: 'Product', id },
         { type: 'Product', id: 'LIST' },
       ],
     }),
 
-    deleteProduct: builder.mutation<void, string>({
-      query: (id) => ({
+    deleteProduct: builder.mutation({
+      query: (id: string) => ({
         url: `products/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
         { type: 'Product', id },
         { type: 'Product', id: 'LIST' },
       ],
     }),
 
-    bulkUpdateProducts: builder.mutation<
-      void,
-      Array<{ id: string; changes: Partial<Product> }>
-    >({
-      query: (updates) => ({
+    bulkUpdateProducts: builder.mutation({
+      query: (updates: Array<{ id: string; changes: Partial<Product> }>) => ({
         url: 'products/bulk',
         method: 'PATCH',
         body: { updates },
@@ -119,8 +120,8 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
 
-    bulkDeleteProducts: builder.mutation<void, string[]>({
-      query: (ids) => ({
+    bulkDeleteProducts: builder.mutation({
+      query: (ids: string[]) => ({
         url: 'products/bulk',
         method: 'DELETE',
         body: { ids },
@@ -129,24 +130,24 @@ export const productsApi = baseApi.injectEndpoints({
     }),
 
     // Collections
-    getCollections: builder.query<Collection[], void>({
+    getCollections: builder.query({
       query: () => 'collections',
-      providesTags: (result) =>
+      providesTags: (result: Collection[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Collection' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({ type: 'Collection' as const, id })),
               { type: 'Collection', id: 'LIST' },
             ]
           : [{ type: 'Collection', id: 'LIST' }],
     }),
 
-    getCollection: builder.query<Collection, string>({
-      query: (id) => `collections/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Collection', id }],
+    getCollection: builder.query({
+      query: (id: string) => `collections/${id}`,
+      providesTags: (_result: Collection | undefined, _error: unknown, id: string) => [{ type: 'Collection', id }],
     }),
 
-    createCollection: builder.mutation<Collection, Partial<Collection>>({
-      query: (collection) => ({
+    createCollection: builder.mutation({
+      query: (collection: Partial<Collection>) => ({
         url: 'collections',
         method: 'POST',
         body: collection,
@@ -154,51 +155,48 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Collection', id: 'LIST' }],
     }),
 
-    updateCollection: builder.mutation<
-      Collection,
-      { id: string; changes: Partial<Collection> }
-    >({
-      query: ({ id, changes }) => ({
+    updateCollection: builder.mutation({
+      query: ({ id, changes }: { id: string; changes: Partial<Collection> }) => ({
         url: `collections/${id}`,
         method: 'PATCH',
         body: changes,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result: Collection | undefined, _error: unknown, { id }: { id: string }) => [
         { type: 'Collection', id },
         { type: 'Collection', id: 'LIST' },
       ],
     }),
 
-    deleteCollection: builder.mutation<void, string>({
-      query: (id) => ({
+    deleteCollection: builder.mutation({
+      query: (id: string) => ({
         url: `collections/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
         { type: 'Collection', id },
         { type: 'Collection', id: 'LIST' },
       ],
     }),
 
     // Categories
-    getCategories: builder.query<Category[], void>({
+    getCategories: builder.query({
       query: () => 'categories',
-      providesTags: (result) =>
+      providesTags: (result: Category[] | undefined) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Category' as const, id })),
+              ...result.map(({ id }: { id: string }) => ({ type: 'Category' as const, id })),
               { type: 'Category', id: 'LIST' },
             ]
           : [{ type: 'Category', id: 'LIST' }],
     }),
 
-    getCategory: builder.query<Category, string>({
-      query: (id) => `categories/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Category', id }],
+    getCategory: builder.query({
+      query: (id: string) => `categories/${id}`,
+      providesTags: (_result: Category | undefined, _error: unknown, id: string) => [{ type: 'Category', id }],
     }),
 
-    createCategory: builder.mutation<Category, Partial<Category>>({
-      query: (category) => ({
+    createCategory: builder.mutation({
+      query: (category: Partial<Category>) => ({
         url: 'categories',
         method: 'POST',
         body: category,
@@ -206,52 +204,40 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
     }),
 
-    updateCategory: builder.mutation<
-      Category,
-      { id: string; changes: Partial<Category> }
-    >({
-      query: ({ id, changes }) => ({
+    updateCategory: builder.mutation({
+      query: ({ id, changes }: { id: string; changes: Partial<Category> }) => ({
         url: `categories/${id}`,
         method: 'PATCH',
         body: changes,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result: Category | undefined, _error: unknown, { id }: { id: string }) => [
         { type: 'Category', id },
         { type: 'Category', id: 'LIST' },
       ],
     }),
 
-    deleteCategory: builder.mutation<void, string>({
-      query: (id) => ({
+    deleteCategory: builder.mutation({
+      query: (id: string) => ({
         url: `categories/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
         { type: 'Category', id },
         { type: 'Category', id: 'LIST' },
       ],
     }),
 
-    // Product search
-    searchProducts: builder.query<Product[], string>({
-      query: (searchTerm) => ({
+    // Search
+    searchProducts: builder.query({
+      query: (searchTerm: string) => ({
         url: 'products/search',
         params: { q: searchTerm },
       }),
       providesTags: [{ type: 'Product', id: 'SEARCH' }],
     }),
 
-    // Product analytics
-    getProductAnalytics: builder.query<
-      {
-        totalProducts: number
-        activeProducts: number
-        lowStockProducts: number
-        topSellingProducts: Product[]
-        recentProducts: Product[]
-      },
-      void
-    >({
+    // Analytics
+    getProductAnalytics: builder.query({
       query: () => 'products/analytics',
       providesTags: [{ type: 'Product', id: 'ANALYTICS' }],
     }),
@@ -277,6 +263,5 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useSearchProductsQuery,
-  useLazySearchProductsQuery,
   useGetProductAnalyticsQuery,
 } = productsApi

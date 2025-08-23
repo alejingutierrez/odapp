@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Space } from 'antd';
-import { RatingInput } from './RatingInput';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Space } from 'antd'
+import { RatingInput } from './RatingInput'
 
 const meta: Meta<typeof RatingInput> = {
   title: 'Atoms/RatingInput',
@@ -9,7 +9,8 @@ const meta: Meta<typeof RatingInput> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A versatile rating input component with star, numeric, and emoji rating systems for customer feedback and product reviews.',
+        component:
+          'A versatile rating input component with star, numeric, and emoji rating systems for customer feedback and product reviews.',
       },
     },
   },
@@ -29,8 +30,8 @@ const meta: Meta<typeof RatingInput> = {
   },
 }
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
@@ -41,26 +42,26 @@ export const Default: Story = {
 
 export const RatingTypes: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
+    <Space direction='vertical' size='large'>
       <div>
         <h4>Star Rating</h4>
-        <RatingInput type="star" value={4} max={5} />
+        <RatingInput type='star' value={4} max={5} />
       </div>
       <div>
         <h4>Heart Rating</h4>
-        <RatingInput type="heart" value={3} max={5} />
+        <RatingInput type='heart' value={3} max={5} />
       </div>
       <div>
         <h4>Numeric Rating</h4>
-        <RatingInput type="numeric" value={7.5} max={10} step={0.5} />
+        <RatingInput type='numeric' value={7.5} max={10} step={0.5} />
       </div>
       <div>
         <h4>Emoji Rating</h4>
-        <RatingInput type="emoji" value={4} max={5} />
+        <RatingInput type='emoji' value={4} max={5} />
       </div>
       <div>
         <h4>Thumbs Rating</h4>
-        <RatingInput type="thumbs" value={1} />
+        <RatingInput type='thumbs' value={1} />
       </div>
     </Space>
   ),
@@ -68,29 +69,29 @@ export const RatingTypes: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
+    <Space direction='vertical' size='large'>
       <div>
         <h4>Small</h4>
         <Space wrap>
-          <RatingInput type="star" value={4} size="small" />
-          <RatingInput type="emoji" value={4} size="small" />
-          <RatingInput type="thumbs" value={1} size="small" />
+          <RatingInput type='star' value={4} size='small' />
+          <RatingInput type='emoji' value={4} size='small' />
+          <RatingInput type='thumbs' value={1} size='small' />
         </Space>
       </div>
       <div>
         <h4>Medium</h4>
         <Space wrap>
-          <RatingInput type="star" value={4} size="medium" />
-          <RatingInput type="emoji" value={4} size="medium" />
-          <RatingInput type="thumbs" value={1} size="medium" />
+          <RatingInput type='star' value={4} size='medium' />
+          <RatingInput type='emoji' value={4} size='medium' />
+          <RatingInput type='thumbs' value={1} size='medium' />
         </Space>
       </div>
       <div>
         <h4>Large</h4>
         <Space wrap>
-          <RatingInput type="star" value={4} size="large" />
-          <RatingInput type="emoji" value={4} size="large" />
-          <RatingInput type="thumbs" value={1} size="large" />
+          <RatingInput type='star' value={4} size='large' />
+          <RatingInput type='emoji' value={4} size='large' />
+          <RatingInput type='thumbs' value={1} size='large' />
         </Space>
       </div>
     </Space>
@@ -99,29 +100,29 @@ export const Sizes: Story = {
 
 export const WithValues: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
-      <RatingInput type="star" value={4.5} showValue allowHalf />
-      <RatingInput type="heart" value={3} showValue />
-      <RatingInput type="numeric" value={8.7} showValue max={10} />
-      <RatingInput type="emoji" value={5} showValue />
-      <RatingInput type="thumbs" value={1} showValue />
+    <Space direction='vertical' size='large'>
+      <RatingInput type='star' value={4.5} showValue allowHalf />
+      <RatingInput type='heart' value={3} showValue />
+      <RatingInput type='numeric' value={8.7} showValue max={10} />
+      <RatingInput type='emoji' value={5} showValue />
+      <RatingInput type='thumbs' value={1} showValue />
     </Space>
   ),
 }
 
 export const WithTooltips: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
-      <RatingInput 
-        type="star" 
-        value={4} 
-        showTooltips 
+    <Space direction='vertical' size='large'>
+      <RatingInput
+        type='star'
+        value={4}
+        showTooltips
         tooltips={['Terrible', 'Bad', 'Okay', 'Good', 'Excellent']}
       />
-      <RatingInput 
-        type="heart" 
-        value={3} 
-        showTooltips 
+      <RatingInput
+        type='heart'
+        value={3}
+        showTooltips
         tooltips={['Hate it', 'Dislike', 'Neutral', 'Like', 'Love it']}
       />
     </Space>
@@ -145,22 +146,22 @@ export const CustomEmojis: Story = {
 
 export const States: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
+    <Space direction='vertical' size='large'>
       <div>
         <h4>Normal</h4>
-        <RatingInput type="star" value={4} />
+        <RatingInput type='star' value={4} />
       </div>
       <div>
         <h4>Disabled</h4>
-        <RatingInput type="star" value={4} disabled />
+        <RatingInput type='star' value={4} disabled />
       </div>
       <div>
         <h4>Read Only</h4>
-        <RatingInput type="star" value={4} readOnly />
+        <RatingInput type='star' value={4} readOnly />
       </div>
       <div>
         <h4>With Half Stars</h4>
-        <RatingInput type="star" value={3.5} allowHalf />
+        <RatingInput type='star' value={3.5} allowHalf />
       </div>
     </Space>
   ),
@@ -170,22 +171,46 @@ export const ProductReviews: Story = {
   render: () => (
     <div style={{ maxWidth: '400px', padding: '16px' }}>
       <h3>Product Reviews</h3>
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Space direction='vertical' size='middle' style={{ width: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <span>Overall Quality</span>
-          <RatingInput type="star" value={4.5} allowHalf readOnly showValue />
+          <RatingInput type='star' value={4.5} allowHalf readOnly showValue />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <span>Value for Money</span>
-          <RatingInput type="star" value={4} readOnly showValue />
+          <RatingInput type='star' value={4} readOnly showValue />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <span>Customer Service</span>
-          <RatingInput type="star" value={5} readOnly showValue />
+          <RatingInput type='star' value={5} readOnly showValue />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <span>Would Recommend</span>
-          <RatingInput type="thumbs" value={1} readOnly showValue />
+          <RatingInput type='thumbs' value={1} readOnly showValue />
         </div>
       </Space>
     </div>
@@ -194,28 +219,28 @@ export const ProductReviews: Story = {
 
 export const Interactive: Story = {
   render: () => (
-    <Space direction="vertical" size="large">
+    <Space direction='vertical' size='large'>
       <div>
         <h4>Rate this product:</h4>
-        <RatingInput 
-          type="star" 
+        <RatingInput
+          type='star'
           onChange={(value) => console.log('Star rating:', value)}
           showTooltips
         />
       </div>
       <div>
         <h4>How do you feel about this?</h4>
-        <RatingInput 
-          type="emoji" 
+        <RatingInput
+          type='emoji'
           onChange={(value) => console.log('Emoji rating:', value)}
           showValue
         />
       </div>
       <div>
         <h4>Numeric score (1-10):</h4>
-        <RatingInput 
-          type="numeric" 
-          max={10} 
+        <RatingInput
+          type='numeric'
+          max={10}
           step={0.1}
           onChange={(value) => console.log('Numeric rating:', value)}
         />

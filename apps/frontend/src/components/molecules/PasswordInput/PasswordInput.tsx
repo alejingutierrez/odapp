@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from 'react'
 import { Input, Progress, Typography, Space, Tooltip } from 'antd'
-import { EyeInvisibleOutlined, EyeTwoTone, InfoCircleOutlined } from '@ant-design/icons'
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  InfoCircleOutlined,
+} from '@ant-design/icons'
 import './PasswordInput.css'
 
 export interface PasswordStrengthConfig {
@@ -28,7 +32,7 @@ const defaultStrengthConfig: PasswordStrengthConfig = {
   requireUppercase: true,
   requireLowercase: true,
   requireNumbers: true,
-  requireSpecialChars: true
+  requireSpecialChars: true,
 }
 
 export const PasswordInput: React.FC<PasswordInputProps> = ({
@@ -40,7 +44,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
   showRequirements = true,
   disabled = false,
   size = 'middle',
-  className = ''
+  className = '',
 }) => {
   const [visible, setVisible] = useState(false)
   const config = { ...defaultStrengthConfig, ...strengthConfig }
@@ -53,7 +57,9 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       uppercase: config.requireUppercase ? /[A-Z]/.test(value) : true,
       lowercase: config.requireLowercase ? /[a-z]/.test(value) : true,
       numbers: config.requireNumbers ? /\d/.test(value) : true,
-      specialChars: config.requireSpecialChars ? /[!@#$%^&*(),.?":{}|<>]/.test(value) : true
+      specialChars: config.requireSpecialChars
+        ? /[!@#$%^&*(),.?":{}|<>]/.test(value)
+        : true,
     }
 
     const passedChecks = Object.values(checks).filter(Boolean).length
@@ -106,41 +112,57 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       {
         key: 'length',
         text: `At least ${config.minLength} characters`,
-        met: passwordStrength.checks.length
+        met:
+          'checks' in passwordStrength && 'length' in passwordStrength.checks ? passwordStrength.checks.length : false,
       },
       {
         key: 'uppercase',
         text: 'One uppercase letter',
-        met: passwordStrength.checks.uppercase,
-        show: config.requireUppercase
+        met:
+          'checks' in passwordStrength && 'uppercase' in passwordStrength.checks
+            ? passwordStrength.checks.uppercase
+            : false,
+        show: config.requireUppercase,
       },
       {
         key: 'lowercase',
         text: 'One lowercase letter',
-        met: passwordStrength.checks.lowercase,
-        show: config.requireLowercase
+        met:
+          'checks' in passwordStrength && 'lowercase' in passwordStrength.checks
+            ? passwordStrength.checks.lowercase
+            : false,
+        show: config.requireLowercase,
       },
       {
         key: 'numbers',
         text: 'One number',
-        met: passwordStrength.checks.numbers,
-        show: config.requireNumbers
+        met:
+          'checks' in passwordStrength && 'numbers' in passwordStrength.checks
+            ? passwordStrength.checks.numbers
+            : false,
+        show: config.requireNumbers,
       },
       {
         key: 'specialChars',
         text: 'One special character',
-        met: passwordStrength.checks.specialChars,
-        show: config.requireSpecialChars
-      }
-    ].filter(req => req.show !== false)
+        met:
+          'checks' in passwordStrength && 'specialChars' in passwordStrength.checks
+            ? passwordStrength.checks.specialChars
+            : false,
+        show: config.requireSpecialChars,
+      },
+    ].filter((req) => req.show !== false)
 
     return (
-      <div className="password-input__requirements">
-        <Typography.Text type="secondary" className="password-input__requirements-title">
+      <div className='password-input__requirements'>
+        <Typography.Text
+          type='secondary'
+          className='password-input__requirements-title'
+        >
           Password requirements:
         </Typography.Text>
-        <ul className="password-input__requirements-list">
-          {requirements.map(req => (
+        <ul className='password-input__requirements-list'>
+          {requirements.map((req) => (
             <li
               key={req.key}
               className={`password-input__requirement ${req.met ? 'password-input__requirement--met' : ''}`}
@@ -157,26 +179,29 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
     if (!showStrengthIndicator || !value) return null
 
     return (
-      <div className="password-input__strength">
-        <Space size="small" align="center">
-          <Typography.Text type="secondary" className="password-input__strength-label">
+      <div className='password-input__strength'>
+        <Space size='small' align='center'>
+          <Typography.Text
+            type='secondary'
+            className='password-input__strength-label'
+          >
             Strength:
           </Typography.Text>
           <Progress
             percent={passwordStrength.score}
             strokeColor={getStrengthColor()}
             showInfo={false}
-            size="small"
-            className="password-input__strength-bar"
+            size='small'
+            className='password-input__strength-bar'
           />
           <Typography.Text
-            className="password-input__strength-text"
+            className='password-input__strength-text'
             style={{ color: getStrengthColor() }}
           >
             {getStrengthText()}
           </Typography.Text>
-          <Tooltip title="Password strength is calculated based on length, character variety, and complexity">
-            <InfoCircleOutlined className="password-input__strength-info" />
+          <Tooltip title='Password strength is calculated based on length, character variety, and complexity'>
+            <InfoCircleOutlined className='password-input__strength-info' />
           </Tooltip>
         </Space>
       </div>
@@ -193,12 +218,14 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         size={size}
         visibilityToggle={{
           visible,
-          onVisibleChange: setVisible
+          onVisibleChange: setVisible,
         }}
-        iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-        className="password-input__field"
+        iconRender={(visible) =>
+          visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+        }
+        className='password-input__field'
       />
-      
+
       {renderStrengthIndicator()}
       {renderRequirements()}
     </div>

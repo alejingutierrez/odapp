@@ -1,7 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from 'vitest'
 import { createServer } from 'http'
 import { io as Client, Socket as ClientSocket } from 'socket.io-client'
-import jwt from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import { WebSocketService } from '../services/websocket.service'
 import { InventoryService } from '../services/inventory.service'
@@ -12,8 +21,8 @@ describe('WebSocket Integration Tests', () => {
   let server: any
   let webSocketService: WebSocketService
   let inventoryService: InventoryService
-  let orderService: OrderService
-  let shopifyService: ShopifyService
+  let _orderService: OrderService
+  let _shopifyService: ShopifyService
   let prisma: PrismaClient
   let clientSocket1: ClientSocket
   let clientSocket2: ClientSocket
@@ -22,17 +31,23 @@ describe('WebSocket Integration Tests', () => {
   const mockUser1 = {
     id: 'user-1',
     email: 'user1@example.com',
-    roles: [{ role: { name: 'inventory_manager' } }]
+    roles: [{ role: { name: 'inventory_manager' } }],
   }
 
   const mockUser2 = {
     id: 'user-2',
     email: 'user2@example.com',
-    roles: [{ role: { name: 'sales_manager' } }]
+    roles: [{ role: { name: 'sales_manager' } }],
   }
 
-  const mockToken1 = jwt.sign({ userId: mockUser1.id }, process.env.JWT_SECRET || 'test-secret')
-  const mockToken2 = jwt.sign({ userId: mockUser2.id }, process.env.JWT_SECRET || 'test-secret')
+  const mockToken1 = jwt.sign(
+    { userId: mockUser1.id },
+    process.env.JWT_SECRET || 'test-secret'
+  )
+  const mockToken2 = jwt.sign(
+    { userId: mockUser2.id },
+    process.env.JWT_SECRET || 'test-secret'
+  )
 
   beforeAll(async () => {
     server = createServer()
@@ -45,22 +60,22 @@ describe('WebSocket Integration Tests', () => {
           if (where.id === mockUser1.id) return Promise.resolve(mockUser1)
           if (where.id === mockUser2.id) return Promise.resolve(mockUser2)
           return Promise.resolve(null)
-        })
+        }),
       },
       inventoryItem: {
         findUnique: vi.fn(),
-        update: vi.fn()
+        update: vi.fn(),
       },
       inventoryReservation: {
-        create: vi.fn()
-      }
+        create: vi.fn(),
+      },
     } as any
 
     // Initialize services
     inventoryService = new InventoryService(prisma)
     webSocketService = new WebSocketService(server, prisma, inventoryService)
-    orderService = new OrderService()
-    shopifyService = new ShopifyService()
+    _orderService = new OrderService()
+    _shopifyService = new ShopifyService()
 
     // Start server
     await new Promise<void>((resolve) => {
@@ -81,18 +96,18 @@ describe('WebSocket Integration Tests', () => {
     // Create client connections
     clientSocket1 = Client(`http://localhost:${serverPort}`, {
       auth: { token: mockToken1 },
-      transports: ['websocket']
+      transports: ['websocket'],
     })
 
     clientSocket2 = Client(`http://localhost:${serverPort}`, {
       auth: { token: mockToken2 },
-      transports: ['websocket']
+      transports: ['websocket'],
     })
 
     // Wait for connections
     await Promise.all([
       new Promise<void>((resolve) => clientSocket1.on('connect', resolve)),
-      new Promise<void>((resolve) => clientSocket2.on('connect', resolve))
+      new Promise<void>((resolve) => clientSocket2.on('connect', resolve)),
     ])
   })
 
@@ -110,7 +125,7 @@ describe('WebSocket Integration Tests', () => {
       clientSocket1.emit('subscribe:inventory', { locationIds: [locationId] })
       clientSocket2.emit('subscribe:inventory', { locationIds: [locationId] })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const updateData = {
         inventoryItemId: 'item-123',
@@ -118,7 +133,7 @@ describe('WebSocket Integration Tests', () => {
         productId,
         oldQuantity: 50,
         newQuantity: 100,
-        reason: 'Stock adjustment'
+        reason: 'Stock adjustment',
       }
 
       // Set up listeners for both clients
@@ -134,7 +149,7 @@ describe('WebSocket Integration Tests', () => {
             expect(payload.data).toMatchObject(updateData)
             resolve()
           })
-        })
+        }),
       ]
 
       // Trigger inventory update
@@ -151,13 +166,17 @@ describe('WebSocket Integration Tests', () => {
       clientSocket1.emit('subscribe:inventory', { locationIds: [location1] })
       clientSocket2.emit('subscribe:inventory', { locationIds: [location2] })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       let user1Received = false
       let user2Received = false
 
-      clientSocket1.on('inventory:updated', () => { user1Received = true })
-      clientSocket2.on('inventory:updated', () => { user2Received = true })
+      clientSocket1.on('inventory:updated', () => {
+        user1Received = true
+      })
+      clientSocket2.on('inventory:updated', () => {
+        user2Received = true
+      })
 
       // Update inventory in location 1
       const updateData = {
@@ -166,12 +185,12 @@ describe('WebSocket Integration Tests', () => {
         productId: 'product-1',
         oldQuantity: 50,
         newQuantity: 100,
-        reason: 'Stock adjustment'
+        reason: 'Stock adjustment',
       }
 
       webSocketService['broadcastInventoryUpdate'](updateData)
 
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       expect(user1Received).toBe(true)
       expect(user2Received).toBe(false)
@@ -187,14 +206,14 @@ describe('WebSocket Integration Tests', () => {
       // User subscribes to customer orders
       clientSocket1.emit('subscribe:orders', { customerId })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const orderUpdatePromise = new Promise<void>((resolve) => {
         clientSocket1.on('order:updated', (payload) => {
           expect(payload.data).toMatchObject({
             orderId,
             status: newStatus,
-            customerId
+            customerId,
           })
           resolve()
         })
@@ -214,7 +233,7 @@ describe('WebSocket Integration Tests', () => {
       clientSocket1.emit('subscribe:orders', {})
       clientSocket2.emit('subscribe:orders', {})
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const promises = [
         new Promise<void>((resolve) => {
@@ -230,7 +249,7 @@ describe('WebSocket Integration Tests', () => {
             expect(payload.data.status).toBe(newStatus)
             resolve()
           })
-        })
+        }),
       ]
 
       webSocketService.broadcastOrderUpdate(orderId, newStatus)
@@ -249,7 +268,7 @@ describe('WebSocket Integration Tests', () => {
       clientSocket1.emit('subscribe:inventory', {})
       clientSocket2.emit('subscribe:inventory', {})
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const promises = [
         new Promise<void>((resolve) => {
@@ -257,7 +276,7 @@ describe('WebSocket Integration Tests', () => {
             expect(payload.data).toMatchObject({
               syncType,
               status,
-              progress
+              progress,
             })
             resolve()
           })
@@ -267,11 +286,11 @@ describe('WebSocket Integration Tests', () => {
             expect(payload.data).toMatchObject({
               syncType,
               status,
-              progress
+              progress,
             })
             resolve()
           })
-        })
+        }),
       ]
 
       webSocketService.broadcastShopifySyncStatus(syncType, status, progress)
@@ -286,14 +305,14 @@ describe('WebSocket Integration Tests', () => {
 
       clientSocket1.emit('subscribe:inventory', {})
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const syncCompletePromise = new Promise<void>((resolve) => {
         clientSocket1.on('shopify:syncStatus', (payload) => {
           expect(payload.data).toMatchObject({
             syncType,
             status,
-            progress
+            progress,
           })
           resolve()
         })
@@ -311,20 +330,25 @@ describe('WebSocket Integration Tests', () => {
 
       clientSocket1.emit('subscribe:inventory', {})
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const syncErrorPromise = new Promise<void>((resolve) => {
         clientSocket1.on('shopify:syncStatus', (payload) => {
           expect(payload.data).toMatchObject({
             syncType,
             status,
-            error
+            error,
           })
           resolve()
         })
       })
 
-      webSocketService.broadcastShopifySyncStatus(syncType, status, undefined, error)
+      webSocketService.broadcastShopifySyncStatus(
+        syncType,
+        status,
+        undefined,
+        error
+      )
 
       await syncErrorPromise
     })
@@ -336,12 +360,12 @@ describe('WebSocket Integration Tests', () => {
         userId: mockUser1.id,
         action: 'login',
         timestamp: new Date().toISOString(),
-        metadata: { ip: '192.168.1.1', userAgent: 'Test Browser' }
+        metadata: { ip: '192.168.1.1', userAgent: 'Test Browser' },
       }
 
       clientSocket2.emit('subscribe:notifications')
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const activityPromise = new Promise<void>((resolve) => {
         clientSocket2.on('notification', (payload) => {
@@ -361,14 +385,14 @@ describe('WebSocket Integration Tests', () => {
       const systemEvent = {
         type: 'maintenance',
         message: 'System maintenance scheduled for tonight',
-        scheduledTime: new Date(Date.now() + 3600000).toISOString()
+        scheduledTime: new Date(Date.now() + 3600000).toISOString(),
       }
 
       // Both users subscribe to notifications
       clientSocket1.emit('subscribe:notifications')
       clientSocket2.emit('subscribe:notifications')
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const promises = [
         new Promise<void>((resolve) => {
@@ -386,7 +410,7 @@ describe('WebSocket Integration Tests', () => {
               resolve()
             }
           })
-        })
+        }),
       ]
 
       webSocketService.broadcastNotification('system:event', systemEvent)
@@ -403,17 +427,17 @@ describe('WebSocket Integration Tests', () => {
         productId: 'product-1',
         currentQuantity: 3,
         threshold: 10,
-        productName: 'Test Product'
+        productName: 'Test Product',
       }
 
       // Both users subscribe to inventory
       clientSocket1.emit('subscribe:inventory', { locationIds: ['location-1'] })
       clientSocket2.emit('subscribe:inventory', { locationIds: ['location-1'] })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       let user1Received = false
-      let user2Received = false
+      let _user2Received = false
 
       clientSocket1.on('notification', (payload) => {
         if (payload.type === 'notification:lowStock') {
@@ -423,13 +447,13 @@ describe('WebSocket Integration Tests', () => {
 
       clientSocket2.on('notification', (payload) => {
         if (payload.type === 'notification:lowStock') {
-          user2Received = true
+          _user2Received = true
         }
       })
 
       webSocketService['broadcastLowStockAlert'](alertData)
 
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       // User 1 has inventory_manager role, should receive notification
       // User 2 has sales_manager role, should also receive (for this test)
@@ -440,19 +464,19 @@ describe('WebSocket Integration Tests', () => {
   describe('Connection Resilience', () => {
     it('should handle reconnection gracefully', async () => {
       const userId = mockUser1.id
-      
+
       expect(webSocketService.isUserConnected(userId)).toBe(true)
 
       // Disconnect and reconnect
       clientSocket1.disconnect()
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       expect(webSocketService.isUserConnected(userId)).toBe(false)
 
       // Reconnect
       clientSocket1 = Client(`http://localhost:${serverPort}`, {
         auth: { token: mockToken1 },
-        transports: ['websocket']
+        transports: ['websocket'],
       })
 
       await new Promise<void>((resolve) => {
@@ -464,11 +488,11 @@ describe('WebSocket Integration Tests', () => {
 
     it('should handle multiple connections from same user', async () => {
       const userId = mockUser1.id
-      
+
       // Create second connection for same user
       const clientSocket1b = Client(`http://localhost:${serverPort}`, {
         auth: { token: mockToken1 },
-        transports: ['websocket']
+        transports: ['websocket'],
       })
 
       await new Promise<void>((resolve) => {
@@ -480,7 +504,7 @@ describe('WebSocket Integration Tests', () => {
 
       // Disconnect one connection
       clientSocket1.disconnect()
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // User should still be connected via second socket
       expect(webSocketService.isUserConnected(userId)).toBe(true)

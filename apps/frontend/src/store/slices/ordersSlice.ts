@@ -1,4 +1,8 @@
-import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createEntityAdapter,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import type { RootState } from '../index'
 
 // Types
@@ -24,7 +28,7 @@ export interface Order {
   updatedAt: string
 }
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'pending'
   | 'confirmed'
   | 'processing'
@@ -34,13 +38,13 @@ export type OrderStatus =
   | 'refunded'
   | 'returned'
 
-export type FulfillmentStatus = 
+export type FulfillmentStatus =
   | 'unfulfilled'
   | 'partial'
   | 'fulfilled'
   | 'cancelled'
 
-export type FinancialStatus = 
+export type FinancialStatus =
   | 'pending'
   | 'authorized'
   | 'paid'
@@ -123,7 +127,13 @@ export interface BillingInfo {
 
 export interface PaymentMethod {
   id: string
-  type: 'credit_card' | 'debit_card' | 'paypal' | 'bank_transfer' | 'cash' | 'other'
+  type:
+    | 'credit_card'
+    | 'debit_card'
+    | 'paypal'
+    | 'bank_transfer'
+    | 'cash'
+    | 'other'
   gateway: string
   last4?: string
   brand?: string
@@ -237,12 +247,10 @@ export interface OrderStats {
 
 // Entity adapters
 const ordersAdapter = createEntityAdapter<Order>({
-  selectId: (order) => order.id,
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 })
 
 const returnsAdapter = createEntityAdapter<OrderReturn>({
-  selectId: (orderReturn) => orderReturn.id,
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 })
 
@@ -305,7 +313,10 @@ const ordersSlice = createSlice({
       ordersAdapter.addOne(state.orders, action.payload)
     },
 
-    updateOrder: (state, action: PayloadAction<{ id: string; changes: Partial<Order> }>) => {
+    updateOrder: (
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Order> }>
+    ) => {
       ordersAdapter.updateOne(state.orders, action.payload)
     },
 
@@ -323,14 +334,18 @@ const ordersSlice = createSlice({
     // Order status updates
     updateOrderStatus: (
       state,
-      action: PayloadAction<{ id: string; status: OrderStatus; timestamp?: string }>
+      action: PayloadAction<{
+        id: string
+        status: OrderStatus
+        timestamp?: string
+      }>
     ) => {
       const { id, status, timestamp } = action.payload
       const order = state.orders.entities[id]
       if (order) {
         order.status = status
         order.updatedAt = timestamp || new Date().toISOString()
-        
+
         // Update specific date fields based on status
         switch (status) {
           case 'confirmed':
@@ -351,7 +366,10 @@ const ordersSlice = createSlice({
 
     updateFulfillmentStatus: (
       state,
-      action: PayloadAction<{ id: string; fulfillmentStatus: FulfillmentStatus }>
+      action: PayloadAction<{
+        id: string
+        fulfillmentStatus: FulfillmentStatus
+      }>
     ) => {
       const { id, fulfillmentStatus } = action.payload
       const order = state.orders.entities[id]
@@ -441,7 +459,10 @@ const ordersSlice = createSlice({
     // Loading actions
     setLoading: (
       state,
-      action: PayloadAction<{ key: keyof OrdersState['loading']; loading: boolean }>
+      action: PayloadAction<{
+        key: keyof OrdersState['loading']
+        loading: boolean
+      }>
     ) => {
       const { key, loading } = action.payload
       state.loading[key] = loading
@@ -479,8 +500,8 @@ const ordersSlice = createSlice({
     ) => {
       const { ids, status } = action.payload
       const timestamp = new Date().toISOString()
-      
-      ids.forEach(id => {
+
+      ids.forEach((id) => {
         const order = state.orders.entities[id]
         if (order) {
           order.status = status
@@ -541,10 +562,13 @@ export const {
 } = returnsAdapter.getSelectors((state: RootState) => state.orders.returns)
 
 // Custom selectors
-export const selectSelectedOrder = (state: RootState) => state.orders.selectedOrder
-export const selectSelectedReturn = (state: RootState) => state.orders.selectedReturn
+export const selectSelectedOrder = (state: RootState) =>
+  state.orders.selectedOrder
+export const selectSelectedReturn = (state: RootState) =>
+  state.orders.selectedReturn
 export const selectOrderFilters = (state: RootState) => state.orders.filters
-export const selectOrderPagination = (state: RootState) => state.orders.pagination
+export const selectOrderPagination = (state: RootState) =>
+  state.orders.pagination
 export const selectOrderSorting = (state: RootState) => state.orders.sorting
 export const selectOrdersLoading = (state: RootState) => state.orders.loading
 export const selectOrdersError = (state: RootState) => state.orders.error
@@ -554,41 +578,50 @@ export const selectOrderStats = (state: RootState) => state.orders.stats
 export const selectFilteredOrders = (state: RootState) => {
   const orders = selectAllOrders(state)
   const filters = selectOrderFilters(state)
-  
+
   return orders.filter((order) => {
     // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase()
-      const matchesSearch = 
+      const matchesSearch =
         order.orderNumber.toLowerCase().includes(searchTerm) ||
         order.customerInfo.email.toLowerCase().includes(searchTerm) ||
-        `${order.customerInfo.firstName} ${order.customerInfo.lastName}`.toLowerCase().includes(searchTerm) ||
-        order.items.some(item => 
-          item.title.toLowerCase().includes(searchTerm) ||
-          item.sku.toLowerCase().includes(searchTerm)
+        `${order.customerInfo.firstName} ${order.customerInfo.lastName}`
+          .toLowerCase()
+          .includes(searchTerm) ||
+        order.items.some(
+          (item) =>
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.sku.toLowerCase().includes(searchTerm)
         )
-      
+
       if (!matchesSearch) return false
     }
-    
+
     // Status filters
     if (filters.status.length > 0 && !filters.status.includes(order.status)) {
       return false
     }
-    
-    if (filters.fulfillmentStatus.length > 0 && !filters.fulfillmentStatus.includes(order.fulfillmentStatus)) {
+
+    if (
+      filters.fulfillmentStatus.length > 0 &&
+      !filters.fulfillmentStatus.includes(order.fulfillmentStatus)
+    ) {
       return false
     }
-    
-    if (filters.financialStatus.length > 0 && !filters.financialStatus.includes(order.financialStatus)) {
+
+    if (
+      filters.financialStatus.length > 0 &&
+      !filters.financialStatus.includes(order.financialStatus)
+    ) {
       return false
     }
-    
+
     // Source filter
     if (filters.source.length > 0 && !filters.source.includes(order.source)) {
       return false
     }
-    
+
     // Date range filter
     if (filters.dateRange) {
       const [startDate, endDate] = filters.dateRange
@@ -597,7 +630,7 @@ export const selectFilteredOrders = (state: RootState) => {
         return false
       }
     }
-    
+
     // Amount range filter
     if (filters.amountRange) {
       const [minAmount, maxAmount] = filters.amountRange
@@ -605,65 +638,71 @@ export const selectFilteredOrders = (state: RootState) => {
         return false
       }
     }
-    
+
     // Customer filter
     if (filters.customerId && order.customerId !== filters.customerId) {
       return false
     }
-    
+
     return true
   })
 }
 
 // Orders by status selectors
-export const selectOrdersByStatus = (status: OrderStatus) => (state: RootState) => {
-  const orders = selectAllOrders(state)
-  return orders.filter(order => order.status === status)
-}
+export const selectOrdersByStatus =
+  (status: OrderStatus) => (state: RootState) => {
+    const orders = selectAllOrders(state)
+    return orders.filter((order) => order.status === status)
+  }
 
 export const selectPendingOrders = (state: RootState) => {
   const orders = selectAllOrders(state)
-  return orders.filter(order => order.status === 'pending')
+  return orders.filter((order) => order.status === 'pending')
 }
 
 export const selectProcessingOrders = (state: RootState) => {
   const orders = selectAllOrders(state)
-  return orders.filter(order => order.status === 'processing')
+  return orders.filter((order) => order.status === 'processing')
 }
 
 export const selectShippedOrders = (state: RootState) => {
   const orders = selectAllOrders(state)
-  return orders.filter(order => order.status === 'shipped')
+  return orders.filter((order) => order.status === 'shipped')
 }
 
 // Orders by customer selector
-export const selectOrdersByCustomer = (customerId: string) => (state: RootState) => {
-  const orders = selectAllOrders(state)
-  return orders.filter(order => order.customerId === customerId)
-}
+export const selectOrdersByCustomer =
+  (customerId: string) => (state: RootState) => {
+    const orders = selectAllOrders(state)
+    return orders.filter((order) => order.customerId === customerId)
+  }
 
 // Recent orders selector
-export const selectRecentOrders = (limit = 10) => (state: RootState) => {
-  const orders = selectAllOrders(state)
-  return orders.slice(0, limit)
-}
+export const selectRecentOrders =
+  (limit = 10) =>
+  (state: RootState) => {
+    const orders = selectAllOrders(state)
+    return orders.slice(0, limit)
+  }
 
 // High value orders selector
-export const selectHighValueOrders = (threshold = 1000) => (state: RootState) => {
-  const orders = selectAllOrders(state)
-  return orders.filter(order => order.totals.total >= threshold)
-}
+export const selectHighValueOrders =
+  (threshold = 1000) =>
+  (state: RootState) => {
+    const orders = selectAllOrders(state)
+    return orders.filter((order) => order.totals.total >= threshold)
+  }
 
 // Returns by order selector
 export const selectReturnsByOrder = (orderId: string) => (state: RootState) => {
   const returns = selectAllReturns(state)
-  return returns.filter(orderReturn => orderReturn.orderId === orderId)
+  return returns.filter((orderReturn) => orderReturn.orderId === orderId)
 }
 
 // Pending returns selector
 export const selectPendingReturns = (state: RootState) => {
   const returns = selectAllReturns(state)
-  return returns.filter(orderReturn => orderReturn.status === 'pending')
+  return returns.filter((orderReturn) => orderReturn.status === 'pending')
 }
 
 export default ordersSlice.reducer

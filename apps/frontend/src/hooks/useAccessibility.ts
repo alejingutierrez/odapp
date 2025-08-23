@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -65,7 +66,8 @@ export const useAccessibility = () => {
         }
 
         // Focus the element
-        ;(mainContent as HTMLElement).focus()
+        const mainContentElement = mainContent as HTMLElement
+        mainContentElement.focus()
       }
     }
 
@@ -82,7 +84,8 @@ export const useAccessibility = () => {
         document.querySelector('main') ||
         document.querySelector('[role="main"]')
       if (mainContent) {
-        ;(mainContent as HTMLElement).focus()
+        const mainContentElement = mainContent as HTMLElement
+        mainContentElement.focus()
       }
     }
 
@@ -95,7 +98,8 @@ export const useAccessibility = () => {
       if (navigation) {
         const firstLink = navigation.querySelector('a, button')
         if (firstLink) {
-          ;(firstLink as HTMLElement).focus()
+          const firstLinkElement = firstLink as HTMLElement
+          firstLinkElement.focus()
         }
       }
     }

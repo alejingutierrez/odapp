@@ -11,7 +11,8 @@ const meta: Meta<typeof Badge> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Badge component for displaying status indicators, counts, and notifications with various styles and variants.',
+        component:
+          'Badge component for displaying status indicators, counts, and notifications with various styles and variants.',
       },
     },
   },
@@ -49,14 +50,14 @@ type Story = StoryObj<typeof Badge>
 export const Default: Story = {
   args: {
     count: 5,
-    children: <Avatar name="User" />,
+    children: <Avatar name='User' />,
   },
 }
 
 export const Dot: Story = {
   args: {
     dot: true,
-    children: <Avatar name="User" />,
+    children: <Avatar name='User' />,
   },
 }
 
@@ -71,23 +72,23 @@ export const WithText: Story = {
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <Badge variant="default" count={1}>
-        <Avatar name="Default" />
+      <Badge variant='default' count={1}>
+        <Avatar name='Default' />
       </Badge>
-      <Badge variant="primary" count={2}>
-        <Avatar name="Primary" />
+      <Badge variant='primary' count={2}>
+        <Avatar name='Primary' />
       </Badge>
-      <Badge variant="success" count={3}>
-        <Avatar name="Success" />
+      <Badge variant='success' count={3}>
+        <Avatar name='Success' />
       </Badge>
-      <Badge variant="warning" count={4}>
-        <Avatar name="Warning" />
+      <Badge variant='warning' count={4}>
+        <Avatar name='Warning' />
       </Badge>
-      <Badge variant="error" count={5}>
-        <Avatar name="Error" />
+      <Badge variant='error' count={5}>
+        <Avatar name='Error' />
       </Badge>
-      <Badge variant="info" count={6}>
-        <Avatar name="Info" />
+      <Badge variant='info' count={6}>
+        <Avatar name='Info' />
       </Badge>
     </div>
   ),
@@ -97,14 +98,14 @@ export const Variants: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <Badge size="small" count={99}>
-        <Avatar size="sm" name="Small" />
+      <Badge size='small' count={99}>
+        <Avatar size='small' name='Small' />
       </Badge>
-      <Badge size="medium" count={99}>
-        <Avatar size="md" name="Medium" />
+      <Badge size='medium' count={99}>
+        <Avatar size='default' name='Medium' />
       </Badge>
-      <Badge size="large" count={99}>
-        <Avatar size="lg" name="Large" />
+      <Badge size='large' count={99}>
+        <Avatar size='large' name='Large' />
       </Badge>
     </div>
   ),
@@ -114,20 +115,20 @@ export const Sizes: Story = {
 export const DotVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <Badge variant="default" dot>
-        <Avatar name="Default" />
+      <Badge variant='default' dot>
+        <Avatar name='Default' />
       </Badge>
-      <Badge variant="primary" dot>
-        <Avatar name="Primary" />
+      <Badge variant='primary' dot>
+        <Avatar name='Primary' />
       </Badge>
-      <Badge variant="success" dot>
-        <Avatar name="Success" />
+      <Badge variant='success' dot>
+        <Avatar name='Success' />
       </Badge>
-      <Badge variant="warning" dot>
-        <Avatar name="Warning" />
+      <Badge variant='warning' dot>
+        <Avatar name='Warning' />
       </Badge>
-      <Badge variant="error" dot>
-        <Avatar name="Error" />
+      <Badge variant='error' dot>
+        <Avatar name='Error' />
       </Badge>
     </div>
   ),
@@ -138,19 +139,19 @@ export const CountExamples: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
       <Badge count={0} showZero>
-        <Avatar name="Zero" />
+        <Avatar name='Zero' />
       </Badge>
       <Badge count={1}>
-        <Avatar name="One" />
+        <Avatar name='One' />
       </Badge>
       <Badge count={99}>
-        <Avatar name="99" />
+        <Avatar name='99' />
       </Badge>
       <Badge count={100}>
-        <Avatar name="100+" />
+        <Avatar name='100+' />
       </Badge>
       <Badge count={1000} overflowCount={999}>
-        <Avatar name="999+" />
+        <Avatar name='999+' />
       </Badge>
     </div>
   ),
@@ -161,14 +162,14 @@ export const StatusBadges: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <StatusBadge status="active" text="Active" />
-        <StatusBadge status="inactive" text="Inactive" />
-        <StatusBadge status="pending" text="Pending" />
+        <StatusBadge status='active' text='Active' />
+        <StatusBadge status='inactive' text='Inactive' />
+        <StatusBadge status='pending' text='Pending' />
       </div>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <StatusBadge status="success" text="Success" />
-        <StatusBadge status="warning" text="Warning" />
-        <StatusBadge status="error" text="Error" />
+        <StatusBadge status='success' text='Success' />
+        <StatusBadge status='warning' text='Warning' />
+        <StatusBadge status='error' text='Error' />
       </div>
     </div>
   ),
@@ -178,10 +179,10 @@ export const StatusBadges: Story = {
 export const CountBadges: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-      <CountBadge count={5} variant="primary" />
-      <CountBadge count={23} variant="success" />
-      <CountBadge count={99} variant="warning" />
-      <CountBadge count={100} variant="error" max={99} />
+      <CountBadge count={5} variant='primary' />
+      <CountBadge count={23} variant='success' />
+      <CountBadge count={99} variant='warning' />
+      <CountBadge count={100} variant='error' max={99} />
     </div>
   ),
 }
@@ -190,13 +191,13 @@ export const CountBadges: Story = {
 export const WithIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <Badge count={5} variant="primary">
+      <Badge count={5} variant='primary'>
         <MailOutlined style={{ fontSize: '24px' }} />
       </Badge>
-      <Badge count={12} variant="error">
+      <Badge count={12} variant='error'>
         <BellOutlined style={{ fontSize: '24px' }} />
       </Badge>
-      <Badge dot variant="success">
+      <Badge dot variant='success'>
         <MailOutlined style={{ fontSize: '24px' }} />
       </Badge>
     </div>
@@ -208,9 +209,9 @@ export const Standalone: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
       <Badge count={25} />
-      <Badge count="Hot" variant="error" />
-      <Badge count="New" variant="primary" />
-      <Badge dot variant="success" />
+      <Badge count='Hot' variant='error' />
+      <Badge count='New' variant='primary' />
+      <Badge dot variant='success' />
     </div>
   ),
 }
@@ -231,21 +232,21 @@ export const EdgeCases: Story = {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
         <Badge count={0}>
-          <Avatar name="Hidden Zero" />
+          <Avatar name='Hidden Zero' />
         </Badge>
         <Badge count={0} showZero>
-          <Avatar name="Shown Zero" />
+          <Avatar name='Shown Zero' />
         </Badge>
         <Badge count={-1}>
-          <Avatar name="Negative" />
+          <Avatar name='Negative' />
         </Badge>
       </div>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <Badge count="Very Long Text">
-          <Avatar name="Long Text" />
+        <Badge count='Very Long Text'>
+          <Avatar name='Long Text' />
         </Badge>
         <Badge count={99999} overflowCount={9999}>
-          <Avatar name="Overflow" />
+          <Avatar name='Overflow' />
         </Badge>
       </div>
     </div>

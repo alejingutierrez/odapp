@@ -5,8 +5,10 @@ export const emailSchema = z.string().email('Invalid email format')
 export const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  )
 
 export const phoneSchema = z
   .string()
@@ -30,7 +32,10 @@ export const skuSchema = z
   .string()
   .min(1, 'SKU is required')
   .max(50, 'SKU must be less than 50 characters')
-  .regex(/^[A-Z0-9-_]+$/, 'SKU can only contain uppercase letters, numbers, hyphens, and underscores')
+  .regex(
+    /^[A-Z0-9-_]+$/,
+    'SKU can only contain uppercase letters, numbers, hyphens, and underscores'
+  )
 
 // Pagination schema
 export const paginationSchema = z.object({
@@ -52,22 +57,31 @@ export const searchSchema = z.object({
 export type SearchParams = z.infer<typeof searchSchema>
 
 // Date range schema
-export const dateRangeSchema = z.object({
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-}).refine(
-  (data) => !data.startDate || !data.endDate || new Date(data.startDate) <= new Date(data.endDate),
-  { message: 'Start date must be before end date', path: ['endDate'] }
-)
+export const dateRangeSchema = z
+  .object({
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.startDate ||
+      !data.endDate ||
+      new Date(data.startDate) <= new Date(data.endDate),
+    { message: 'Start date must be before end date', path: ['endDate'] }
+  )
 
 // ID validation schemas
 export const uuidSchema = z.string().uuid('Invalid UUID format')
-export const mongoIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId format')
+export const mongoIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId format')
 
 // File upload schemas
 export const imageFileSchema = z.object({
   filename: z.string(),
-  mimetype: z.string().regex(/^image\/(jpeg|jpg|png|gif|webp)$/, 'Invalid image format'),
+  mimetype: z
+    .string()
+    .regex(/^image\/(jpeg|jpg|png|gif|webp)$/, 'Invalid image format'),
   size: z.number().max(5 * 1024 * 1024, 'Image size must be less than 5MB'),
 })
 
@@ -92,3 +106,11 @@ export const sanitizeHtml = (str: string): string => {
 }
 
 export const sanitizeHtmlTransform = z.string().transform(sanitizeHtml)
+
+// Common validation schemas for reuse across routes
+export const commonValidationSchemas = {
+  id: z.string().uuid('Invalid UUID format'),
+  pagination: paginationSchema,
+  search: searchSchema,
+  dateRange: dateRangeSchema,
+} as const

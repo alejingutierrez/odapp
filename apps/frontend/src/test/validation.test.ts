@@ -1,4 +1,3 @@
- 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import * as yup from 'yup'
@@ -531,6 +530,15 @@ describe('Form Validation Hooks', () => {
   })
 
   describe('useAsyncValidation', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.runOnlyPendingTimers()
+      vi.useRealTimers()
+    })
+
     it('should handle async validation', async () => {
       const mockValidator = vi.fn().mockResolvedValue(true)
 
@@ -548,10 +556,7 @@ describe('Form Validation Hooks', () => {
 
       expect(result.current.isValidating).toBe(true)
 
-      // Wait for debounce and validation
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 150))
-      })
+      await vi.runAllTimersAsync()
 
       expect(mockValidator).toHaveBeenCalledWith('test-value')
       expect(result.current.isValidating).toBe(false)
@@ -573,9 +578,7 @@ describe('Form Validation Hooks', () => {
         result.current.validate('invalid-value')
       })
 
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 150))
-      })
+      await vi.runAllTimersAsync()
 
       expect(result.current.validationResult?.isValid).toBe(false)
       expect(result.current.validationResult?.error).toBe('Validation failed')

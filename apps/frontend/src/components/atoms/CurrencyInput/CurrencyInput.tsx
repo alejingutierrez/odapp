@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
 import { Input, InputProps, Select } from 'antd'
+import React, { useState, useEffect } from 'react'
 import './CurrencyInput.css'
 
 const { Option } = Select

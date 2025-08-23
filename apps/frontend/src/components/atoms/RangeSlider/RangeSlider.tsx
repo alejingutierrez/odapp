@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
 import { Slider, SliderSingleProps, InputNumber } from 'antd'
+import React, { useState, useEffect } from 'react'
 import './RangeSlider.css'
 
 export interface RangeSliderProps

@@ -1,11 +1,12 @@
+import { PrismaClient, AdjustmentType } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
-import { PrismaClient, AdjustmentType } from '@prisma/client'
-import { InventoryService } from '../services/inventory.service'
-import { WebSocketService } from '../services/websocket.service'
+
+import { sendSuccess, sendCreated } from '../lib/api-response'
 import { authenticate } from '../middleware/auth'
 import { validate } from '../middleware/validation'
-import { sendSuccess, sendCreated } from '../lib/api-response'
+import { InventoryService } from '../services/inventory.service'
+import { WebSocketService } from '../services/websocket.service'
 
 const router: Router = Router()
 

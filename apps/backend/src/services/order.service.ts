@@ -10,17 +10,19 @@ import {
   PaymentMethod,
   OrderItem,
 } from '@prisma/client'
-import { prisma } from '../lib/prisma'
-import { logger } from '../lib/logger'
+
 import {
   NotFoundError,
   BusinessLogicError,
   InternalServerError,
 } from '../lib/errors'
-import { WebSocketService } from './websocket.service'
-import { InventoryService } from './inventory.service'
-import { customerService, CustomerService } from './customer.service'
+import { logger } from '../lib/logger'
+import { prisma } from '../lib/prisma'
+
 import { AuditService } from './audit.service'
+import { customerService, CustomerService } from './customer.service'
+import { InventoryService } from './inventory.service'
+import { WebSocketService } from './websocket.service'
 
 export interface CreateOrderRequest {
   customerId?: string

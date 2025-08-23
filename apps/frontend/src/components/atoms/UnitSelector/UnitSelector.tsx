@@ -1,6 +1,6 @@
-import React from 'react'
-import { Select, SelectProps, Tooltip } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
+import { Select, SelectProps, Tooltip } from 'antd'
+import React from 'react'
 import './UnitSelector.css'
 
 const { Option } = Select

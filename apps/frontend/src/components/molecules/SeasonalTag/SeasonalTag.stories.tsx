@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { SeasonalTag } from './SeasonalTag'
 
 const meta: Meta<typeof SeasonalTag> = {

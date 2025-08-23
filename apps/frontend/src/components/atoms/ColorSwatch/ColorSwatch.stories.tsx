@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { ColorSwatch, ColorPalette } from './ColorSwatch'
 
 const meta: Meta<typeof ColorSwatch> = {

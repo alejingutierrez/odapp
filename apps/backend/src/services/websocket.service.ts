@@ -1,15 +1,18 @@
-import { Server as SocketIOServer } from 'socket.io'
 import { Server as HttpServer } from 'http'
-import * as jwt from 'jsonwebtoken'
+
 import { PrismaClient } from '@prisma/client'
+import * as jwt from 'jsonwebtoken'
+import { Server as SocketIOServer } from 'socket.io'
+import { Socket as SocketIOSocket } from 'socket.io'
+
 import { logger } from '../lib/logger'
+
 import {
   InventoryService,
   InventoryUpdateData,
   LowStockAlert,
 } from './inventory.service'
 
-import { Socket as SocketIOSocket } from 'socket.io'
 
 export interface AuthenticatedSocket extends SocketIOSocket {
   userId?: string

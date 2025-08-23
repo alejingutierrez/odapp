@@ -1,5 +1,3 @@
-import React from 'react'
-import { Card, Space, Image, Tooltip } from 'antd'
 import {
   EditOutlined,
   DeleteOutlined,
@@ -7,10 +5,13 @@ import {
   HeartOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons'
+import { Card, Space, Image, Tooltip } from 'antd'
 import { Typography, Badge } from 'antd'
-import { StatusIndicator } from '../StatusIndicator'
-import { PriceDisplay } from '../PriceDisplay'
+import React from 'react'
+
 import { ActionButtonGroup, type ActionButton } from '../ActionButtonGroup'
+import { PriceDisplay } from '../PriceDisplay'
+import { StatusIndicator } from '../StatusIndicator'
 import './ProductCard.css'
 
 export interface ProductVariant {

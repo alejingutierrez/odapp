@@ -1,5 +1,5 @@
-import React from 'react'
 import { Switch, SwitchProps } from 'antd'
+import React from 'react'
 import './Toggle.css'
 
 export interface ToggleProps

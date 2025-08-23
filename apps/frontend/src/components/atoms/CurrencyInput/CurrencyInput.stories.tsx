@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { CurrencyInput } from './CurrencyInput'
 
 const meta: Meta<typeof CurrencyInput> = {

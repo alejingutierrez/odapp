@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
+
 import { AuthService, TokenPayload, UserWithRoles } from '../lib/auth'
 import { TwoFactorService } from '../lib/two-factor'
 
 // Extend Express Request type to include user
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+   
   namespace Express {
     interface Request {
       user?: UserWithRoles
@@ -106,7 +107,7 @@ export const optionalAuthenticate = async (
     }
 
     next()
-  } catch (error) {
+  } catch (_error) {
     // Silently continue without authentication
     next()
   }

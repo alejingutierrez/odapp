@@ -1,6 +1,7 @@
+import { ConfigProvider, theme as antdTheme } from 'antd'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { ConfigProvider, theme as antdTheme } from 'antd'
+
 import { selectTheme, selectPrimaryColor } from '../../store/slices/uiSlice'
 
 interface ThemeProviderProps {

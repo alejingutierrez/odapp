@@ -1,18 +1,19 @@
+import { Spin } from 'antd'
 import React, { Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { Spin } from 'antd'
 
 // Layouts
-import { DashboardLayout } from '../components/layouts/DashboardLayout'
+import { ErrorBoundary } from '../components/common/ErrorBoundary'
 import { AuthLayout } from '../components/layouts/AuthLayout'
+import { DashboardLayout } from '../components/layouts/DashboardLayout'
 
 // Route guards
+import { NotFoundPage } from '../pages/NotFound'
+
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicRoute } from './PublicRoute'
 
 // Error boundaries
-import { ErrorBoundary } from '../components/common/ErrorBoundary'
-import { NotFoundPage } from '../pages/NotFound'
 
 // Lazy loaded pages
 const Dashboard = React.lazy(() => import('../pages/Dashboard'))

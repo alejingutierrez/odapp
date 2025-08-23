@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
 import { Space, Select, Radio, Typography, Tooltip } from 'antd'
+import React, { useState, useCallback } from 'react'
+
 import { ColorSwatch, SizeIndicator, MaterialTag } from '../../atoms'
 import type { ProductVariant } from '../ProductCard/ProductCard'
 import './ProductVariantSelector.css'

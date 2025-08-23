@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { FabricSwatch } from './FabricSwatch'
 
 const meta: Meta<typeof FabricSwatch> = {

@@ -1,9 +1,13 @@
-import * as jwt from 'jsonwebtoken'
-import * as bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { env } from '../config/env'
-import { prisma } from './prisma'
+
 import type { User, Role, UserSession } from '@prisma/client'
+import * as bcrypt from 'bcryptjs'
+import * as jwt from 'jsonwebtoken'
+
+import { env } from '../config/env'
+
+import { prisma } from './prisma'
+
 
 export interface TokenPayload {
   userId: string
@@ -102,7 +106,7 @@ export class AuthService {
       }) as TokenPayload
 
       return decoded
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid or expired token')
     }
   }

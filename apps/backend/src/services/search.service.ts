@@ -1,7 +1,9 @@
 import { ProductQuery } from '@oda/shared'
-import { ProductWithRelations, ProductSearchResult } from './product.service.js'
-import { logger } from '../lib/logger.js'
+
 import { ServiceUnavailableError } from '../lib/errors.js'
+import { logger } from '../lib/logger.js'
+
+import { ProductWithRelations, ProductSearchResult } from './product.service.js'
 
 export interface SearchConfig {
   node: string
@@ -134,8 +136,8 @@ export class SearchService {
       await this.ensureIndex()
 
       logger.info('Elasticsearch client initialized successfully')
-    } catch (error) {
-      logger.error('Failed to initialize Elasticsearch client', { error })
+    } catch (_error) {
+      logger.error('Failed to initialize Elasticsearch client', { error: _error })
       this.client = null
       this.isConnected = false
     }
@@ -256,9 +258,9 @@ export class SearchService {
 
         logger.info('Elasticsearch index created successfully')
       }
-    } catch (error) {
-      logger.error('Failed to ensure Elasticsearch index', { error })
-      throw error
+    } catch (_error) {
+      logger.error('Failed to ensure Elasticsearch index', { error: _error })
+      throw _error
     }
   }
 
@@ -313,8 +315,8 @@ export class SearchService {
       })
 
       logger.debug('Product indexed successfully', { productId: product.id })
-    } catch (error) {
-      logger.error('Failed to index product', { error, productId: product.id })
+    } catch (_error) {
+      logger.error('Failed to index product', { error: _error, productId: product.id })
       // Don't throw error to avoid breaking product operations
     }
   }
@@ -331,10 +333,10 @@ export class SearchService {
       })
 
       logger.debug('Product removed from index', { productId })
-    } catch (error) {
-      if (error && typeof error === 'object' && 'meta' in error && (error as any).meta?.statusCode !== 404) {
+    } catch (_error) {
+      if (_error && typeof _error === 'object' && 'meta' in _error && (_error as any).meta?.statusCode !== 404) {
         logger.error('Failed to remove product from index', {
-          error,
+          error: _error,
           productId,
         })
       }
@@ -663,8 +665,8 @@ export class SearchService {
         total: response.body.hits.total.value,
         facets,
       }
-    } catch (error) {
-      logger.error('Elasticsearch search failed', { error, query })
+    } catch (_error) {
+      logger.error('Elasticsearch search failed', { error: _error, query })
       throw new ServiceUnavailableError('Search failed')
     }
   }
@@ -693,8 +695,8 @@ export class SearchService {
       return response.body.suggest.product_suggest[0].options.map(
         (option: Record<string, unknown>) => option.text
       )
-    } catch (error) {
-      logger.error('Product suggestion failed', { error, query })
+    } catch (_error) {
+      logger.error('Product suggestion failed', { error: _error, query })
       return []
     }
   }
@@ -711,7 +713,7 @@ export class SearchService {
       // Delete existing index
       try {
         await this.client.indices.delete({ index: this.indexName })
-      } catch (error) {
+      } catch (_error) {
         // Index might not exist, ignore error
       }
 
@@ -732,9 +734,9 @@ export class SearchService {
       }
 
       logger.info('Product reindexing completed', { count: products.length })
-    } catch (error) {
-      logger.error('Failed to reindex products', { error })
-      throw error
+    } catch (_error) {
+      logger.error('Failed to reindex products', { error: _error })
+      throw _error
     }
   }
 

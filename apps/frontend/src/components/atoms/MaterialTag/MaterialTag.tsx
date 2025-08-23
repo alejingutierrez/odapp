@@ -1,10 +1,10 @@
-import React from 'react'
-import { Tag as AntTag, Tooltip } from 'antd'
 import {
   InfoCircleOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons'
+import { Tag as AntTag, Tooltip } from 'antd'
+import React from 'react'
 import './MaterialTag.css'
 
 export interface MaterialTagProps {

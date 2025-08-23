@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { TrendIndicator } from './TrendIndicator'
 
 const meta: Meta<typeof TrendIndicator> = {

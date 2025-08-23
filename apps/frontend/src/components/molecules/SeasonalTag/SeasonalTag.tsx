@@ -1,5 +1,3 @@
-import React from 'react'
-import { Tag, Tooltip, Space } from 'antd'
 import {
   SunOutlined,
   CloudOutlined,
@@ -8,6 +6,8 @@ import {
   FireOutlined,
   RiseOutlined,
 } from '@ant-design/icons'
+import { Tag, Tooltip, Space } from 'antd'
+import React from 'react'
 import './SeasonalTag.css'
 
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'

@@ -1,11 +1,13 @@
-import { PrismaClient, AdjustmentType, TransferStatus } from '@prisma/client'
 import { EventEmitter } from 'events'
-import { logger } from '../lib/logger'
+
+import { PrismaClient, AdjustmentType, TransferStatus } from '@prisma/client'
+
 import { 
   NotFoundError, 
   BusinessLogicError, 
   ConflictError 
 } from '../lib/errors'
+import { logger } from '../lib/logger'
 
 export interface InventoryUpdateData {
   inventoryItemId: string

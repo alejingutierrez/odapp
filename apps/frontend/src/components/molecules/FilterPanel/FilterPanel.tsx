@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Collapse, Button, Space, Typography, Divider, Badge } from 'antd'
 import { FilterOutlined, ClearOutlined, DownOutlined } from '@ant-design/icons'
+import { Collapse, Button, Space, Typography, Divider, Badge } from 'antd'
+import React, { useState } from 'react'
 import './FilterPanel.css'
 
 export interface FilterSection {

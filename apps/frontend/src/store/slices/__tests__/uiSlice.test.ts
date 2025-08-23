@@ -451,7 +451,7 @@ describe('uiSlice', () => {
       const store = createTestStore({ sidebarCollapsed: true })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectSidebarCollapsed(state as any)).toBe(true)
     })
 
@@ -459,7 +459,7 @@ describe('uiSlice', () => {
       const store = createTestStore({ theme: 'dark' })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectTheme(state as any)).toBe('dark')
     })
 
@@ -481,7 +481,7 @@ describe('uiSlice', () => {
       })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const productEditModal = selectModal("productEdit")(state as any)
       expect(productEditModal.isOpen).toBe(true)
       expect(productEditModal.data).toEqual({ id: '123' })
@@ -501,9 +501,9 @@ describe('uiSlice', () => {
       })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectLoading("products")(state as any)).toBe(true)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectLoading("inventory")(state as any)).toBe(false)
     })
 
@@ -525,9 +525,9 @@ describe('uiSlice', () => {
       })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectNotifications(state as any)).toEqual(notifications)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectUnreadNotificationCount(state as any)).toBe(1)
     })
 
@@ -535,7 +535,7 @@ describe('uiSlice', () => {
       const store = createTestStore({ globalSearch: 'test search' })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectGlobalSearch(state as any)).toBe('test search')
     })
 
@@ -544,9 +544,9 @@ describe('uiSlice', () => {
       const store = createTestStore({ activeFilters: filters })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectActiveFilters(state as any)).toEqual(filters)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectHasActiveFilters(state as any)).toBe(true)
     })
 
@@ -557,9 +557,9 @@ describe('uiSlice', () => {
       })
       const state = store.getState() as { ui: UIState }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectIsOnline(state as any)).toBe(true)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectWebSocketConnected(state as any)).toBe(false)
     })
   })

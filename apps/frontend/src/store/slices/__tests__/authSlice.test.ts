@@ -200,7 +200,7 @@ describe('authSlice', () => {
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -224,7 +224,7 @@ describe('authSlice', () => {
           password: 'wrong-password',
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -242,7 +242,7 @@ describe('authSlice', () => {
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -264,7 +264,7 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(logoutUser() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -285,7 +285,7 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(logoutUser() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -313,7 +313,7 @@ describe('authSlice', () => {
           refreshToken: 'old-refresh-token',
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(refreshToken() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -335,7 +335,7 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(refreshToken() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -360,7 +360,7 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(updateUserProfile(updates) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -383,7 +383,7 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await store.dispatch(updateUserProfile(updates) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -397,40 +397,40 @@ describe('authSlice', () => {
     it('should select current user', () => {
       const store = createTestStore({ user: mockUser })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectCurrentUser(store.getState() as any)).toEqual(mockUser)
     })
 
     it('should select token', () => {
       const store = createTestStore({ token: 'test-token' })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectToken(store.getState() as any)).toBe('test-token')
     })
 
     it('should select authentication status', () => {
       const store = createTestStore({ isAuthenticated: true })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectIsAuthenticated(store.getState() as any)).toBe(true)
     })
 
     it('should select permissions', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectPermissions(store.getState() as any)).toEqual(mockUser.permissions)
     })
 
     it('should check if user has specific permission', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const hasReadPermission = selectHasPermission('products', 'read')(store.getState() as any)
       const hasDeletePermission = selectHasPermission(
         'products',
         'delete'
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
       )(store.getState() as any)
 
       expect(hasReadPermission).toBe(true)
@@ -445,11 +445,11 @@ describe('authSlice', () => {
       const expiredStore = createTestStore({ sessionExpiry: pastExpiry })
       const noExpiryStore = createTestStore({ sessionExpiry: null })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectIsSessionValid(validStore.getState() as any)).toBe(true)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectIsSessionValid(expiredStore.getState() as any)).toBe(false)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       expect(selectIsSessionValid(noExpiryStore.getState() as any)).toBe(false)
     })
   })

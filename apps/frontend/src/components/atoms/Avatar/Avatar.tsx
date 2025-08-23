@@ -1,6 +1,6 @@
-import React from 'react'
-import { Avatar as AntAvatar, AvatarProps as AntAvatarProps, Badge } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
+import { Avatar as AntAvatar, AvatarProps as AntAvatarProps, Badge } from 'antd'
+import React from 'react'
 
 export type AvatarSize = 'small' | 'default' | 'large' | number
 export type AvatarShape = 'circle' | 'square'

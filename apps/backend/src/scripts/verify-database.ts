@@ -1,13 +1,13 @@
 #!/usr/bin/env tsx
 
+import { databaseHealthChecker } from '../lib/database-health.js'
+import { migrationManager } from '../lib/database-migrations.js'
 import {
   prisma,
   connectDatabase,
   disconnectDatabase,
   getDatabaseMetrics,
 } from '../lib/prisma.js'
-import { databaseHealthChecker } from '../lib/database-health.js'
-import { migrationManager } from '../lib/database-migrations.js'
 
 async function verifyDatabase() {
   console.log('🔍 Starting database verification...\n')

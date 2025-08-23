@@ -1,6 +1,6 @@
-import React from 'react'
-import { Card, Tooltip, Tag } from 'antd'
 import { EyeOutlined } from '@ant-design/icons'
+import { Card, Tooltip, Tag } from 'antd'
+import React from 'react'
 import './FabricSwatch.css'
 
 export interface FabricComposition {

@@ -1,4 +1,3 @@
-import { baseApi } from './baseApi'
 import type {
   InventoryItem,
   InventoryLocation,
@@ -6,6 +5,8 @@ import type {
   InventoryTransfer,
   InventoryAlert,
 } from '../slices/inventorySlice'
+
+import { baseApi } from './baseApi'
 // import type { EndpointBuilder } from '@reduxjs/toolkit/query'
 
 export interface InventoryQuery {

@@ -1,4 +1,3 @@
-import { logger } from './logger'
 import {
   ProductConflict,
   CustomerConflict,
@@ -6,6 +5,8 @@ import {
   ShopifyProduct,
   ShopifyCustomer,
 } from '../types/shopify'
+
+import { logger } from './logger'
 
 export class ConflictResolver {
   async detectProductConflict(

@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Form, Input, Button, Typography, Alert, Result } from 'antd'
 import {
   LockOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
   CheckCircleOutlined,
 } from '@ant-design/icons'
+import { Form, Input, Button, Typography, Alert, Result } from 'antd'
+import React, { useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 const { Title, Text } = Typography
 

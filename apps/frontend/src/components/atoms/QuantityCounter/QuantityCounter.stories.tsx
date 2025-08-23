@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { QuantityCounter } from './QuantityCounter'
 
 const meta: Meta<typeof QuantityCounter> = {

@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Input, Button, Badge, Space } from 'antd'
 import {
   SearchOutlined,
   FilterOutlined,
   ClearOutlined,
 } from '@ant-design/icons'
-import { Spinner } from '../../atoms'
+import { Input, Button, Badge, Space } from 'antd'
+import React, { useState, useEffect, useCallback } from 'react'
+
 import { useDebounce } from '../../../hooks/useDebounce'
+import { Spinner } from '../../atoms'
 import './SearchBox.css'
 
 export interface SearchBoxProps {

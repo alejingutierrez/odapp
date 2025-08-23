@@ -1,7 +1,8 @@
 import { exec } from 'child_process'
-import { promisify } from 'util'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import { promisify } from 'util'
+
 import { env } from '../config/env.js'
 
 const execAsync = promisify(exec)

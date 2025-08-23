@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react'
-import { InputNumber, Button, Space, Typography } from 'antd'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
+import { InputNumber, Button, Space, Typography } from 'antd'
+import React, { useState, useCallback } from 'react'
 import './QuantitySelector.css'
 
 export interface QuantitySelectorProps {

@@ -1,5 +1,6 @@
-import { logger } from './logger'
 import { RateLimitConfig, RateLimitStatus } from '../types/shopify'
+
+import { logger } from './logger'
 
 export class RateLimiter {
   private tokens: number

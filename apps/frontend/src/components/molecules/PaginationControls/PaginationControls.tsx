@@ -1,5 +1,5 @@
-import React from 'react'
 import { Pagination, Select, Space, Typography } from 'antd'
+import React from 'react'
 import './PaginationControls.css'
 
 export interface PaginationControlsProps {

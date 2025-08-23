@@ -1,6 +1,7 @@
-import { cacheManager, CacheOptions } from './cache-manager.js'
 import logger from '../logger.js'
 import { prisma } from '../prisma.js'
+
+import { cacheManager, CacheOptions } from './cache-manager.js'
 
 export interface WarmupConfig {
   enabled: boolean

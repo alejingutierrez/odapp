@@ -1,6 +1,7 @@
-import { logger } from '../lib/logger'
-import { ServiceUnavailableError, NotFoundError, ApiError } from '../lib/errors'
 import { PaymentMethod, PaymentStatus } from '@prisma/client'
+
+import { ServiceUnavailableError, NotFoundError, ApiError } from '../lib/errors'
+import { logger } from '../lib/logger'
 
 export interface PaymentRequest {
   amount: number

@@ -1,11 +1,11 @@
-import React from 'react'
-import { Tag, TagProps } from 'antd'
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
   ExclamationOutlined,
   MinusOutlined,
 } from '@ant-design/icons'
+import { Tag, TagProps } from 'antd'
+import React from 'react'
 
 export type PriorityType = 'low' | 'medium' | 'high' | 'urgent'
 

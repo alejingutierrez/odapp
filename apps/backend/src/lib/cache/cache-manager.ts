@@ -1,7 +1,9 @@
 import { LRUCache } from 'lru-cache'
-import { redisClient } from './redis-client.js'
-import logger from '../logger.js'
+
 import { env } from '../../config/env.js'
+import logger from '../logger.js'
+
+import { redisClient } from './redis-client.js'
 
 export interface CacheOptions {
   ttl?: number

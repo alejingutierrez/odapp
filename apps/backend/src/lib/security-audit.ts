@@ -1,9 +1,9 @@
-import { prisma } from './prisma'
 import { EmailService } from './email'
+import { prisma } from './prisma'
 
 // Security event types for audit logging
 // These enum values are defined for future use in security event handling
-/* eslint-disable no-unused-vars */
+ 
 export enum SecurityEventType {
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
   LOGIN_FAILED = 'LOGIN_FAILED',
@@ -21,7 +21,7 @@ export enum SecurityEventType {
   EMAIL_VERIFIED = 'EMAIL_VERIFIED',
   ACCOUNT_CREATED = 'ACCOUNT_CREATED',
 }
-/* eslint-enable no-unused-vars */
+ 
 
 export interface SecurityEvent {
   type: SecurityEventType

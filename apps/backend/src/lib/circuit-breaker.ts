@@ -1,5 +1,6 @@
-import { logger } from './logger'
 import { CircuitBreakerConfig, CircuitBreakerStatus } from '../types/shopify'
+
+import { logger } from './logger'
 
 export class CircuitBreaker {
   private state: 'closed' | 'open' | 'half-open' = 'closed'
@@ -7,7 +8,7 @@ export class CircuitBreaker {
   private lastFailureTime?: Date
   private nextAttemptTime?: Date
 
-  // eslint-disable-next-line no-unused-vars
+   
   constructor(private config: CircuitBreakerConfig) {}
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {

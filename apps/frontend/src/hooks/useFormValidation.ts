@@ -1,3 +1,5 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import {
   useForm,
@@ -7,9 +9,7 @@ import {
   Path,
   PathValue,
 } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { debounce } from 'lodash'
 
 // Enhanced form validation hook
 export interface UseFormValidationOptions<T extends FieldValues>
@@ -196,7 +196,7 @@ export const useDynamicFormArray = <T extends FieldValues>({
         await schema.validate(value)
         setValidationStates((prev) => ({ ...prev, [index]: true }))
         return true
-      } catch (error) {
+      } catch (_error) {
         setValidationStates((prev) => ({ ...prev, [index]: false }))
         return false
       }
@@ -302,7 +302,7 @@ export const useAsyncValidation = ({
           isValid,
           error: isValid ? undefined : errorMessage,
         })
-      } catch (error) {
+      } catch (_error) {
         setValidationResult({
           isValid: false,
           error: errorMessage,
@@ -354,8 +354,8 @@ export const useFormPersistence = <T extends FieldValues>({
         })
 
         storage.setItem(key, JSON.stringify(dataToSave))
-      } catch (error) {
-        console.warn('Failed to save form data:', error)
+      } catch (_error) {
+        console.warn('Failed to save form data:', _error)
       }
     },
     [key, storage, exclude]
@@ -365,8 +365,8 @@ export const useFormPersistence = <T extends FieldValues>({
     try {
       const saved = storage.getItem(key)
       return saved ? JSON.parse(saved) : null
-    } catch (error) {
-      console.warn('Failed to load form data:', error)
+    } catch (_error) {
+      console.warn('Failed to load form data:', _error)
       return null
     }
   }, [key, storage])
@@ -374,8 +374,8 @@ export const useFormPersistence = <T extends FieldValues>({
   const clearFormData = useCallback(() => {
     try {
       storage.removeItem(key)
-    } catch (error) {
-      console.warn('Failed to clear form data:', error)
+    } catch (_error) {
+      console.warn('Failed to clear form data:', _error)
     }
   }, [key, storage])
 

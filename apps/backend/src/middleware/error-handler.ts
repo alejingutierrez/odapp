@@ -1,6 +1,8 @@
+import { Prisma } from '@prisma/client'
 import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
-import { Prisma } from '@prisma/client'
+
+import { env } from '../config/env'
 import {
   AppError,
   ValidationError,
@@ -10,7 +12,6 @@ import {
   AuthenticationError,
 } from '../lib/errors'
 import { logError } from '../lib/logger'
-import { env } from '../config/env'
 
 /**
  * Standard API response format
@@ -268,8 +269,8 @@ export const validate = (schema: {
         req.params = schema.params.parse(req.params) as any
       }
       next()
-    } catch (error) {
-      next(error)
+    } catch (_error) {
+      next(_error)
     }
   }
 }

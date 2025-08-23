@@ -1,6 +1,6 @@
-import React from 'react'
-import { Space, Typography, Tooltip } from 'antd'
 import { TagOutlined } from '@ant-design/icons'
+import { Space, Typography, Tooltip } from 'antd'
+import React from 'react'
 import './PriceDisplay.css'
 
 export interface PriceDisplayProps {

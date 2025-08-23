@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import { InfoCircleOutlined, BulbOutlined } from '@ant-design/icons'
 import { Radio, Button, Modal, Table, Typography, Space, Tooltip } from 'antd'
 import type { RadioChangeEvent } from 'antd'
-import { InfoCircleOutlined, BulbOutlined } from '@ant-design/icons'
+import React, { useState } from 'react'
 import './SizeSelector.css'
 
 export interface SizeOption {

@@ -1,6 +1,6 @@
-import React from 'react'
-import { Card, Statistic } from 'antd'
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons'
+import { Card, Statistic } from 'antd'
+import React from 'react'
 
 export type TrendType = 'up' | 'down' | 'neutral'
 

@@ -1,6 +1,6 @@
-import React from 'react'
-import { Badge, Tooltip } from 'antd'
 import { DownOutlined, RightOutlined } from '@ant-design/icons'
+import { Badge, Tooltip } from 'antd'
+import React from 'react'
 import './SidebarMenuItem.css'
 
 export interface SidebarMenuItemData {

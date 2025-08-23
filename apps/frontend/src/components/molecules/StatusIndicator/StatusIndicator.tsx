@@ -1,5 +1,3 @@
-import React from 'react'
-import { Badge, Tooltip, Space } from 'antd'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -8,6 +6,9 @@ import {
   SyncOutlined,
   MinusCircleOutlined,
 } from '@ant-design/icons'
+import { Badge, Tooltip, Space } from 'antd'
+import React from 'react'
+
 import { Text } from '../../atoms/Typography/Typography'
 import './StatusIndicator.css'
 

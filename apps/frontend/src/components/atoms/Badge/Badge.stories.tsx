@@ -1,8 +1,10 @@
+import { MailOutlined, BellOutlined } from '@ant-design/icons'
 import type { Meta, StoryObj } from '@storybook/react'
-import { Badge, StatusBadge, CountBadge } from './Badge'
+
 import { Avatar } from '../Avatar/Avatar'
 import { Button } from '../Button/Button'
-import { MailOutlined, BellOutlined } from '@ant-design/icons'
+
+import { Badge, StatusBadge, CountBadge } from './Badge'
 
 const meta: Meta<typeof Badge> = {
   title: 'Atoms/Badge',

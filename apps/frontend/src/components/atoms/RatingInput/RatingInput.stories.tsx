@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Space } from 'antd'
+
 import { RatingInput } from './RatingInput'
 
 const meta: Meta<typeof RatingInput> = {

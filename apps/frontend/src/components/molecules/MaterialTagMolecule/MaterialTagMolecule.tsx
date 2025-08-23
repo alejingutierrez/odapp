@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { Tag, Modal, Typography, Space, Progress } from 'antd'
 import {
   InfoCircleOutlined,
 } from '@ant-design/icons'
+import { Tag, Modal, Typography, Space, Progress } from 'antd'
+import React, { useState } from 'react'
 import './MaterialTagMolecule.css'
 
 export interface MaterialInfo {

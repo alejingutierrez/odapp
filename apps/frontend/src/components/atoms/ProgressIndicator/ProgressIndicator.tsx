@@ -1,6 +1,6 @@
-import React, { CSSProperties } from 'react'
-import { Progress, ProgressProps, theme, Typography } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { Progress, ProgressProps, theme, Typography } from 'antd'
+import React, { CSSProperties } from 'react'
 
 const { Text } = Typography
 const { useToken } = theme

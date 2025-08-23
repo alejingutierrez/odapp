@@ -1,16 +1,17 @@
 import { Router, Request, Response } from 'express'
 import { body, validationResult } from 'express-validator'
+
+import { env } from '../config/env'
 import { AuthService, UserWithRoles } from '../lib/auth'
-import { TwoFactorService } from '../lib/two-factor'
 import { EmailService } from '../lib/email'
 import { prisma } from '../lib/prisma'
+import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
+import { TwoFactorService } from '../lib/two-factor'
 import {
   authenticate,
   authRateLimit,
   requireTwoFactor,
 } from '../middleware/auth'
-import { env } from '../config/env'
-import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
 
 const router = Router()
 

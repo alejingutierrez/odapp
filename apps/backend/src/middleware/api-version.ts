@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
+
 import { ValidationError } from '../lib/errors'
 
 // Extend Request interface to include API version
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+   
   namespace Express {
     interface Request {
       apiVersion: string

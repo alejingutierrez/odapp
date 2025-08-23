@@ -7,15 +7,16 @@ import {
   Prisma,
   CustomerStatus,
 } from '@prisma/client'
-import { prisma } from '../lib/prisma.js'
-import logger from '../lib/logger.js'
+
+import { cacheManager } from '../lib/cache/index.js'
 import {
   InternalServerError,
   ConflictError,
   NotFoundError,
   BusinessLogicError,
 } from '../lib/errors.js'
-import { cacheManager } from '../lib/cache/index.js'
+import logger from '../lib/logger.js'
+import { prisma } from '../lib/prisma.js'
 
 export interface CustomerWithRelations extends Customer {
   addresses: CustomerAddress[]

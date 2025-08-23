@@ -1,13 +1,3 @@
-import React, { useState } from 'react'
-import {
-  Upload,
-  Button,
-  Progress,
-  Typography,
-  Space,
-  Image,
-  message,
-} from 'antd'
 import {
   UploadOutlined,
   DeleteOutlined,
@@ -17,7 +7,17 @@ import {
   FileTextOutlined,
   FileOutlined,
 } from '@ant-design/icons'
+import {
+  Upload,
+  Button,
+  Progress,
+  Typography,
+  Space,
+  Image,
+  message,
+} from 'antd'
 import type { UploadProps, UploadFile } from 'antd'
+import React, { useState } from 'react'
 import './FileUpload.css'
 
 export interface FileUploadProps {

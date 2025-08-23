@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { Input, TextArea, PasswordInput, SearchInput } from './Input'
 import {
   UserOutlined,
   LockOutlined,
   MailOutlined,
   SearchOutlined,
 } from '@ant-design/icons'
+import type { Meta, StoryObj } from '@storybook/react'
+
+import { Input, TextArea, PasswordInput, SearchInput } from './Input'
 
 const meta: Meta<typeof Input> = {
   title: 'Atoms/Input',

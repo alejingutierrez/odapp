@@ -57,7 +57,7 @@ vi.mock('../../router/PublicRoute', () => ({
   ),
 }))
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const createTestStore = (initialState: any = {}) => {
   return configureStore({
     reducer: {

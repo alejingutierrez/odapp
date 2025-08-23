@@ -1,11 +1,11 @@
-import React from 'react'
-import { Card, Space, Tooltip, Progress } from 'antd'
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons'
+import { Card, Space, Tooltip, Progress } from 'antd'
 import { Typography } from 'antd'
+import React from 'react'
 import './MetricCard.css'
 
 export interface MetricCardProps {

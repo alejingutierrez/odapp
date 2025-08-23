@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { EmptyState } from './EmptyState'
 import {
   PlusOutlined,
   SearchOutlined,
   ShoppingCartOutlined,
   FileTextOutlined,
 } from '@ant-design/icons'
+import type { Meta, StoryObj } from '@storybook/react'
+
+import { EmptyState } from './EmptyState'
 
 const meta: Meta<typeof EmptyState> = {
   title: 'Atoms/EmptyState',

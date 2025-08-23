@@ -1,7 +1,7 @@
+import { MailOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+import { Form, Input, Button, Typography, Alert, Result } from 'antd'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Form, Input, Button, Typography, Alert, Result } from 'antd'
-import { MailOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 
 const { Title, Text } = Typography
 

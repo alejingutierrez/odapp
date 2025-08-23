@@ -1,6 +1,3 @@
-import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { Row, Col, Card, Statistic, Typography, Space } from 'antd'
 import {
   ShoppingOutlined,
   InboxOutlined,
@@ -9,8 +6,12 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
 } from '@ant-design/icons'
-import { setPageTitle, setBreadcrumbs } from '../store/slices/uiSlice'
+import { Row, Col, Card, Statistic, Typography, Space } from 'antd'
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+
 import { AppDispatch } from '../store'
+import { setPageTitle, setBreadcrumbs } from '../store/slices/uiSlice'
 
 const { Title } = Typography
 

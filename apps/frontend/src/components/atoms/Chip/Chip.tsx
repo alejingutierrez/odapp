@@ -1,6 +1,6 @@
-import React from 'react'
-import { Tag, TagProps } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
+import { Tag, TagProps } from 'antd'
+import React from 'react'
 import './Chip.css'
 
 export interface ChipProps extends Omit<TagProps, 'closable' | 'onClose'> {

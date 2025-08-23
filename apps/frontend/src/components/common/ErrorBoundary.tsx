@@ -1,6 +1,6 @@
-import { Component, ErrorInfo, ReactNode } from 'react'
-import { Result, Button, Typography, Collapse } from 'antd'
 import { BugOutlined, ReloadOutlined, HomeOutlined } from '@ant-design/icons'
+import { Result, Button, Typography, Collapse } from 'antd'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 const { Paragraph, Text } = Typography
 const { Panel } = Collapse

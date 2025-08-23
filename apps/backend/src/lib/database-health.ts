@@ -1,5 +1,6 @@
-import { prisma } from './prisma.js'
 import { env } from '../config/env.js'
+
+import { prisma } from './prisma.js'
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy'

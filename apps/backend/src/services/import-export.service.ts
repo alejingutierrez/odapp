@@ -13,9 +13,11 @@ const csvStringify = (_data: any, _options: any, callback: (_err: Error | null, 
   callback(new Error('CSV stringify not implemented - csv-stringify module not available'), '')
 }
 // import { Readable } from 'stream' // TODO: Implement if needed
-import { logger } from '../lib/logger.js'
 import { ServiceUnavailableError, BusinessLogicError } from '../lib/errors.js'
+import { logger } from '../lib/logger.js'
+
 import { ProductService } from './product.service.js'
+
 import { CreateProduct } from '@oda/shared'
 
 export interface ImportResult {

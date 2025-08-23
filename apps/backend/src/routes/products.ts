@@ -1,8 +1,3 @@
-import { Router } from 'express'
-import { z } from 'zod'
-import multer from 'multer'
-import { validate, xssProtection } from '../middleware/validation.js'
-import { authenticate, authorize } from '../middleware/auth.js'
 import {
   // productSchema,
   createProductSchema,
@@ -14,16 +9,22 @@ import {
   productExportSchema,
   commonValidationSchemas,
 } from '@oda/shared'
+import { Router } from 'express'
+import multer from 'multer'
+import { z } from 'zod'
+
 import { sendSuccess, sendCreated, sendError, sendPaginated } from '../lib/api-response.js'
+import { CacheManager } from '../lib/cache/cache-manager.js'
 import { logger } from '../lib/logger.js'
-import { ProductService } from '../services/product.service.js'
-import { SearchService } from '../services/search.service.js'
-import { ImageService } from '../services/image.service.js'
+import { prisma } from '../lib/prisma.js'
+import { authenticate, authorize } from '../middleware/auth.js'
+import { validate, xssProtection } from '../middleware/validation.js'
 import { AnalyticsService } from '../services/analytics.service.js'
 import { AuditService } from '../services/audit.service.js'
+import { ImageService } from '../services/image.service.js'
 import { ImportExportService } from '../services/import-export.service.js'
-import { CacheManager } from '../lib/cache/cache-manager.js'
-import { prisma } from '../lib/prisma.js'
+import { ProductService } from '../services/product.service.js'
+import { SearchService } from '../services/search.service.js'
 
 const router = Router()
 
@@ -279,9 +280,7 @@ router.post(
       const files = req.files as Express.Multer.File[]
 
       if (!files || files.length === 0) {
-        return res
-          .status(400)
-          sendError(res, 'VALIDATION_ERROR', 'No images provided', 400)
+        return sendError(res, 'VALIDATION_ERROR', 'No images provided', 400)
       }
 
       logger.info('Uploading product images', {

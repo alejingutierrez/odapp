@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
-import { Collapse, Typography, Space, Badge } from 'antd'
 import {
   DownOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons'
+import { Collapse, Typography, Space, Badge } from 'antd'
+import React, { useState } from 'react'
 import './FormSection.css'
 
 export interface ValidationSummary {

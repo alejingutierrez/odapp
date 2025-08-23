@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react'
-import { Select, SelectProps } from 'antd'
 import { SearchOutlined, CheckOutlined } from '@ant-design/icons'
+import { Select, SelectProps } from 'antd'
+import React, { useState, useMemo } from 'react'
 import './Dropdown.css'
 
 const { Option, OptGroup } = Select

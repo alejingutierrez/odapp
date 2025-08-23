@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Rate, InputNumber, Tooltip } from 'antd'
 import { StarFilled, HeartFilled } from '@ant-design/icons'
+import { Rate, InputNumber, Tooltip } from 'antd'
+import React, { useState } from 'react'
 import './RatingInput.css'
 
 export type RatingType = 'star' | 'numeric' | 'emoji' | 'heart' | 'thumbs'

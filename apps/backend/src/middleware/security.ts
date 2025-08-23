@@ -1,7 +1,8 @@
+import * as cors from 'cors'
 import { Request, Response, NextFunction } from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
-import * as cors from 'cors'
+
 import { env } from '../config/env'
 import { RateLimitError } from '../lib/errors'
 import logger from '../lib/logger'

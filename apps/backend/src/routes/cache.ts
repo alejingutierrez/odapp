@@ -1,13 +1,14 @@
 import { Router, type Request, type Response } from 'express'
+
+import { sendSuccess, sendError } from '../lib/api-response.js'
 import {
   cacheManager,
   cacheMonitoring,
   cacheWarming,
   redisClient,
 } from '../lib/cache/index.js'
-import { authenticate, requirePermission } from '../middleware/auth.js'
-import { sendSuccess, sendError } from '../lib/api-response.js'
 import logger from '../lib/logger.js'
+import { authenticate, requirePermission } from '../middleware/auth.js'
 
 const router = Router()
 

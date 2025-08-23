@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express'
 import { body, validationResult } from 'express-validator'
-import { TwoFactorService } from '../lib/two-factor'
+
 import { EmailService } from '../lib/email'
+import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
+import { TwoFactorService } from '../lib/two-factor'
 import { authenticate, requireTwoFactor } from '../middleware/auth'
 // import { prisma } from '../lib/prisma'
-import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
 
 const router = Router()
 

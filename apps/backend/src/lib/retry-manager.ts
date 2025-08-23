@@ -1,5 +1,6 @@
-import { logger } from './logger'
 import { RetryConfig, RetryAttempt } from '../types/shopify'
+
+import { logger } from './logger'
 
 export class RetryManager {
   constructor(private _config: RetryConfig) {}

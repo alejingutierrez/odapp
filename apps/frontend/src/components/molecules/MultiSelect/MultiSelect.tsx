@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react'
-import { Select, Tag, Button, Space, Typography, Input } from 'antd'
 import { SearchOutlined, ClearOutlined, CheckOutlined } from '@ant-design/icons'
+import { Select, Tag, Button, Space, Typography, Input } from 'antd'
+import React, { useState, useMemo } from 'react'
 import './MultiSelect.css'
 
 export interface SelectOption {

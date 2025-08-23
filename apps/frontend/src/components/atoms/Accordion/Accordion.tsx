@@ -1,6 +1,6 @@
-import React from 'react'
-import { Collapse, CollapseProps } from 'antd'
 import { CaretRightOutlined } from '@ant-design/icons'
+import { Collapse, CollapseProps } from 'antd'
+import React from 'react'
 import './Accordion.css'
 
 const { Panel } = Collapse

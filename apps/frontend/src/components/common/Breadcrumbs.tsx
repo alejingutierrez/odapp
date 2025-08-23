@@ -1,7 +1,7 @@
+import { HomeOutlined } from '@ant-design/icons'
+import { Breadcrumb } from 'antd'
 import React, { useMemo } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { Breadcrumb } from 'antd'
-import { HomeOutlined } from '@ant-design/icons'
 
 // Route configuration for breadcrumbs
 const routeConfig: Record<string, { label: string; icon?: React.ReactNode }> = {

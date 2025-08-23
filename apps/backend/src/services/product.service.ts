@@ -1,3 +1,12 @@
+import { EventEmitter } from 'events'
+
+import {
+  CreateProduct,
+  UpdateProduct,
+  ProductQuery,
+  BulkProductUpdate,
+  BulkProductDelete,
+} from '@oda/shared'
 import {
   PrismaClient,
   Product,
@@ -8,21 +17,16 @@ import {
   ProductStatus,
   Prisma,
 } from '@prisma/client'
-import {
-  CreateProduct,
-  UpdateProduct,
-  ProductQuery,
-  BulkProductUpdate,
-  BulkProductDelete,
-} from '@oda/shared'
-import { logger } from '../lib/logger.js'
-import { NotFoundError, BusinessLogicError } from '../lib/errors.js'
+
 import { CacheManager } from '../lib/cache/cache-manager.js'
-import { SearchService } from './search.service.js'
-import { ImageService } from './image.service.js'
+import { NotFoundError, BusinessLogicError } from '../lib/errors.js'
+import { logger } from '../lib/logger.js'
+
 import { AnalyticsService } from './analytics.service.js'
 import { AuditService } from './audit.service.js'
-import { EventEmitter } from 'events'
+import { ImageService } from './image.service.js'
+import { SearchService } from './search.service.js'
+
 
 export interface ProductWithRelations extends Product {
   variants: ProductVariant[]

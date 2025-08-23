@@ -1,5 +1,3 @@
-import React, { CSSProperties } from 'react'
-import { Badge, BadgeProps, theme, Typography } from 'antd'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -9,6 +7,8 @@ import {
   InfoCircleOutlined,
   MinusCircleOutlined,
 } from '@ant-design/icons'
+import { Badge, BadgeProps, theme, Typography } from 'antd'
+import React, { CSSProperties } from 'react'
 
 const { Text } = Typography
 const { useToken } = theme

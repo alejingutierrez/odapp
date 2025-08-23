@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { MetricCard } from './MetricCard'
 import {
   DollarOutlined,
   UserOutlined,
   ShoppingCartOutlined,
   EyeOutlined,
 } from '@ant-design/icons'
+import type { Meta, StoryObj } from '@storybook/react'
+
+import { MetricCard } from './MetricCard'
 
 const meta: Meta<typeof MetricCard> = {
   title: 'Atoms/MetricCard',

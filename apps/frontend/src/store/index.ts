@@ -16,11 +16,11 @@ import storage from 'redux-persist/lib/storage'
 // Import API and slices
 import { baseApi } from './api/baseApi'
 import authReducer from './slices/authSlice'
-import uiReducer from './slices/uiSlice'
-import productsReducer from './slices/productsSlice'
+import customersReducer from './slices/customersSlice'
 import inventoryReducer from './slices/inventorySlice'
 import ordersReducer from './slices/ordersSlice'
-import customersReducer from './slices/customersSlice'
+import productsReducer from './slices/productsSlice'
+import uiReducer from './slices/uiSlice'
 
 // Persist configuration
 const persistConfig = {

@@ -1,7 +1,7 @@
-import React from 'react'
 import {
   Typography as AntTypography,
 } from 'antd'
+import React from 'react'
 import './Typography.css'
 
 const {

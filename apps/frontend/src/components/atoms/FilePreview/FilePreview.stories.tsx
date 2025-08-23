@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { FilePreview } from './FilePreview'
 
 const meta: Meta<typeof FilePreview> = {

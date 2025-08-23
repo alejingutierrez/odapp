@@ -1,5 +1,10 @@
-import React from 'react'
 import { Button, Card, Space, Typography } from 'antd'
+import React from 'react'
+
+import {
+  useGetProductsQuery,
+  useCreateProductMutation,
+} from '../api/productsApi'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import {
   loginUser,
@@ -12,10 +17,6 @@ import {
   toggleSidebar,
   selectSidebarCollapsed,
 } from '../slices/uiSlice'
-import {
-  useGetProductsQuery,
-  useCreateProductMutation,
-} from '../api/productsApi'
 
 const { Title, Text } = Typography
 
@@ -69,7 +70,7 @@ export const ReduxExample: React.FC = () => {
           message: 'Welcome back!',
         })
       )
-    } catch (error) {
+    } catch (_error) {
       dispatch(
         addNotification({
           type: 'error',
@@ -91,9 +92,9 @@ export const ReduxExample: React.FC = () => {
           message: 'You have been logged out successfully',
         })
       )
-    } catch (error) {
+    } catch (_error) {
       // Logout should always succeed locally even if server fails
-      console.warn('Logout error:', error)
+      console.warn('Logout error:', _error)
     }
   }
 
@@ -121,7 +122,7 @@ export const ReduxExample: React.FC = () => {
           message: `Product "${(newProduct as { name?: string })?.name || 'Unknown'}" created successfully`,
         })
       )
-    } catch (error) {
+    } catch (_error) {
       dispatch(
         addNotification({
           type: 'error',

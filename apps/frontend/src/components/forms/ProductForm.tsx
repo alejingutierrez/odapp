@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import {
+  PlusOutlined,
+  MinusCircleOutlined,
+  UploadOutlined,
+  SaveOutlined,
+  EyeOutlined,
+} from '@ant-design/icons'
 import {
   Form,
   Select,
@@ -15,16 +21,11 @@ import {
   Alert,
   Spin,
 } from 'antd'
-import { Input, TextArea } from '../../components/atoms/Input'
-import {
-  PlusOutlined,
-  MinusCircleOutlined,
-  UploadOutlined,
-  SaveOutlined,
-  EyeOutlined,
-} from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
 import { Controller, useFieldArray } from 'react-hook-form'
 import * as yup from 'yup'
+
+import { Input, TextArea } from '../../components/atoms/Input'
 import {
   useFormValidation,
   useDynamicFormArray,

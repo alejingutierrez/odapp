@@ -1,15 +1,16 @@
-import { Router } from 'express'
-import { customerService } from '../services/customer.service.js'
-import { authenticate } from '../middleware/auth.js'
-import { validate } from '../middleware/validation.js'
-import { sendSuccess, sendCreated, sendNoContent } from '../lib/api-response.js'
-import { ApiError } from '../lib/errors.js'
 import {
   createCustomerSchema,
   updateCustomerSchema,
   customerQuerySchema,
   customerCommunicationSchema,
 } from '@oda/shared'
+import { Router } from 'express'
+
+import { sendSuccess, sendCreated, sendNoContent } from '../lib/api-response.js'
+import { ApiError } from '../lib/errors.js'
+import { authenticate } from '../middleware/auth.js'
+import { validate } from '../middleware/validation.js'
+import { customerService } from '../services/customer.service.js'
 
 const router: Router = Router()
 

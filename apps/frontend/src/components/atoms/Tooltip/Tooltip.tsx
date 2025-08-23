@@ -1,5 +1,5 @@
-import React from 'react'
 import { Tooltip as AntTooltip, TooltipProps as AntTooltipProps } from 'antd'
+import React from 'react'
 import './Tooltip.css'
 
 export interface TooltipProps extends Omit<AntTooltipProps, 'placement'> {

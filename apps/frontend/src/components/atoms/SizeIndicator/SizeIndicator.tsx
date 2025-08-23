@@ -1,5 +1,5 @@
-import React from 'react'
 import { Tooltip } from 'antd'
+import React from 'react'
 import './SizeIndicator.css'
 
 export interface SizeIndicatorProps {

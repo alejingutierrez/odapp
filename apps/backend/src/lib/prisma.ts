@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client'
+
 import { env } from '../config/env.js'
 
 // Global variable to store the Prisma client instance
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __prisma: PrismaClient | undefined
 }
 

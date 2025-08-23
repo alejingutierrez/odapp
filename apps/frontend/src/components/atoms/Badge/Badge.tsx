@@ -1,5 +1,5 @@
-import React from 'react'
 import { Badge as AntBadge, BadgeProps as AntBadgeProps } from 'antd'
+import React from 'react'
 import './Badge.css'
 
 export interface BadgeProps extends Omit<AntBadgeProps, 'status' | 'variant' | 'size'> {

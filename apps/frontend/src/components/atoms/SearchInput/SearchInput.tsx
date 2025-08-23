@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Input, AutoComplete, Tag, Dropdown, Menu, Button } from 'antd'
 import {
   SearchOutlined,
   CloseOutlined,
@@ -7,6 +6,7 @@ import {
   FilterOutlined,
   ClearOutlined,
 } from '@ant-design/icons'
+import { Input, AutoComplete, Tag, Dropdown, Menu, Button } from 'antd'
 import './SearchInput.css'
 
 // Removed unused imports - we're now using DefaultOptionType instead

@@ -1,10 +1,10 @@
-import React from 'react'
-import { Progress, Typography, Space } from 'antd'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   LoadingOutlined,
 } from '@ant-design/icons'
+import { Progress, Typography, Space } from 'antd'
+import React from 'react'
 import './ProgressIndicator.css'
 
 export type ProgressType = 'line' | 'circle' | 'dashboard'

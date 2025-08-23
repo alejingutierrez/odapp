@@ -1,5 +1,5 @@
-import React from 'react'
 import { Typography, Card } from 'antd'
+import React from 'react'
 
 const Shopify: React.FC = () => {
   return (

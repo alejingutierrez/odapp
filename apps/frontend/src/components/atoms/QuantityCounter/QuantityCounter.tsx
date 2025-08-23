@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { InputNumber, Button } from 'antd'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
+import { InputNumber, Button } from 'antd'
+import React, { useState, useEffect } from 'react'
 import './QuantityCounter.css'
 
 export interface QuantityCounterProps {

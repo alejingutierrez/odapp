@@ -1,5 +1,5 @@
-import React from 'react'
 import * as AntIcons from '@ant-design/icons'
+import React from 'react'
 import './Icon.css'
 
 export interface IconProps {

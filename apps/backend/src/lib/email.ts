@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer'
+
 import { env } from '../config/env'
 
 export interface EmailOptions {

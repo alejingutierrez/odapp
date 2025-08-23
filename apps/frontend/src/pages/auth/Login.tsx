@@ -1,6 +1,9 @@
-import React from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import {
+  UserOutlined,
+  LockOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+} from '@ant-design/icons'
 import {
   Form,
   Input,
@@ -11,12 +14,10 @@ import {
   Space,
   Divider,
 } from 'antd'
-import {
-  UserOutlined,
-  LockOutlined,
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-} from '@ant-design/icons'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+
 import { AppDispatch } from '../../store'
 import {
   loginUser,

@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react'
-import { Table, Space, Button, Input, Select, Tooltip } from 'antd'
 import {
   ReloadOutlined,
   DownloadOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
+import { Table, Space, Button, Input, Select, Tooltip } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
+import React, { useState, useCallback } from 'react'
+
 import { SearchBox } from '../SearchBox'
 import './DataTable.css'
 

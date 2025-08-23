@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Rate, Typography, Space, Tooltip } from 'antd'
 import { StarFilled, StarOutlined } from '@ant-design/icons'
+import { Rate, Typography, Space, Tooltip } from 'antd'
+import React, { useState } from 'react'
 import './ProductRating.css'
 
 export interface ProductRatingProps {

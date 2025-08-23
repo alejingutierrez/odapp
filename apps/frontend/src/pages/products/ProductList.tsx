@@ -1,8 +1,9 @@
+import { Typography, Card } from 'antd'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { Typography, Card } from 'antd'
-import { setPageTitle, setBreadcrumbs } from '../../store/slices/uiSlice'
+
 import { AppDispatch } from '../../store'
+import { setPageTitle, setBreadcrumbs } from '../../store/slices/uiSlice'
 
 const { Title } = Typography
 

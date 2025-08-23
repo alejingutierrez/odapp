@@ -1,5 +1,5 @@
-import React from 'react'
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd'
+import React from 'react'
 import './Button.css'
 
 export interface ButtonProps extends Omit<AntButtonProps, 'type' | 'variant'> {

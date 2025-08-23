@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { io, Socket } from 'socket.io-client'
+
+import { AppDispatch } from '../store'
 import { selectIsAuthenticated, selectToken } from '../store/slices/authSlice'
 import { setWebSocketStatus, addNotification } from '../store/slices/uiSlice'
-import { AppDispatch } from '../store'
 
 interface WebSocketConfig {
   url?: string

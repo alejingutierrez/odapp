@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
+
 import type { RootState } from '../index'
 
 // Define base query with authentication

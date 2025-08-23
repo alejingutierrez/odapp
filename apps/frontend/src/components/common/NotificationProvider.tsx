@@ -1,12 +1,13 @@
+import { notification } from 'antd'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { notification } from 'antd'
+
+import { AppDispatch } from '../../store'
 import {
   selectNotifications,
   removeNotification,
   markNotificationAsRead,
 } from '../../store/slices/uiSlice'
-import { AppDispatch } from '../../store'
 
 interface NotificationProviderProps {
   children: React.ReactNode

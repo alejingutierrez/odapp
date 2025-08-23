@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import { z, ZodError, ZodSchema } from 'zod'
+
 import { ApiError } from '../lib/errors.js'
 
 // Create a simple logger fallback for tests
 const createLogger = () => {
   try {
     // Use dynamic import but handle it synchronously for now
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const loggerModule = require('../lib/logger.js')
     return loggerModule.logger || loggerModule.default
   } catch {

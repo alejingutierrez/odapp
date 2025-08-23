@@ -1,12 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { Dropdown, type MenuProps } from 'antd'
-import { Button } from '../Button/Button'
 import {
   DownOutlined,
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
+import type { Meta, StoryObj } from '@storybook/react'
+import { Dropdown, type MenuProps } from 'antd'
+
+import { Button } from '../Button/Button'
 
 const meta: Meta<typeof Dropdown> = {
   title: 'Atoms/Dropdown',

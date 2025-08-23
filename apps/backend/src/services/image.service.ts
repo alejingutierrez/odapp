@@ -1,9 +1,11 @@
-import sharp from 'sharp'
 import { promises as fs } from 'fs'
 import path from 'path'
+
+import sharp from 'sharp'
 import { v4 as uuidv4 } from 'uuid'
-import { logger } from '../lib/logger.js'
+
 import { ValidationError, NotFoundError } from '../lib/errors.js'
+import { logger } from '../lib/logger.js'
 
 export interface ImageProcessingOptions {
   width?: number

@@ -1,10 +1,10 @@
-import React, { CSSProperties } from 'react'
-import { Typography, Tooltip, theme } from 'antd'
 import {
   CalendarOutlined,
   ClockCircleOutlined,
   HistoryOutlined,
 } from '@ant-design/icons'
+import { Typography, Tooltip, theme } from 'antd'
+import React, { CSSProperties } from 'react'
 
 const { Text } = Typography
 const { useToken } = theme

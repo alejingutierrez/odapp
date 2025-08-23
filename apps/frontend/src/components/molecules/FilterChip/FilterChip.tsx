@@ -1,6 +1,6 @@
-import React from 'react'
-import { Tag } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
+import { Tag } from 'antd'
+import React from 'react'
 
 export interface FilterChipProps {
   label: string

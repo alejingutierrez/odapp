@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { PriorityTag } from './PriorityTag'
 
 const meta: Meta<typeof PriorityTag> = {

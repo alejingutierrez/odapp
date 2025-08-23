@@ -1,5 +1,3 @@
-import React from 'react'
-import { Card, Progress, Tooltip } from 'antd'
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
@@ -8,6 +6,8 @@ import {
   ShareAltOutlined,
   EyeOutlined,
 } from '@ant-design/icons'
+import { Card, Progress, Tooltip } from 'antd'
+import React from 'react'
 // import { designTokens } from '../../../config/theme'
 import './TrendIndicator.css'
 

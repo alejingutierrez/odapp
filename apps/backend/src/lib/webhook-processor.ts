@@ -1,12 +1,16 @@
-import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
-import { logger } from './logger'
+
+import { PrismaClient } from '@prisma/client'
+
 import {
   WebhookEvent,
   ShopifyProduct,
   ShopifyOrder,
   ShopifyCustomer,
 } from '../types/shopify'
+
+import { logger } from './logger'
+
 
 export class WebhookProcessor {
   constructor(private _prisma: PrismaClient) {}

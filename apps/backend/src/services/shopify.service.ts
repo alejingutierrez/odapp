@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import axios, { AxiosInstance, AxiosError } from 'axios'
-import { logger } from '../lib/logger'
+
 import { CircuitBreaker } from '../lib/circuit-breaker'
+import { ConflictResolver } from '../lib/conflict-resolver'
+import { logger } from '../lib/logger'
 import { RateLimiter } from '../lib/rate-limiter'
 import { RetryManager } from '../lib/retry-manager'
 import { SyncStatusManager } from '../lib/sync-status-manager'
-import { ConflictResolver } from '../lib/conflict-resolver'
 import { WebhookProcessor } from '../lib/webhook-processor'
 import {
   ShopifyProduct,
@@ -16,12 +17,8 @@ import {
   SyncStatus,
   WebhookEvent,
 } from '../types/shopify'
-import { WebSocketService } from './websocket.service'
 
-// Type definitions for Shopify integration
-interface ShopifyCustomerWithId extends ShopifyCustomer {
-  id: number
-}
+import { WebSocketService } from './websocket.service'
 
 export class ShopifyService {
   private client!: AxiosInstance
@@ -321,7 +318,7 @@ export class ShopifyService {
 
         if (existingShopifyProduct) {
           // Check for conflicts
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const conflict = await this.conflictResolver.detectProductConflict(
             product as any,
             existingShopifyProduct
@@ -513,13 +510,13 @@ export class ShopifyService {
   ): Promise<void> {
     return this.circuitBreaker.execute(async () => {
       return this.retryManager.execute(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const shopifyVariant = await this.findShopifyVariantBySku(
           (inventoryItem.product as any).variants[0]?.sku
         )
 
         if (!shopifyVariant) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           throw new Error(
             `Shopify variant not found for SKU: ${(inventoryItem.product as any).variants[0]?.sku}`
           )
@@ -664,7 +661,7 @@ export class ShopifyService {
 
         if (existingCustomer) {
           // Deduplicate and merge customer data
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const mergedData = await this.deduplicateCustomerData(
             existingCustomer as any,
             shopifyCustomer

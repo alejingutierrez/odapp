@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { SizeIndicator, SizeChart, SizeGuide } from './SizeIndicator'
 
 const meta: Meta<typeof SizeIndicator> = {

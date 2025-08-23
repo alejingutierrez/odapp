@@ -1,8 +1,9 @@
+import { Spin } from 'antd'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
+
 import { store, persistor } from './index'
-import { Spin } from 'antd'
 
 interface StoreProviderProps {
   children: React.ReactNode

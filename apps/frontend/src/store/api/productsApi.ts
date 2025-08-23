@@ -1,5 +1,6 @@
-import { baseApi } from './baseApi'
 import type { Product, Collection, Category } from '../slices/productsSlice'
+
+import { baseApi } from './baseApi'
 // import type { EndpointBuilder } from '@reduxjs/toolkit/query'
 
 export interface ProductsQuery {

@@ -1,12 +1,12 @@
+import { Spin } from 'antd'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
-import { Spin } from 'antd'
 
 import App from './App'
-import { store, persistor } from './store'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
+import { store, persistor } from './store'
 
 import './styles/globals.css'
 

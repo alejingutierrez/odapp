@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
 import { Spin } from 'antd'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { Navigate, useLocation } from 'react-router-dom'
+
+import { AppDispatch } from '../store'
 import {
   selectIsAuthenticated,
   selectAuthLoading,
   selectSessionExpiry,
   refreshToken,
 } from '../store/slices/authSlice'
-import { AppDispatch } from '../store'
 
 interface ProtectedRouteProps {
   children: React.ReactNode

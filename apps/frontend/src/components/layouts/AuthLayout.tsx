@@ -1,6 +1,7 @@
+import { Layout, Card, Grid, theme as antdTheme } from 'antd'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { Layout, Card, Grid, theme as antdTheme } from 'antd'
+
 import { ThemeProvider } from '../common/ThemeProvider'
 
 const { Content } = Layout

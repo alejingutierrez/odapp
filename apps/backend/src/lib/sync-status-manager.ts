@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { logger } from './logger.js'
 import { v4 as uuidv4 } from 'uuid'
 
 import { SyncStatus } from '../types/shopify.js'
+
+import { logger } from './logger.js'
 
 export class SyncStatusManager {
   private _prisma: PrismaClient
@@ -112,83 +113,58 @@ export class SyncStatusManager {
   }
 
   async getSyncStatus(_syncId: string): Promise<SyncStatus | null> {
-    try {
-      // TODO: Add SyncStatus model to Prisma schema
-      // const status = await this._prisma.syncStatus.findUnique({
-      //   where: { id: syncId },
-      // })
+    // TODO: Add SyncStatus model to Prisma schema
+    // const status = await this._prisma.syncStatus.findUnique({
+    //   where: { id: syncId },
+    // })
 
-      return null // Temporary return until SyncStatus model is added
-    } catch (error) {
-      logger.error('Failed to get sync status:', error)
-      return null
-    }
+    return null // Temporary return until SyncStatus model is added
   }
 
   async getAllSyncStatuses(): Promise<SyncStatus[]> {
-    try {
-      // TODO: Add SyncStatus model to Prisma schema
-      // const statuses = await this._prisma.syncStatus.findMany({
-      //   orderBy: { startedAt: 'desc' },
-      //   take: 100, // Limit to recent syncs
-      // })
+    // TODO: Add SyncStatus model to Prisma schema
+    // const statuses = await this._prisma.syncStatus.findMany({
+    //   orderBy: { startedAt: 'desc' },
+    //   take: 100, // Limit to recent syncs
+    // })
 
-      return [] // Temporary return until SyncStatus model is added
-    } catch (error) {
-      logger.error('Failed to get sync statuses:', error)
-      return []
-    }
+    return [] // Temporary return until SyncStatus model is added
   }
 
   async getSyncHistory(_entityType?: string): Promise<SyncStatus[]> {
-    try {
-      // TODO: Add SyncStatus model to Prisma schema
-      // const statuses = await this._prisma.syncStatus.findMany({
-      //   where: entityType ? { entityType } : undefined,
-      //   orderBy: { startedAt: 'desc' },
-      //   take: 50,
-      // })
+    // TODO: Add SyncStatus model to Prisma schema
+    // const statuses = await this._prisma.syncStatus.findMany({
+    //   where: entityType ? { entityType } : undefined,
+    //   orderBy: { startedAt: 'desc' },
+    //   take: 50,
+    // })
 
-      return [] // Temporary return until SyncStatus model is added
-    } catch (error) {
-      logger.error('Failed to get sync history:', error)
-      return []
-    }
+    return [] // Temporary return until SyncStatus model is added
   }
 
   async getLastSyncTime(_entityType: string): Promise<Date | undefined> {
-    try {
-      // TODO: Add SyncStatus model to Prisma schema
-      // const lastSync = await this._prisma.syncStatus.findFirst({
-      //   where: {
-      //     entityType,
-      //     status: 'completed',
-      //   },
-      //   orderBy: { completedAt: 'desc' },
-      // })
+    // TODO: Add SyncStatus model to Prisma schema
+    // const lastSync = await this._prisma.syncStatus.findFirst({
+    //   where: {
+    //     entityType,
+    //     status: 'completed',
+    //   },
+    //   orderBy: { completedAt: 'desc' },
+    // })
 
-      return undefined // Temporary return until SyncStatus model is added
-    } catch (error) {
-      logger.error('Failed to get last sync time:', error)
-      return undefined
-    }
+    return undefined // Temporary return until SyncStatus model is added
   }
 
   async getActiveSyncs(): Promise<SyncStatus[]> {
-    try {
-      // TODO: Add SyncStatus model to Prisma schema
-      // const activeSyncs = await this._prisma.syncStatus.findMany({
-      //   where: {
-      //     status: { in: ['pending', 'running'] },
-      //   },
-      //   orderBy: { startedAt: 'desc' },
-      // })
+    // TODO: Add SyncStatus model to Prisma schema
+    // const activeSyncs = await this._prisma.syncStatus.findMany({
+    //   where: {
+    //     status: { in: ['pending', 'running'] },
+    //   },
+    //   orderBy: { startedAt: 'desc' },
+    // })
 
-      return [] // Temporary return until SyncStatus model is added
-    } catch (error) {
-      logger.error('Failed to get active syncs:', error)
-      return []
-    }
+    return [] // Temporary return until SyncStatus model is added
   }
 
   async cleanupOldSyncs(daysToKeep: number = 30): Promise<number> {

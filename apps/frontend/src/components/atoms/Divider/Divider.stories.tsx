@@ -1,10 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { Divider, SectionDivider, Spacer } from './Divider'
 import {
   SettingOutlined,
   UserOutlined,
   ShoppingOutlined,
 } from '@ant-design/icons'
+import type { Meta, StoryObj } from '@storybook/react'
+
+import { Divider, SectionDivider, Spacer } from './Divider'
 
 const meta: Meta<typeof Divider> = {
   title: 'Atoms/Divider',

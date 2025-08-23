@@ -1,5 +1,7 @@
 import crypto from 'crypto'
+
 import { authenticator } from 'otplib'
+
 import { prisma } from './prisma'
 
 export interface TwoFactorSetupResult {
@@ -46,7 +48,7 @@ export class TwoFactorService {
   static verifyTOTPToken(secret: string, token: string): boolean {
     try {
       return authenticator.verify({ token, secret })
-    } catch (error) {
+    } catch (_error) {
       return false
     }
   }

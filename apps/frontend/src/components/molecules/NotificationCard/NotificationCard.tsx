@@ -1,5 +1,3 @@
-import React from 'react'
-import { Card, Space, Button, Typography } from 'antd'
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
@@ -7,6 +5,8 @@ import {
   CloseCircleOutlined,
   CloseOutlined,
 } from '@ant-design/icons'
+import { Card, Space, Button, Typography } from 'antd'
+import React from 'react'
 import './NotificationCard.css'
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error'

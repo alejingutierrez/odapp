@@ -1,6 +1,6 @@
-import React from 'react'
 import { Input as AntInput, InputProps as AntInputProps } from 'antd'
 import type { TextAreaProps as AntTextAreaProps } from 'antd/es/input'
+import React from 'react'
 import './Input.css'
 
 export interface InputProps extends Omit<AntInputProps, 'value'> {

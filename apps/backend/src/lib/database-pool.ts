@@ -1,4 +1,5 @@
 import { Pool, PoolConfig } from 'pg'
+
 import { env } from '../config/env.js'
 
 export interface DatabasePoolConfig {

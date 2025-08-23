@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Space } from 'antd'
+
 import { TaxRateDisplay } from './TaxRateDisplay'
 
 const meta: Meta<typeof TaxRateDisplay> = {

@@ -1,6 +1,6 @@
-import React, { CSSProperties } from 'react'
-import { Typography, theme } from 'antd'
 import { DollarOutlined, EuroOutlined, PoundOutlined } from '@ant-design/icons'
+import { Typography, theme } from 'antd'
+import React, { CSSProperties } from 'react'
 
 const { Text } = Typography
 const { useToken } = theme

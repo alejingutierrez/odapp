@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
-import logger, { loggerStream } from '../lib/logger'
+
 import { env } from '../config/env'
+import logger, { loggerStream } from '../lib/logger'
 
 // Extend Request interface to include requestId and startTime
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+   
   namespace Express {
     interface Request {
       requestId: string

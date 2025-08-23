@@ -1,6 +1,6 @@
-import React from 'react'
-import { Upload, Button } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import { Upload, Button } from 'antd'
+import React from 'react'
 
 export interface ImageUploaderProps {
   // TODO: Implement full ImageUploader molecule

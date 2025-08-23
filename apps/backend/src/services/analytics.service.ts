@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-import { logger } from '../lib/logger.js'
+
 import { CacheManager } from '../lib/cache/cache-manager.js'
+import { logger } from '../lib/logger.js'
 
 export interface ProductAnalyticsData {
   productId: string

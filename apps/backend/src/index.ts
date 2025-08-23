@@ -1,27 +1,36 @@
-import express, { type Express } from 'express'
-import compression from 'compression'
 import { createServer } from 'http'
-import helmet from 'helmet'
+
+import compression from 'compression'
 import * as cors from 'cors'
+import express, { type Express } from 'express'
+import helmet from 'helmet'
 
 // Import configuration and utilities
 import { env } from './config/env'
-import logger from './lib/logger'
-import { EmailService } from './lib/email'
 import {
   initializeRedis,
   shutdownRedis,
   cacheWarming,
   cacheMonitoring,
 } from './lib/cache/index.js'
+import { EmailService } from './lib/email'
+import logger from './lib/logger'
 import { prisma } from './lib/prisma'
 
 // Import services
-import { InventoryService } from './services/inventory.service'
-import { WebSocketService } from './services/websocket.service'
-import { InventorySchedulerService } from './services/inventory-scheduler.service'
-
-// Import middleware
+import { setupSwagger } from './lib/swagger'
+import {
+  apiVersion,
+  backwardCompatibility,
+  contentNegotiation,
+} from './middleware/api-version'
+import { errorHandler, notFoundHandler } from './middleware/error-handler'
+import {
+  requestId,
+  httpLogger,
+  detailedLogger,
+  performanceLogger,
+} from './middleware/request-logger'
 import {
   corsOptions,
   helmetOptions,
@@ -31,30 +40,22 @@ import {
   sanitizeRequest,
   configureTrustedProxies,
 } from './middleware/security'
-import {
-  requestId,
-  httpLogger,
-  detailedLogger,
-  performanceLogger,
-} from './middleware/request-logger'
-import { errorHandler, notFoundHandler } from './middleware/error-handler'
-import {
-  apiVersion,
-  backwardCompatibility,
-  contentNegotiation,
-} from './middleware/api-version'
+
+// Import middleware
 
 // Import routes
 import authRoutes from './routes/auth'
-import twoFactorRoutes from './routes/two-factor'
-import healthRoutes from './routes/health'
 import cacheRoutes from './routes/cache'
-import inventoryRoutes, { initializeInventoryRoutes } from './routes/inventory'
 import customerRoutes from './routes/customers'
+import healthRoutes from './routes/health'
+import inventoryRoutes, { initializeInventoryRoutes } from './routes/inventory'
 import simpleRoutes from './routes/simple.js'
+import twoFactorRoutes from './routes/two-factor'
+import { InventorySchedulerService } from './services/inventory-scheduler.service'
+import { InventoryService } from './services/inventory.service'
+import { WebSocketService } from './services/websocket.service'
 
 // Import Swagger setup
-import { setupSwagger } from './lib/swagger'
 
 const app: Express = express()
 const server = createServer(app)

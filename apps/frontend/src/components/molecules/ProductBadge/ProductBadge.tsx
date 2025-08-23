@@ -1,5 +1,3 @@
-import React from 'react'
-import { Tag, Tooltip } from 'antd'
 import {
   FireOutlined,
   StarOutlined,
@@ -8,6 +6,8 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons'
+import { Tag, Tooltip } from 'antd'
+import React from 'react'
 import './ProductBadge.css'
 
 export type BadgeType =

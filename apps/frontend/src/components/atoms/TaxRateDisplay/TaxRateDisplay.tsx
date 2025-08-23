@@ -1,6 +1,6 @@
-import React from 'react'
-import { Tooltip, Tag } from 'antd'
 import { InfoCircleOutlined, CalculatorOutlined } from '@ant-design/icons'
+import { Tooltip, Tag } from 'antd'
+import React from 'react'
 import './TaxRateDisplay.css'
 
 export interface TaxBreakdown {

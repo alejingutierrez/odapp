@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Space } from 'antd'
+
 import { ActivityIcon } from './ActivityIcon'
 
 const meta: Meta<typeof ActivityIcon> = {

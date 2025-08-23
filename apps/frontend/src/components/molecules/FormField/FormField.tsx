@@ -1,6 +1,7 @@
-import React from 'react'
-import { Form, Space, Tooltip } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
+import { Form, Space, Tooltip } from 'antd'
+import React from 'react'
+
 import { Label } from '../../atoms'
 import './FormField.css'
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
 import { Tabs, Badge, Tooltip } from 'antd'
 import type { TabsProps } from 'antd'
+import React, { useState } from 'react'
 import './TabNavigation.css'
 
 export interface TabItem {

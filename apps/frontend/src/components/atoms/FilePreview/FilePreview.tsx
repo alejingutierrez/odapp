@@ -1,5 +1,3 @@
-import React, { useState } from 'react'
-import { Card, Button, Tooltip, Progress, Image } from 'antd'
 import {
   FileOutlined,
   FilePdfOutlined,
@@ -14,6 +12,8 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons'
+import { Card, Button, Tooltip, Progress, Image } from 'antd'
+import React, { useState } from 'react'
 import './FilePreview.css'
 
 export interface FileMetadata {

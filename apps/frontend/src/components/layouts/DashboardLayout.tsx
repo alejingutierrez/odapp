@@ -1,18 +1,3 @@
-import React, { useState, useEffect } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import {
-  Layout,
-  Menu,
-  Button,
-  Avatar,
-  Dropdown,
-  Badge,
-  Switch,
-  Drawer,
-  Grid,
-  theme as antdTheme,
-} from 'antd'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -32,8 +17,29 @@ import {
   MoonOutlined,
   GlobalOutlined,
 } from '@ant-design/icons'
+import {
+  Layout,
+  Menu,
+  Button,
+  Avatar,
+  Dropdown,
+  Badge,
+  Switch,
+  Drawer,
+  Grid,
+  theme as antdTheme,
+} from 'antd'
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
+import { useAccessibility } from '../../hooks/useAccessibility'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
+import { usePerformanceMonitoring } from '../../hooks/usePerformanceMonitoring'
+import { useRouteAnalytics } from '../../hooks/useRouteAnalytics'
+import { useWebSocket } from '../../hooks/useWebSocket'
 import { AppDispatch } from '../../store'
+import { selectCurrentUser, logoutUser } from '../../store/slices/authSlice'
 import {
   selectSidebarCollapsed,
   selectTheme,
@@ -42,16 +48,9 @@ import {
   setSidebarCollapsed,
   setTheme,
 } from '../../store/slices/uiSlice'
-import { selectCurrentUser, logoutUser } from '../../store/slices/authSlice'
-
 import { Breadcrumbs } from '../common/Breadcrumbs'
 import { NotificationCenter } from '../common/NotificationCenter'
 import { ThemeProvider } from '../common/ThemeProvider'
-import { useAccessibility } from '../../hooks/useAccessibility'
-import { useRouteAnalytics } from '../../hooks/useRouteAnalytics'
-import { usePerformanceMonitoring } from '../../hooks/usePerformanceMonitoring'
-import { useDocumentTitle } from '../../hooks/useDocumentTitle'
-import { useWebSocket } from '../../hooks/useWebSocket'
 
 const { Header, Sider, Content } = Layout
 const { useBreakpoint } = Grid

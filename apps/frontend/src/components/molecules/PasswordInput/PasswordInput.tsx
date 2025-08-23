@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react'
-import { Input, Progress, Typography, Space, Tooltip } from 'antd'
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   InfoCircleOutlined,
 } from '@ant-design/icons'
+import { Input, Progress, Typography, Space, Tooltip } from 'antd'
+import React, { useState, useMemo } from 'react'
 import './PasswordInput.css'
 
 export interface PasswordStrengthConfig {

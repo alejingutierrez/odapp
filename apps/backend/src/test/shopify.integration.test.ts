@@ -260,7 +260,7 @@ describe('Shopify Integration Tests', () => {
       for (let i = 0; i < 3; i++) {
         try {
           await circuitBreaker.execute(failingOperation)
-        } catch (error) {
+        } catch (_error) {
           // Expected to fail
         }
       }
@@ -293,10 +293,14 @@ describe('Shopify Integration Tests', () => {
       // Act - Trigger failures to open circuit
       try {
         await circuitBreaker.execute(operation)
-      } catch {}
+      } catch {
+        // Intentionally ignore error for testing circuit breaker
+      }
       try {
         await circuitBreaker.execute(operation)
-      } catch {}
+      } catch {
+        // Intentionally ignore error for testing circuit breaker
+      }
 
       expect(circuitBreaker.getStatus().state).toBe('open')
 

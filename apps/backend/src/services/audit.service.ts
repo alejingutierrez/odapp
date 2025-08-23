@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+
 import { logger } from '../lib/logger.js'
 
 export interface AuditLogEntry {

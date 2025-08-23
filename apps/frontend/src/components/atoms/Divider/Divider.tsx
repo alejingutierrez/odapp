@@ -1,5 +1,5 @@
-import React from 'react'
 import { Divider as AntDivider, DividerProps as AntDividerProps } from 'antd'
+import React from 'react'
 import './Divider.css'
 
 export interface DividerProps extends Omit<AntDividerProps, 'variant'> {

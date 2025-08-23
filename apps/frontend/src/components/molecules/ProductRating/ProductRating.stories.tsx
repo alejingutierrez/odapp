@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { ProductRating } from './ProductRating'
 
 const meta: Meta<typeof ProductRating> = {

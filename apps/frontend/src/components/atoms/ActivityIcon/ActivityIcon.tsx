@@ -1,5 +1,3 @@
-import React from 'react'
-import { Tooltip } from 'antd'
 import {
   PhoneOutlined,
   MailOutlined,
@@ -22,6 +20,8 @@ import {
   SettingOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons'
+import { Tooltip } from 'antd'
+import React from 'react'
 import './ActivityIcon.css'
 
 export type ActivityType =

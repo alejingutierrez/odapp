@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Oda - Fashion ERP/CRM/CDP Platform",
   "private": true,
+  "type": "module",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -35,6 +36,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@eslint/js": "^9.34.0",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
     "eslint": "^9.34.0",

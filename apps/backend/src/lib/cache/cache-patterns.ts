@@ -1,5 +1,6 @@
-import { cacheManager, CacheOptions } from './cache-manager.js'
 import logger from '../logger.js'
+
+import { cacheManager, CacheOptions } from './cache-manager.js'
 
 export interface CacheAsideOptions<T> extends CacheOptions {
   loader: () => Promise<T>

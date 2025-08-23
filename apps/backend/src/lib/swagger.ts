@@ -1,8 +1,10 @@
+import { Express } from 'express'
+import * as yaml from 'js-yaml'
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
-import { Express } from 'express'
+
 import { env } from '../config/env'
-import * as yaml from 'js-yaml'
+
 
 /**
  * Swagger configuration

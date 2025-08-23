@@ -1,5 +1,5 @@
-import { logger } from '../lib/logger'
 import { ApiError } from '../lib/errors'
+import { logger } from '../lib/logger'
 
 export interface ShippingAddress {
   name: string
@@ -86,7 +86,7 @@ export interface TrackingEvent {
 
 // Tracking status for shipments
 // These enum values are defined for future use in shipping tracking
-/* eslint-disable no-unused-vars */
+ 
 export enum TrackingStatus {
   LABEL_CREATED = 'label_created',
   IN_TRANSIT = 'in_transit',
@@ -96,7 +96,7 @@ export enum TrackingStatus {
   RETURNED = 'returned',
   CANCELLED = 'cancelled',
 }
-/* eslint-enable no-unused-vars */
+ 
 
 export interface ShippingCarrier {
   name: string

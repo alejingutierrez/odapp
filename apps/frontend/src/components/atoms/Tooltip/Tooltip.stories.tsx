@@ -1,6 +1,7 @@
+import { InfoCircleOutlined } from '@ant-design/icons'
 import type { Meta, StoryObj } from '@storybook/react'
 import { Button } from 'antd'
-import { InfoCircleOutlined } from '@ant-design/icons'
+
 import { Tooltip } from './Tooltip'
 
 const meta: Meta<typeof Tooltip> = {

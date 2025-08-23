@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import { Title, Text, Paragraph, Link, Code } from './Typography'
 
 const meta: Meta<typeof Title> = {

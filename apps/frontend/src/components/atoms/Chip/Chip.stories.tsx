@@ -1,6 +1,7 @@
+import { TagOutlined, UserOutlined, StarOutlined } from '@ant-design/icons'
 import type { Meta, StoryObj } from '@storybook/react'
 import { Space } from 'antd'
-import { TagOutlined, UserOutlined, StarOutlined } from '@ant-design/icons'
+
 import { Chip } from './Chip'
 
 const meta: Meta<typeof Chip> = {

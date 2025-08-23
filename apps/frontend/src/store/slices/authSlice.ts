@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
 import type { RootState } from '../index'
 
 // Types
@@ -87,7 +88,7 @@ export const loginUser = createAsyncThunk(
 
       const data = await response.json()
       return data
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue('Network error occurred')
     }
   }
@@ -115,7 +116,7 @@ export const logoutUser = createAsyncThunk(
       }
 
       return true
-    } catch (error) {
+    } catch (_error) {
       // Even if network fails, we should clear local state
       console.warn('Logout network error, clearing local state')
       return true
@@ -142,7 +143,7 @@ export const refreshToken = createAsyncThunk(
 
       const data = await response.json()
       return data
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue('Network error occurred')
     }
   }
@@ -174,7 +175,7 @@ export const updateUserProfile = createAsyncThunk(
 
       const data = await response.json()
       return data
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue('Network error occurred')
     }
   }

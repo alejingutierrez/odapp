@@ -18,7 +18,7 @@ describe('Cache System', () => {
     try {
       await initializeRedis()
       redisAvailable = true
-    } catch (error) {
+    } catch (_error) {
       console.warn(
         'Redis not available for testing, skipping Redis-dependent tests'
       )

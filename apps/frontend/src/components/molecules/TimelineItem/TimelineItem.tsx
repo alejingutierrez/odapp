@@ -1,5 +1,3 @@
-import React from 'react'
-import { Timeline, Typography, Space, Avatar, Tag } from 'antd'
 import {
   UserOutlined,
   ShoppingOutlined,
@@ -8,6 +6,8 @@ import {
   ClockCircleOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons'
+import { Timeline, Typography, Space, Avatar, Tag } from 'antd'
+import React from 'react'
 import './TimelineItem.css'
 
 export type TimelineItemType =

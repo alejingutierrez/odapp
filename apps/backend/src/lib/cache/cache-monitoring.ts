@@ -1,6 +1,7 @@
+import logger from '../logger.js'
+
 import { cacheManager } from './cache-manager.js'
 import { redisClient } from './redis-client.js'
-import logger from '../logger.js'
 
 export interface CacheMetrics {
   timestamp: number

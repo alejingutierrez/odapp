@@ -15,10 +15,9 @@ export default defineConfig({
     hookTimeout: 30000, // 30 segundos para hooks
     teardownTimeout: 10000, // 10 segundos para cleanup
 
-    // Worker pool configuration
-    // Using threads improves compatibility in containerized environments
-    // where spawning separate Node.js processes may hang the test runner
-    pool: 'threads',
+      // Worker pool configuration
+      // Use separate processes to ensure tests exit cleanly in CI environments
+      pool: 'forks',
 
     // Configuración para evitar tests colgados
     bail: 1, // Parar en el primer fallo

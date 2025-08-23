@@ -504,7 +504,7 @@ describe('uiSlice', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(selectLoading("products")(state as any)).toBe(true)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectLoading("products")(state as any)).toBe(false)
+      expect(selectLoading("inventory")(state as any)).toBe(false)
     })
 
     it('should select notifications', () => {

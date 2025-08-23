@@ -89,7 +89,7 @@ export const imageFileSchema = z.object({
 export const sanitizeString = (str: string): string => {
   return str
     .trim()
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '$1') // Remove script tags but keep content
     .replace(/<[^>]*>/g, '') // Remove all HTML tags
     .replace(/javascript:/gi, '') // Remove javascript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers
@@ -101,6 +101,7 @@ export const sanitizeHtml = (str: string): string => {
   return str
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/on\w+="[^"]*"/gi, '')
+    .replace(/\s+>/g, '>')
     .replace(/javascript:/gi, '')
     .trim()
 }

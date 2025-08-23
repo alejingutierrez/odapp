@@ -93,9 +93,6 @@ const createTestStore = (initialState?: Partial<AuthState>) => {
   }
 }
 
-// Helper function to get auth state directly for selectors that expect AuthState
-const getAuthStateDirect = (store: ReturnType<typeof createTestStore>) => (store.getState() as { auth: AuthState }).auth as AuthState
-
 describe('authSlice', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -401,40 +398,40 @@ describe('authSlice', () => {
       const store = createTestStore({ user: mockUser })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectCurrentUser(getAuthStateDirect(store) as any)).toEqual(mockUser)
+      expect(selectCurrentUser(store.getState() as any)).toEqual(mockUser)
     })
 
     it('should select token', () => {
       const store = createTestStore({ token: 'test-token' })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectToken(getAuthStateDirect(store) as any)).toBe('test-token')
+      expect(selectToken(store.getState() as any)).toBe('test-token')
     })
 
     it('should select authentication status', () => {
       const store = createTestStore({ isAuthenticated: true })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectIsAuthenticated(getAuthStateDirect(store) as any)).toBe(true)
+      expect(selectIsAuthenticated(store.getState() as any)).toBe(true)
     })
 
     it('should select permissions', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectPermissions(getAuthStateDirect(store) as any)).toEqual(mockUser.permissions)
+      expect(selectPermissions(store.getState() as any)).toEqual(mockUser.permissions)
     })
 
     it('should check if user has specific permission', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasReadPermission = selectHasPermission('products', 'read')(getAuthStateDirect(store) as any)
+      const hasReadPermission = selectHasPermission('products', 'read')(store.getState() as any)
       const hasDeletePermission = selectHasPermission(
         'products',
         'delete'
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      )(getAuthStateDirect(store) as any)
+      )(store.getState() as any)
 
       expect(hasReadPermission).toBe(true)
       expect(hasDeletePermission).toBe(false)
@@ -449,11 +446,11 @@ describe('authSlice', () => {
       const noExpiryStore = createTestStore({ sessionExpiry: null })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectIsSessionValid(getAuthStateDirect(validStore) as any)).toBe(true)
+      expect(selectIsSessionValid(validStore.getState() as any)).toBe(true)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectIsSessionValid(getAuthStateDirect(expiredStore) as any)).toBe(false)
+      expect(selectIsSessionValid(expiredStore.getState() as any)).toBe(false)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(selectIsSessionValid(getAuthStateDirect(noExpiryStore) as any)).toBe(false)
+      expect(selectIsSessionValid(noExpiryStore.getState() as any)).toBe(false)
     })
   })
 })

@@ -234,34 +234,42 @@ describe('Validation Utils', () => {
       it('should validate image files', async () => {
         const { image } = validationSchemas.file
 
-        const validImageFile = {
-          size: 1024 * 1024, // 1MB
-          type: 'image/jpeg',
+        const OriginalFile = global.File
+        class MockFile {
+          size: number
+          type: string
+          constructor(size: number, type: string) {
+            this.size = size
+            this.type = type
+          }
         }
+        // Use mock implementation to satisfy instanceof checks
+        global.File = MockFile as unknown as typeof File
+
+        const createFile = (size: number, type: string) =>
+          new File(size, type) as unknown as File
+
+        const validImageFile = createFile(1 * 1024 * 1024, 'image/jpeg')
 
         await expect(image.validate(validImageFile)).resolves.toBe(
           validImageFile
         )
 
         // Test file too large
-        const largeFile = {
-          size: 10 * 1024 * 1024, // 10MB
-          type: 'image/jpeg',
-        }
+        const largeFile = createFile(10 * 1024 * 1024, 'image/jpeg')
 
         await expect(image.validate(largeFile)).rejects.toThrow(
           'File size must be less than 5MB'
         )
 
         // Test invalid file type
-        const invalidFile = {
-          size: 1024,
-          type: 'application/pdf',
-        }
+        const invalidFile = createFile(1024, 'application/pdf')
 
         await expect(image.validate(invalidFile)).rejects.toThrow(
           'Only image files are allowed'
         )
+
+        global.File = OriginalFile
       })
     })
   })

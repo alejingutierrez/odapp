@@ -132,8 +132,9 @@ docker-compose -f docker-compose.prod.yml exec backend pnpm run db:migrate
 
 - `pnpm dev` - Start all development servers
 - `pnpm build` - Build all packages
-- `pnpm test` - Run all tests
-- `pnpm lint` - Lint all packages
+- `pnpm test` - Run tests for all packages except the backend
+- `pnpm test:backend` - Run backend tests
+- `pnpm lint` - Lint all packages except the backend
 - `pnpm format` - Format code with Prettier
 
 ### Docker Management Commands
@@ -253,13 +254,19 @@ Development services include:
 
 ## 🧪 Testing
 
-Run tests across all packages:
+Run tests across all packages (excluding backend):
 
 ```bash
 pnpm test
 ```
 
-Run tests for specific package:
+Run backend tests separately:
+
+```bash
+pnpm test:backend
+```
+
+Run tests for a specific package:
 
 ```bash
 pnpm --filter @oda/frontend test

@@ -18,7 +18,8 @@ interface PanelProps {
   isActive?: boolean
 }
 
-export interface AccordionProps extends Omit<CollapseProps, 'children' | 'items'> {
+export interface AccordionProps
+  extends Omit<CollapseProps, 'children' | 'items'> {
   /** Accordion items */
   items: AccordionItem[]
   /** Whether to allow multiple panels open */
@@ -46,7 +47,9 @@ export const Accordion: React.FC<AccordionProps> = ({
   size = 'medium',
   headerRender,
   className = '',
-  ...props
+  onChange,
+  activeKey,
+  defaultActiveKey,
 }) => {
   const accordionClasses = [
     'oda-accordion',
@@ -93,7 +96,9 @@ export const Accordion: React.FC<AccordionProps> = ({
       ghost={variant === 'ghost'}
       bordered={variant === 'bordered'}
       size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
-      {...props}
+      onChange={onChange}
+      activeKey={activeKey}
+      defaultActiveKey={defaultActiveKey}
     >
       {items.map((item) => (
         <Panel

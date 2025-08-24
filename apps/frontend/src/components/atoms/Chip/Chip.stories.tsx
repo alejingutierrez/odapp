@@ -91,14 +91,18 @@ export const Removable: Story = {
         label='Removable Tag'
         removable
         variant='primary'
-        onRemove={() => console.log('Removed!')}
+        onRemove={() => {
+          // Handle remove action
+        }}
       />
       <Chip
         label='With Icon'
         icon={<TagOutlined />}
         removable
         variant='success'
-        onRemove={() => console.log('Removed with icon!')}
+        onRemove={() => {
+          // Handle remove action
+        }}
       />
     </Space>
   ),
@@ -110,13 +114,17 @@ export const Clickable: Story = {
       <Chip
         label='Clickable'
         variant='primary'
-        onClick={() => console.log('Clicked!')}
+        onClick={() => {
+          // Handle click action
+        }}
       />
       <Chip
         label='Selected'
         variant='primary'
         selected
-        onClick={() => console.log('Selected clicked!')}
+        onClick={() => {
+          // Handle click action
+        }}
       />
     </Space>
   ),
@@ -144,7 +152,9 @@ export const States: Story = {
         variant='primary'
         disabled
         removable
-        onRemove={() => console.log('Should not fire')}
+        onRemove={() => {
+          // Should not fire when disabled
+        }}
       />
     </Space>
   ),

@@ -16,8 +16,6 @@ import {
 import { EmailService } from './lib/email'
 import logger from './lib/logger'
 import { prisma } from './lib/prisma'
-
-// Import services
 import { setupSwagger } from './lib/swagger'
 import {
   apiVersion,
@@ -40,10 +38,6 @@ import {
   sanitizeRequest,
   configureTrustedProxies,
 } from './middleware/security'
-
-// Import middleware
-
-// Import routes
 import authRoutes from './routes/auth'
 import cacheRoutes from './routes/cache'
 import customerRoutes from './routes/customers'

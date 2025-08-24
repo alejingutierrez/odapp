@@ -53,13 +53,18 @@ export const Avatar: React.FC<AvatarProps> = ({
     }
   }
 
+  const { className, style, onClick } = props
+
   const renderAvatar = () => (
     <AntAvatar
       size={size}
       shape={shape}
       src={src}
       icon={!src && !name && !children ? fallbackIcon : undefined}
-      {...props}
+      className={className}
+      style={style}
+      onClick={onClick}
+      alt={name}
     >
       {!src && (name ? getInitials(name) : children)}
     </AntAvatar>

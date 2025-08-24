@@ -1,4 +1,5 @@
 import { prisma } from './prisma'
+import logger from './logger'
 
 export interface RoleDefinition {
   name: string
@@ -139,7 +140,7 @@ export const DEFAULT_ROLES: RoleDefinition[] = [
  * Seed default roles into the database
  */
 export async function seedRoles(): Promise<void> {
-  console.log('Seeding default roles...')
+  logger.info('Seeding default roles...')
 
   for (const roleData of DEFAULT_ROLES) {
     try {
@@ -156,7 +157,7 @@ export async function seedRoles(): Promise<void> {
             permissions: roleData.permissions,
           },
         })
-        console.log(`Updated role: ${roleData.name}`)
+        logger.info(`Updated role: ${roleData.name}`)
       } else {
         // Create new role
         await prisma.role.create({
@@ -166,14 +167,15 @@ export async function seedRoles(): Promise<void> {
             permissions: roleData.permissions,
           },
         })
-        console.log(`Created role: ${roleData.name}`)
+        logger.info(`Created role: ${roleData.name}`)
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error seeding role ${roleData.name}:`, error)
     }
   }
 
-  console.log('Role seeding completed')
+  logger.info('Role seeding completed')
 }
 
 /**
@@ -193,7 +195,7 @@ export async function createDefaultAdmin(): Promise<void> {
   })
 
   if (adminCount === 0) {
-    console.log('Creating default admin user...')
+    logger.info('Creating default admin user...')
 
     const { AuthService } = await import('./auth')
 
@@ -223,7 +225,7 @@ export async function createDefaultAdmin(): Promise<void> {
       })
     }
 
-    console.log('Default admin user created: admin@oda.com / Admin123!')
+    logger.info('Default admin user created: admin@oda.com / Admin123!')
   }
 }
 

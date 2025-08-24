@@ -47,7 +47,11 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
   className = '',
 }) => {
   const [visible, setVisible] = useState(false)
-  const config = { ...defaultStrengthConfig, ...strengthConfig }
+
+  const config = useMemo(
+    () => ({ ...defaultStrengthConfig, ...strengthConfig }),
+    [strengthConfig]
+  )
 
   const passwordStrength = useMemo(() => {
     if (!value) return { score: 0, level: 'weak', checks: {} }
@@ -113,7 +117,9 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         key: 'length',
         text: `At least ${config.minLength} characters`,
         met:
-          'checks' in passwordStrength && 'length' in passwordStrength.checks ? passwordStrength.checks.length : false,
+          'checks' in passwordStrength && 'length' in passwordStrength.checks
+            ? passwordStrength.checks.length
+            : false,
       },
       {
         key: 'uppercase',
@@ -146,7 +152,8 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         key: 'specialChars',
         text: 'One special character',
         met:
-          'checks' in passwordStrength && 'specialChars' in passwordStrength.checks
+          'checks' in passwordStrength &&
+          'specialChars' in passwordStrength.checks
             ? passwordStrength.checks.specialChars
             : false,
         show: config.requireSpecialChars,

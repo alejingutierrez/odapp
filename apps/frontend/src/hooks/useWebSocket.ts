@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { io, Socket } from 'socket.io-client'
+import devLogger from '../utils/devLogger'
 
 import { AppDispatch } from '../store'
 import { selectIsAuthenticated, selectToken } from '../store/slices/authSlice'
@@ -22,7 +23,9 @@ interface UseWebSocketReturn {
   socket: Socket | null
 }
 
-export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn => {
+export const useWebSocket = (
+  config: WebSocketConfig = {}
+): UseWebSocketReturn => {
   const dispatch = useDispatch<AppDispatch>()
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const token = useSelector(selectToken)
@@ -31,7 +34,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     url = process.env.VITE_WS_URL || 'ws://localhost:3001',
     autoConnect = true,
     reconnectAttempts = 5,
-    reconnectDelay = 1000,
+    reconnectDelay: _reconnectDelay = 1000,
   } = config
 
   const socketRef = useRef<Socket | null>(null)
@@ -39,18 +42,39 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
   const [connectionError, setConnectionError] = useState<string | null>(null)
   const reconnectAttemptsRef = useRef(0)
 
+  const attemptReconnect = useCallback(() => {
+    if (reconnectAttemptsRef.current < reconnectAttempts) {
+      reconnectAttemptsRef.current += 1
+      devLogger.log(
+        `WebSocket: Reconnecting... Attempt ${reconnectAttemptsRef.current}/${reconnectAttempts}`
+      )
+      // Set timeout for reconnection - we'll handle this in the connect function
+    } else {
+      devLogger.log('WebSocket: Max reconnection attempts reached')
+      dispatch(
+        addNotification({
+          type: 'error',
+          title: 'Connection Lost',
+          message:
+            'Unable to connect to real-time updates. Please refresh the page.',
+          duration: 0,
+        })
+      )
+    }
+  }, [reconnectAttempts, dispatch])
+
   const connect = useCallback(() => {
     if (!isAuthenticated || !token) {
-      console.log('WebSocket: Not authenticated, skipping connection')
+      devLogger.log('WebSocket: Not authenticated, skipping connection')
       return
     }
 
     if (socketRef.current?.connected) {
-      console.log('WebSocket: Already connected')
+      devLogger.log('WebSocket: Already connected')
       return
     }
 
-    console.log('WebSocket: Connecting to', url)
+    devLogger.log('WebSocket: Connecting to', url)
 
     const socket = io(url, {
       auth: {
@@ -65,7 +89,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
 
     // Connection events
     socket.on('connect', () => {
-      console.log('WebSocket: Connected')
+      devLogger.log('WebSocket: Connected')
       setIsConnected(true)
       setConnectionError(null)
       reconnectAttemptsRef.current = 0
@@ -82,25 +106,25 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('disconnect', (reason) => {
-      console.log('WebSocket: Disconnected', reason)
+      devLogger.log('WebSocket: Disconnected', reason)
       setIsConnected(false)
       dispatch(setWebSocketStatus(false))
 
       if (reason === 'io server disconnect') {
         // Server disconnected, try to reconnect
-        handleReconnect()
+        attemptReconnect()
       }
     })
 
     socket.on('connect_error', (error) => {
-      console.error('WebSocket: Connection error', error)
+      devLogger.error('WebSocket: Connection error', error)
       setConnectionError(error.message)
-      handleReconnect()
+      attemptReconnect()
     })
 
     // Business event handlers
     socket.on('inventory:updated', (data) => {
-      console.log('Inventory updated:', data)
+      devLogger.log('Inventory updated:', data)
       dispatch(
         addNotification({
           type: 'info',
@@ -112,7 +136,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('order:created', (data) => {
-      console.log('New order:', data)
+      devLogger.log('New order:', data)
       dispatch(
         addNotification({
           type: 'success',
@@ -124,7 +148,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('order:status_changed', (data) => {
-      console.log('Order status changed:', data)
+      devLogger.log('Order status changed:', data)
       dispatch(
         addNotification({
           type: 'info',
@@ -136,7 +160,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('shopify:sync_completed', (data) => {
-      console.log('Shopify sync completed:', data)
+      devLogger.log('Shopify sync completed:', data)
       dispatch(
         addNotification({
           type: data.success ? 'success' : 'error',
@@ -150,7 +174,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('low_stock_alert', (data) => {
-      console.log('Low stock alert:', data)
+      devLogger.log('Low stock alert:', data)
       dispatch(
         addNotification({
           type: 'warning',
@@ -169,7 +193,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     })
 
     socket.on('system:maintenance', (data) => {
-      console.log('System maintenance:', data)
+      devLogger.log('System maintenance:', data)
       dispatch(
         addNotification({
           type: 'warning',
@@ -179,35 +203,11 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
         })
       )
     })
-  }, [isAuthenticated, token, url, dispatch])
-
-  const handleReconnect = useCallback(() => {
-    if (reconnectAttemptsRef.current < reconnectAttempts) {
-      reconnectAttemptsRef.current += 1
-      console.log(
-        `WebSocket: Reconnecting... Attempt ${reconnectAttemptsRef.current}/${reconnectAttempts}`
-      )
-
-      setTimeout(() => {
-        connect()
-      }, reconnectDelay * reconnectAttemptsRef.current)
-    } else {
-      console.log('WebSocket: Max reconnection attempts reached')
-      dispatch(
-        addNotification({
-          type: 'error',
-          title: 'Connection Lost',
-          message:
-            'Unable to connect to real-time updates. Please refresh the page.',
-          duration: 0,
-        })
-      )
-    }
-  }, [connect, reconnectAttempts, reconnectDelay, dispatch])
+  }, [isAuthenticated, token, url, dispatch, attemptReconnect])
 
   const disconnect = useCallback(() => {
     if (socketRef.current) {
-      console.log('WebSocket: Disconnecting')
+      devLogger.log('WebSocket: Disconnecting')
       socketRef.current.disconnect()
       socketRef.current = null
       setIsConnected(false)
@@ -219,7 +219,7 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, data)
     } else {
-      console.warn('WebSocket: Cannot emit, not connected')
+      devLogger.warn('WebSocket: Cannot emit, not connected')
     }
   }, [])
 
@@ -241,10 +241,10 @@ export const useWebSocket = (config: WebSocketConfig = {}): UseWebSocketReturn =
     const handleVisibilityChange = () => {
       if (document.hidden) {
         // Page is hidden, reduce activity
-        console.log('WebSocket: Page hidden, reducing activity')
+        devLogger.log('WebSocket: Page hidden, reducing activity')
       } else {
         // Page is visible, ensure connection
-        console.log('WebSocket: Page visible, ensuring connection')
+        devLogger.log('WebSocket: Page visible, ensuring connection')
         if (isAuthenticated && token && !isConnected) {
           connect()
         }

@@ -106,7 +106,10 @@ export class SearchService {
             },
           }
         },
-        suggest: async (_args: { index: string; body: any }) => {
+        suggest: async (_args: {
+          index: string
+          body: Record<string, unknown>
+        }) => {
           return {
             body: {
               suggest: {
@@ -117,11 +120,19 @@ export class SearchService {
             },
           }
         },
-        bulk: async (_args: { body: any[] }) => {
+        bulk: async (_args: { body: Record<string, unknown>[] }) => {
           return {
             body: {
               items: _args.body.map((item) => ({
-                index: { _index: this.indexName, _id: item._id, _version: 1, result: 'created', _shards: { total: 1, successful: 1, failed: 0 }, _seq_no: 1, _primary_term: 1 },
+                index: {
+                  _index: this.indexName,
+                  _id: item._id,
+                  _version: 1,
+                  result: 'created',
+                  _shards: { total: 1, successful: 1, failed: 0 },
+                  _seq_no: 1,
+                  _primary_term: 1,
+                },
               })),
             },
           }
@@ -137,7 +148,9 @@ export class SearchService {
 
       logger.info('Elasticsearch client initialized successfully')
     } catch (_error) {
-      logger.error('Failed to initialize Elasticsearch client', { error: _error })
+      logger.error('Failed to initialize Elasticsearch client', {
+        error: _error,
+      })
       this.client = null
       this.isConnected = false
     }
@@ -316,7 +329,10 @@ export class SearchService {
 
       logger.debug('Product indexed successfully', { productId: product.id })
     } catch (_error) {
-      logger.error('Failed to index product', { error: _error, productId: product.id })
+      logger.error('Failed to index product', {
+        error: _error,
+        productId: product.id,
+      })
       // Don't throw error to avoid breaking product operations
     }
   }
@@ -334,7 +350,17 @@ export class SearchService {
 
       logger.debug('Product removed from index', { productId })
     } catch (_error) {
-      if (_error && typeof _error === 'object' && 'meta' in _error && (_error as any).meta?.statusCode !== 404) {
+      if (
+        _error &&
+        typeof _error === 'object' &&
+        'meta' in _error &&
+        (
+          (_error as unknown as Record<string, unknown>).meta as Record<
+            string,
+            unknown
+          >
+        )?.statusCode !== 404
+      ) {
         logger.error('Failed to remove product from index', {
           error: _error,
           productId,
@@ -525,113 +551,113 @@ export class SearchService {
       })
 
       // Convert Elasticsearch results to our format
-      const products = (response.body.hits.hits as any[]).map(
-        (hit: Record<string, unknown>) => {
-          const source = hit._source as ProductSearchDocument
-          return {
-            id: source.id,
-            name: source.name,
-            slug: source.slug,
-            description: source.description,
-            shortDescription: source.shortDescription,
-            status: source.status as any,
-            brand: source.brand,
-            material: source.material,
-            price: source.price,
-            compareAtPrice: source.compareAtPrice,
-            costPrice: null,
-            sku: null,
+      const products = (
+        response.body.hits.hits as Record<string, unknown>[]
+      ).map((hit: Record<string, unknown>) => {
+        const source = hit._source as ProductSearchDocument
+        return {
+          id: source.id,
+          name: source.name,
+          slug: source.slug,
+          description: source.description,
+          shortDescription: source.shortDescription,
+          status: source.status as string,
+          brand: source.brand,
+          material: source.material,
+          price: source.price,
+          compareAtPrice: source.compareAtPrice,
+          costPrice: null,
+          sku: null,
+          barcode: null,
+          careInstructions: null,
+          isActive: source.isActive,
+          isFeatured: source.isFeatured,
+          trackQuantity: true,
+          metaTitle: null,
+          metaDescription: null,
+          shopifyId: null,
+          shopifyHandle: null,
+          lastSyncedAt: null,
+          createdAt: new Date(source.createdAt),
+          updatedAt: new Date(source.updatedAt),
+          deletedAt: null,
+          categoryId: source.categoryId,
+          variants: source.variants.map((variant) => ({
+            id: variant.id,
+            productId: source.id,
+            name: null,
+            sku: variant.sku,
             barcode: null,
-            careInstructions: null,
-            isActive: source.isActive,
-            isFeatured: source.isFeatured,
-            trackQuantity: true,
-            metaTitle: null,
-            metaDescription: null,
+            option1Name: 'Size',
+            option1Value: variant.size,
+            option2Name: 'Color',
+            option2Value: variant.color,
+            option3Name: null,
+            option3Value: null,
+            price: variant.price,
+            compareAtPrice: null,
+            costPrice: null,
+            weight: null,
+            dimensions: null,
+            isActive: true,
             shopifyId: null,
-            shopifyHandle: null,
             lastSyncedAt: null,
-            createdAt: new Date(source.createdAt),
-            updatedAt: new Date(source.updatedAt),
-            deletedAt: null,
-            categoryId: source.categoryId,
-            variants: source.variants.map((variant) => ({
-              id: variant.id,
-              productId: source.id,
-              name: null,
-              sku: variant.sku,
-              barcode: null,
-              option1Name: 'Size',
-              option1Value: variant.size,
-              option2Name: 'Color',
-              option2Value: variant.color,
-              option3Name: null,
-              option3Value: null,
-              price: variant.price,
-              compareAtPrice: null,
-              costPrice: null,
-              weight: null,
-              dimensions: null,
-              isActive: true,
-              shopifyId: null,
-              lastSyncedAt: null,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })),
-            images: source.images.map((image, index) => ({
-              id: `${source.id}-img-${index}`,
-              productId: source.id,
-              url: image.url,
-              altText: image.altText,
-              sortOrder: index,
-              width: null,
-              height: null,
-              fileSize: null,
-              mimeType: null,
-              shopifyId: null,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })),
-            category: source.categoryName
-              ? {
-                  id: source.categoryId!,
-                  name: source.categoryName,
-                  slug: source.categoryName.toLowerCase().replace(/\s+/g, '-'),
-                  description: null,
-                  image: null,
-                  parentId: null,
-                  sortOrder: 0,
-                  isActive: true,
-                  metaTitle: null,
-                  metaDescription: null,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                }
-              : null,
-            collections: source.collectionNames.map((name, index) => ({
-              collection: {
-                id: source.collectionIds[index],
-                name,
-                slug: name.toLowerCase().replace(/\s+/g, '-'),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })),
+          images: source.images.map((image, index) => ({
+            id: `${source.id}-img-${index}`,
+            productId: source.id,
+            url: image.url,
+            altText: image.altText,
+            sortOrder: index,
+            width: null,
+            height: null,
+            fileSize: null,
+            mimeType: null,
+            shopifyId: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })),
+          category: source.categoryName
+            ? {
+                id: source.categoryId as string,
+                name: source.categoryName,
+                slug: source.categoryName.toLowerCase().replace(/\s+/g, '-'),
                 description: null,
                 image: null,
-                isActive: true,
+                parentId: null,
                 sortOrder: 0,
-                rules: null,
+                isActive: true,
                 metaTitle: null,
                 metaDescription: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
-              },
-            })),
-            _count: {
-              variants: source.variants.length,
-              images: source.images.length,
-              collections: source.collectionIds.length,
+              }
+            : null,
+          collections: source.collectionNames.map((name, index) => ({
+            collection: {
+              id: source.collectionIds[index],
+              name,
+              slug: name.toLowerCase().replace(/\s+/g, '-'),
+              description: null,
+              image: null,
+              isActive: true,
+              sortOrder: 0,
+              rules: null,
+              metaTitle: null,
+              metaDescription: null,
+              createdAt: new Date(),
+              updatedAt: new Date(),
             },
-          } as unknown as ProductWithRelations
-        }
-      )
+          })),
+          _count: {
+            variants: source.variants.length,
+            images: source.images.length,
+            collections: source.collectionIds.length,
+          },
+        } as unknown as ProductWithRelations
+      })
 
       // Build facets
       const aggs = response.body.aggregations
@@ -639,7 +665,11 @@ export class SearchService {
         categories: aggs.categories.buckets.map(
           (bucket: Record<string, unknown>) => ({
             id: bucket.key,
-            name: (bucket.category_name as any).buckets[0]?.key || 'Unknown',
+            name:
+              (
+                (bucket.category_name as unknown as Record<string, unknown>)
+                  .buckets as unknown as Array<{ key?: string }>
+              )?.[0]?.key || 'Unknown',
             count: bucket.doc_count,
           })
         ),
@@ -693,7 +723,7 @@ export class SearchService {
       })
 
       return response.body.suggest.product_suggest[0].options.map(
-        (option: Record<string, unknown>) => option.text
+        (option: Record<string, unknown>) => option.text as string
       )
     } catch (_error) {
       logger.error('Product suggestion failed', { error: _error, query })

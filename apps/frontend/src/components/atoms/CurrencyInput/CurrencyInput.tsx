@@ -1,5 +1,5 @@
 import { Input, InputProps, Select } from 'antd'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './CurrencyInput.css'
 
 const { Option } = Select
@@ -79,29 +79,32 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     currencies.find((c) => c.code === currency) || currencies[0]
   const effectiveSymbolPosition = symbolPosition || currentCurrency.position
 
+  const formatDisplayValue = useCallback(
+    (num: number): string => {
+      if (isNaN(num)) return ''
+
+      const options: Intl.NumberFormatOptions = {
+        minimumFractionDigits: precision,
+        maximumFractionDigits: precision,
+        useGrouping: showThousandsSeparator,
+      }
+
+      try {
+        return new Intl.NumberFormat(locale, options).format(num)
+      } catch {
+        return num.toFixed(precision)
+      }
+    },
+    [locale, precision, showThousandsSeparator]
+  )
+
   useEffect(() => {
     if (value !== undefined && value !== null) {
       setDisplayValue(formatDisplayValue(value))
     } else {
       setDisplayValue('')
     }
-  }, [value, locale, precision, showThousandsSeparator])
-
-  const formatDisplayValue = (num: number): string => {
-    if (isNaN(num)) return ''
-
-    const options: Intl.NumberFormatOptions = {
-      minimumFractionDigits: precision,
-      maximumFractionDigits: precision,
-      useGrouping: showThousandsSeparator,
-    }
-
-    try {
-      return new Intl.NumberFormat(locale, options).format(num)
-    } catch {
-      return num.toFixed(precision)
-    }
-  }
+  }, [value, formatDisplayValue])
 
   const parseInputValue = (input: string): number | undefined => {
     if (!input.trim()) return undefined
@@ -185,7 +188,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
           value={currency}
           onChange={handleCurrencyChange}
           className='oda-currency-input__selector'
-          size={props.size}
+          size={size}
         >
           {currencies.map((curr) => (
             <Option key={curr.code} value={curr.code}>
@@ -203,19 +206,21 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     )
   }
 
-  const inputProps = {
-    ...props,
-    value: displayValue,
-    onChange: handleInputChange,
-    onBlur: handleBlur,
-    status: error ? ('error' as const) : undefined,
-    className: 'oda-currency-input__field',
-  }
+  const { placeholder, disabled, size } = props
 
   if (effectiveSymbolPosition === 'before') {
     return (
       <div className={currencyClasses}>
-        <Input {...inputProps} addonBefore={renderCurrencySymbol()} />
+        <Input
+          placeholder={placeholder}
+          disabled={disabled}
+          value={displayValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          status={error ? ('error' as const) : undefined}
+          className='oda-currency-input__field'
+          addonBefore={renderCurrencySymbol()}
+        />
         {error && <div className='oda-currency-input__error'>{error}</div>}
       </div>
     )
@@ -223,7 +228,16 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
 
   return (
     <div className={currencyClasses}>
-      <Input {...inputProps} addonAfter={renderCurrencySymbol()} />
+      <Input
+        placeholder={placeholder}
+        disabled={disabled}
+        value={displayValue}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        status={error ? ('error' as const) : undefined}
+        className='oda-currency-input__field'
+        addonAfter={renderCurrencySymbol()}
+      />
       {error && <div className='oda-currency-input__error'>{error}</div>}
     </div>
   )

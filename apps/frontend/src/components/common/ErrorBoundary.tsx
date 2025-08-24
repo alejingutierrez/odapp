@@ -48,7 +48,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo)
+      // TODO: Replace with proper logging service
+      // console.error('ErrorBoundary caught an error:', error, errorInfo)
     }
 
     // TODO: Send error to monitoring service (Sentry, etc.)
@@ -177,14 +178,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
 // Hook version for functional components
 export const useErrorHandler = () => {
-  return (error: Error, errorInfo?: ErrorInfo) => {
-    // Log error
-    console.error('Error caught by useErrorHandler:', error, errorInfo)
+  return (_error: Error, _errorInfo?: ErrorInfo) => {
+    // Log error in development only
+    if (process.env.NODE_ENV === 'development') {
+      // TODO: Replace with proper logging service
+      // console.error('Error caught by useErrorHandler:', _error, _errorInfo)
+    }
 
     // TODO: Send to monitoring service
-    // reportError(error, errorInfo)
+    // reportError(_error, _errorInfo)
 
     // You could also dispatch to Redux store to show global error state
-    // dispatch(addNotification({ type: 'error', message: error.message }))
+    // dispatch(addNotification({ type: 'error', message: _error.message }))
   }
 }

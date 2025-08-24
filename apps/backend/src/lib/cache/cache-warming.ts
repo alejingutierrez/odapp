@@ -434,7 +434,7 @@ export class CacheWarming {
         createdAt: {
           gte: today,
         },
-        status: 'completed' as any, // Using 'completed' instead of 'COMPLETED'
+        status: 'DELIVERED' as const,
       },
       _sum: {
         totalAmount: true,

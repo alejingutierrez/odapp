@@ -86,7 +86,7 @@ export interface TrackingEvent {
 
 // Tracking status for shipments
 // These enum values are defined for future use in shipping tracking
- 
+
 export enum TrackingStatus {
   LABEL_CREATED = 'label_created',
   IN_TRANSIT = 'in_transit',
@@ -96,7 +96,6 @@ export enum TrackingStatus {
   RETURNED = 'returned',
   CANCELLED = 'cancelled',
 }
- 
 
 export interface ShippingCarrier {
   name: string
@@ -160,7 +159,7 @@ export class FedExCarrier implements ShippingCarrier {
       // Filter by requested service types
       if (request.serviceTypes?.length) {
         return rates.filter((rate) =>
-          request.serviceTypes!.includes(rate.service)
+          request.serviceTypes?.includes(rate.service)
         )
       }
 
@@ -348,13 +347,16 @@ export class UPSCarrier implements ShippingCarrier {
 
       if (request.serviceTypes?.length) {
         return rates.filter((rate) =>
-          request.serviceTypes!.includes(rate.service)
+          request.serviceTypes?.includes(rate.service)
         )
       }
 
       return rates
     } catch (error) {
-      logger.error('UPS rate request failed', { error: error instanceof Error ? error.message : String(error), request })
+      logger.error('UPS rate request failed', {
+        error: error instanceof Error ? error.message : String(error),
+        request,
+      })
       throw new ApiError(500, 'Failed to get UPS rates')
     }
   }
@@ -514,7 +516,7 @@ export class USPSCarrier implements ShippingCarrier {
 
       if (request.serviceTypes?.length) {
         return rates.filter((rate) =>
-          request.serviceTypes!.includes(rate.service)
+          request.serviceTypes?.includes(rate.service)
         )
       }
 

@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 
 import { AuthService, TokenPayload, UserWithRoles } from '../lib/auth'
 import { TwoFactorService } from '../lib/two-factor'
+import logger from '../lib/logger'
 
 // Extend Express Request type to include user
 declare global {
-   
   namespace Express {
     interface Request {
       user?: UserWithRoles
@@ -72,7 +72,7 @@ export const authenticate = async (
 
     next()
   } catch (error) {
-    console.error('Authentication error:', error)
+    logger.error('Authentication error:', error)
     res.status(401).json({
       success: false,
       error: 'Invalid authentication token',
@@ -178,7 +178,7 @@ export const requireTwoFactor = async (
 
     next()
   } catch (error) {
-    console.error('Two-factor authentication error:', error)
+    logger.error('Two-factor authentication error:', error)
     res.status(500).json({
       success: false,
       error: 'Two-factor authentication failed',
@@ -314,7 +314,7 @@ export const requireAnyRole = (roleNames: string[]) => {
     }
 
     const hasAnyRole = roleNames.some((roleName) =>
-      AuthService.hasRole(req.user!, roleName)
+      req.user ? AuthService.hasRole(req.user, roleName) : false
     )
 
     if (!hasAnyRole) {
@@ -382,7 +382,7 @@ export const authorize = (permissions: string[]) => {
     }
 
     const hasPermission = permissions.some((permission) =>
-      AuthService.hasPermission(req.user!, permission)
+      req.user ? AuthService.hasPermission(req.user, permission) : false
     )
 
     if (!hasPermission) {

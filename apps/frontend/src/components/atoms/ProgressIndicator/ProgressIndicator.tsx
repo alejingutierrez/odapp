@@ -48,7 +48,6 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   status = 'normal',
   steps,
   description,
-  ...props
 }) => {
   const { token } = useToken()
 
@@ -113,17 +112,6 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     justifyContent: 'space-between',
   })
 
-  const getGradientProps = () => {
-    if (variant !== 'gradient') return {}
-
-    return {
-      strokeColor: {
-        '0%': getThemeColor(),
-        '100%': token.colorPrimaryBg,
-      },
-    }
-  }
-
   const renderSteppedProgress = () => {
     if (variant !== 'stepped' || !steps) return null
 
@@ -154,17 +142,24 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       return renderSteppedProgress()
     }
 
-    const progressProps = {
-      type: variant === 'gradient' ? 'line' : variant,
-      size: getSize(),
-      percent,
-      status: animated && status === 'normal' ? 'active' : status,
-      strokeColor: theme !== 'default' ? getThemeColor() : undefined,
-      ...getGradientProps(),
-      ...props,
-    }
-
-    return <Progress {...progressProps} />
+    return (
+      <Progress
+        type={variant === 'gradient' ? 'line' : variant}
+        size={getSize()}
+        percent={percent}
+        status={animated && status === 'normal' ? 'active' : status}
+        strokeColor={
+          variant === 'gradient'
+            ? {
+                '0%': getThemeColor(),
+                '100%': token.colorPrimaryBg,
+              }
+            : theme !== 'default'
+              ? getThemeColor()
+              : undefined
+        }
+      />
+    )
   }
 
   return (

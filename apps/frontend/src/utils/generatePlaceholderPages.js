@@ -96,7 +96,13 @@ pages.forEach((pagePath) => {
 
   // Write file
   fs.writeFileSync(filePath, template(componentName, title))
-  console.log(`Created: ${filePath}`)
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log(`Created: ${filePath}`)
+  }
 })
 
-console.log('All placeholder pages created!')
+if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line no-console
+  console.log('All placeholder pages created!')
+}

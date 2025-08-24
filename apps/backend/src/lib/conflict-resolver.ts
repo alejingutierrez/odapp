@@ -55,7 +55,7 @@ export class ConflictResolver {
 
     // Check timestamp conflicts
     const localUpdated = new Date(localProduct.updatedAt as string)
-          const shopifyUpdated = new Date(shopifyProduct.updated_at as string)
+    const shopifyUpdated = new Date(shopifyProduct.updated_at as string)
 
     let conflictType: 'data' | 'timestamp' | 'version' = 'data'
 
@@ -89,10 +89,10 @@ export class ConflictResolver {
 
     // Resolution strategy based on conflict type and fields
     if (conflictType === 'timestamp') {
-      const localUpdated = new Date(localProduct.updatedAt as any)
-      
+      const localUpdated = new Date(localProduct.updatedAt as string)
+
       // Safely handle shopifyProduct.updated_at which is unknown type
-      const updatedAt = shopifyProduct.updated_at as any
+      const updatedAt = shopifyProduct.updated_at as string
       const dateString = String(updatedAt || Date.now())
       const shopifyUpdated = new Date(dateString)
 
@@ -269,7 +269,7 @@ export class ConflictResolver {
 
     // Always update Shopify-specific fields
     merged.shopifyId = shopifyProduct.id.toString()
-          merged.shopifyUpdatedAt = new Date(shopifyProduct.updated_at as string)
+    merged.shopifyUpdatedAt = new Date(shopifyProduct.updated_at as string)
 
     return merged
   }
@@ -299,7 +299,7 @@ export class ConflictResolver {
 
     // Always update Shopify-specific fields
     merged.shopifyId = shopifyCustomer.id.toString()
-          merged.shopifyUpdatedAt = new Date(shopifyCustomer.updated_at as string)
+    merged.shopifyUpdatedAt = new Date(shopifyCustomer.updated_at as string)
 
     return merged
   }

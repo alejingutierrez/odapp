@@ -28,7 +28,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   children,
   image,
-  ...props
+  className,
 }) => {
   const getImageSize = () => {
     return size === 'small' ? 60 : 100
@@ -82,7 +82,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           )}
         </div>
       }
-      {...props}
+      className={className}
     >
       {renderAction()}
     </Empty>

@@ -144,7 +144,12 @@ export const Clickable: Story = {
     value: '$45,678',
     subtitle: 'Interactive card',
     icon: <DollarOutlined />,
-    onClick: () => console.log('Metric card clicked!'),
+    onClick: () => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('Metric card clicked!')
+      }
+    },
     color: 'primary',
   },
 }

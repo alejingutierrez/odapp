@@ -94,7 +94,10 @@ export const ReduxExample: React.FC = () => {
       )
     } catch (_error) {
       // Logout should always succeed locally even if server fails
-      console.warn('Logout error:', _error)
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('Logout error:', _error)
+      }
     }
   }
 
@@ -184,13 +187,27 @@ export const ReduxExample: React.FC = () => {
             )}
             {productsData && (
               <div>
-                <Text> Found {(productsData as { total?: number })?.total || 0} products</Text>
+                <Text>
+                  {' '}
+                  Found {(productsData as { total?: number })?.total || 0}{' '}
+                  products
+                </Text>
                 <ul>
-                  {(productsData as { products?: Array<{ id: string; name: string; pricing?: { basePrice?: number } }> })?.products?.slice(0, 3).map((product) => (
-                    <li key={product.id}>
-                      {product.name} - ${product.pricing?.basePrice || 0}
-                    </li>
-                  ))}
+                  {(
+                    productsData as {
+                      products?: Array<{
+                        id: string
+                        name: string
+                        pricing?: { basePrice?: number }
+                      }>
+                    }
+                  )?.products
+                    ?.slice(0, 3)
+                    .map((product) => (
+                      <li key={product.id}>
+                        {product.name} - ${product.pricing?.basePrice || 0}
+                      </li>
+                    ))}
                 </ul>
               </div>
             )}

@@ -51,7 +51,10 @@ const Login: React.FC = () => {
       navigate(from, { replace: true })
     } catch (error) {
       // Error is handled by the slice
-      console.error('Login failed:', error)
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Login failed:', error)
+      }
     }
   }
 

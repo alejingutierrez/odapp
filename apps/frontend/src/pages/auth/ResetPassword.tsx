@@ -44,16 +44,19 @@ const ResetPassword: React.FC = () => {
     )
   }
 
-  const handleSubmit = async (values: ResetPasswordFormData) => {
+  const handleSubmit = async (_values: ResetPasswordFormData) => {
     setIsLoading(true)
     setError(null)
 
     try {
       // TODO: Implement reset password API call
-      console.log('Reset password values:', { ...values, token })
+      // console.log('Reset password values:', { ..._values, token })
       setIsSuccess(true)
     } catch (error: unknown) {
-      setError((error as Error)?.message || 'Failed to reset password. Please try again.')
+      setError(
+        (error as Error)?.message ||
+          'Failed to reset password. Please try again.'
+      )
     } finally {
       setIsLoading(false)
     }

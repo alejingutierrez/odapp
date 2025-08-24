@@ -37,9 +37,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
             // Handle notification actions
             if (notif.actions && notif.actions.length > 0) {
-              const primaryAction = notif.actions[0]
               // Handle action based on type
-              console.log('Notification action:', primaryAction)
+              // console.log('Notification action:', notif.actions[0])
             }
           },
           placement: 'topRight',

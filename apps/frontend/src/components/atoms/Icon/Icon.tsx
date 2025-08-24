@@ -24,7 +24,7 @@ export const Icon: React.FC<IconProps> = ({
   name,
   size = 'md',
   color = 'default',
-  spin = false,
+  spin: _spin,
   rotate,
   className = '',
   onClick,
@@ -35,7 +35,7 @@ export const Icon: React.FC<IconProps> = ({
   >
 
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in Ant Design icons`)
+    // console.warn(`Icon "${name}" not found in Ant Design icons`)
     return null
   }
 
@@ -49,57 +49,148 @@ export const Icon: React.FC<IconProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  const iconProps: React.SVGProps<SVGSVGElement> & { spin?: boolean; rotate?: number } = {
-    className: iconClasses,
-    spin,
-    rotate,
-    onClick,
-    style,
-    ...(onClick && { role: 'button', tabIndex: 0 })
-  }
-
-  return <IconComponent {...iconProps} />
+  return (
+    <IconComponent
+      className={iconClasses}
+      rotate={rotate}
+      onClick={onClick}
+      style={style}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    />
+  )
 }
 
 // Commonly used icons as separate components for better DX
-export const SearchIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='SearchOutlined' {...props} />
+export const SearchIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='SearchOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const EditIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='EditOutlined' {...props} />
+export const EditIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='EditOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const DeleteIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='DeleteOutlined' {...props} />
+export const DeleteIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='DeleteOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const PlusIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='PlusOutlined' {...props} />
+export const PlusIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='PlusOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const MinusIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='MinusOutlined' {...props} />
+export const MinusIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='MinusOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const CloseIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='CloseOutlined' {...props} />
+export const CloseIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='CloseOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const CheckIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='CheckOutlined' {...props} />
+export const CheckIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='CheckOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const WarningIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='WarningOutlined' {...props} />
+export const WarningIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='WarningOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const InfoIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='InfoCircleOutlined' {...props} />
+export const InfoIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='InfoCircleOutlined'
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
-export const LoadingIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name='LoadingOutlined' spin {...props} />
+export const LoadingIcon: React.FC<Omit<IconProps, 'name'>> = ({
+  className,
+  style,
+  onClick,
+}) => (
+  <Icon
+    name='LoadingOutlined'
+    spin
+    className={className}
+    style={style}
+    onClick={onClick}
+  />
 )
 
 Icon.displayName = 'Icon'

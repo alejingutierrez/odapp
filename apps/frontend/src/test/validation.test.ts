@@ -245,8 +245,8 @@ describe('Validation Utils', () => {
         // Use mock implementation to satisfy instanceof checks
         global.File = MockFile as unknown as typeof File
 
-        const createFile = (size: number, type: string) =>
-          new File(size, type) as unknown as File
+        const createFile = (_size: number, type: string) =>
+          new File([''], 'test.jpg', { type }) as unknown as File
 
         const validImageFile = createFile(1 * 1024 * 1024, 'image/jpeg')
 

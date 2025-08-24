@@ -3,7 +3,18 @@ import React, { useState, useEffect } from 'react'
 import './RangeSlider.css'
 
 export interface RangeSliderProps
-  extends Omit<SliderSingleProps, 'value' | 'onChange' | 'range' | 'defaultValue' | 'onAfterChange' | 'onChangeComplete' | 'handleStyle' | 'trackStyle' | 'railStyle'> {
+  extends Omit<
+    SliderSingleProps,
+    | 'value'
+    | 'onChange'
+    | 'range'
+    | 'defaultValue'
+    | 'onAfterChange'
+    | 'onChangeComplete'
+    | 'handleStyle'
+    | 'trackStyle'
+    | 'railStyle'
+  > {
   /** Current range value [min, max] */
   value?: [number, number]
   /** Change handler */
@@ -67,7 +78,9 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   prefix,
   suffix,
   className = '',
-  ...props
+  disabled,
+  vertical,
+  reverse,
 }) => {
   const [internalValue, setInternalValue] = useState<[number, number]>(value)
 
@@ -148,8 +161,15 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             min={min}
             max={internalValue[1]}
             step={step}
-            size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
-            formatter={formatter as (value: number | undefined, info: { userTyping: boolean; input: string }) => string}
+            size={
+              size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+            }
+            formatter={
+              formatter as (
+                value: number | undefined,
+                info: { userTyping: boolean; input: string }
+              ) => string
+            }
             parser={parser as (displayValue: string | undefined) => number}
             className='oda-range-slider__input'
           />
@@ -169,8 +189,15 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             min={internalValue[0]}
             max={max}
             step={step}
-            size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
-            formatter={formatter as (value: number | undefined, info: { userTyping: boolean; input: string }) => string}
+            size={
+              size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+            }
+            formatter={
+              formatter as (
+                value: number | undefined,
+                info: { userTyping: boolean; input: string }
+              ) => string
+            }
             parser={parser as (displayValue: string | undefined) => number}
             className='oda-range-slider__input'
           />
@@ -239,10 +266,14 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
           marks={marks}
           tooltip={{
             formatter: showTooltips
-              ? (tooltipFormatter || defaultTooltipFormatter) as (value?: number) => React.ReactNode
+              ? ((tooltipFormatter || defaultTooltipFormatter) as (
+                  value?: number
+                ) => React.ReactNode)
               : undefined,
           }}
-          {...props}
+          disabled={disabled}
+          vertical={vertical}
+          reverse={reverse}
         />
       </div>
 

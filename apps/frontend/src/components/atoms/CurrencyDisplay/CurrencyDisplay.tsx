@@ -20,6 +20,7 @@ export interface CurrencyDisplayProps {
   theme?: CurrencyTheme
   prefix?: string
   suffix?: string
+  className?: string
 }
 
 export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
@@ -34,7 +35,7 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   theme: themeOverride,
   prefix,
   suffix,
-  ...props
+  className,
 }) => {
   const { token } = useToken()
   const isNegative = amount < 0
@@ -136,7 +137,7 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
       <Text
         type={getThemeColor() as 'success' | 'danger' | 'warning' | undefined}
         style={getAmountStyle()}
-        {...props}
+        className={className}
       >
         {displayAmount}
       </Text>

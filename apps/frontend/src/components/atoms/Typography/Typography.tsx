@@ -1,6 +1,4 @@
-import {
-  Typography as AntTypography,
-} from 'antd'
+import { Typography as AntTypography } from 'antd'
 import React from 'react'
 import './Typography.css'
 
@@ -27,7 +25,6 @@ export const Title: React.FC<TitleProps> = ({
   align = 'left',
   className = '',
   children,
-  ...props
 }) => {
   const titleClasses = [
     'oda-title',
@@ -41,7 +38,7 @@ export const Title: React.FC<TitleProps> = ({
     .join(' ')
 
   return (
-    <AntTitle level={level} className={titleClasses} {...props}>
+    <AntTitle level={level} className={titleClasses}>
       {children}
     </AntTitle>
   )
@@ -73,7 +70,6 @@ export const Text: React.FC<TextProps> = ({
   transform = 'none',
   className = '',
   children,
-  ...props
 }) => {
   const textClasses = [
     'oda-text',
@@ -87,11 +83,7 @@ export const Text: React.FC<TextProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  return (
-    <AntText className={textClasses} {...props}>
-      {children}
-    </AntText>
-  )
+  return <AntText className={textClasses}>{children}</AntText>
 }
 
 // Paragraph Component
@@ -113,7 +105,6 @@ export const Paragraph: React.FC<ParagraphProps> = ({
   spacing = 'normal',
   className = '',
   children,
-  ...props
 }) => {
   const paragraphClasses = [
     'oda-paragraph',
@@ -127,11 +118,7 @@ export const Paragraph: React.FC<ParagraphProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  return (
-    <AntParagraph className={paragraphClasses} {...props}>
-      {children}
-    </AntParagraph>
-  )
+  return <AntParagraph className={paragraphClasses}>{children}</AntParagraph>
 }
 
 // Link Component
@@ -157,7 +144,6 @@ export const Link: React.FC<LinkProps> = ({
   children,
   href,
   onClick,
-  ...props
 }) => {
   const linkClasses = [
     'oda-link',
@@ -171,18 +157,17 @@ export const Link: React.FC<LinkProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  const linkProps = {
-    href,
-    onClick,
-    ...(external && { target: '_blank', rel: 'noopener noreferrer' }),
-    ...props,
-  }
-
   return (
-    <AntText className={linkClasses} {...linkProps}>
+    <a
+      className={linkClasses}
+      href={href}
+      onClick={onClick}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
       {children}
       {external && <span className='oda-link__external-icon'>↗</span>}
-    </AntText>
+    </a>
   )
 }
 
@@ -201,7 +186,6 @@ export const Code: React.FC<CodeProps> = ({
   language,
   className = '',
   children,
-  ...props
 }) => {
   const codeClasses = [
     'oda-code',
@@ -215,17 +199,13 @@ export const Code: React.FC<CodeProps> = ({
 
   if (variant === 'block') {
     return (
-      <pre className={codeClasses} {...props}>
+      <pre className={codeClasses}>
         <code>{children}</code>
       </pre>
     )
   }
 
-  return (
-    <code className={codeClasses} {...props}>
-      {children}
-    </code>
-  )
+  return <code className={codeClasses}>{children}</code>
 }
 
 // Default export for convenience

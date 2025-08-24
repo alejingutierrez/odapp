@@ -2,12 +2,9 @@ import { Spin } from 'antd'
 import React, { Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
-// Layouts
 import { ErrorBoundary } from '../components/common/ErrorBoundary'
 import { AuthLayout } from '../components/layouts/AuthLayout'
 import { DashboardLayout } from '../components/layouts/DashboardLayout'
-
-// Route guards
 import { NotFoundPage } from '../pages/NotFound'
 
 import { ProtectedRoute } from './ProtectedRoute'
@@ -120,494 +117,495 @@ const LazyWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 )
 
 // Router configuration
-export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
-  // Public routes (auth pages)
-  {
-    path: '/auth',
-    element: (
-      <PublicRoute>
-        <AuthLayout />
-      </PublicRoute>
-    ),
-    children: [
-      {
-        path: 'login',
-        element: (
-          <LazyWrapper>
-            <Login />
-          </LazyWrapper>
-        ),
-      },
-      {
-        path: 'register',
-        element: (
-          <LazyWrapper>
-            <Register />
-          </LazyWrapper>
-        ),
-      },
-      {
-        path: 'forgot-password',
-        element: (
-          <LazyWrapper>
-            <ForgotPassword />
-          </LazyWrapper>
-        ),
-      },
-      {
-        path: 'reset-password',
-        element: (
-          <LazyWrapper>
-            <ResetPassword />
-          </LazyWrapper>
-        ),
-      },
-    ],
-  },
+export const router: ReturnType<typeof createBrowserRouter> =
+  createBrowserRouter([
+    // Public routes (auth pages)
+    {
+      path: '/auth',
+      element: (
+        <PublicRoute>
+          <AuthLayout />
+        </PublicRoute>
+      ),
+      children: [
+        {
+          path: 'login',
+          element: (
+            <LazyWrapper>
+              <Login />
+            </LazyWrapper>
+          ),
+        },
+        {
+          path: 'register',
+          element: (
+            <LazyWrapper>
+              <Register />
+            </LazyWrapper>
+          ),
+        },
+        {
+          path: 'forgot-password',
+          element: (
+            <LazyWrapper>
+              <ForgotPassword />
+            </LazyWrapper>
+          ),
+        },
+        {
+          path: 'reset-password',
+          element: (
+            <LazyWrapper>
+              <ResetPassword />
+            </LazyWrapper>
+          ),
+        },
+      ],
+    },
 
-  // Protected routes (main app)
-  {
-    path: '/',
-    element: (
-      <ProtectedRoute>
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
-    children: [
-      // Dashboard
-      {
-        index: true,
-        element: (
-          <LazyWrapper>
-            <Dashboard />
-          </LazyWrapper>
-        ),
-      },
+    // Protected routes (main app)
+    {
+      path: '/',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        // Dashboard
+        {
+          index: true,
+          element: (
+            <LazyWrapper>
+              <Dashboard />
+            </LazyWrapper>
+          ),
+        },
 
-      // Products
-      {
-        path: 'products',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <ProductList />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'create',
-            element: (
-              <LazyWrapper>
-                <ProductCreate />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <LazyWrapper>
-                <ProductDetail />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <LazyWrapper>
-                <ProductEdit />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'collections',
-            element: (
-              <LazyWrapper>
-                <Collections />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'categories',
-            element: (
-              <LazyWrapper>
-                <Categories />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Products
+        {
+          path: 'products',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <ProductList />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'create',
+              element: (
+                <LazyWrapper>
+                  <ProductCreate />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: ':id',
+              element: (
+                <LazyWrapper>
+                  <ProductDetail />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: ':id/edit',
+              element: (
+                <LazyWrapper>
+                  <ProductEdit />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'collections',
+              element: (
+                <LazyWrapper>
+                  <Collections />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'categories',
+              element: (
+                <LazyWrapper>
+                  <Categories />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Inventory
-      {
-        path: 'inventory',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <StockLevels />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'adjustments',
-            element: (
-              <LazyWrapper>
-                <Adjustments />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'transfers',
-            element: (
-              <LazyWrapper>
-                <Transfers />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'reports',
-            element: (
-              <LazyWrapper>
-                <InventoryReports />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Inventory
+        {
+          path: 'inventory',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <StockLevels />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'adjustments',
+              element: (
+                <LazyWrapper>
+                  <Adjustments />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'transfers',
+              element: (
+                <LazyWrapper>
+                  <Transfers />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'reports',
+              element: (
+                <LazyWrapper>
+                  <InventoryReports />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Orders
-      {
-        path: 'orders',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <OrderList />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'create',
-            element: (
-              <LazyWrapper>
-                <OrderCreate />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <LazyWrapper>
-                <OrderDetail />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'returns',
-            element: (
-              <LazyWrapper>
-                <Returns />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'fulfillment',
-            element: (
-              <LazyWrapper>
-                <Fulfillment />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Orders
+        {
+          path: 'orders',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <OrderList />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'create',
+              element: (
+                <LazyWrapper>
+                  <OrderCreate />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: ':id',
+              element: (
+                <LazyWrapper>
+                  <OrderDetail />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'returns',
+              element: (
+                <LazyWrapper>
+                  <Returns />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'fulfillment',
+              element: (
+                <LazyWrapper>
+                  <Fulfillment />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Customers
-      {
-        path: 'customers',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <CustomerList />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <LazyWrapper>
-                <CustomerDetail />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'segments',
-            element: (
-              <LazyWrapper>
-                <Segments />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'loyalty',
-            element: (
-              <LazyWrapper>
-                <Loyalty />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'communications',
-            element: (
-              <LazyWrapper>
-                <Communications />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Customers
+        {
+          path: 'customers',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <CustomerList />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: ':id',
+              element: (
+                <LazyWrapper>
+                  <CustomerDetail />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'segments',
+              element: (
+                <LazyWrapper>
+                  <Segments />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'loyalty',
+              element: (
+                <LazyWrapper>
+                  <Loyalty />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'communications',
+              element: (
+                <LazyWrapper>
+                  <Communications />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Analytics
-      {
-        path: 'analytics',
-        children: [
-          {
-            index: true,
-            element: <Navigate to='/analytics/sales' replace />,
-          },
-          {
-            path: 'sales',
-            element: (
-              <LazyWrapper>
-                <SalesAnalytics />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'products',
-            element: (
-              <LazyWrapper>
-                <ProductAnalytics />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'customers',
-            element: (
-              <LazyWrapper>
-                <CustomerAnalytics />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'inventory',
-            element: (
-              <LazyWrapper>
-                <InventoryAnalytics />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'shopify',
-            element: (
-              <LazyWrapper>
-                <ShopifyAnalytics />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Analytics
+        {
+          path: 'analytics',
+          children: [
+            {
+              index: true,
+              element: <Navigate to='/analytics/sales' replace />,
+            },
+            {
+              path: 'sales',
+              element: (
+                <LazyWrapper>
+                  <SalesAnalytics />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'products',
+              element: (
+                <LazyWrapper>
+                  <ProductAnalytics />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'customers',
+              element: (
+                <LazyWrapper>
+                  <CustomerAnalytics />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'inventory',
+              element: (
+                <LazyWrapper>
+                  <InventoryAnalytics />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'shopify',
+              element: (
+                <LazyWrapper>
+                  <ShopifyAnalytics />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Billing
-      {
-        path: 'billing',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <Invoices />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'payments',
-            element: (
-              <LazyWrapper>
-                <Payments />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'tax-settings',
-            element: (
-              <LazyWrapper>
-                <TaxSettings />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'reports',
-            element: (
-              <LazyWrapper>
-                <BillingReports />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Billing
+        {
+          path: 'billing',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <Invoices />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'payments',
+              element: (
+                <LazyWrapper>
+                  <Payments />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'tax-settings',
+              element: (
+                <LazyWrapper>
+                  <TaxSettings />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'reports',
+              element: (
+                <LazyWrapper>
+                  <BillingReports />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Logistics
-      {
-        path: 'logistics',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <Shipping />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'carriers',
-            element: (
-              <LazyWrapper>
-                <Carriers />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'tracking',
-            element: (
-              <LazyWrapper>
-                <Tracking />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'returns',
-            element: (
-              <LazyWrapper>
-                <LogisticsReturns />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Logistics
+        {
+          path: 'logistics',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <Shipping />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'carriers',
+              element: (
+                <LazyWrapper>
+                  <Carriers />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'tracking',
+              element: (
+                <LazyWrapper>
+                  <Tracking />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'returns',
+              element: (
+                <LazyWrapper>
+                  <LogisticsReturns />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Shopify
-      {
-        path: 'shopify',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <ShopifySync />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'products',
-            element: (
-              <LazyWrapper>
-                <ShopifyProducts />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'orders',
-            element: (
-              <LazyWrapper>
-                <ShopifyOrders />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'customers',
-            element: (
-              <LazyWrapper>
-                <ShopifyCustomers />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'settings',
-            element: (
-              <LazyWrapper>
-                <ShopifySettings />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
+        // Shopify
+        {
+          path: 'shopify',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <ShopifySync />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'products',
+              element: (
+                <LazyWrapper>
+                  <ShopifyProducts />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'orders',
+              element: (
+                <LazyWrapper>
+                  <ShopifyOrders />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'customers',
+              element: (
+                <LazyWrapper>
+                  <ShopifyCustomers />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'settings',
+              element: (
+                <LazyWrapper>
+                  <ShopifySettings />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
 
-      // Settings
-      {
-        path: 'settings',
-        children: [
-          {
-            index: true,
-            element: (
-              <LazyWrapper>
-                <GeneralSettings />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'users',
-            element: (
-              <LazyWrapper>
-                <Users />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'permissions',
-            element: (
-              <LazyWrapper>
-                <Permissions />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'integrations',
-            element: (
-              <LazyWrapper>
-                <Integrations />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'notifications',
-            element: (
-              <LazyWrapper>
-                <NotificationSettings />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: 'backup',
-            element: (
-              <LazyWrapper>
-                <BackupSettings />
-              </LazyWrapper>
-            ),
-          },
-        ],
-      },
-    ],
-  },
+        // Settings
+        {
+          path: 'settings',
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <GeneralSettings />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'users',
+              element: (
+                <LazyWrapper>
+                  <Users />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'permissions',
+              element: (
+                <LazyWrapper>
+                  <Permissions />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'integrations',
+              element: (
+                <LazyWrapper>
+                  <Integrations />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'notifications',
+              element: (
+                <LazyWrapper>
+                  <NotificationSettings />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: 'backup',
+              element: (
+                <LazyWrapper>
+                  <BackupSettings />
+                </LazyWrapper>
+              ),
+            },
+          ],
+        },
+      ],
+    },
 
-  // Catch all route
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
-])
+    // Catch all route
+    {
+      path: '*',
+      element: <NotFoundPage />,
+    },
+  ])

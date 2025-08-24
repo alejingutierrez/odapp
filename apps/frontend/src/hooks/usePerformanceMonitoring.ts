@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
+import devLogger from '../utils/devLogger'
 
 interface PerformanceMetrics {
   path: string
@@ -44,7 +45,7 @@ export const usePerformanceMonitoring = () => {
         metrics.connectionType = connection.effectiveType
       }
 
-      console.log('Route performance metrics:', metrics)
+      devLogger.log('Route performance metrics:', metrics)
 
       // TODO: Send to monitoring service
       // sendPerformanceMetrics(metrics)
@@ -68,7 +69,7 @@ export const usePerformanceMonitoring = () => {
             const entries = list.getEntries()
             const lastEntry = entries[entries.length - 1]
 
-            console.log('LCP:', lastEntry.startTime, 'ms')
+            devLogger.log('LCP:', lastEntry.startTime, 'ms')
 
             // TODO: Send to monitoring service
             // sendWebVital('LCP', lastEntry.startTime, location.pathname)
@@ -79,15 +80,23 @@ export const usePerformanceMonitoring = () => {
           // First Input Delay (FID)
           const fidObserver = new PerformanceObserver((list) => {
             const entries = list.getEntries()
-            entries.forEach((entry: PerformanceEntry & { processingStart?: number; startTime?: number }) => {
-              const fid = entry.processingStart && entry.startTime 
-                ? entry.processingStart - entry.startTime 
-                : 0
-              console.log('FID:', fid, 'ms')
+            entries.forEach(
+              (
+                entry: PerformanceEntry & {
+                  processingStart?: number
+                  startTime?: number
+                }
+              ) => {
+                const fid =
+                  entry.processingStart && entry.startTime
+                    ? entry.processingStart - entry.startTime
+                    : 0
+                devLogger.log('FID:', fid, 'ms')
 
-              // TODO: Send to monitoring service
-              // sendWebVital('FID', fid, location.pathname)
-            })
+                // TODO: Send to monitoring service
+                // sendWebVital('FID', fid, location.pathname)
+              }
+            )
           })
 
           fidObserver.observe({ entryTypes: ['first-input'] })
@@ -97,7 +106,12 @@ export const usePerformanceMonitoring = () => {
           const clsObserver = new PerformanceObserver((list) => {
             const entries = list.getEntries()
             entries.forEach(
-              (entry: PerformanceEntry & { hadRecentInput?: boolean; value?: number }) => {
+              (
+                entry: PerformanceEntry & {
+                  hadRecentInput?: boolean
+                  value?: number
+                }
+              ) => {
                 if (!entry.hadRecentInput) {
                   if (entry.value) {
                     clsValue += entry.value
@@ -106,7 +120,7 @@ export const usePerformanceMonitoring = () => {
               }
             )
 
-            console.log('CLS:', clsValue)
+            devLogger.log('CLS:', clsValue)
 
             // TODO: Send to monitoring service
             // sendWebVital('CLS', clsValue, location.pathname)
@@ -120,7 +134,7 @@ export const usePerformanceMonitoring = () => {
             clsObserver.disconnect()
           }
         } catch (error) {
-          console.warn('Performance monitoring not supported:', error)
+          devLogger.warn('Performance monitoring not supported:', error)
         }
       }
     }
@@ -129,27 +143,24 @@ export const usePerformanceMonitoring = () => {
   }, [location.pathname])
 
   // Manual performance tracking functions
-  const trackUserTiming = useCallback(
-    (name: string, startTime?: number) => {
-      const endTime = performance.now()
-      const duration = startTime ? endTime - startTime : 0
+  const trackUserTiming = useCallback((name: string, startTime?: number) => {
+    const endTime = performance.now()
+    const duration = startTime ? endTime - startTime : 0
 
-      performance.mark(`${name}-end`)
+    performance.mark(`${name}-end`)
 
-      if (startTime) {
-        performance.mark(`${name}-start`)
-        performance.measure(name, `${name}-start`, `${name}-end`)
-      }
+    if (startTime) {
+      performance.mark(`${name}-start`)
+      performance.measure(name, `${name}-start`, `${name}-end`)
+    }
 
-      console.log(`User timing - ${name}:`, duration, 'ms')
+    devLogger.log(`User timing - ${name}:`, duration, 'ms')
 
-      // TODO: Send to monitoring service
-      // sendUserTiming(name, duration, location.pathname)
+    // TODO: Send to monitoring service
+    // sendUserTiming(name, duration, location.pathname)
 
-      return endTime
-    },
-    [location.pathname]
-  )
+    return endTime
+  }, [])
 
   const trackResourceTiming = useCallback(() => {
     const resources = performance.getEntriesByType('resource')
@@ -158,12 +169,12 @@ export const usePerformanceMonitoring = () => {
     )
 
     if (slowResources.length > 0) {
-      console.log('Slow resources detected:', slowResources)
+      devLogger.log('Slow resources detected:', slowResources)
 
       // TODO: Send to monitoring service
       // sendSlowResources(slowResources, location.pathname)
     }
-  }, [location.pathname])
+  }, [])
 
   const trackMemoryUsage = useCallback(() => {
     if ('memory' in performance) {
@@ -184,7 +195,7 @@ export const usePerformanceMonitoring = () => {
         timestamp: Date.now(),
       }
 
-      console.log('Memory usage:', memoryInfo)
+      devLogger.log('Memory usage:', memoryInfo)
 
       // TODO: Send to monitoring service
       // sendMemoryMetrics(memoryInfo)
@@ -209,7 +220,7 @@ export const useComponentPerformance = (componentName: string) => {
     const endTime = performance.now()
     const renderTime = endTime - startTime
 
-    console.log(`Component ${componentName} render time:`, renderTime, 'ms')
+    devLogger.log(`Component ${componentName} render time:`, renderTime, 'ms')
 
     // TODO: Send to monitoring service
     // sendComponentMetrics(componentName, renderTime)

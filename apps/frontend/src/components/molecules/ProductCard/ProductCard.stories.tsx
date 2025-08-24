@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ProductCard } from './ProductCard'
@@ -80,20 +81,52 @@ const sampleProduct = {
 export const Default: Story = {
   args: {
     product: sampleProduct,
-    onEdit: (product) => console.log('Edit product:', product),
-    onDelete: (id) => console.log('Delete product:', id),
-    onView: (id) => console.log('View product:', id),
+    onEdit: (product) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Edit product:', product)
+      }
+    },
+    onDelete: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Delete product:', id)
+      }
+    },
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
   },
 }
 
 export const WithAllActions: Story = {
   args: {
     product: sampleProduct,
-    onEdit: (product) => console.log('Edit product:', product),
-    onDelete: (id) => console.log('Delete product:', id),
-    onView: (id) => console.log('View product:', id),
-    onAddToCart: (id) => console.log('Add to cart:', id),
-    onToggleFavorite: (id) => console.log('Toggle favorite:', id),
+    onEdit: (product) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Edit product:', product)
+      }
+    },
+    onDelete: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Delete product:', id)
+      }
+    },
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
+    onAddToCart: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Add to cart:', id)
+      }
+    },
+    onToggleFavorite: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Toggle favorite:', id)
+      }
+    },
   },
 }
 
@@ -101,8 +134,16 @@ export const Compact: Story = {
   args: {
     product: sampleProduct,
     compact: true,
-    onEdit: (product) => console.log('Edit product:', product),
-    onView: (id) => console.log('View product:', id),
+    onEdit: (product) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Edit product:', product)
+      }
+    },
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
   },
 }
 
@@ -110,8 +151,16 @@ export const WithInventory: Story = {
   args: {
     product: sampleProduct,
     showInventory: true,
-    onEdit: (product) => console.log('Edit product:', product),
-    onView: (id) => console.log('View product:', id),
+    onEdit: (product) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Edit product:', product)
+      }
+    },
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
   },
 }
 
@@ -122,7 +171,11 @@ export const OutOfStock: Story = {
       variants: sampleProduct.variants.map((v) => ({ ...v, inventory: 0 })),
     },
     showInventory: true,
-    onView: (id) => console.log('View product:', id),
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
   },
 }
 
@@ -139,7 +192,15 @@ export const DraftStatus: Story = {
       ...sampleProduct,
       status: 'draft' as const,
     },
-    onEdit: (product) => console.log('Edit product:', product),
-    onView: (id) => console.log('View product:', id),
+    onEdit: (product) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Edit product:', product)
+      }
+    },
+    onView: (id) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('View product:', id)
+      }
+    },
   },
 }

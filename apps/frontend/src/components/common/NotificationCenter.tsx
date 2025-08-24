@@ -210,7 +210,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                 size='small'
                                 onClick={() => {
                                   // Handle notification action
-                                  console.log('Notification action:', action)
+                                  // console.log('Notification action:', action)
                                 }}
                               >
                                 {action.label}

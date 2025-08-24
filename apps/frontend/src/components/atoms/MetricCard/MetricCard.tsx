@@ -57,24 +57,14 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     }
   }
 
-  const cardStyle = {
-    cursor: onClick ? 'pointer' : undefined,
-    transition: 'all 0.3s',
-  }
-
-  const hoverStyle = onClick
-    ? {
-        ':hover': {
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        },
-      }
-    : {}
-
   return (
     <Card
       variant={bordered ? 'outlined' : 'borderless'}
       size={size}
-      style={cardStyle}
+      style={{
+        cursor: onClick ? 'pointer' : undefined,
+        transition: 'all 0.3s',
+      }}
       styles={{
         body: {
           padding: size === 'small' ? 16 : 24,
@@ -82,7 +72,6 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       }}
       extra={extra}
       onClick={onClick}
-      {...hoverStyle}
     >
       <Statistic
         title={title}

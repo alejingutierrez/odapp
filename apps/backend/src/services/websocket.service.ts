@@ -13,7 +13,6 @@ import {
   LowStockAlert,
 } from './inventory.service'
 
-
 export interface AuthenticatedSocket extends SocketIOSocket {
   userId?: string
   userRoles?: string[]
@@ -66,7 +65,7 @@ export class WebSocketService {
           return next(new Error('Authentication token required'))
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
           userId: string
         }
 
@@ -111,7 +110,7 @@ export class WebSocketService {
         if (!this.connectedUsers.has(socket.userId)) {
           this.connectedUsers.set(socket.userId, new Set())
         }
-        this.connectedUsers.get(socket.userId)!.add(socket.id)
+        this.connectedUsers.get(socket.userId)?.add(socket.id)
         this.socketUsers.set(socket.id, socket.userId)
 
         // Join user-specific room
@@ -487,7 +486,7 @@ export class WebSocketService {
 
     // Note: These properties don't exist in InventoryUpdateData interface
     // Using type assertion to access them for reservation events
-    const reservationData = data as any
+    const reservationData = data as unknown as Record<string, unknown>
     logger.debug('Broadcasted inventory reservation', {
       inventoryItemId: data.inventoryItemId,
       reservationId: reservationData.reservationId,
@@ -506,7 +505,7 @@ export class WebSocketService {
 
     // Note: These properties don't exist in InventoryUpdateData interface
     // Using type assertion to access them for reservation events
-    const reservationData = data as any
+    const reservationData = data as unknown as Record<string, unknown>
     logger.debug('Broadcasted reservation release', {
       inventoryItemId: data.inventoryItemId,
       reservationId: reservationData.reservationId,
@@ -525,7 +524,7 @@ export class WebSocketService {
 
     // Note: These properties don't exist in InventoryUpdateData interface
     // Using type assertion to access them for reservation events
-    const reservationData = data as any
+    const reservationData = data as unknown as Record<string, unknown>
     logger.debug('Broadcasted reservation fulfillment', {
       inventoryItemId: data.inventoryItemId,
       reservationId: reservationData.reservationId,
@@ -544,7 +543,7 @@ export class WebSocketService {
 
     // Note: These properties don't exist in InventoryUpdateData interface
     // Using type assertion to access them for adjustment events
-    const adjustmentData = data as any
+    const adjustmentData = data as unknown as Record<string, unknown>
     logger.debug('Broadcasted inventory adjustment', {
       inventoryItemId: data.inventoryItemId,
       adjustmentId: adjustmentData.adjustmentId,
@@ -570,7 +569,7 @@ export class WebSocketService {
     // Broadcast to location-specific rooms
     // Note: These properties don't exist in InventoryUpdateData interface
     // Using type assertion to access them for transfer events
-    const transferData = data as any
+    const transferData = data as unknown as Record<string, unknown>
     if (transferData.fromLocationId) {
       this.io
         .to(`inventory:location:${transferData.fromLocationId}`)

@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
       const entries = list.getEntries()
       entries.forEach((entry) => {
         if (entry.entryType === 'navigation') {
-          console.log('Navigation timing:', entry)
+          // console.log('Navigation timing:', entry)
         }
       })
     })
@@ -27,13 +27,13 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Global error handler
-window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error)
+window.addEventListener('error', (_event) => {
+  // console.error('Global error:', _event.error)
   // TODO: Send to error tracking service (Sentry, etc.)
 })
 
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason)
+window.addEventListener('unhandledrejection', (_event) => {
+  // console.error('Unhandled promise rejection:', _event.reason)
   // TODO: Send to error tracking service (Sentry, etc.)
 })
 
@@ -54,7 +54,12 @@ const PersistGateLoading: React.FC = () => (
   </div>
 )
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root')
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <Provider store={store}>

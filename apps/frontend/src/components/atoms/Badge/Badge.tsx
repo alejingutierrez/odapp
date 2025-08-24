@@ -2,7 +2,8 @@ import { Badge as AntBadge, BadgeProps as AntBadgeProps } from 'antd'
 import React from 'react'
 import './Badge.css'
 
-export interface BadgeProps extends Omit<AntBadgeProps, 'status' | 'variant' | 'size'> {
+export interface BadgeProps
+  extends Omit<AntBadgeProps, 'status' | 'variant' | 'size'> {
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
   size?: 'small' | 'medium' | 'large'
   dot?: boolean
@@ -17,7 +18,20 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'medium',
   className = '',
   children,
-  ...props
+  dot,
+  showZero,
+  overflowCount,
+  offset,
+  count,
+  title,
+  color,
+  style,
+  prefixCls,
+  id,
+  tabIndex,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const badgeClasses = [
     'oda-badge',
@@ -45,7 +59,24 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   return (
-    <AntBadge status={getAntStatus()} className={badgeClasses} {...props}>
+    <AntBadge
+      status={getAntStatus()}
+      className={badgeClasses}
+      dot={dot}
+      showZero={showZero}
+      overflowCount={overflowCount}
+      offset={offset}
+      count={count}
+      title={title}
+      color={color}
+      style={style}
+      prefixCls={prefixCls}
+      id={id}
+      tabIndex={tabIndex}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {children}
     </AntBadge>
   )

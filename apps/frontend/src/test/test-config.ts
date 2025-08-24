@@ -115,5 +115,3 @@ export const waitForCondition = async (
     checkCondition()
   })
 }
-
-

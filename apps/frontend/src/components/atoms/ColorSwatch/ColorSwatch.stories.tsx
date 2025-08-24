@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ColorSwatch, ColorPalette } from './ColorSwatch'
@@ -119,7 +120,11 @@ export const ColorPaletteExample: Story = {
     <ColorPalette
       colors={fashionPalette}
       selectedColor='#ef4444'
-      onColorSelect={(color) => console.log('Selected color:', color)}
+      onColorSelect={(color) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Selected color:', color)
+        }
+      }}
     />
   ),
 }

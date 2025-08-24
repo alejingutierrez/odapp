@@ -13,7 +13,8 @@ export interface InputProps extends Omit<AntInputProps, 'value'> {
   value?: string | number | null | undefined
 }
 
-export interface TextAreaProps extends Omit<AntTextAreaProps, 'size' | 'value'> {
+export interface TextAreaProps
+  extends Omit<AntTextAreaProps, 'size' | 'value'> {
   label?: string
   error?: string
   helperText?: string
@@ -33,7 +34,36 @@ export const Input: React.FC<InputProps> = ({
   variant = 'outlined',
   className = '',
   value,
-  ...props
+  placeholder,
+  disabled,
+  onChange,
+  onBlur,
+  onFocus,
+  size,
+  prefix,
+  suffix,
+  addonBefore,
+  addonAfter,
+  allowClear,
+  maxLength,
+  showCount,
+  type,
+  id,
+  name,
+  autoComplete,
+  autoFocus,
+  readOnly,
+  tabIndex,
+  style,
+  title,
+  onPressEnter,
+  onKeyDown,
+  onKeyUp,
+  onKeyPress,
+  onCompositionStart,
+  onCompositionEnd,
+  onSelect,
+  onClear,
 }) => {
   const inputClasses = [
     'oda-input',
@@ -73,7 +103,36 @@ export const Input: React.FC<InputProps> = ({
         status={error ? 'error' : undefined}
         className={inputClasses}
         value={validValue}
-        {...props}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        size={size}
+        prefix={prefix}
+        suffix={suffix}
+        addonBefore={addonBefore}
+        addonAfter={addonAfter}
+        allowClear={allowClear}
+        maxLength={maxLength}
+        showCount={showCount}
+        type={type}
+        id={id}
+        name={name}
+        autoComplete={autoComplete}
+        autoFocus={autoFocus}
+        readOnly={readOnly}
+        tabIndex={tabIndex}
+        style={style}
+        title={title}
+        onPressEnter={onPressEnter}
+        onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
+        onKeyPress={onKeyPress}
+        onCompositionStart={onCompositionStart}
+        onCompositionEnd={onCompositionEnd}
+        onSelect={onSelect}
+        onClear={onClear}
       />
       {(error || helperText) && (
         <div
@@ -103,7 +162,28 @@ export const TextArea: React.FC<
   variant = 'outlined',
   className = '',
   value,
-  ...props
+  placeholder,
+  disabled,
+  onChange,
+  onBlur,
+  onFocus,
+  maxLength,
+  showCount,
+  id,
+  name,
+  autoComplete,
+  autoFocus,
+  readOnly,
+  tabIndex,
+  style,
+  title,
+  onPressEnter,
+  onKeyDown,
+  onKeyUp,
+  onKeyPress,
+  onCompositionStart,
+  onCompositionEnd,
+  onSelect,
 }) => {
   const inputClasses = [
     'oda-textarea',
@@ -145,7 +225,28 @@ export const TextArea: React.FC<
         status={error ? 'error' : undefined}
         className={inputClasses}
         value={validValue}
-        {...props}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        maxLength={maxLength}
+        showCount={showCount}
+        id={id}
+        name={name}
+        autoComplete={autoComplete}
+        autoFocus={autoFocus}
+        readOnly={readOnly}
+        tabIndex={tabIndex}
+        style={style}
+        title={title}
+        onPressEnter={onPressEnter}
+        onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
+        onKeyPress={onKeyPress}
+        onCompositionStart={onCompositionStart}
+        onCompositionEnd={onCompositionEnd}
+        onSelect={onSelect}
       />
       {(error || helperText) && (
         <div
@@ -180,7 +281,12 @@ export const SearchInput: React.FC<SearchProps> = ({
   className = '',
   value,
   onSearch,
-  ...props
+  placeholder,
+  disabled,
+  onChange,
+  onBlur,
+  onFocus,
+  ..._props
 }) => {
   const inputClasses = [
     'oda-search-input',
@@ -221,7 +327,12 @@ export const SearchInput: React.FC<SearchProps> = ({
         className={inputClasses}
         value={validValue}
         onSearch={onSearch}
-        {...props}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        {..._props} // eslint-disable-line react/jsx-props-no-spreading
       />
       {(error || helperText) && (
         <div
@@ -254,7 +365,12 @@ export const PasswordInput: React.FC<PasswordProps> = ({
   variant = 'outlined',
   className = '',
   value,
-  ...props
+  placeholder,
+  disabled,
+  onChange,
+  onBlur,
+  onFocus,
+  ..._props
 }) => {
   const inputClasses = [
     'oda-password-input',
@@ -294,7 +410,12 @@ export const PasswordInput: React.FC<PasswordProps> = ({
         status={error ? 'error' : undefined}
         className={inputClasses}
         value={validValue}
-        {...props}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        {..._props} // eslint-disable-line react/jsx-props-no-spreading
       />
       {(error || helperText) && (
         <div

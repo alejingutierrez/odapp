@@ -35,14 +35,16 @@ export const Toggle: React.FC<ToggleProps> = ({
   offLabel,
   onIcon,
   offIcon,
-  size = 'medium',
+  size = 'default',
   variant = 'default',
   labelPosition = 'right',
   loading = false,
   color,
   className = '',
   style,
-  ...props
+  checked,
+  onChange,
+  disabled,
 }) => {
   const toggleClasses = [
     'oda-toggle',
@@ -94,7 +96,9 @@ export const Toggle: React.FC<ToggleProps> = ({
           </span>
         ) : undefined
       }
-      {...props}
+      checked={checked}
+      onChange={onChange}
+      disabled={disabled}
     />
   )
 

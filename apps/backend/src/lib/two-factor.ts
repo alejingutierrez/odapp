@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { authenticator } from 'otplib'
 
 import { prisma } from './prisma'
+import logger from './logger'
 
 export interface TwoFactorSetupResult {
   secret: string
@@ -184,6 +185,7 @@ export class TwoFactorService {
 
       return isValid
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error verifying SMS code:', error)
       return false
     }
@@ -269,6 +271,7 @@ export class TwoFactorService {
 
       return false
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error verifying backup code:', error)
       return false
     }
@@ -330,6 +333,7 @@ export class TwoFactorService {
         },
       })
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error cleaning up expired SMS codes:', error)
     }
   }
@@ -338,7 +342,7 @@ export class TwoFactorService {
 // Default SMS provider implementation (placeholder)
 export class ConsoleSMSProvider implements SMSProvider {
   async sendSMS(_phoneNumber: string, _message: string): Promise<boolean> {
-    console.log(`SMS to ${_phoneNumber}: ${_message}`)
+    logger.debug(`SMS to ${_phoneNumber}: ${_message}`)
     return true
   }
 }

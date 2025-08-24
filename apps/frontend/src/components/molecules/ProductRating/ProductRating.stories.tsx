@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ProductRating } from './ProductRating'
@@ -49,7 +50,11 @@ export const Interactive: Story = {
     rating: 3.5,
     reviewCount: 45,
     interactive: true,
-    onChange: (rating) => console.log('New rating:', rating),
+    onChange: (rating) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('New rating:', rating)
+      }
+    },
   },
 }
 

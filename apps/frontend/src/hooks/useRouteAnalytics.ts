@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import devLogger from '../utils/devLogger'
 
 // Route analytics hook for tracking page views and performance
 export const useRouteAnalytics = () => {
@@ -18,7 +19,7 @@ export const useRouteAnalytics = () => {
       }
 
       // TODO: Send to analytics service (Google Analytics, Mixpanel, etc.)
-      console.log('Page view tracked:', pageData)
+      devLogger.log('Page view tracked:', pageData)
 
       // Example: Google Analytics 4
       // if (typeof gtag !== 'undefined') {
@@ -66,7 +67,7 @@ export const useRouteAnalytics = () => {
                 }
               })
 
-              console.log('Route performance metrics:', metrics)
+              devLogger.log('Route performance metrics:', metrics)
 
               // TODO: Send to monitoring service
               // sendPerformanceMetrics(metrics)
@@ -95,7 +96,7 @@ export const useRouteAnalytics = () => {
         ...properties,
       }
 
-      console.log('Event tracked:', eventData)
+      devLogger.log('Event tracked:', eventData)
 
       // TODO: Send to analytics service
       // trackAnalyticsEvent(eventData)
@@ -120,7 +121,7 @@ export const useRouteInteractions = () => {
       timestamp: Date.now(),
     }
 
-    console.log('Interaction tracked:', interactionData)
+    devLogger.log('Interaction tracked:', interactionData)
 
     // TODO: Send to analytics service
     // trackUserInteraction(interactionData)

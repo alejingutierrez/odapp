@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { SizeSelector } from './SizeSelector'
@@ -68,7 +69,11 @@ export const Default: Story = {
   args: {
     sizes: sampleSizes,
     selectedSize: 'M',
-    onChange: (size) => console.log('Selected size:', size),
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
   },
 }
 
@@ -78,7 +83,11 @@ export const WithSizeChart: Story = {
     selectedSize: 'S',
     showSizeChart: true,
     showFitRecommendations: true,
-    onChange: (size) => console.log('Selected size:', size),
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
   },
 }
 
@@ -87,7 +96,11 @@ export const GridLayout: Story = {
     sizes: sampleSizes,
     layout: 'grid',
     showFitRecommendations: true,
-    onChange: (size) => console.log('Selected size:', size),
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
   },
 }
 
@@ -96,7 +109,11 @@ export const WithoutRecommendations: Story = {
     sizes: sampleSizes,
     showFitRecommendations: false,
     showSizeChart: false,
-    onChange: (size) => console.log('Selected size:', size),
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
   },
 }
 
@@ -107,6 +124,10 @@ export const LimitedAvailability: Story = {
       available: ['XS', 'S'].includes(size.value),
     })),
     showAvailability: true,
-    onChange: (size) => console.log('Selected size:', size),
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
   },
 }

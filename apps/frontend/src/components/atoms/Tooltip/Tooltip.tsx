@@ -46,7 +46,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
   arrow = true,
   children,
   className = '',
-  ...props
+  open,
+  onOpenChange,
+  trigger,
+  color,
+  ..._props
 }) => {
   const tooltipClasses = [
     'oda-tooltip',
@@ -59,7 +63,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const tooltipStyle = {
     maxWidth: `${maxWidth}px`,
-    ...props.overlayStyle,
+    ..._props.overlayStyle,
   }
 
   return (
@@ -71,7 +75,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
       arrow={arrow}
       classNames={{ root: tooltipClasses }}
       styles={{ root: tooltipStyle }}
-      {...props}
+      open={open}
+      onOpenChange={onOpenChange}
+      trigger={trigger}
+      color={color}
     >
       {children}
     </AntTooltip>

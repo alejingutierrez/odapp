@@ -16,7 +16,10 @@ export interface DropdownOption {
 }
 
 export interface DropdownProps
-  extends Omit<SelectProps<string | number, DropdownOption>, 'options' | 'children' | 'variant' | 'optionRender' | 'size'> {
+  extends Omit<
+    SelectProps<string | number, DropdownOption>,
+    'options' | 'children' | 'variant' | 'optionRender' | 'size'
+  > {
   /** Dropdown options */
   options: DropdownOption[]
   /** Whether to show search input */
@@ -236,7 +239,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
       dropdownStyle={{ maxHeight }}
       size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
       suffixIcon={searchable ? <SearchOutlined /> : undefined}
-      {...props}
     >
       {renderSelectAllOption()}
       {renderOptions()}

@@ -5,6 +5,7 @@ import { EmailService } from '../lib/email'
 import { SecurityAuditService, SecurityEventType } from '../lib/security-audit'
 import { TwoFactorService } from '../lib/two-factor'
 import { authenticate, requireTwoFactor } from '../middleware/auth'
+import logger from '../lib/logger'
 // import { prisma } from '../lib/prisma'
 
 const router = Router()
@@ -46,14 +47,14 @@ const verifySmsValidation = [
  */
 router.get('/status', authenticate, async (req: Request, res: Response) => {
   try {
-    const status = await TwoFactorService.getTwoFactorStatus(req.user!.id)
+    const status = await TwoFactorService.getTwoFactorStatus(req.user?.id || '')
 
     res.json({
       success: true,
       data: status,
     })
   } catch (error) {
-    console.error('Get 2FA status error:', error)
+    logger.error('Get 2FA status error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get two-factor authentication status',
@@ -70,7 +71,13 @@ router.post(
   authenticate,
   async (req: Request, res: Response) => {
     try {
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       // Check if 2FA is already enabled
       const isEnabled = await TwoFactorService.isTwoFactorEnabled(user.id)
@@ -82,6 +89,12 @@ router.post(
       }
 
       // Generate TOTP secret and QR code
+      if (!user.email) {
+        return res.status(400).json({
+          success: false,
+          error: 'User email is required for TOTP setup',
+        })
+      }
       const setupResult = TwoFactorService.generateTOTPSecret(user.email)
 
       res.json({
@@ -95,7 +108,7 @@ router.post(
         },
       })
     } catch (error) {
-      console.error('TOTP setup error:', error)
+      logger.error('TOTP setup error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to setup TOTP authentication',
@@ -124,7 +137,13 @@ router.post(
       }
 
       const { secret, token } = req.body
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       if (!secret) {
         return res.status(400).json({
@@ -167,7 +186,7 @@ router.post(
         message: 'Two-factor authentication enabled successfully',
       })
     } catch (error) {
-      console.error('Enable TOTP error:', error)
+      logger.error('Enable TOTP error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to enable TOTP authentication',
@@ -186,7 +205,13 @@ router.post(
   requireTwoFactor,
   async (req: Request, res: Response) => {
     try {
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       // Disable two-factor authentication
       await TwoFactorService.disableTwoFactor(user.id)
@@ -205,7 +230,7 @@ router.post(
         message: 'Two-factor authentication disabled successfully',
       })
     } catch (error) {
-      console.error('Disable TOTP error:', error)
+      logger.error('Disable TOTP error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to disable TOTP authentication',
@@ -234,7 +259,13 @@ router.post(
       }
 
       const { token } = req.body
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       const isValid = await TwoFactorService.verifyUserTwoFactor(user.id, token)
 
@@ -250,7 +281,7 @@ router.post(
         message: 'TOTP token verified successfully',
       })
     } catch (error) {
-      console.error('Verify TOTP error:', error)
+      logger.error('Verify TOTP error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to verify TOTP token',
@@ -301,7 +332,7 @@ router.post(
         message: 'SMS verification code sent successfully',
       })
     } catch (error) {
-      console.error('Send SMS error:', error)
+      logger.error('Send SMS error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to send SMS verification code',
@@ -345,7 +376,7 @@ router.post(
         message: 'SMS code verified successfully',
       })
     } catch (error) {
-      console.error('Verify SMS error:', error)
+      logger.error('Verify SMS error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to verify SMS code',
@@ -364,7 +395,13 @@ router.post(
   requireTwoFactor,
   async (req: Request, res: Response) => {
     try {
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       // Check if 2FA is enabled
       const isEnabled = await TwoFactorService.isTwoFactorEnabled(user.id)
@@ -390,7 +427,7 @@ router.post(
         },
       })
     } catch (error) {
-      console.error('Generate backup codes error:', error)
+      logger.error('Generate backup codes error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to generate backup codes',
@@ -409,7 +446,13 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { code } = req.body
-      const user = req.user!
+      const user = req.user
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not authenticated',
+        })
+      }
 
       if (!code) {
         return res.status(400).json({
@@ -432,7 +475,7 @@ router.post(
         message: 'Backup code verified successfully',
       })
     } catch (error) {
-      console.error('Verify backup code error:', error)
+      logger.error('Verify backup code error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to verify backup code',

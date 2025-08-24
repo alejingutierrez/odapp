@@ -55,7 +55,9 @@ export const DataTable = <T extends Record<string, unknown>>({
   searchPlaceholder = 'Search table...',
   emptyText = 'No data available',
   className = '',
-  ...tableProps
+  pagination,
+  size,
+  bordered,
 }: DataTableProps<T>) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [activeFilters, setActiveFilters] = useState<Record<string, unknown>>(
@@ -193,7 +195,9 @@ export const DataTable = <T extends Record<string, unknown>>({
         locale={{ emptyText }}
         scroll={{ x: 'max-content' }}
         className='data-table__table'
-        {...tableProps}
+        pagination={pagination}
+        size={size}
+        bordered={bordered}
       />
 
       {selectedRowKeys.length > 0 && (

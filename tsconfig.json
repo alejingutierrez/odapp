@@ -15,11 +15,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./",
     "baseUrl": ".",
     "paths": {
       "@oda/shared": ["packages/shared/src/index.ts"],
@@ -32,12 +27,16 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo"
   },
-  "include": ["apps/**/*", "packages/**/*"],
-  "exclude": ["node_modules", "dist", "build", "coverage"],
+  "include": [],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "apps/**/*",
+    "packages/**/*"
+  ],
   "references": [
-    {
-      "path": "./apps/frontend"
-    },
     {
       "path": "./apps/backend"
     },

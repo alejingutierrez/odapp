@@ -19,7 +19,12 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   iconPosition = 'start',
   icon,
-  ...props
+  loading,
+  disabled,
+  onClick,
+  href,
+  htmlType,
+  shape,
 }) => {
   // Map our variants to Ant Design types
   const getAntType = (): AntButtonProps['type'] => {
@@ -73,7 +78,12 @@ export const Button: React.FC<ButtonProps> = ({
       block={fullWidth}
       icon={iconPosition === 'start' ? icon : undefined}
       className={buttonClasses}
-      {...props}
+      loading={loading}
+      disabled={disabled}
+      onClick={onClick}
+      href={href}
+      htmlType={htmlType}
+      shape={shape}
     >
       {iconPosition === 'end' && icon && (
         <>

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { SizeIndicator, SizeChart, SizeGuide } from './SizeIndicator'
@@ -113,7 +114,11 @@ export const SizeChartExample: Story = {
     <SizeChart
       sizes={clothingSizes}
       selectedSize='M'
-      onSizeSelect={(size) => console.log('Selected size:', size)}
+      onSizeSelect={(size) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Selected size:', size)
+        }
+      }}
     />
   ),
 }

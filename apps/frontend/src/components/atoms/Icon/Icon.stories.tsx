@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import {
@@ -156,25 +157,41 @@ export const InteractiveStates: Story = {
       <Icon
         name='EditOutlined'
         size='lg'
-        onClick={() => console.log('Edit clicked')}
+        onClick={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Edit clicked')
+          }
+        }}
       />
       <Icon
         name='DeleteOutlined'
         size='lg'
         color='error'
-        onClick={() => console.log('Delete clicked')}
+        onClick={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Delete clicked')
+          }
+        }}
       />
       <Icon
         name='DownloadOutlined'
         size='lg'
         color='primary'
-        onClick={() => console.log('Download clicked')}
+        onClick={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Download clicked')
+          }
+        }}
       />
       <Icon
         name='UploadOutlined'
         size='lg'
         color='success'
-        onClick={() => console.log('Upload clicked')}
+        onClick={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Upload clicked')
+          }
+        }}
       />
     </div>
   ),

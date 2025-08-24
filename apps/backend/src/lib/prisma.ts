@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
 import { env } from '../config/env.js'
+import logger from './logger'
 
 // Global variable to store the Prisma client instance
 declare global {
-   
   var __prisma: PrismaClient | undefined
 }
 
@@ -15,10 +15,6 @@ const prismaConfig = {
       url: env.DATABASE_URL,
     },
   },
-  log:
-    env.NODE_ENV === 'development'
-      ? (['query', 'info', 'warn', 'error'] as any)
-      : (['warn', 'error'] as any),
   errorFormat: 'pretty' as const,
 }
 
@@ -39,9 +35,9 @@ if (env.NODE_ENV === 'development') {
 export async function connectDatabase() {
   try {
     await prisma.$connect()
-    console.log('✅ Database connected successfully')
+    logger.info('✅ Database connected successfully')
   } catch (error) {
-    console.error('❌ Database connection failed:', error)
+    logger.error('❌ Database connection failed:', error)
     throw error
   }
 }
@@ -49,9 +45,9 @@ export async function connectDatabase() {
 export async function disconnectDatabase() {
   try {
     await prisma.$disconnect()
-    console.log('✅ Database disconnected successfully')
+    logger.info('✅ Database disconnected successfully')
   } catch (error) {
-    console.error('❌ Database disconnection failed:', error)
+    logger.error('❌ Database disconnection failed:', error)
     throw error
   }
 }
@@ -96,22 +92,30 @@ export async function getDatabaseMetrics() {
 }
 
 // Transaction helper
-export async function withTransaction(
-  callback: (_prisma: PrismaClient) => Promise<any>
-): Promise<any> {
-  return prisma.$transaction(callback as any)
+export async function withTransaction<T>(
+  callback: (
+    tx: Omit<
+      PrismaClient,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >
+  ) => Promise<T>
+): Promise<T> {
+  return prisma.$transaction(callback)
 }
 
 // Soft delete helper
 export async function softDelete(model: keyof PrismaClient, id: string) {
   const modelClient = prisma[model] as Record<string, unknown>
-  return (modelClient.update as any)({
+  return (
+    modelClient.update as (params: {
+      where: { id: string }
+      data: { deletedAt: Date }
+    }) => Promise<unknown>
+  )({
     where: { id },
     data: { deletedAt: new Date() },
   })
 }
-
-
 
 // Query performance monitoring
 export function logSlowQueries() {
@@ -123,6 +127,7 @@ export function logSlowQueries() {
       const duration = end - start
 
       if (duration > (env.DB_SLOW_QUERY_THRESHOLD || 1000)) {
+        // eslint-disable-next-line no-console
         console.warn(
           `🐌 Slow query detected: ${params.model}.${params.action} took ${duration}ms`
         )

@@ -100,7 +100,7 @@ export class ShopifyService {
     const syncId = await this.syncStatusManager.startSync('products', 'push')
 
     // Notify sync started
-          this._webSocketService?.broadcastShopifyProductSync('started', {
+    this._webSocketService?.broadcastShopifyProductSync('started', {
       syncId,
       direction: 'push',
       message: 'Starting product sync to Shopify',
@@ -108,7 +108,7 @@ export class ShopifyService {
 
     try {
       const products = await this._prisma.product.findMany({
-        where: { 
+        where: {
           // Note: syncStatus field doesn't exist in the current schema
           // Using a placeholder condition that will return all products
           // This should be updated when syncStatus is added to the schema
@@ -132,7 +132,9 @@ export class ShopifyService {
       const results = await Promise.allSettled(
         products.map(async (product) => {
           // Use type assertion to bypass complex type conversion
-          const result = await this.syncSingleProductToShopify(product as unknown as ShopifyProduct)
+          const result = await this.syncSingleProductToShopify(
+            product as unknown as ShopifyProduct
+          )
           processed++
 
           // Update progress
@@ -318,9 +320,9 @@ export class ShopifyService {
 
         if (existingShopifyProduct) {
           // Check for conflicts
-           
+
           const conflict = await this.conflictResolver.detectProductConflict(
-            product as any,
+            product as unknown as Record<string, unknown>,
             existingShopifyProduct
           )
 
@@ -335,7 +337,10 @@ export class ShopifyService {
             }
           }
 
-          await this.updateShopifyProduct(existingShopifyProduct.id.toString(), product)
+          await this.updateShopifyProduct(
+            existingShopifyProduct.id.toString(),
+            product
+          )
         } else {
           await this.createShopifyProduct(product)
         }
@@ -403,7 +408,7 @@ export class ShopifyService {
       // Note: inventory table doesn't exist in the current schema
       // Using inventoryItem instead
       const inventoryItems = await this._prisma.inventoryItem.findMany({
-        where: { 
+        where: {
           // Note: syncStatus field doesn't exist in the current schema
         },
         include: { product: { include: { variants: true } } },
@@ -510,16 +515,19 @@ export class ShopifyService {
   ): Promise<void> {
     return this.circuitBreaker.execute(async () => {
       return this.retryManager.execute(async () => {
-         
-        const shopifyVariant = await this.findShopifyVariantBySku(
-          (inventoryItem.product as any).variants[0]?.sku
-        )
+        const productData = inventoryItem.product as unknown as Record<
+          string,
+          unknown
+        >
+        const variants = productData.variants as unknown as Array<{
+          sku?: string
+        }>
+        const sku = variants?.[0]?.sku
+
+        const shopifyVariant = await this.findShopifyVariantBySku(sku || '')
 
         if (!shopifyVariant) {
-           
-          throw new Error(
-            `Shopify variant not found for SKU: ${(inventoryItem.product as any).variants[0]?.sku}`
-          )
+          throw new Error(`Shopify variant not found for SKU: ${sku}`)
         }
 
         await this.updateShopifyInventoryLevel(
@@ -598,7 +606,9 @@ export class ShopifyService {
 
         if (!customer && shopifyOrder.customer) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          customer = await this.createLocalCustomer(shopifyOrder.customer) as any
+          customer = (await this.createLocalCustomer(
+            shopifyOrder.customer
+          )) as any
         }
 
         // Create order
@@ -661,9 +671,9 @@ export class ShopifyService {
 
         if (existingCustomer) {
           // Deduplicate and merge customer data
-           
+
           const mergedData = await this.deduplicateCustomerData(
-            existingCustomer as any,
+            existingCustomer as unknown as ShopifyCustomer,
             shopifyCustomer
           )
 
@@ -683,16 +693,19 @@ export class ShopifyService {
     try {
       // Notify webhook received
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._webSocketService?.broadcastShopifyWebhookReceived((event as any).type, {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        id: (event as any).id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        topic: (event as any).type,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        shop_domain: (event as any).shop_domain,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        created_at: (event as any).created_at,
-      })
+      this._webSocketService?.broadcastShopifyWebhookReceived(
+        (event as any).type,
+        {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          id: (event as any).id,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          topic: (event as any).type,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          shop_domain: (event as any).shop_domain,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          created_at: (event as any).created_at,
+        }
+      )
 
       // Process the webhook
       await this.webhookProcessor.process(event)
@@ -728,13 +741,12 @@ export class ShopifyService {
         id: (event as any).id,
         status: 'error',
         error: error instanceof Error ? error.message : String(error),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        message: `Failed to process webhook ${(event as any).type}`,
+        message: `Failed to process webhook ${(event as unknown as Record<string, unknown>).type}`,
       })
 
       logger.error('Shopify webhook processing failed', {
-        type: (event as any).type,
-        id: (event as any).id,
+        type: (event as unknown as Record<string, unknown>).type,
+        id: (event as unknown as Record<string, unknown>).id,
         error: error instanceof Error ? error.message : String(error),
       })
 

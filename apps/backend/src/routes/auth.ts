@@ -12,6 +12,7 @@ import {
   authRateLimit,
   requireTwoFactor,
 } from '../middleware/auth'
+import logger from '../lib/logger'
 
 const router = Router()
 
@@ -183,7 +184,7 @@ router.post(
         },
       })
     } catch (error) {
-      console.error('Registration error:', error)
+      logger.error('Registration error:', error)
       res.status(500).json({
         success: false,
         error: 'Registration failed',
@@ -382,7 +383,7 @@ router.post(
         },
       })
     } catch (error) {
-      console.error('Login error:', error)
+      logger.error('Login error:', error)
       res.status(500).json({
         success: false,
         error: 'Login failed',
@@ -463,7 +464,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
       },
     })
   } catch (error) {
-    console.error('Token refresh error:', error)
+    logger.error('Token refresh error:', error)
     res.status(500).json({
       success: false,
       error: 'Token refresh failed',
@@ -488,7 +489,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response) => {
       message: 'Logged out successfully',
     })
   } catch (error) {
-    console.error('Logout error:', error)
+    logger.error('Logout error:', error)
     res.status(500).json({
       success: false,
       error: 'Logout failed',
@@ -505,14 +506,20 @@ router.post(
   authenticate,
   async (req: Request, res: Response) => {
     try {
-      await AuthService.revokeAllUserSessions(req.user!.id)
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        })
+      }
+      await AuthService.revokeAllUserSessions(req.user.id)
 
       res.json({
         success: true,
         message: 'Logged out from all devices successfully',
       })
     } catch (error) {
-      console.error('Logout all error:', error)
+      logger.error('Logout all error:', error)
       res.status(500).json({
         success: false,
         error: 'Logout from all devices failed',
@@ -576,7 +583,7 @@ router.post(
           'If an account with that email exists, a password reset link has been sent.',
       })
     } catch (error) {
-      console.error('Forgot password error:', error)
+      logger.error('Forgot password error:', error)
       res.status(500).json({
         success: false,
         error: 'Password reset request failed',
@@ -650,7 +657,7 @@ router.post(
           'Password reset successfully. Please log in with your new password.',
       })
     } catch (error) {
-      console.error('Reset password error:', error)
+      logger.error('Reset password error:', error)
       res.status(500).json({
         success: false,
         error: 'Password reset failed',
@@ -680,7 +687,13 @@ router.post(
       }
 
       const { currentPassword, newPassword } = req.body
-      const user = req.user!
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        })
+      }
+      const user = req.user
 
       // Verify current password
       const isCurrentPasswordValid = await AuthService.verifyPassword(
@@ -708,7 +721,7 @@ router.post(
       await prisma.userSession.deleteMany({
         where: {
           userId: user.id,
-          id: { not: req.tokenPayload!.sessionId },
+          id: { not: req.tokenPayload?.sessionId },
         },
       })
 
@@ -726,7 +739,7 @@ router.post(
         message: 'Password changed successfully',
       })
     } catch (error) {
-      console.error('Change password error:', error)
+      logger.error('Change password error:', error)
       res.status(500).json({
         success: false,
         error: 'Password change failed',
@@ -799,7 +812,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
       message: 'Email verified successfully',
     })
   } catch (error) {
-    console.error('Email verification error:', error)
+    logger.error('Email verification error:', error)
     res.status(500).json({
       success: false,
       error: 'Email verification failed',
@@ -813,7 +826,13 @@ router.post('/verify-email', async (req: Request, res: Response) => {
  */
 router.get('/me', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = req.user!
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+      })
+    }
+    const user = req.user
 
     res.json({
       success: true,
@@ -841,7 +860,7 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
       },
     })
   } catch (error) {
-    console.error('Get profile error:', error)
+    logger.error('Get profile error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get user profile',
@@ -855,8 +874,14 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
  */
 router.get('/sessions', authenticate, async (req: Request, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+      })
+    }
     const sessions = await prisma.userSession.findMany({
-      where: { userId: req.user!.id },
+      where: { userId: req.user.id },
       orderBy: { lastUsedAt: 'desc' },
       select: {
         id: true,
@@ -872,11 +897,11 @@ router.get('/sessions', authenticate, async (req: Request, res: Response) => {
       success: true,
       data: sessions.map((session) => ({
         ...session,
-        isCurrent: session.id === req.tokenPayload!.sessionId,
+        isCurrent: session.id === req.tokenPayload?.sessionId,
       })),
     })
   } catch (error) {
-    console.error('Get sessions error:', error)
+    logger.error('Get sessions error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get sessions',
@@ -894,7 +919,7 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const { sessionId } = req.params
-      const currentSessionId = req.tokenPayload!.sessionId
+      const currentSessionId = req.tokenPayload?.sessionId
 
       if (sessionId === currentSessionId) {
         return res.status(400).json({
@@ -903,10 +928,16 @@ router.delete(
         })
       }
 
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        })
+      }
       await prisma.userSession.deleteMany({
         where: {
           id: sessionId,
-          userId: req.user!.id,
+          userId: req.user.id,
         },
       })
 
@@ -915,7 +946,7 @@ router.delete(
         message: 'Session revoked successfully',
       })
     } catch (error) {
-      console.error('Revoke session error:', error)
+      logger.error('Revoke session error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to revoke session',

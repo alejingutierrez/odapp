@@ -96,13 +96,13 @@ export const withPermission = (
   fallbackPath = '/unauthorized'
 ) => {
   return function PermissionWrapper(Component: React.ComponentType) {
-    return function ProtectedComponent(props: Record<string, unknown>) {
+    return function ProtectedComponent(_props: Record<string, unknown>) {
       return (
         <ProtectedRoute
           requiredPermission={{ resource, action }}
           fallbackPath={fallbackPath}
         >
-          <Component {...props} />
+          <Component />
         </ProtectedRoute>
       )
     }

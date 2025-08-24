@@ -30,8 +30,10 @@ export const Divider: React.FC<DividerProps> = ({
     .filter(Boolean)
     .join(' ')
 
+  const { style } = props
+
   return (
-    <AntDivider className={dividerClasses} {...props}>
+    <AntDivider className={dividerClasses} style={style}>
       {children}
     </AntDivider>
   )

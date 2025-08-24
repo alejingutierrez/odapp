@@ -196,7 +196,9 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   groupByCategory = false,
   unitRender,
   className = '',
-  ...props
+  size,
+  disabled,
+  loading,
 }) => {
   const filteredUnits =
     category === 'all'
@@ -368,7 +370,9 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
                 unit.code.toLowerCase().includes(input.toLowerCase())
             : false
         }}
-        {...props}
+        size={size}
+        disabled={disabled}
+        loading={loading}
       >
         {renderOptions()}
       </Select>

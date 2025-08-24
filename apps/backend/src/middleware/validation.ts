@@ -7,14 +7,14 @@ import { ApiError } from '../lib/errors.js'
 const createLogger = () => {
   try {
     // Use dynamic import but handle it synchronously for now
-     
+
     const loggerModule = require('../lib/logger.js')
     return loggerModule.logger || loggerModule.default
   } catch {
     return {
-      warn: console.warn,
-      info: console.info,
-      error: console.error,
+      warn: () => {},
+      info: () => {},
+      error: () => {},
     }
   }
 }

@@ -63,7 +63,6 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   validator,
   className = '',
   disabled = false,
-  ...props
 }) => {
   const [inputValue, setInputValue] = useState<number | null>(value)
   const [error, setError] = useState<string>()
@@ -98,7 +97,8 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   }
 
   const handleChange = (newValue: number | string | null) => {
-    const numericValue = typeof newValue === 'string' ? parseFloat(newValue) || null : newValue
+    const numericValue =
+      typeof newValue === 'string' ? parseFloat(newValue) || null : newValue
     setInputValue(numericValue)
 
     if (validateOnChange) {
@@ -149,7 +149,9 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
   const renderCompactCounter = () => (
     <div className='oda-quantity-counter__compact'>
       <Button
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         icon={decrementIcon}
         onClick={handleDecrement}
         disabled={!canDecrement}
@@ -161,14 +163,17 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         controls={false}
         className='oda-quantity-counter__input'
         disabled={disabled}
-        {...props}
       />
       <Button
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         icon={incrementIcon}
         onClick={handleIncrement}
         disabled={!canIncrement}
@@ -209,14 +214,15 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         controls={{
           upIcon: incrementIcon,
           downIcon: decrementIcon,
         }}
         className='oda-quantity-counter__input'
         disabled={disabled}
-        {...props}
       />
     </div>
   )
@@ -225,7 +231,9 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
     <div className='oda-quantity-counter__default'>
       {showButtons && (
         <Button
-          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+          size={
+            size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+          }
           icon={decrementIcon}
           onClick={handleDecrement}
           disabled={!canDecrement}
@@ -238,15 +246,18 @@ export const QuantityCounter: React.FC<QuantityCounterProps> = ({
         min={min}
         max={effectiveMax}
         step={step}
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         controls={false}
         className='oda-quantity-counter__input'
         disabled={disabled}
-        {...props}
       />
       {showButtons && (
         <Button
-          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+          size={
+            size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+          }
           icon={incrementIcon}
           onClick={handleIncrement}
           disabled={!canIncrement}

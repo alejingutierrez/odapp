@@ -1,6 +1,7 @@
 import { env } from '../config/env.js'
 
 import { prisma } from './prisma.js'
+import logger from './logger'
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy'
@@ -78,7 +79,7 @@ export class DatabaseHealthChecker {
         result.metrics = await this.getMetrics()
       } catch (error) {
         // Don't fail health check if metrics collection fails
-        console.warn('Failed to collect database metrics:', error)
+        logger.warn('Failed to collect database metrics:', error)
       }
     }
 
@@ -261,14 +262,16 @@ export class DatabaseHealthChecker {
             | 'DEGRADED'
             | 'UNHEALTHY',
           message: `Overall: ${result.status}`,
-          metadata: {
-            checks: result.checks,
-            metrics: result.metrics,
-          } as any,
+          metadata: JSON.parse(
+            JSON.stringify({
+              checks: result.checks,
+              metrics: result.metrics,
+            })
+          ),
         },
       })
     } catch (error) {
-      console.error('Failed to record health check:', error)
+      logger.error('Failed to record health check:', error)
     }
   }
 }

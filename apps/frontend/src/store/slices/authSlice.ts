@@ -112,13 +112,19 @@ export const logoutUser = createAsyncThunk(
 
       if (!response.ok) {
         // Even if logout fails on server, we should clear local state
-        console.warn('Server logout failed, clearing local state')
+        if (process.env.NODE_ENV === 'development') {
+          // TODO: Replace with proper logging service
+          // console.warn('Server logout failed, clearing local state')
+        }
       }
 
       return true
     } catch (_error) {
       // Even if network fails, we should clear local state
-      console.warn('Logout network error, clearing local state')
+      if (process.env.NODE_ENV === 'development') {
+        // TODO: Replace with proper logging service
+        // console.warn('Logout network error, clearing local state')
+      }
       return true
     }
   }
@@ -347,7 +353,8 @@ export const selectHasPermission =
 export const selectCanAccessResource =
   (resource: string) => (state: RootState) => {
     return state.auth.permissions.some(
-      (permission: { resource: string; action: string }) => permission.resource === resource
+      (permission: { resource: string; action: string }) =>
+        permission.resource === resource
     )
   }
 

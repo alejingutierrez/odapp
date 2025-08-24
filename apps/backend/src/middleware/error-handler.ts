@@ -61,7 +61,8 @@ export const createErrorResponse = (
     code: error.errorCode,
     message: error.message,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    details: env.NODE_ENV === 'development' ? (error as any).context : undefined,
+    details:
+      env.NODE_ENV === 'development' ? (error as any).context : undefined,
     timestamp: new Date().toISOString(),
     requestId,
   },
@@ -216,9 +217,13 @@ export const errorHandler = (
   const response = createErrorResponse(normalizedError, requestId)
 
   // Don't expose sensitive information in production
-  if (env.NODE_ENV === 'production' && !normalizedError.isOperational) {
-    response.error!.message = 'Internal server error'
-    delete response.error!.details
+  if (
+    env.NODE_ENV === 'production' &&
+    !normalizedError.isOperational &&
+    response.error
+  ) {
+    response.error.message = 'Internal server error'
+    delete response.error.details
   }
 
   res.status(normalizedError.statusCode).json(response)

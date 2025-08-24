@@ -1,6 +1,7 @@
 import { Pool, PoolConfig } from 'pg'
 
 import { env } from '../config/env.js'
+import logger from './logger'
 
 export interface DatabasePoolConfig {
   connectionString: string
@@ -49,7 +50,7 @@ export class DatabasePool {
 
   private setupEventListeners(): void {
     this.pool.on('connect', (client) => {
-      console.log('🔗 New database client connected')
+      logger.debug('🔗 New database client connected')
 
       // Set up client-specific configuration
       client.query(`SET statement_timeout = ${this.config.statementTimeout}`)
@@ -57,19 +58,19 @@ export class DatabasePool {
     })
 
     this.pool.on('acquire', () => {
-      console.log('📥 Database client acquired from pool')
+      logger.debug('📥 Database client acquired from pool')
     })
 
     this.pool.on('release', () => {
-      console.log('📤 Database client released back to pool')
+      logger.debug('📤 Database client released back to pool')
     })
 
     this.pool.on('remove', () => {
-      console.log('🗑️ Database client removed from pool')
+      logger.debug('🗑️ Database client removed from pool')
     })
 
     this.pool.on('error', (err) => {
-      console.error('❌ Database pool error:', err)
+      logger.error('❌ Database pool error:', err)
     })
   }
 
@@ -81,14 +82,14 @@ export class DatabasePool {
       const duration = Date.now() - start
 
       if (duration > (env.DB_SLOW_QUERY_THRESHOLD || 1000)) {
-        console.warn(
+        logger.warn(
           `🐌 Slow query detected: ${text.substring(0, 100)}... took ${duration}ms`
         )
       }
 
       return result
     } catch (error) {
-      console.error('❌ Database query error:', error)
+      logger.error('❌ Database query error:', error)
       throw error
     }
   }
@@ -156,9 +157,9 @@ export class DatabasePool {
   async close(): Promise<void> {
     try {
       await this.pool.end()
-      console.log('✅ Database pool closed successfully')
+      logger.info('✅ Database pool closed successfully')
     } catch (error) {
-      console.error('❌ Error closing database pool:', error)
+      logger.error('❌ Error closing database pool:', error)
       throw error
     }
   }
@@ -169,13 +170,13 @@ export const databasePool = new DatabasePool()
 
 // Graceful shutdown handler
 process.on('SIGINT', async () => {
-  console.log('🛑 Received SIGINT, closing database pool...')
+  logger.info('🛑 Received SIGINT, closing database pool...')
   await databasePool.close()
   process.exit(0)
 })
 
 process.on('SIGTERM', async () => {
-  console.log('🛑 Received SIGTERM, closing database pool...')
+  logger.info('🛑 Received SIGTERM, closing database pool...')
   await databasePool.close()
   process.exit(0)
 })

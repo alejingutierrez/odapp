@@ -4,6 +4,7 @@ import { join } from 'path'
 import { promisify } from 'util'
 
 import { env } from '../config/env.js'
+import logger from './logger'
 
 const execAsync = promisify(exec)
 
@@ -104,8 +105,8 @@ export class DatabaseMigrationManager {
         `npx prisma migrate dev --name ${migrationName} --schema=prisma/schema.prisma`
       )
 
-      console.log('✅ Migration created successfully:', migrationName)
-      console.log(stdout)
+      logger.info('✅ Migration created successfully:', migrationName)
+      logger.debug(stdout)
 
       // Create migration metadata
       const metadata = {
@@ -137,10 +138,10 @@ export class DatabaseMigrationManager {
         'npx prisma migrate deploy --schema=prisma/schema.prisma'
       )
 
-      console.log('✅ Migrations applied successfully')
-      console.log(stdout)
+      logger.info('✅ Migrations applied successfully')
+      logger.debug(stdout)
     } catch (error) {
-      console.error('❌ Migration failed, attempting rollback...')
+      logger.error('❌ Migration failed, attempting rollback...')
       await this.rollbackToBackup('pre_migration')
       throw new Error(`Failed to apply migrations: ${error}`)
     }
@@ -152,8 +153,8 @@ export class DatabaseMigrationManager {
       await this.createBackup(`pre_rollback_${migrationId}`)
 
       // Prisma doesn't have built-in rollback, so we need to handle this manually
-      console.warn('⚠️ Prisma does not support automatic rollbacks')
-      console.warn(
+      logger.warn('⚠️ Prisma does not support automatic rollbacks')
+      logger.warn(
         'Please manually revert the schema changes and create a new migration'
       )
 
@@ -184,7 +185,7 @@ export class DatabaseMigrationManager {
 
       await execAsync(dumpCommand)
 
-      console.log('✅ Database backup created:', backupFile)
+      logger.info('✅ Database backup created:', backupFile)
 
       // Create backup metadata
       const metadata = {
@@ -225,7 +226,7 @@ export class DatabaseMigrationManager {
 
       await execAsync(restoreCommand)
 
-      console.log('✅ Database restored from backup:', backupFile)
+      logger.info('✅ Database restored from backup:', backupFile)
     } catch (error) {
       throw new Error(`Failed to restore from backup: ${error}`)
     }
@@ -270,7 +271,7 @@ export class DatabaseMigrationManager {
   async generateClient(): Promise<void> {
     try {
       await execAsync('npx prisma generate --schema=prisma/schema.prisma')
-      console.log('✅ Prisma client generated successfully')
+      logger.info('✅ Prisma client generated successfully')
     } catch (error) {
       throw new Error(`Failed to generate Prisma client: ${error}`)
     }
@@ -278,7 +279,7 @@ export class DatabaseMigrationManager {
 
   async resetDatabase(): Promise<void> {
     try {
-      console.warn('⚠️ Resetting database - all data will be lost!')
+      logger.warn('⚠️ Resetting database - all data will be lost!')
 
       // Create backup before reset
       await this.createBackup('pre_reset')
@@ -287,7 +288,7 @@ export class DatabaseMigrationManager {
         'npx prisma migrate reset --force --schema=prisma/schema.prisma'
       )
 
-      console.log('✅ Database reset successfully')
+      logger.info('✅ Database reset successfully')
     } catch (error) {
       throw new Error(`Failed to reset database: ${error}`)
     }
@@ -300,12 +301,12 @@ export const migrationManager = new DatabaseMigrationManager()
 // CLI-like interface for common operations
 export async function runMigrations() {
   try {
-    console.log('🚀 Starting database migrations...')
+    logger.info('🚀 Starting database migrations...')
     await migrationManager.applyMigrations()
     await migrationManager.generateClient()
-    console.log('✅ All migrations completed successfully')
+    logger.info('✅ All migrations completed successfully')
   } catch (error) {
-    console.error('❌ Migration failed:', error)
+    logger.error('❌ Migration failed:', error)
     process.exit(1)
   }
 }
@@ -316,9 +317,9 @@ export async function createMigration(name: string, description?: string) {
       name,
       description
     )
-    console.log(`✅ Migration created: ${migrationName}`)
+    logger.info(`✅ Migration created: ${migrationName}`)
   } catch (error) {
-    console.error('❌ Failed to create migration:', error)
+    logger.error('❌ Failed to create migration:', error)
     process.exit(1)
   }
 }
@@ -326,17 +327,17 @@ export async function createMigration(name: string, description?: string) {
 export async function checkMigrationStatus() {
   try {
     const status = await migrationManager.getMigrationStatus()
-    console.log('📊 Migration Status:')
-    console.log(`Applied: ${status.applied.length}`)
-    console.log(`Pending: ${status.pending.length}`)
-    console.log(`Current: ${status.current || 'Unknown'}`)
+    logger.info('📊 Migration Status:')
+    logger.info(`Applied: ${status.applied.length}`)
+    logger.info(`Pending: ${status.pending.length}`)
+    logger.info(`Current: ${status.current || 'Unknown'}`)
 
     if (status.pending.length > 0) {
-      console.log('\n⏳ Pending migrations:')
-      status.pending.forEach((migration) => console.log(`  - ${migration}`))
+      logger.info('\n⏳ Pending migrations:')
+      status.pending.forEach((migration) => logger.info(`  - ${migration}`))
     }
   } catch (error) {
-    console.error('❌ Failed to check migration status:', error)
+    logger.error('❌ Failed to check migration status:', error)
     process.exit(1)
   }
 }

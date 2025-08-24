@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+import React from 'react'
 import {
   UserOutlined,
   LockOutlined,
@@ -317,12 +319,20 @@ export const SearchExamples: Story = {
       <SearchInput
         label='Search Products'
         placeholder='Search for products...'
-        onSearch={(value: string) => console.log('Searching for:', value)}
+        onSearch={(value: string) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Searching for:', value)
+          }
+        }}
       />
       <SearchInput
         placeholder='Quick search...'
         size='large'
-        onSearch={(value: string) => console.log('Quick search:', value)}
+        onSearch={(value: string) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Quick search:', value)
+          }
+        }}
       />
     </div>
   ),

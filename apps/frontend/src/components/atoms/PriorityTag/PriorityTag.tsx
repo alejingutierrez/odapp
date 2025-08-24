@@ -27,13 +27,14 @@ export const PriorityTag: React.FC<PriorityTagProps> = ({
   text,
   showIcon = true,
   children,
-  ...props
+  className,
+  style,
 }) => {
   const config = priorityConfig[priority]
   const IconComponent = config.icon
 
   return (
-    <Tag color={config.color} {...props}>
+    <Tag color={config.color} className={className} style={style}>
       {showIcon && <IconComponent style={{ marginRight: 4 }} />}
       {text || children || priority.charAt(0).toUpperCase() + priority.slice(1)}
     </Tag>

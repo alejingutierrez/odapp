@@ -1,12 +1,4 @@
-import {
-  Customer,
-  CustomerAddress,
-  CustomerSegment,
-  CustomerInteraction,
-  LoyaltyTransaction,
-  Prisma,
-  CustomerStatus,
-} from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 import { cacheManager } from '../lib/cache/index.js'
 import {
@@ -18,17 +10,24 @@ import {
 import logger from '../lib/logger.js'
 import { prisma } from '../lib/prisma.js'
 
-export interface CustomerWithRelations extends Customer {
-  addresses: CustomerAddress[]
-  segmentMembers: Array<{
-    segment: CustomerSegment
-  }>
-  interactions: CustomerInteraction[]
-  loyaltyTransactions: LoyaltyTransaction[]
-  _count: {
-    orders: number
-  }
-}
+export interface CustomerWithRelations
+  extends Prisma.CustomerGetPayload<{
+    include: {
+      addresses: true
+      segmentMembers: {
+        include: {
+          segment: true
+        }
+      }
+      interactions: true
+      loyaltyTransactions: true
+      _count: {
+        select: {
+          orders: true
+        }
+      }
+    }
+  }> {}
 
 export interface CustomerTimelineEvent {
   id: string
@@ -283,7 +282,10 @@ export class CustomerService {
 
       // Status filter
       if (status) {
-        where.status = (status as string).toUpperCase() as CustomerStatus
+        where.status = (status as string).toUpperCase() as
+          | 'ACTIVE'
+          | 'INACTIVE'
+          | 'BLOCKED'
       }
 
       // Segment filter
@@ -341,12 +343,8 @@ export class CustomerService {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dateRange = lastOrderDateRange as any
         where.lastOrderAt = {
-          gte: dateRange.startDate
-            ? new Date(dateRange.startDate)
-            : undefined,
-          lte: dateRange.endDate
-            ? new Date(dateRange.endDate)
-            : undefined,
+          gte: dateRange.startDate ? new Date(dateRange.startDate) : undefined,
+          lte: dateRange.endDate ? new Date(dateRange.endDate) : undefined,
         }
       }
 
@@ -448,7 +446,9 @@ export class CustomerService {
           firstName: data.firstName as string,
           lastName: data.lastName as string,
           phone: data.phone as string | null | undefined,
-          dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth as string) : null,
+          dateOfBirth: data.dateOfBirth
+            ? new Date(data.dateOfBirth as string)
+            : null,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           gender: (data.gender as string)?.toUpperCase() as any,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -459,27 +459,29 @@ export class CustomerService {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           emailOptIn: (data.preferences as any)?.emailMarketing,
           smsOptIn: data.acceptsSmsMarketing as boolean | undefined,
-          tags: data.tags as string[] || [],
+          tags: (data.tags as string[]) || [],
           notes: data.notes as string | null | undefined,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           addresses: (data.addresses as any[])?.length
             ? {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                create: (data.addresses as any[]).map((addr: Record<string, unknown>) => ({
-                  firstName: addr.firstName as string,
-                  lastName: addr.lastName as string,
-                  company: addr.company as string | null | undefined,
-                  address1: addr.address1 as string,
-                  address2: addr.address2 as string | null | undefined,
-                  city: addr.city as string,
-                  state: addr.province as string | null | undefined,
-                  country: addr.country as string,
-                  postalCode: addr.zip as string | null | undefined,
-                  phone: addr.phone as string | null | undefined,
-                  isDefault: addr.isDefault as boolean | undefined,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  type: (addr.type as string).toUpperCase() as any,
-                })),
+                create: (data.addresses as any[]).map(
+                  (addr: Record<string, unknown>) => ({
+                    firstName: addr.firstName as string,
+                    lastName: addr.lastName as string,
+                    company: addr.company as string | null | undefined,
+                    address1: addr.address1 as string,
+                    address2: addr.address2 as string | null | undefined,
+                    city: addr.city as string,
+                    state: addr.province as string | null | undefined,
+                    country: addr.country as string,
+                    postalCode: addr.zip as string | null | undefined,
+                    phone: addr.phone as string | null | undefined,
+                    isDefault: addr.isDefault as boolean | undefined,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    type: (addr.type as string).toUpperCase() as any,
+                  })
+                ),
               }
             : undefined,
         },
@@ -637,7 +639,7 @@ export class CustomerService {
     customerId: string,
     data: Record<string, unknown>,
     _userId?: string
-  ): Promise<CustomerInteraction> {
+  ): Promise<Prisma.CustomerInteractionGetPayload<{}>> {
     try {
       const interaction = await prisma.customerInteraction.create({
         data: {

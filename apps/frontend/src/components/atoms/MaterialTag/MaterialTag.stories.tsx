@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import {
@@ -150,7 +151,11 @@ export const MaterialCompositionExample: Story = {
   render: () => (
     <MaterialComposition
       materials={materialComposition}
-      onMaterialClick={(material) => console.log('Clicked material:', material)}
+      onMaterialClick={(material) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Clicked material:', material)
+        }
+      }}
     />
   ),
 }

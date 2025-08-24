@@ -42,7 +42,9 @@ export const useAccessibility = () => {
 
       // Announce the route change
       setTimeout(() => {
-        liveRegion!.textContent = getRouteAnnouncement()
+        if (liveRegion) {
+          liveRegion.textContent = getRouteAnnouncement()
+        }
       }, 100)
     }
 

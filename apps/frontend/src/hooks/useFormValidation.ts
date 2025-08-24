@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { debounce } from 'lodash'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import {
   useForm,
   UseFormProps,
@@ -286,8 +286,8 @@ export const useAsyncValidation = ({
     error?: string
   } | null>(null)
 
-  const debouncedValidate = useCallback(
-    debounce(async (value: unknown) => {
+  const validateAsync = useCallback(
+    async (value: unknown) => {
       if (!value) {
         setValidationResult(null)
         setIsValidating(false)
@@ -310,8 +310,13 @@ export const useAsyncValidation = ({
       } finally {
         setIsValidating(false)
       }
-    }, debounceMs),
-    [validator, errorMessage, debounceMs]
+    },
+    [validator, errorMessage]
+  )
+
+  const debouncedValidate = useMemo(
+    () => debounce(validateAsync, debounceMs),
+    [validateAsync, debounceMs]
   )
 
   const validate = useCallback(
@@ -355,7 +360,10 @@ export const useFormPersistence = <T extends FieldValues>({
 
         storage.setItem(key, JSON.stringify(dataToSave))
       } catch (_error) {
-        console.warn('Failed to save form data:', _error)
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to save form data:', _error)
+        }
       }
     },
     [key, storage, exclude]
@@ -366,7 +374,10 @@ export const useFormPersistence = <T extends FieldValues>({
       const saved = storage.getItem(key)
       return saved ? JSON.parse(saved) : null
     } catch (_error) {
-      console.warn('Failed to load form data:', _error)
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to load form data:', _error)
+      }
       return null
     }
   }, [key, storage])
@@ -375,7 +386,10 @@ export const useFormPersistence = <T extends FieldValues>({
     try {
       storage.removeItem(key)
     } catch (_error) {
-      console.warn('Failed to clear form data:', _error)
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to clear form data:', _error)
+      }
     }
   }, [key, storage])
 

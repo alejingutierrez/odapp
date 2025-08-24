@@ -27,7 +27,6 @@ import { AuditService } from './audit.service.js'
 import { ImageService } from './image.service.js'
 import { SearchService } from './search.service.js'
 
-
 export interface ProductWithRelations extends Product {
   variants: ProductVariant[]
   images: ProductImage[]
@@ -328,7 +327,9 @@ export class ProductService extends EventEmitter {
             ...(data.shortDescription !== undefined && {
               shortDescription: data.shortDescription,
             }),
-            ...(data.status && { status: data.status.toUpperCase() as ProductStatus }),
+            ...(data.status && {
+              status: data.status.toUpperCase() as ProductStatus,
+            }),
             ...(data.vendor !== undefined && { brand: data.vendor }),
             ...(data.productType !== undefined && {
               material: data.productType,
@@ -364,7 +365,9 @@ export class ProductService extends EventEmitter {
         // Update variants if provided
         if (data.variants) {
           // Delete existing variants not in the update
-          const variantIds = data.variants.filter((v) => v.id).map((v) => v.id!)
+          const variantIds = data.variants
+            .filter((v) => v.id)
+            .map((v) => v.id as string)
           if (variantIds.length > 0) {
             await tx.productVariant.deleteMany({
               where: {
@@ -721,7 +724,9 @@ export class ProductService extends EventEmitter {
           id: { in: data.productIds },
         },
         data: {
-          ...(data.updates.status && { status: data.updates.status.toUpperCase() as ProductStatus }),
+          ...(data.updates.status && {
+            status: data.updates.status.toUpperCase() as ProductStatus,
+          }),
           ...(data.updates.categoryId !== undefined && {
             categoryId: data.updates.categoryId,
           }),
@@ -952,7 +957,7 @@ export class ProductService extends EventEmitter {
     // Get category names for top categories
     const categoryIds = topCategories
       .filter((cat) => cat.categoryId)
-      .map((cat) => cat.categoryId!)
+      .map((cat) => cat.categoryId as string)
 
     const categories =
       categoryIds.length > 0
@@ -973,13 +978,13 @@ export class ProductService extends EventEmitter {
       totalVariants,
       averagePrice: Number(avgPrice._avg.price) || 0,
       topCategories: topCategories.map((cat) => ({
-        categoryId: cat.categoryId!,
+        categoryId: cat.categoryId as string,
         categoryName:
           categories.find((c) => c.id === cat.categoryId)?.name || 'Unknown',
         count: cat._count.id,
       })),
       topBrands: topBrands.map((brand) => ({
-        brand: brand.brand!,
+        brand: brand.brand as string,
         count: brand._count.id,
       })),
       recentlyCreated: recentCounts[0],
@@ -1106,8 +1111,6 @@ export class ProductService extends EventEmitter {
 
     // Note: deletePattern is not available in current CacheManager
     // Using individual delete operations instead
-    await Promise.all(
-      patterns.map((pattern) => this._cache.del(pattern))
-    )
+    await Promise.all(patterns.map((pattern) => this._cache.del(pattern)))
   }
 }

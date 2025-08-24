@@ -113,7 +113,7 @@ export const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
     return (
       <div className='sidebar-menu-item__children'>
-        {item.children!.map((child) => (
+        {item.children?.map((child) => (
           <SidebarMenuItem
             key={child.key}
             item={child}

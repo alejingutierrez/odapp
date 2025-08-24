@@ -599,7 +599,8 @@ export const selectCategoryTree = (state: RootState) => {
   const rootCategories: Category[] = []
 
   categories.forEach((category) => {
-    const categoryWithChildren = categoryMap.get(category.id)!
+    const categoryWithChildren = categoryMap.get(category.id)
+    if (!categoryWithChildren) return
     if (category.parentId) {
       const parent = categoryMap.get(category.parentId)
       if (parent) {

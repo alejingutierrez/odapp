@@ -33,6 +33,7 @@ import {
 } from '../../hooks/useFormValidation'
 import { validationSchemas } from '../../utils/validation'
 
+import devLogger from '../../utils/devLogger'
 
 const { Option } = Select
 
@@ -121,10 +122,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     realTimeValidation: true,
     debounceMs: 300,
     onValidationError: (errors) => {
-      console.warn('Form validation errors:', errors)
+      devLogger.warn('Form validation errors:', errors)
     },
     onValidationSuccess: () => {
-      console.log('Form validation successful')
+      // console.log('Form validation successful')
     },
   })
 
@@ -216,7 +217,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         formPersistence.clearFormData()
       }
     } catch (error) {
-      console.error('Form submission error:', error)
+      devLogger.error('Form submission error:', error)
     }
   }
 
@@ -246,10 +247,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }
 
   // Handle image upload
-  const handleImageUpload = (info: { file?: { status?: string; response?: unknown } }) => {
+  const handleImageUpload = (info: {
+    file?: { status?: string; response?: unknown }
+  }) => {
     if (info.file?.status === 'done') {
       // Handle file upload response
-      console.log('File uploaded:', info.file.response)
+      // console.log('File uploaded:', info.file.response)
     }
   }
 
@@ -308,9 +311,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
-                      placeholder='Enter product name'
+                      value={field.value}
+                      onChange={field.onChange}
                       onBlur={field.onBlur}
+                      placeholder='Enter product name'
                     />
                   )}
                 />,
@@ -326,7 +330,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       placeholder='product-url-slug'
                       addonBefore='/'
                     />
@@ -346,7 +352,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name='status'
                   control={control}
                   render={({ field }) => (
-                    <Select {...field} placeholder='Select status'>
+                    <Select
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      placeholder='Select status'
+                    >
                       <Option value='draft'>Draft</Option>
                       <Option value='active'>Active</Option>
                       <Option value='archived'>Archived</Option>
@@ -363,7 +374,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name='vendor'
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} placeholder='Enter vendor name' />
+                    <Input
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      placeholder='Enter vendor name'
+                    />
                   )}
                 />
               )}
@@ -377,7 +393,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       placeholder='e.g., Clothing, Electronics'
                     />
                   )}
@@ -394,7 +412,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               control={control}
               render={({ field }) => (
                 <TextArea
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                   rows={4}
                   placeholder='Enter product description'
                 />
@@ -410,7 +430,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               control={control}
               render={({ field }) => (
                 <TextArea
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                   rows={2}
                   placeholder='Brief product summary'
                   maxLength={500}
@@ -428,7 +450,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               control={control}
               render={({ field }) => (
                 <Select
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                   mode='tags'
                   placeholder='Add tags'
                   tokenSeparators={[',']}
@@ -469,9 +493,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <Input
-                          {...field}
-                          placeholder='PROD-001'
+                          value={field.value}
+                          onChange={field.onChange}
                           onBlur={field.onBlur}
+                          placeholder='PROD-001'
                         />
                       )}
                     />,
@@ -486,7 +511,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       name={`variants.${index}.size`}
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder='S, M, L, XL' />
+                        <Input
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          placeholder='S, M, L, XL'
+                        />
                       )}
                     />,
                     true
@@ -500,7 +530,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       name={`variants.${index}.color`}
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder='Red, Blue, Green' />
+                        <Input
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          placeholder='Red, Blue, Green'
+                        />
                       )}
                     />,
                     true
@@ -515,7 +550,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <Input
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                           placeholder='#FF0000'
                           addonBefore={
                             <div
@@ -544,7 +581,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <InputNumber
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                           style={{ width: '100%' }}
                           placeholder='29.99'
                           min={0}
@@ -565,7 +604,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <InputNumber
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                           style={{ width: '100%' }}
                           placeholder='39.99'
                           min={0}
@@ -585,7 +626,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <InputNumber
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                           style={{ width: '100%' }}
                           placeholder='10'
                           min={0}
@@ -604,7 +647,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       control={control}
                       render={({ field }) => (
                         <InputNumber
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                           style={{ width: '100%' }}
                           placeholder='0.5'
                           min={0}
@@ -623,7 +668,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       name={`variants.${index}.requiresShipping`}
                       control={control}
                       render={({ field }) => (
-                        <Switch {...field} checked={field.value} />
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                        />
                       )}
                     />
                   </Form.Item>
@@ -634,7 +682,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       name={`variants.${index}.taxable`}
                       control={control}
                       render={({ field }) => (
-                        <Switch {...field} checked={field.value} />
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                        />
                       )}
                     />
                   </Form.Item>
@@ -665,7 +716,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       placeholder='SEO optimized title'
                       maxLength={60}
                       showCount
@@ -683,7 +736,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <TextArea
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       placeholder='SEO meta description'
                       maxLength={160}
                       showCount
@@ -703,7 +758,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               control={control}
               render={({ field }) => (
                 <Select
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                   mode='tags'
                   placeholder='Add SEO keywords'
                   maxTagCount={10}

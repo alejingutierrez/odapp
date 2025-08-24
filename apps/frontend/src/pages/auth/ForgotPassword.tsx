@@ -19,11 +19,11 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true)
     try {
       // TODO: Implement forgot password API call
-      console.log('Forgot password values:', values)
+      // console.log('Forgot password values:', values)
       setEmail(values.email)
       setIsSubmitted(true)
-    } catch (error) {
-      console.error('Forgot password failed:', error)
+    } catch (_error) {
+      // console.error('Forgot password failed:', _error)
     } finally {
       setIsLoading(false)
     }

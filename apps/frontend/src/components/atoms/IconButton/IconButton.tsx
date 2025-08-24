@@ -27,7 +27,10 @@ export const IconButton: React.FC<IconButtonProps> = ({
   variant = 'outlined',
   circular = false,
   style,
-  ...props
+  onClick,
+  disabled,
+  loading,
+  className,
 }) => {
   const buttonStyle = {
     ...style,
@@ -54,7 +57,10 @@ export const IconButton: React.FC<IconButtonProps> = ({
       size={size}
       icon={icon}
       style={buttonStyle}
-      {...props}
+      onClick={onClick}
+      disabled={disabled}
+      loading={loading}
+      className={className}
     />
   )
 

@@ -1,6 +1,7 @@
 import nodemailer, { type Transporter } from 'nodemailer'
 
 import { env } from '../config/env'
+import logger from './logger'
 
 export interface EmailOptions {
   to: string
@@ -47,9 +48,9 @@ export class EmailService {
 
       // Verify connection
       await this.transporter.verify()
-      console.log('Email service initialized successfully')
+      logger.info('Email service initialized successfully')
     } catch (error) {
-      console.error('Failed to initialize email service:', error)
+      logger.error('Failed to initialize email service:', error)
       throw error
     }
   }
@@ -63,7 +64,10 @@ export class EmailService {
     }
 
     try {
-      const result = await this.transporter!.sendMail({
+      if (!this.transporter) {
+        throw new Error('Email transporter not initialized')
+      }
+      const result = await this.transporter.sendMail({
         from: env.SMTP_FROM,
         to: options.to,
         subject: options.subject,
@@ -71,10 +75,10 @@ export class EmailService {
         text: options.text,
       })
 
-      console.log('Email sent successfully:', result.messageId)
+      logger.info('Email sent successfully:', result.messageId)
       return true
     } catch (error) {
-      console.error('Failed to send email:', error)
+      logger.error('Failed to send email:', error)
       return false
     }
   }

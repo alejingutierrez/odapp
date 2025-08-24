@@ -1,9 +1,10 @@
 import { EmailService } from './email'
 import { prisma } from './prisma'
+import logger from './logger'
 
 // Security event types for audit logging
 // These enum values are defined for future use in security event handling
- 
+
 export enum SecurityEventType {
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
   LOGIN_FAILED = 'LOGIN_FAILED',
@@ -21,7 +22,6 @@ export enum SecurityEventType {
   EMAIL_VERIFIED = 'EMAIL_VERIFIED',
   ACCOUNT_CREATED = 'ACCOUNT_CREATED',
 }
- 
 
 export interface SecurityEvent {
   type: SecurityEventType
@@ -46,7 +46,9 @@ export class SecurityAuditService {
           userId: event.userId,
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
-          newValues: (event.metadata || {}) as any,
+          newValues: event.metadata
+            ? JSON.parse(JSON.stringify(event.metadata))
+            : null,
         },
       })
 
@@ -55,13 +57,13 @@ export class SecurityAuditService {
         await this.handleHighSeverityEvent(event)
       }
 
-      console.log(`Security event logged: ${event.type}`, {
+      logger.info(`Security event logged: ${event.type}`, {
         userId: event.userId,
         severity: event.severity,
         ipAddress: event.ipAddress,
       })
     } catch (error) {
-      console.error('Failed to log security event:', error)
+      logger.error('Failed to log security event:', error)
     }
   }
 
@@ -97,7 +99,7 @@ export class SecurityAuditService {
       // Log to external monitoring system (if configured)
       await this.sendToMonitoring(event)
     } catch (error) {
-      console.error('Failed to handle high-severity security event:', error)
+      logger.error('Failed to handle high-severity security event:', error)
     }
   }
 
@@ -240,7 +242,7 @@ export class SecurityAuditService {
   private static async sendToMonitoring(event: SecurityEvent): Promise<void> {
     // This would integrate with external monitoring systems like DataDog, Sentry, etc.
     // For now, we'll just log to console
-    console.warn('HIGH SEVERITY SECURITY EVENT:', {
+    logger.warn('HIGH SEVERITY SECURITY EVENT:', {
       type: event.type,
       severity: event.severity,
       userId: event.userId,

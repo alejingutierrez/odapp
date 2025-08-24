@@ -45,7 +45,7 @@ const jsonFormat = winston.format.combine(
 )
 
 // Define which transports the logger must use
-const transports = [
+const transports: winston.transport[] = [
   // Console transport
   new winston.transports.Console({
     format: env.LOG_FORMAT === 'json' ? jsonFormat : format,
@@ -59,11 +59,11 @@ if (env.NODE_ENV === 'production') {
       filename: 'logs/error.log',
       level: 'error',
       format: jsonFormat,
-    }) as any,
+    }),
     new winston.transports.File({
       filename: 'logs/combined.log',
       format: jsonFormat,
-    }) as any
+    })
   )
 }
 
@@ -116,7 +116,7 @@ export const logRequest = (
     url: req.url,
     statusCode: res.statusCode,
     responseTime: responseTime ? `${responseTime}ms` : undefined,
-    userAgent: (req.get as any)('User-Agent'),
+    userAgent: (req.get as (name: string) => string | undefined)('User-Agent'),
     ip: req.ip,
     userId: (req.user as { id?: string })?.id,
   })

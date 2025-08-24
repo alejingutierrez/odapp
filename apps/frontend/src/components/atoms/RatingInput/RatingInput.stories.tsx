@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 import { Space } from 'antd'
 
@@ -225,7 +226,11 @@ export const Interactive: Story = {
         <h4>Rate this product:</h4>
         <RatingInput
           type='star'
-          onChange={(value) => console.log('Star rating:', value)}
+          onChange={(value) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Star rating:', value)
+            }
+          }}
           showTooltips
         />
       </div>
@@ -233,7 +238,11 @@ export const Interactive: Story = {
         <h4>How do you feel about this?</h4>
         <RatingInput
           type='emoji'
-          onChange={(value) => console.log('Emoji rating:', value)}
+          onChange={(value) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Emoji rating:', value)
+            }
+          }}
           showValue
         />
       </div>
@@ -243,7 +252,11 @@ export const Interactive: Story = {
           type='numeric'
           max={10}
           step={0.1}
-          onChange={(value) => console.log('Numeric rating:', value)}
+          onChange={(value) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Numeric rating:', value)
+            }
+          }}
         />
       </div>
     </Space>

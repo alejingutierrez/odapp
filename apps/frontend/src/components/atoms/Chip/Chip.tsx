@@ -76,6 +76,8 @@ export const Chip: React.FC<ChipProps> = ({
     }
   }
 
+  const { style } = props
+
   return (
     <Tag
       className={chipClasses}
@@ -83,7 +85,7 @@ export const Chip: React.FC<ChipProps> = ({
       onClose={handleRemove}
       onClick={handleClick}
       closeIcon={<CloseOutlined className='oda-chip__close-icon' />}
-      {...props}
+      style={style}
     >
       <div className='oda-chip__content'>
         {avatar && <div className='oda-chip__avatar'>{avatar}</div>}

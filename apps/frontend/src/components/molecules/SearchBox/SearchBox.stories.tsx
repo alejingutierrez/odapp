@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { SearchBox } from './SearchBox'
@@ -34,7 +35,11 @@ type Story = StoryObj<typeof SearchBox>
 export const Default: Story = {
   args: {
     placeholder: 'Search products...',
-    onSearch: (value) => console.log('Search:', value),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
     showFilterButton: false,
   },
 }
@@ -42,8 +47,16 @@ export const Default: Story = {
 export const WithFilter: Story = {
   args: {
     placeholder: 'Search products...',
-    onSearch: (value) => console.log('Search:', value),
-    onFilter: () => console.log('Filter clicked'),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
+    onFilter: () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Filter clicked')
+      }
+    },
     showFilterButton: true,
     filterCount: 3,
   },
@@ -52,7 +65,11 @@ export const WithFilter: Story = {
 export const Loading: Story = {
   args: {
     placeholder: 'Search products...',
-    onSearch: (value) => console.log('Search:', value),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
     loading: true,
   },
 }
@@ -60,7 +77,11 @@ export const Loading: Story = {
 export const Disabled: Story = {
   args: {
     placeholder: 'Search products...',
-    onSearch: (value) => console.log('Search:', value),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
     disabled: true,
   },
 }
@@ -68,7 +89,11 @@ export const Disabled: Story = {
 export const Small: Story = {
   args: {
     placeholder: 'Search...',
-    onSearch: (value) => console.log('Search:', value),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
     size: 'small',
     showFilterButton: true,
   },
@@ -77,7 +102,11 @@ export const Small: Story = {
 export const Large: Story = {
   args: {
     placeholder: 'Search products...',
-    onSearch: (value) => console.log('Search:', value),
+    onSearch: (value) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Search:', value)
+      }
+    },
     size: 'large',
     showFilterButton: true,
     filterCount: 5,

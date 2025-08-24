@@ -23,13 +23,13 @@ const Register: React.FC = () => {
   const navigate = useNavigate()
   const [form] = Form.useForm()
 
-  const handleSubmit = async (values: RegisterFormData) => {
+  const handleSubmit = async (_values: RegisterFormData) => {
     try {
       // TODO: Implement registration API call
-      console.log('Register values:', values)
+      // console.log('Register values:', _values)
       navigate('/auth/login')
-    } catch (error) {
-      console.error('Registration failed:', error)
+    } catch (_error) {
+      // console.error('Registration failed:', _error)
     }
   }
 

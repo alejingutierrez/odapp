@@ -6,7 +6,7 @@ export class RetryManager {
   constructor(private _config: RetryConfig) {}
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
-    let lastError: Error
+    let lastError: Error | undefined
 
     for (let attempt = 0; attempt <= this._config.maxRetries; attempt++) {
       try {
@@ -39,10 +39,16 @@ export class RetryManager {
       }
     }
 
-    logger.error(
-      `Operation failed after ${this._config.maxRetries} retries: ${lastError!.message}`
-    )
-    throw lastError!
+    if (lastError) {
+      logger.error(
+        `Operation failed after ${this._config.maxRetries} retries: ${lastError.message}`
+      )
+      throw lastError
+    } else {
+      throw new Error(
+        `Operation failed after ${this._config.maxRetries} retries`
+      )
+    }
   }
 
   private calculateDelay(attempt: number): number {

@@ -44,7 +44,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   label,
   animated = false,
   interactive = false,
-  ...props
+  className,
 }) => {
   const { token } = useToken()
 
@@ -102,21 +102,21 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
     switch (status) {
       case 'success':
-        return <CheckCircleOutlined {...iconProps} />
+        return <CheckCircleOutlined style={iconProps.style} />
       case 'processing':
-        return <SyncOutlined spin={animated} {...iconProps} />
+        return <SyncOutlined spin={animated} style={iconProps.style} />
       case 'warning':
-        return <ExclamationCircleOutlined {...iconProps} />
+        return <ExclamationCircleOutlined style={iconProps.style} />
       case 'error':
-        return <CloseCircleOutlined {...iconProps} />
+        return <CloseCircleOutlined style={iconProps.style} />
       case 'info':
-        return <InfoCircleOutlined {...iconProps} />
+        return <InfoCircleOutlined style={iconProps.style} />
       case 'pending':
-        return <ClockCircleOutlined {...iconProps} />
+        return <ClockCircleOutlined style={iconProps.style} />
       case 'cancelled':
-        return <MinusCircleOutlined {...iconProps} />
+        return <MinusCircleOutlined style={iconProps.style} />
       default:
-        return <ClockCircleOutlined {...iconProps} />
+        return <ClockCircleOutlined style={iconProps.style} />
     }
   }
 
@@ -167,7 +167,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
           text={label}
           size={badgeSize as 'small' | 'default'}
           dot={variant === 'dot'}
-          {...props}
+          className={className}
         >
           {variant === 'badge' && getStatusIcon()}
         </Badge>

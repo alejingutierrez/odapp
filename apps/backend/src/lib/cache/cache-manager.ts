@@ -255,7 +255,7 @@ export class CacheManager {
         const pattern = `${namespace}:*`
 
         // Clear memory cache
-        for (const key of this.memoryCache.keys()) {
+        for (const key of Array.from(this.memoryCache.keys())) {
           if (key.startsWith(`${namespace}:`)) {
             this.memoryCache.delete(key)
           }
@@ -264,7 +264,9 @@ export class CacheManager {
         // Clear Redis cache
         if (redisClient.isReady()) {
           const client = redisClient.getClient()
-          const keys = await (client as { keys: (_pattern: string) => Promise<string[]> }).keys(pattern)
+          const keys = await (
+            client as { keys: (_pattern: string) => Promise<string[]> }
+          ).keys(pattern)
           if (keys.length > 0) {
             await client.del(keys)
           }
@@ -275,7 +277,9 @@ export class CacheManager {
 
         if (redisClient.isReady()) {
           const client = redisClient.getClient()
-          await (client as unknown as { flushDb: () => Promise<void> }).flushDb()
+          await (
+            client as unknown as { flushDb: () => Promise<void> }
+          ).flushDb()
         }
       }
 
@@ -356,7 +360,10 @@ export class CacheManager {
       if (!this.tagMap.has(tag)) {
         this.tagMap.set(tag, new Set())
       }
-      this.tagMap.get(tag)!.add(key)
+      const tagSet = this.tagMap.get(tag)
+      if (tagSet) {
+        tagSet.add(key)
+      }
     }
   }
 

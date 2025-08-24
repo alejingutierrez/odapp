@@ -31,6 +31,7 @@ export interface DateDisplayProps {
   theme?: DateTheme
   interactive?: boolean
   showRelativeIndicator?: boolean
+  className?: string
 }
 
 export const DateDisplay: React.FC<DateDisplayProps> = ({
@@ -44,7 +45,7 @@ export const DateDisplay: React.FC<DateDisplayProps> = ({
   theme = 'default',
   interactive = false,
   showRelativeIndicator = false,
-  ...props
+  className,
 }) => {
   const { token } = useToken()
   const dateObj = new Date(date)
@@ -211,7 +212,7 @@ export const DateDisplay: React.FC<DateDisplayProps> = ({
   const content = (
     <span style={getContainerStyle()}>
       {getDateIcon() && <span style={getIconStyle()}>{getDateIcon()}</span>}
-      <Text style={{ color: getThemeColor() }} {...props}>
+      <Text style={{ color: getThemeColor() }} className={className}>
         {formattedDate}
       </Text>
       {getRelativeIndicator() && (

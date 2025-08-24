@@ -107,7 +107,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     setPreviewImage(file.url || (file.preview as string))
     setPreviewVisible(true)
     setPreviewTitle(
-      file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1)
+      file.name ||
+        (file.url
+          ? file.url.substring(file.url.lastIndexOf('/') + 1)
+          : 'Unknown file')
     )
   }
 
@@ -187,18 +190,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     )
   }
 
-  const uploadProps: UploadProps = {
-    fileList: value,
-    beforeUpload,
-    onChange: handleChange,
-    onPreview: handlePreview,
-    onRemove: handleRemove,
-    accept: acceptedTypes.join(','),
-    multiple: maxFiles > 1,
-    disabled,
-    showUploadList: false,
-  }
-
   const uploadButton = (
     <div className='file-upload__button'>
       <UploadOutlined className='file-upload__button-icon' />
@@ -222,11 +213,32 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className={`file-upload ${className}`}>
       {dragAndDrop ? (
-        <Upload.Dragger {...uploadProps} className='file-upload__dragger'>
+        <Upload.Dragger
+          fileList={value}
+          beforeUpload={beforeUpload}
+          onChange={handleChange}
+          onPreview={handlePreview}
+          onRemove={handleRemove}
+          accept={acceptedTypes.join(',')}
+          multiple={maxFiles > 1}
+          disabled={disabled}
+          showUploadList={false}
+          className='file-upload__dragger'
+        >
           {uploadButton}
         </Upload.Dragger>
       ) : (
-        <Upload {...uploadProps}>
+        <Upload
+          fileList={value}
+          beforeUpload={beforeUpload}
+          onChange={handleChange}
+          onPreview={handlePreview}
+          onRemove={handleRemove}
+          accept={acceptedTypes.join(',')}
+          multiple={maxFiles > 1}
+          disabled={disabled}
+          showUploadList={false}
+        >
           <Button icon={<UploadOutlined />} disabled={disabled}>
             Upload Files
           </Button>

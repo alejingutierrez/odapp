@@ -78,15 +78,15 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .date-range-picker__picker {
     width: 100%;
   }
-  
+
   .date-range-picker__presets-buttons {
     justify-content: center;
   }
-  
+
   .date-range-picker__preset-btn {
     flex: 1;
     min-width: 0;
@@ -97,7 +97,7 @@
   .date-range-picker__presets-buttons {
     flex-direction: column;
   }
-  
+
   .date-range-picker__preset-btn {
     width: 100%;
   }

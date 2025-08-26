@@ -163,15 +163,15 @@
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .progress-indicator__info {
     text-align: center;
   }
-  
+
   .progress-indicator__step {
     padding: 6px;
   }
-  
+
   .progress-indicator__step-icon {
     width: 16px;
     height: 16px;
@@ -185,7 +185,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }

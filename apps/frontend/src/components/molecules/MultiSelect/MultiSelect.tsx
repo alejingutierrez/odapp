@@ -200,10 +200,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         loading={loading}
         size={size}
         open={open}
-        onDropdownVisibleChange={setOpen}
+        onOpenChange={setOpen}
         maxTagCount={maxTagCount}
         tagRender={renderTag}
-        dropdownRender={(menu) => (
+        popupRender={(menu) => (
           <div className='multi-select__dropdown'>
             {renderDropdownHeader()}
             {menu}

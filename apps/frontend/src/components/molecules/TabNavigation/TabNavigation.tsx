@@ -3,6 +3,11 @@ import type { TabsProps } from 'antd'
 import React, { useState } from 'react'
 import './TabNavigation.css'
 
+// Define los tipos específicos para evitar problemas de importación
+type TabsType = 'line' | 'card' | 'editable-card'
+type SizeType = 'small' | 'middle' | 'large'
+type TabPosition = 'top' | 'bottom' | 'left' | 'right'
+
 export interface TabItem {
   key: string
   label: string
@@ -23,9 +28,9 @@ export interface TabNavigationProps {
     targetKey: React.MouseEvent | React.KeyboardEvent | string,
     action: 'add' | 'remove'
   ) => void
-  type?: 'line' | 'card' | 'editable-card'
-  size?: 'small' | 'middle' | 'large'
-  position?: 'top' | 'bottom' | 'left' | 'right'
+  type?: TabsType
+  size?: SizeType
+  position?: TabPosition
   centered?: boolean
   animated?: boolean
   destroyOnHidden?: boolean

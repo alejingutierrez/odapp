@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react'
-
 import { SearchInput } from './SearchInput'
 
 const meta: Meta<typeof SearchInput> = {
@@ -11,16 +10,21 @@ const meta: Meta<typeof SearchInput> = {
   tags: ['autodocs'],
   argTypes: {
     size: {
-      control: 'select',
+      control: { type: 'select' },
       options: ['small', 'middle', 'large'],
     },
     disabled: {
-      control: 'boolean',
+      control: { type: 'boolean' },
     },
     loading: {
-      control: 'boolean',
+      control: { type: 'boolean' },
     },
-
+    allowClear: {
+      control: { type: 'boolean' },
+    },
+    enterButton: {
+      control: { type: 'boolean' },
+    },
   },
 }
 
@@ -40,66 +44,43 @@ export const WithValue: Story = {
   },
 }
 
-export const Sizes: Story = {
-  render: () => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '300px',
-      }}
-    >
-      <div>
-        <label>Small</label>
-        <SearchInput size='small' placeholder='Small search' />
-      </div>
-      <div>
-        <label>Middle (Default)</label>
-        <SearchInput size='middle' placeholder='Middle search' />
-      </div>
-      <div>
-        <label>Large</label>
-        <SearchInput size='large' placeholder='Large search' />
-      </div>
-    </div>
-  ),
-}
-
-export const States: Story = {
-  render: () => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '300px',
-      }}
-    >
-      <div>
-        <label>Normal</label>
-        <SearchInput placeholder='Normal state' />
-      </div>
-      <div>
-        <label>With Clear Button</label>
-        <SearchInput placeholder='Clearable search' />
-      </div>
-      <div>
-        <label>Loading</label>
-        <SearchInput loading placeholder='Loading search' />
-      </div>
-      <div>
-        <label>Disabled</label>
-        <SearchInput disabled placeholder='Disabled search' />
-      </div>
-    </div>
-  ),
-}
-
-export const Interactive: Story = {
+export const Small: Story = {
   args: {
-    placeholder: 'Type to search...',
+    size: 'small',
+    placeholder: 'Small search...',
+  },
+}
 
-    size: 'middle',
+export const Large: Story = {
+  args: {
+    size: 'large',
+    placeholder: 'Large search...',
+  },
+}
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+    placeholder: 'Disabled search...',
+  },
+}
+
+export const Loading: Story = {
+  args: {
+    loading: true,
+    placeholder: 'Loading search...',
+  },
+}
+
+export const WithoutEnterButton: Story = {
+  args: {
+    enterButton: false,
+    placeholder: 'Search without button...',
+  },
+}
+
+export const WithCustomPlaceholder: Story = {
+  args: {
+    placeholder: 'Search for products...',
   },
 }

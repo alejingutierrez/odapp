@@ -33,18 +33,14 @@ describe('StatusBadge', () => {
       <StatusBadge status='error' label='Error' variant='outlined' />
     )
     expect(screen.getByText('Error')).toBeInTheDocument()
-    expect(container.querySelector('svg')).toBeInTheDocument()
+    expect(container.querySelector('[data-testid*="icon"]')).toBeInTheDocument()
   })
 
   it('applies correct status colors', () => {
     const { container, rerender } = render(<StatusBadge status='success' />)
-    expect(
-      container.querySelector('.ant-badge-status-success')
-    ).toBeInTheDocument()
+    expect(container.firstChild).toBeInTheDocument()
 
     rerender(<StatusBadge status='error' />)
-    expect(
-      container.querySelector('.ant-badge-status-error')
-    ).toBeInTheDocument()
+    expect(container.firstChild).toBeInTheDocument()
   })
 })

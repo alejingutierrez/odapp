@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, beforeEach, expect } from 'vitest'
 import { DataTable } from './DataTable'
@@ -165,7 +165,9 @@ describe('DataTable', () => {
     )
 
     const searchInput = screen.getByTestId('search-box')
-    await user.type(searchInput, 'John')
+    await act(async () => {
+      await user.type(searchInput, 'John')
+    })
 
     expect(mockProps.onSearch).toHaveBeenCalledWith('John')
   })
@@ -184,7 +186,7 @@ describe('DataTable', () => {
       />
     )
 
-    const refreshButton = screen.getByTestId('reload-icon')
+    const refreshButton = screen.getByTestId('reloadoutlined-icon')
     expect(refreshButton).toBeInTheDocument()
   })
 
@@ -207,7 +209,9 @@ describe('DataTable', () => {
       .querySelector('.anticon-reload')
       ?.closest('button')
     if (refreshButton) {
-      await user.click(refreshButton)
+      await act(async () => {
+        await user.click(refreshButton)
+      })
       expect(mockProps.onRefresh).toHaveBeenCalled()
     }
   })
@@ -281,7 +285,9 @@ describe('DataTable', () => {
     )
 
     const emailFilter = screen.getByPlaceholderText('Filter by Email')
-    await user.type(emailFilter, 'john')
+    await act(async () => {
+      await user.type(emailFilter, 'john')
+    })
 
     expect(mockProps.onFilter).toHaveBeenCalledWith({ email: 'john' })
   })
@@ -320,7 +326,9 @@ describe('DataTable', () => {
     )
 
     const firstCheckbox = screen.getAllByRole('checkbox')[1] // Skip header checkbox
-    await user.click(firstCheckbox)
+    await act(async () => {
+      await user.click(firstCheckbox)
+    })
 
     expect(mockProps.onSelectionChange).toHaveBeenCalled()
   })
@@ -341,7 +349,9 @@ describe('DataTable', () => {
     )
 
     const firstCheckbox = screen.getAllByRole('checkbox')[1]
-    await user.click(firstCheckbox)
+    await act(async () => {
+      await user.click(firstCheckbox)
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/1 item\(s\) selected/)).toBeInTheDocument()
@@ -365,14 +375,18 @@ describe('DataTable', () => {
 
     // Select a row first
     const firstCheckbox = screen.getAllByRole('checkbox')[1]
-    await user.click(firstCheckbox)
+    await act(async () => {
+      await user.click(firstCheckbox)
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/1 item\(s\) selected/)).toBeInTheDocument()
     })
 
     const clearButton = screen.getByText('Clear Selection')
-    await user.click(clearButton)
+    await act(async () => {
+      await user.click(clearButton)
+    })
 
     await waitFor(() => {
       expect(screen.queryByText(/item\(s\) selected/)).not.toBeInTheDocument()
@@ -482,7 +496,7 @@ describe('DataTable', () => {
       />
     )
 
-    const settingsButton = screen.getByTestId('setting-icon')
+    const settingsButton = screen.getByTestId('settingoutlined-icon')
     expect(settingsButton).toBeInTheDocument()
   })
 
@@ -499,7 +513,7 @@ describe('DataTable', () => {
       />
     )
 
-    const settingsButton = screen.getByTestId('setting-icon')
+    const settingsButton = screen.getByTestId('settingoutlined-icon')
     expect(settingsButton).toBeInTheDocument()
   })
 

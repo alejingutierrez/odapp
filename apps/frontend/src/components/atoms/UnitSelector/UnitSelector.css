@@ -140,12 +140,16 @@
   background: #e0f2fe;
 }
 
-.oda-unit-selector .ant-select-item-option-selected .oda-unit-selector__option-main {
+.oda-unit-selector
+  .ant-select-item-option-selected
+  .oda-unit-selector__option-main {
   color: #0369a1;
   font-weight: 600;
 }
 
-.oda-unit-selector .ant-select-item-option-selected .oda-unit-selector__option-symbol {
+.oda-unit-selector
+  .ant-select-item-option-selected
+  .oda-unit-selector__option-symbol {
   color: #0ea5e9;
 }
 
@@ -209,23 +213,23 @@
   .oda-unit-selector {
     width: 100%;
   }
-  
+
   .oda-unit-selector__select {
     min-width: 100px;
   }
-  
+
   .oda-unit-selector--with-conversion {
     min-width: 180px;
   }
-  
+
   .oda-unit-selector__conversion {
     padding: 10px;
   }
-  
+
   .oda-unit-selector__conversion-item {
     padding: 6px;
   }
-  
+
   .oda-unit-selector__option-main {
     font-size: 15px;
   }

@@ -83,11 +83,11 @@ const createTestStore = (initialState?: Partial<AuthState>) => {
       },
     },
   })
-  
+
   return {
     ...store,
     getState: () => ({ auth: store.getState().auth }),
-    dispatch: store.dispatch
+    dispatch: store.dispatch,
   } as ReturnType<typeof configureStore> & {
     getState: () => { auth: AuthState }
   }
@@ -141,11 +141,13 @@ describe('authSlice', () => {
 
     it('should handle updateLastActivity', () => {
       const store = createTestStore({ lastActivity: 1000 })
-      const beforeUpdate = (store.getState() as { auth: AuthState }).auth.lastActivity
+      const beforeUpdate = (store.getState() as { auth: AuthState }).auth
+        .lastActivity
 
       store.dispatch(updateLastActivity())
 
-      const afterUpdate = (store.getState() as { auth: AuthState }).auth.lastActivity
+      const afterUpdate = (store.getState() as { auth: AuthState }).auth
+        .lastActivity
       expect(afterUpdate).toBeGreaterThan(beforeUpdate)
     })
 
@@ -153,10 +155,14 @@ describe('authSlice', () => {
       const store = createTestStore()
 
       store.dispatch(setRememberMe(true))
-      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(true)
+      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(
+        true
+      )
 
       store.dispatch(setRememberMe(false))
-      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(false)
+      expect((store.getState() as { auth: AuthState }).auth.rememberMe).toBe(
+        false
+      )
     })
 
     it('should handle clearError', () => {
@@ -200,7 +206,6 @@ describe('authSlice', () => {
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -224,7 +229,6 @@ describe('authSlice', () => {
           password: 'wrong-password',
         }
 
-         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -242,7 +246,6 @@ describe('authSlice', () => {
         const store = createTestStore()
         const credentials = { email: 'test@example.com', password: 'password' }
 
-         
         await store.dispatch(loginUser(credentials) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -264,7 +267,6 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-         
         await store.dispatch(logoutUser() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -285,7 +287,6 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-         
         await store.dispatch(logoutUser() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -313,7 +314,6 @@ describe('authSlice', () => {
           refreshToken: 'old-refresh-token',
         })
 
-         
         await store.dispatch(refreshToken() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -335,7 +335,6 @@ describe('authSlice', () => {
           isAuthenticated: true,
         })
 
-         
         await store.dispatch(refreshToken() as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -360,7 +359,7 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-         
+
         await store.dispatch(updateUserProfile(updates) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -383,7 +382,7 @@ describe('authSlice', () => {
         })
 
         const updates = { firstName: 'Jane' }
-         
+
         await store.dispatch(updateUserProfile(updates) as any)
 
         const state = (store.getState() as { auth: AuthState }).auth
@@ -397,40 +396,39 @@ describe('authSlice', () => {
     it('should select current user', () => {
       const store = createTestStore({ user: mockUser })
 
-       
       expect(selectCurrentUser(store.getState() as any)).toEqual(mockUser)
     })
 
     it('should select token', () => {
       const store = createTestStore({ token: 'test-token' })
 
-       
       expect(selectToken(store.getState() as any)).toBe('test-token')
     })
 
     it('should select authentication status', () => {
       const store = createTestStore({ isAuthenticated: true })
 
-       
       expect(selectIsAuthenticated(store.getState() as any)).toBe(true)
     })
 
     it('should select permissions', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
-       
-      expect(selectPermissions(store.getState() as any)).toEqual(mockUser.permissions)
+      expect(selectPermissions(store.getState() as any)).toEqual(
+        mockUser.permissions
+      )
     })
 
     it('should check if user has specific permission', () => {
       const store = createTestStore({ permissions: mockUser.permissions })
 
-       
-      const hasReadPermission = selectHasPermission('products', 'read')(store.getState() as any)
+      const hasReadPermission = selectHasPermission(
+        'products',
+        'read'
+      )(store.getState() as any)
       const hasDeletePermission = selectHasPermission(
         'products',
         'delete'
-         
       )(store.getState() as any)
 
       expect(hasReadPermission).toBe(true)
@@ -445,11 +443,10 @@ describe('authSlice', () => {
       const expiredStore = createTestStore({ sessionExpiry: pastExpiry })
       const noExpiryStore = createTestStore({ sessionExpiry: null })
 
-       
       expect(selectIsSessionValid(validStore.getState() as any)).toBe(true)
-       
+
       expect(selectIsSessionValid(expiredStore.getState() as any)).toBe(false)
-       
+
       expect(selectIsSessionValid(noExpiryStore.getState() as any)).toBe(false)
     })
   })

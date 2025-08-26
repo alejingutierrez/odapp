@@ -10,7 +10,9 @@ describe('DateTimePicker', () => {
   })
 
   it('displays placeholder correctly', () => {
-    const { container } = render(<DateTimePicker placeholder={{ date: 'Select date' }} />)
+    const { container } = render(
+      <DateTimePicker placeholder={{ date: 'Select date' }} />
+    )
     expect(
       container.querySelector('input[placeholder="Select date"]')
     ).toBeInTheDocument()

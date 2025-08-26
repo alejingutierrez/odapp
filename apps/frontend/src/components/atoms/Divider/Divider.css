@@ -20,13 +20,23 @@
 .oda-divider--gradient {
   border: none;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e5e7eb 50%,
+    transparent 100%
+  );
 }
 
 .oda-divider--gradient.ant-divider-vertical {
   width: 1px;
   height: auto;
-  background: linear-gradient(180deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    #e5e7eb 50%,
+    transparent 100%
+  );
 }
 
 /* Thickness Styles */
@@ -101,19 +111,39 @@
 }
 
 .oda-divider--gradient.oda-divider--primary {
-  background: linear-gradient(90deg, transparent 0%, #0ea5e9 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #0ea5e9 50%,
+    transparent 100%
+  );
 }
 
 .oda-divider--gradient.oda-divider--secondary {
-  background: linear-gradient(90deg, transparent 0%, #6b7280 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #6b7280 50%,
+    transparent 100%
+  );
 }
 
 .oda-divider--gradient.oda-divider--primary.ant-divider-vertical {
-  background: linear-gradient(180deg, transparent 0%, #0ea5e9 50%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    #0ea5e9 50%,
+    transparent 100%
+  );
 }
 
 .oda-divider--gradient.oda-divider--secondary.ant-divider-vertical {
-  background: linear-gradient(180deg, transparent 0%, #6b7280 50%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    #6b7280 50%,
+    transparent 100%
+  );
 }
 
 /* Text Divider Styles */
@@ -281,19 +311,19 @@
   .oda-section-divider {
     margin: 24px 0;
   }
-  
+
   .oda-section-divider--large {
     margin: 32px 0;
   }
-  
+
   .oda-section-divider__content {
     padding: 0 12px;
   }
-  
+
   .oda-section-divider__title {
     font-size: 16px;
   }
-  
+
   .oda-section-divider--large .oda-section-divider__title {
     font-size: 20px;
   }
@@ -320,29 +350,29 @@
   .oda-divider--default {
     border-color: #374151;
   }
-  
+
   .oda-divider--light {
     border-color: #4b5563;
   }
-  
+
   .oda-section-divider::before,
   .oda-section-divider::after {
     background: #374151;
   }
-  
+
   .oda-section-divider__content {
     background: #111827;
   }
-  
+
   .oda-section-divider__icon {
     background: #374151;
     color: #9ca3af;
   }
-  
+
   .oda-section-divider__title {
     color: #f9fafb;
   }
-  
+
   .oda-section-divider__subtitle {
     color: #9ca3af;
   }

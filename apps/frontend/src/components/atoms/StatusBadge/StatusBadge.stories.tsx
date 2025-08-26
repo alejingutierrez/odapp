@@ -12,7 +12,16 @@ const meta: Meta<typeof StatusBadge> = {
   argTypes: {
     status: {
       control: 'select',
-      options: ['success', 'processing', 'warning', 'error', 'default', 'info', 'pending', 'cancelled'],
+      options: [
+        'success',
+        'processing',
+        'warning',
+        'error',
+        'default',
+        'info',
+        'pending',
+        'cancelled',
+      ],
     },
     showIcon: {
       control: 'boolean',

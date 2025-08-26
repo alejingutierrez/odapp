@@ -1,13 +1,15 @@
-
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { SizeSelector } from './SizeSelector'
 
 // Mock Ant Design icons
 vi.mock('@ant-design/icons', () => ({
   InfoCircleOutlined: () => <span data-testid='info-icon' />,
   RuleOutlined: () => <span data-testid='rule-icon' />,
+  BulbOutlined: () => <span data-testid='bulb-icon' />,
 }))
 
 describe('SizeSelector', () => {

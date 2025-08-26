@@ -9,12 +9,12 @@
 }
 
 /* Vertical layout */
-.action-button-group[data-direction="vertical"] {
+.action-button-group[data-direction='vertical'] {
   flex-direction: column;
   align-items: stretch;
 }
 
-.action-button-group[data-direction="vertical"] .ant-btn {
+.action-button-group[data-direction='vertical'] .ant-btn {
   width: 100%;
   justify-content: flex-start;
 }
@@ -34,12 +34,12 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .action-button-group .ant-btn {
     flex: 1;
     min-width: 0;
   }
-  
+
   .action-button-group .ant-btn span {
     overflow: hidden;
     text-overflow: ellipsis;

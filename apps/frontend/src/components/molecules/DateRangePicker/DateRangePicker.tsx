@@ -234,6 +234,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           placeholder={placeholder}
           disabled={disabled}
           allowClear={allowClear}
+          allowEmpty={[true, true]}
           size={size}
           suffixIcon={<CalendarOutlined />}
           className='date-range-picker__picker'

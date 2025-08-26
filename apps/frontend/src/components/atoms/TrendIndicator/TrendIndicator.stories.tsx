@@ -18,7 +18,6 @@ const meta: Meta<typeof TrendIndicator> = {
       control: 'select',
       options: ['small', 'medium', 'large'],
     },
-
   },
 }
 
@@ -48,15 +47,30 @@ export const Sizes: Story = {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
         <label>Small</label>
-        <TrendIndicator title='Sample Trend' score={75} direction='up' size='small' />
+        <TrendIndicator
+          title='Sample Trend'
+          score={75}
+          direction='up'
+          size='small'
+        />
       </div>
       <div>
         <label>Medium (Default)</label>
-        <TrendIndicator title='Sample Trend' score={75} direction='up' size='medium' />
+        <TrendIndicator
+          title='Sample Trend'
+          score={75}
+          direction='up'
+          size='medium'
+        />
       </div>
       <div>
         <label>Large</label>
-        <TrendIndicator title='Sample Trend' score={75} direction='up' size='large' />
+        <TrendIndicator
+          title='Sample Trend'
+          score={75}
+          direction='up'
+          size='large'
+        />
       </div>
     </div>
   ),

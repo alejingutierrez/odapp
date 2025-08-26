@@ -260,18 +260,18 @@
     height: 44px;
     font-size: 16px;
   }
-  
+
   .oda-quantity-counter--large .oda-quantity-counter__button {
     height: 44px;
     width: 44px;
     font-size: 15px;
   }
-  
+
   .oda-quantity-counter--medium .oda-quantity-counter__input {
     height: 38px;
     font-size: 15px;
   }
-  
+
   .oda-quantity-counter--medium .oda-quantity-counter__button {
     height: 38px;
     width: 38px;

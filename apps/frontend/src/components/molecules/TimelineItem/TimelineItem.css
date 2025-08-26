@@ -89,16 +89,16 @@
     gap: 4px;
     align-items: flex-start;
   }
-  
+
   .timeline-item__timestamp {
     margin-left: 0;
   }
-  
+
   .timeline-item__metadata-item {
     flex-direction: column;
     gap: 2px;
   }
-  
+
   .timeline-item__metadata-key {
     min-width: auto;
   }

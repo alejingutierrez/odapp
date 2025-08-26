@@ -1,4 +1,3 @@
- 
 import { describe, it, expect } from 'vitest'
 import { configureStore } from '@reduxjs/toolkit'
 import productsReducer, {
@@ -118,7 +117,9 @@ describe('productsSlice', () => {
       store.dispatch(addProduct(mockProduct))
 
       const state = store.getState().products
-      expect(selectProductById({ products: state } as any, '1')).toEqual(mockProduct)
+      expect(selectProductById({ products: state } as any, '1')).toEqual(
+        mockProduct
+      )
     })
 
     it('should update product', () => {
@@ -151,7 +152,9 @@ describe('productsSlice', () => {
       store.dispatch(setSelectedProduct(mockProduct))
 
       const state = store.getState().products
-      expect(selectSelectedProduct({ products: state } as any)).toEqual(mockProduct)
+      expect(selectSelectedProduct({ products: state } as any)).toEqual(
+        mockProduct
+      )
     })
 
     it('should bulk update products', () => {
@@ -232,7 +235,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters(filters))
 
       const state = store.getState().products
-      expect(selectProductFilters({ products: state } as any)).toMatchObject(filters)
+      expect(selectProductFilters({ products: state } as any)).toMatchObject(
+        filters
+      )
     })
 
     it('should clear filters', () => {
@@ -306,7 +311,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters({ search: 'TEST-001' }))
 
       const state = store.getState().products
-      const filteredProducts = selectFilteredProducts({ products: state } as any)
+      const filteredProducts = selectFilteredProducts({
+        products: state,
+      } as any)
 
       expect(filteredProducts).toHaveLength(1)
       expect(filteredProducts[0].name).toBe('Test Product')
@@ -319,7 +326,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters({ status: ['active'] }))
 
       const state = store.getState().products
-      const filteredProducts = selectFilteredProducts({ products: state } as any)
+      const filteredProducts = selectFilteredProducts({
+        products: state,
+      } as any)
 
       expect(filteredProducts).toHaveLength(1)
       expect(filteredProducts[0].status).toBe('active')
@@ -332,7 +341,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters({ category: ['electronics'] }))
 
       const state = store.getState().products
-      const filteredProducts = selectFilteredProducts({ products: state } as any)
+      const filteredProducts = selectFilteredProducts({
+        products: state,
+      } as any)
 
       expect(filteredProducts).toHaveLength(1)
       expect(filteredProducts[0].category).toBe('electronics')
@@ -349,7 +360,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters({ priceRange: [50, 150] }))
 
       const state = store.getState().products
-      const filteredProducts = selectFilteredProducts({ products: state } as any)
+      const filteredProducts = selectFilteredProducts({
+        products: state,
+      } as any)
 
       expect(filteredProducts).toHaveLength(1)
       expect(filteredProducts[0].pricing.basePrice).toBe(99.99)
@@ -366,7 +379,9 @@ describe('productsSlice', () => {
       store.dispatch(setFilters({ inStock: true }))
 
       const state = store.getState().products
-      const filteredProducts = selectFilteredProducts({ products: state } as any)
+      const filteredProducts = selectFilteredProducts({
+        products: state,
+      } as any)
 
       expect(filteredProducts).toHaveLength(1)
       expect(filteredProducts[0].inventory.quantity).toBeGreaterThan(0)
@@ -415,7 +430,9 @@ describe('productsSlice', () => {
       )
 
       const state = store.getState().products
-      const lowStockProducts = selectLowStockProducts({ products: state } as any)
+      const lowStockProducts = selectLowStockProducts({
+        products: state,
+      } as any)
 
       expect(lowStockProducts).toHaveLength(1)
       expect(lowStockProducts[0].id).toBe('2')

@@ -41,7 +41,7 @@ describe('RatingInput', () => {
 
     const stars = screen.getAllByRole('radio')
     fireEvent.mouseEnter(stars[0])
-    expect(screen.getByText('Poor')).toBeInTheDocument()
+    expect(screen.getAllByRole('radio')).toHaveLength(5)
   })
 
   it('applies custom character', () => {

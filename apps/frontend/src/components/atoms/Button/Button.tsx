@@ -9,6 +9,7 @@ export interface ButtonProps extends Omit<AntButtonProps, 'type' | 'variant'> {
   loading?: boolean
   icon?: React.ReactNode
   iconPosition?: 'start' | 'end'
+  'data-testid'?: string
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -25,6 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   htmlType,
   shape,
+  'data-testid': dataTestId,
 }) => {
   // Map our variants to Ant Design types
   const getAntType = (): AntButtonProps['type'] => {
@@ -84,6 +86,8 @@ export const Button: React.FC<ButtonProps> = ({
       href={href}
       htmlType={htmlType}
       shape={shape}
+      data-testid={dataTestId}
+      // Props adicionales se manejan a través de la interfaz ButtonProps
     >
       {iconPosition === 'end' && icon && (
         <>

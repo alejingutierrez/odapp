@@ -227,26 +227,26 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .oda-datetime-picker--compact {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .oda-datetime-picker__timezone {
     min-width: auto;
     width: 100%;
   }
-  
+
   .oda-datetime-picker__combined {
     min-width: auto;
     width: 100%;
   }
-  
+
   .oda-datetime-picker {
     gap: 12px;
   }
-  
+
   .oda-datetime-picker--small {
     gap: 8px;
   }
@@ -256,7 +256,7 @@
   .oda-datetime-picker-wrapper {
     gap: 12px;
   }
-  
+
   .oda-datetime-picker__business-hours-info {
     font-size: 11px;
     padding: 6px;

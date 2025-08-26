@@ -1,7 +1,8 @@
-
+import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { BreadcrumbNav } from './BreadcrumbNav'
 import type { BreadcrumbItem } from './BreadcrumbNav'
 
@@ -48,7 +49,7 @@ describe('BreadcrumbNav', () => {
     render(<BreadcrumbNav items={mockItems.slice(0, 1)} />)
 
     expect(screen.getByText('Home')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /home/i })).toBeInTheDocument()
+    expect(screen.getByTestId('homeoutlined-icon')).toBeInTheDocument()
   })
 
   it('hides home item when showHome is false', () => {

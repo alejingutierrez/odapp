@@ -287,43 +287,43 @@
   .oda-material-composition__tags {
     gap: 4px;
   }
-  
+
   .oda-material-tag--detailed {
     padding: 4px 8px;
     font-size: 12px;
   }
-  
+
   .oda-care-instructions {
     gap: 4px;
   }
 }
 
 /* Special material types */
-.oda-material-tag[data-material="cotton"] {
+.oda-material-tag[data-material='cotton'] {
   background: rgba(139, 69, 19, 0.1);
   border-color: rgba(139, 69, 19, 0.3);
   color: #8b4513;
 }
 
-.oda-material-tag[data-material="silk"] {
+.oda-material-tag[data-material='silk'] {
   background: rgba(255, 215, 0, 0.1);
   border-color: rgba(255, 215, 0, 0.3);
   color: #b8860b;
 }
 
-.oda-material-tag[data-material="wool"] {
+.oda-material-tag[data-material='wool'] {
   background: rgba(160, 82, 45, 0.1);
   border-color: rgba(160, 82, 45, 0.3);
   color: #a0522d;
 }
 
-.oda-material-tag[data-material="polyester"] {
+.oda-material-tag[data-material='polyester'] {
   background: rgba(75, 85, 99, 0.1);
   border-color: rgba(75, 85, 99, 0.3);
   color: #4b5563;
 }
 
-.oda-material-tag[data-material="linen"] {
+.oda-material-tag[data-material='linen'] {
   background: rgba(245, 245, 220, 0.5);
   border-color: rgba(210, 180, 140, 0.5);
   color: #8b7355;

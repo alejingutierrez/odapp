@@ -71,11 +71,11 @@
   .variant-selector--horizontal {
     flex-direction: column;
   }
-  
+
   .variant-selector__size-group {
     justify-content: flex-start;
   }
-  
+
   .variant-selector__color-group {
     justify-content: flex-start;
   }

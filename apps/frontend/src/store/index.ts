@@ -61,36 +61,40 @@ const rootReducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 // Custom middleware for session management
-const sessionMiddleware: Middleware = (store) => (next) => (action: unknown) => {
-  // Check for session expiry on each action
-  if ((action as { type?: string }).type !== 'auth/updateLastActivity') {
-    const state = store.getState()
-    if (state.auth.isAuthenticated) {
-      const now = Date.now()
-      const sessionExpiry = state.auth.sessionExpiry
-      const lastActivity = state.auth.lastActivity
+const sessionMiddleware: Middleware =
+  (store) => (next) => (action: unknown) => {
+    // Check for session expiry on each action
+    if ((action as { type?: string }).type !== 'auth/updateLastActivity') {
+      const state = store.getState()
+      if (state.auth.isAuthenticated) {
+        const now = Date.now()
+        const sessionExpiry = state.auth.sessionExpiry
+        const lastActivity = state.auth.lastActivity
 
-      // Auto-logout if session expired
-      if (sessionExpiry && now > sessionExpiry) {
-        store.dispatch({ type: 'auth/logout' })
-        return next(action)
-      }
+        // Auto-logout if session expired
+        if (sessionExpiry && now > sessionExpiry) {
+          store.dispatch({ type: 'auth/logout' })
+          return next(action)
+        }
 
-      // Update last activity if user is active
-      if (now - lastActivity > 60000) {
-        // Update every minute
-        store.dispatch({ type: 'auth/updateLastActivity' })
+        // Update last activity if user is active
+        if (now - lastActivity > 60000) {
+          // Update every minute
+          store.dispatch({ type: 'auth/updateLastActivity' })
+        }
       }
     }
-  }
 
-  return next(action)
-}
+    return next(action)
+  }
 
 // Custom middleware for error handling
 const errorMiddleware: Middleware = (store) => (next) => (action: unknown) => {
   // Handle RTK Query errors globally
-  const typedAction = action as { type?: string; payload?: { status?: number | string; data?: { message?: string } } }
+  const typedAction = action as {
+    type?: string
+    payload?: { status?: number | string; data?: { message?: string } }
+  }
   if (typedAction.type?.endsWith('/rejected') && typedAction.payload?.status) {
     const { status, data } = typedAction.payload
 
@@ -179,18 +183,19 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Create persistor (skip for test environment to avoid open handles)
-export const persistor = process.env.NODE_ENV === 'test'
-  ? {
-      persist: () => {},
-      purge: async () => {},
-      flush: async () => {},
-      pause: () => {},
-      resume: () => {},
-      subscribe: () => () => {},
-      dispatch: () => ({} as Record<string, unknown>),
-      getState: () => ({}),
-    } as unknown as Persistor
-  : persistStore(store)
+export const persistor =
+  process.env.NODE_ENV === 'test'
+    ? ({
+        persist: () => {},
+        purge: async () => {},
+        flush: async () => {},
+        pause: () => {},
+        resume: () => {},
+        subscribe: () => () => {},
+        dispatch: () => ({}) as Record<string, unknown>,
+        getState: () => ({}),
+      } as unknown as Persistor)
+    : persistStore(store)
 
 // Types
 export type RootState = ReturnType<typeof store.getState>

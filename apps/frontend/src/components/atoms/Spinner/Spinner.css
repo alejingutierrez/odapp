@@ -9,14 +9,14 @@
   --oda-spinner-error: #ef4444;
   --oda-spinner-white: #ffffff;
   --oda-spinner-default: #9ca3af;
-  
+
   /* Size tokens */
   --oda-spinner-size-xs: 12px;
   --oda-spinner-size-sm: 16px;
   --oda-spinner-size-md: 20px;
   --oda-spinner-size-lg: 24px;
   --oda-spinner-size-xl: 32px;
-  
+
   /* Animation durations */
   --oda-spinner-duration-fast: 0.8s;
   --oda-spinner-duration-normal: 1.2s;
@@ -170,11 +170,13 @@
 .oda-spinner__svg {
   width: 100%;
   height: 100%;
-  animation: oda-spinner-rotate var(--oda-spinner-duration-normal) linear infinite;
+  animation: oda-spinner-rotate var(--oda-spinner-duration-normal) linear
+    infinite;
 }
 
 .oda-spinner__svg circle {
-  animation: oda-spinner-dash var(--oda-spinner-duration-slow) ease-in-out infinite;
+  animation: oda-spinner-dash var(--oda-spinner-duration-slow) ease-in-out
+    infinite;
 }
 
 @keyframes oda-spinner-rotate {
@@ -211,7 +213,8 @@
   height: calc(var(--spinner-size) * 0.3);
   border-radius: 50%;
   background: var(--spinner-color);
-  animation: oda-spinner-dots var(--oda-spinner-duration-normal) ease-in-out infinite;
+  animation: oda-spinner-dots var(--oda-spinner-duration-normal) ease-in-out
+    infinite;
 }
 
 .oda-spinner__dot:nth-child(1) {
@@ -227,7 +230,9 @@
 }
 
 @keyframes oda-spinner-dots {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0.6);
     opacity: 0.4;
   }
@@ -243,11 +248,13 @@
   height: var(--spinner-size);
   border-radius: 50%;
   background: var(--spinner-color);
-  animation: oda-spinner-pulse var(--oda-spinner-duration-slow) ease-in-out infinite;
+  animation: oda-spinner-pulse var(--oda-spinner-duration-slow) ease-in-out
+    infinite;
 }
 
 @keyframes oda-spinner-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.8);
     opacity: 0.8;
   }
@@ -270,7 +277,8 @@
   height: var(--spinner-size);
   background: var(--spinner-color);
   border-radius: calc(var(--spinner-size) * 0.05);
-  animation: oda-spinner-bars var(--oda-spinner-duration-normal) ease-in-out infinite;
+  animation: oda-spinner-bars var(--oda-spinner-duration-normal) ease-in-out
+    infinite;
 }
 
 .oda-spinner__bar:nth-child(1) {
@@ -290,7 +298,9 @@
 }
 
 @keyframes oda-spinner-bars {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     transform: scaleY(0.4);
     opacity: 0.6;
   }
@@ -317,7 +327,8 @@
   border-bottom-color: var(--spinner-color);
   border-radius: 50%;
   opacity: 0.6;
-  animation: oda-spinner-ring var(--oda-spinner-duration-fast) linear infinite reverse;
+  animation: oda-spinner-ring var(--oda-spinner-duration-fast) linear infinite
+    reverse;
 }
 
 @keyframes oda-spinner-ring {
@@ -339,7 +350,8 @@
   height: calc(var(--spinner-size) * 0.4);
   border-radius: 50%;
   background: var(--spinner-color);
-  animation: oda-spinner-bounce var(--oda-spinner-duration-normal) ease-in-out infinite;
+  animation: oda-spinner-bounce var(--oda-spinner-duration-normal) ease-in-out
+    infinite;
 }
 
 .oda-spinner__bounce-dot:nth-child(1) {
@@ -351,7 +363,9 @@
 }
 
 @keyframes oda-spinner-bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0.8) translateY(0);
     opacity: 0.7;
   }
@@ -408,16 +422,16 @@
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(2px);
   }
-  
+
   .oda-page-loader {
     padding: 1.5rem;
   }
-  
+
   /* Reduce spinner sizes on mobile */
   .oda-spinner--xl {
     --spinner-size: var(--oda-spinner-size-lg);
   }
-  
+
   .oda-spinner--lg {
     --spinner-size: var(--oda-spinner-size-md);
   }
@@ -439,7 +453,7 @@
 }
 
 /* Screen reader support */
-.oda-spinner[role="status"] {
+.oda-spinner[role='status'] {
   /* Ensures proper announcement */
 }
 
@@ -448,7 +462,7 @@
   .oda-spinner {
     --spinner-color: currentColor;
   }
-  
+
   .oda-spinner-overlay {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: none;
@@ -467,7 +481,7 @@
     animation-duration: 3s;
     animation-timing-function: linear;
   }
-  
+
   .oda-spinner-overlay {
     animation: none;
   }
@@ -478,7 +492,7 @@
   .oda-spinner-overlay {
     background: rgba(0, 0, 0, 0.8);
   }
-  
+
   .oda-spinner__text {
     color: rgba(255, 255, 255, 0.8);
   }

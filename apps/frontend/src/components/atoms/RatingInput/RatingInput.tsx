@@ -154,7 +154,9 @@ export const RatingInput: React.FC<RatingInputProps> = ({
         step={step}
         precision={precision}
         disabled={disabled}
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         className='oda-rating-input__numeric'
       />
     )

@@ -136,11 +136,11 @@
   .sidebar-menu-item__content {
     padding: 10px 12px;
   }
-  
+
   .sidebar-menu-item__label {
     font-size: 13px;
   }
-  
+
   .sidebar-menu-item__icon {
     width: 18px;
     height: 18px;
@@ -179,7 +179,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

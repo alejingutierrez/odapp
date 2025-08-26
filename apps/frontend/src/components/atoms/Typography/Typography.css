@@ -4,7 +4,13 @@
 .oda-title {
   margin: 0;
   line-height: 1.2;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 .oda-title--level-1 {
@@ -98,7 +104,13 @@
 /* Text Styles */
 .oda-text {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 /* Text Sizes */
@@ -211,7 +223,13 @@
 /* Paragraph Styles */
 .oda-paragraph {
   margin: 0 0 16px 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 .oda-paragraph:last-child {
@@ -418,7 +436,9 @@
 
 /* Code Styles */
 .oda-code {
-  font-family: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 4px;

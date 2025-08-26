@@ -1,4 +1,6 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { vi, describe, it, beforeEach, expect } from 'vitest'
 import dayjs from 'dayjs'
 import { DateRangePicker } from './DateRangePicker'

@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect } from 'vitest'
 import { Chip } from './Chip'
@@ -33,7 +32,9 @@ describe('Chip', () => {
       <Chip label='Test' removable onRemove={handleRemove} />
     )
 
-    const closeButton = container.querySelector('.anticon-close')
+    const closeButton = container.querySelector(
+      '[data-testid="closeoutlined-icon"]'
+    )
     expect(closeButton).toBeInTheDocument()
 
     fireEvent.click(closeButton!)
@@ -63,7 +64,9 @@ describe('Chip', () => {
       <Chip label='Test' removable onRemove={handleRemove} />
     )
 
-    const closeButton = container.querySelector('.anticon-close')
+    const closeButton = container.querySelector(
+      '[data-testid="closeoutlined-icon"]'
+    )
     fireEvent.click(closeButton!)
     expect(handleRemove).toHaveBeenCalledTimes(1)
   })

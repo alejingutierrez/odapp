@@ -273,7 +273,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         value={internalValue}
         onChange={handleDateChange}
         format={dateFormat}
-        size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+        size={
+          size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+        }
         disabled={disabled}
         disabledDate={getDisabledDate}
         placeholder={placeholder.date || 'Select date'}
@@ -290,7 +292,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <Select
           value={currentTimezone}
           onChange={handleTimezoneChange}
-          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+          size={
+            size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+          }
           disabled={disabled}
           placeholder={placeholder.timezone || 'Timezone'}
           suffixIcon={<GlobalOutlined />}
@@ -316,7 +320,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           value={internalValue}
           onChange={handleDateChange}
           format={dateFormat}
-          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+          size={
+            size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+          }
           disabled={disabled}
           disabledDate={getDisabledDate}
           placeholder={placeholder.date || 'Select date'}
@@ -328,7 +334,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           value={internalValue}
           onChange={handleTimeChange}
           format={showSeconds ? 'HH:mm:ss' : timeFormat}
-          size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+          size={
+            size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+          }
           disabled={disabled}
           disabledTime={() => getDisabledTime(internalValue)}
           placeholder={placeholder.time || 'Select time'}
@@ -341,7 +349,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <Select
             value={currentTimezone}
             onChange={handleTimezoneChange}
-            size={size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'}
+            size={
+              size === 'large' ? 'large' : size === 'small' ? 'small' : 'middle'
+            }
             disabled={disabled}
             placeholder={placeholder.timezone || 'Timezone'}
             suffixIcon={<GlobalOutlined />}

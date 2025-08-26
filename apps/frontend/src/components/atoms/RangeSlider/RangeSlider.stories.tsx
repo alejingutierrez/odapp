@@ -22,7 +22,6 @@ const meta: Meta<typeof RangeSlider> = {
     disabled: {
       control: 'boolean',
     },
-
   },
 }
 

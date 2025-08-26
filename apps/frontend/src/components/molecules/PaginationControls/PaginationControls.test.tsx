@@ -1,6 +1,8 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { PaginationControls } from './PaginationControls'
 
 describe('PaginationControls', () => {
@@ -53,7 +55,7 @@ describe('PaginationControls', () => {
       />
     )
 
-    expect(screen.getByText(/page/i)).toBeInTheDocument()
+    expect(screen.getByText('per page')).toBeInTheDocument()
   })
 
   it('calls onShowSizeChange when page size changes', async () => {

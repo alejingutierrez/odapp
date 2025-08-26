@@ -1,5 +1,7 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom'
 import { vi, describe, it, beforeEach, expect } from 'vitest'
 import { FilterChip } from './FilterChip'
 
@@ -19,7 +21,7 @@ describe('FilterChip', () => {
   it('shows remove button when onRemove is provided', () => {
     render(<FilterChip label='Filter' onRemove={mockOnRemove} />)
 
-    const removeButton = screen.getByRole('img', { name: /close/i })
+    const removeButton = screen.getByTestId('closeoutlined-icon')
     expect(removeButton).toBeInTheDocument()
   })
 
@@ -27,7 +29,7 @@ describe('FilterChip', () => {
     const user = userEvent.setup()
     render(<FilterChip label='Filter' onRemove={mockOnRemove} />)
 
-    const removeButton = screen.getByRole('img', { name: /close/i })
+    const removeButton = screen.getByTestId('closeoutlined-icon')
     await user.click(removeButton)
 
     expect(mockOnRemove).toHaveBeenCalled()
@@ -36,7 +38,7 @@ describe('FilterChip', () => {
   it('renders without remove button when onRemove is not provided', () => {
     render(<FilterChip label='Filter' />)
 
-    const removeButton = screen.queryByRole('img', { name: /close/i })
+    const removeButton = screen.queryByTestId('closeoutlined-icon')
     expect(removeButton).not.toBeInTheDocument()
   })
 
@@ -70,7 +72,7 @@ describe('FilterChip', () => {
     render(<FilterChip label='Filter' onRemove={mockOnRemove} />)
 
     // Check that close icon is present when onRemove is provided
-    const closeIcon = screen.getByRole('img', { name: /close/i })
+    const closeIcon = screen.getByTestId('closeoutlined-icon')
     expect(closeIcon).toBeInTheDocument()
   })
 })

@@ -1,151 +1,313 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeAll, afterAll } from 'vitest'
 import { vi } from 'vitest'
 import React from 'react'
 
-// Global timeout configuration
-beforeEach(() => {
-  // Set individual test timeout to 1 minute
-  vi.setConfig({ testTimeout: 60000 })
-})
-
 afterEach(() => {
-  // Clean up any pending timers and mocks
   cleanup()
   vi.clearAllTimers()
   vi.clearAllMocks()
-  vi.restoreAllMocks()
 })
 
-// Global error handler for tests
-const originalError = console.error
-console.error = vi.fn().mockImplementation((...args) => {
-  // Filter out expected React warnings
-  const message = args[0]
-  if (
-    typeof message === 'string' &&
-    (message.includes('Warning: ReactDOM.render is no longer supported') ||
-      message.includes('Warning: findDOMNode') ||
-      message.includes('Warning: componentWillReceiveProps') ||
-      message.includes('Warning: componentWillUpdate'))
-  ) {
-    return
+// Mock específico para el componente Image de Ant Design
+vi.mock('antd', async () => {
+  const actual = await vi.importActual('antd')
+  return {
+    ...actual,
+    Image: vi.fn(
+      ({ src, alt, preview: _preview, onError, className, ...props }) => {
+        // Simular un error de imagen si no hay src
+        if (!src) {
+          if (onError) {
+            setTimeout(() => onError(new Error('Image failed to load')), 0)
+          }
+          return React.createElement(
+            'div',
+            {
+              className: `${className || ''} ant-image-error`,
+              'data-testid': 'antd-image-error',
+            },
+            'Image failed to load'
+          )
+        }
+
+        return React.createElement('img', {
+          src,
+          alt,
+          className: `${className || ''} antd-image`,
+          'data-testid': 'antd-image',
+          onError: onError
+            ? () => onError(new Error('Image failed to load'))
+            : undefined,
+          ...props,
+        })
+      }
+    ),
+    Card: vi.fn(
+      ({
+        children,
+        className,
+        bodyStyle: _bodyStyle,
+        loading,
+        hoverable: _hoverable,
+        ...props
+      }) => {
+        return React.createElement(
+          'div',
+          {
+            className: `ant-card ${className || ''} ${loading ? 'ant-card-loading' : ''}`,
+            'data-testid': 'antd-card',
+            ...props,
+          },
+          children
+        )
+      }
+    ),
+    Button: vi.fn(
+      ({
+        children,
+        className,
+        type: _type,
+        size,
+        icon,
+        onClick,
+        loading,
+        danger,
+        block,
+        htmlType,
+        ...props
+      }) => {
+        const buttonClasses = ['ant-btn']
+        if (className) buttonClasses.push(className)
+        if (loading) buttonClasses.push('ant-btn-loading')
+        if (danger) buttonClasses.push('ant-btn-dangerous')
+        if (block) buttonClasses.push('ant-btn-block')
+
+        // Add size classes
+        if (size === 'small') buttonClasses.push('ant-btn-sm')
+        if (size === 'large') buttonClasses.push('ant-btn-lg')
+
+        return React.createElement(
+          'button',
+          {
+            className: buttonClasses.join(' '),
+            type: htmlType || 'button',
+            onClick,
+            disabled: loading,
+            ...props, // Esto incluirá data-testid y otras props
+          },
+          icon,
+          children
+        )
+      }
+    ),
   }
-  originalError(...args)
 })
 
-// Mock environment variables for tests
-vi.mock('../config/env', () => ({
-  env: {
-    VITE_API_BASE_URL: 'http://localhost:3001',
-    VITE_WS_URL: 'ws://localhost:3001',
-    VITE_APP_NAME: 'Oda Fashion Platform',
-    VITE_APP_VERSION: '1.0.0',
-    MODE: 'test',
-    DEV: false,
-    PROD: false,
-  },
-  isDevelopment: false,
-  isProduction: false,
-  isTest: true,
-}))
-
-// Mock Ant Design icons with dynamic proxy
+// Mock básico para Ant Design icons
 vi.mock('@ant-design/icons', () => {
-  const iconMocks = new Proxy(
-    {},
-    {
-      get: (_target, prop) => {
-        if (typeof prop === 'string' && prop.endsWith('Outlined')) {
-          return vi.fn(() => {
-            const iconName = prop.replace('Outlined', '').toLowerCase()
-            const testId =
-              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-            return React.createElement(
-              'span',
-              {
-                'data-testid': testId,
-                'aria-label': prop,
-              },
-              '🔸'
-            )
-          })
-        }
-        if (typeof prop === 'string' && prop.endsWith('Filled')) {
-          return vi.fn(() => {
-            const iconName = prop.replace('Filled', '').toLowerCase()
-            const testId =
-              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-            return React.createElement(
-              'span',
-              {
-                'data-testid': testId,
-                'aria-label': prop,
-              },
-              '🔹'
-            )
-          })
-        }
-        if (typeof prop === 'string' && prop.endsWith('TwoTone')) {
-          return vi.fn(() => {
-            const iconName = prop.replace('TwoTone', '').toLowerCase()
-            const testId =
-              iconName.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-            return React.createElement(
-              'span',
-              {
-                'data-testid': testId,
-                'aria-label': prop,
-              },
-              '🔷'
-            )
-          })
-        }
-        // Default fallback for any other icon patterns
-        if (typeof prop === 'string') {
-          return vi.fn(() => {
-            const testId =
-              prop.replace(/([A-Z])/g, '-$1').toLowerCase() + '-icon'
-            return React.createElement(
-              'span',
-              {
-                'data-testid': testId,
-                'aria-label': prop,
-              },
-              '🔸'
-            )
-          })
-        }
-        return undefined
-      },
-    }
-  )
+  const createIconMock = (name: string) => {
+    return vi.fn((props: any) => {
+      const iconName = name
+        .toLowerCase()
+        .replace('outlined', '')
+        .replace('filled', '')
+      return React.createElement(
+        'span',
+        {
+          'data-testid': `${name.toLowerCase()}-icon`,
+          'aria-label': name,
+          className: `anticon anticon-${iconName}`,
+          ...props,
+        },
+        '🔸'
+      )
+    })
+  }
 
-  return iconMocks
+  return {
+    // Solo los iconos más básicos
+    PlusOutlined: createIconMock('PlusOutlined'),
+    EditOutlined: createIconMock('EditOutlined'),
+    DeleteOutlined: createIconMock('DeleteOutlined'),
+    SearchOutlined: createIconMock('SearchOutlined'),
+    UserOutlined: createIconMock('UserOutlined'),
+    SettingOutlined: createIconMock('SettingOutlined'),
+    HomeOutlined: createIconMock('HomeOutlined'),
+    ShoppingOutlined: createIconMock('ShoppingOutlined'),
+    EyeOutlined: createIconMock('EyeOutlined'),
+    EyeInvisibleOutlined: createIconMock('EyeInvisibleOutlined'),
+    EyeTwoTone: createIconMock('EyeTwoTone'),
+    InfoCircleOutlined: createIconMock('InfoCircleOutlined'),
+    ExclamationCircleOutlined: createIconMock('ExclamationCircleOutlined'),
+    UploadOutlined: createIconMock('UploadOutlined'),
+    DownloadOutlined: createIconMock('DownloadOutlined'),
+    BulbOutlined: createIconMock('BulbOutlined'),
+    LeafOutlined: createIconMock('LeafOutlined'),
+    ReloadOutlined: createIconMock('ReloadOutlined'),
+    FilterOutlined: createIconMock('FilterOutlined'),
+    CloseOutlined: createIconMock('CloseOutlined'),
+    CheckOutlined: createIconMock('CheckOutlined'),
+    StarOutlined: createIconMock('StarOutlined'),
+    HeartOutlined: createIconMock('HeartOutlined'),
+    FireOutlined: createIconMock('FireOutlined'),
+    ThunderboltOutlined: createIconMock('ThunderboltOutlined'),
+    EnvironmentOutlined: createIconMock('EnvironmentOutlined'),
+    RiseOutlined: createIconMock('RiseOutlined'),
+    CalendarOutlined: createIconMock('CalendarOutlined'),
+    FileOutlined: createIconMock('FileOutlined'),
+    FilePdfOutlined: createIconMock('FilePdfOutlined'),
+    FileImageOutlined: createIconMock('FileImageOutlined'),
+    FileTextOutlined: createIconMock('FileTextOutlined'),
+    FileExcelOutlined: createIconMock('FileExcelOutlined'),
+    FileWordOutlined: createIconMock('FileWordOutlined'),
+    FilePptOutlined: createIconMock('FilePptOutlined'),
+    FileZipOutlined: createIconMock('FileZipOutlined'),
+    // Iconos adicionales que faltan
+    MoreOutlined: createIconMock('MoreOutlined'),
+    DollarOutlined: createIconMock('DollarOutlined'),
+    EuroOutlined: createIconMock('EuroOutlined'),
+    PhoneOutlined: createIconMock('PhoneOutlined'),
+    MailOutlined: createIconMock('MailOutlined'),
+    VideoCameraOutlined: createIconMock('VideoCameraOutlined'),
+    DashboardOutlined: createIconMock('DashboardOutlined'),
+    LoadingOutlined: createIconMock('LoadingOutlined'),
+    MinusOutlined: createIconMock('MinusOutlined'),
+    WarningOutlined: createIconMock('WarningOutlined'),
+    CheckCircleOutlined: createIconMock('CheckCircleOutlined'),
+    ClockCircleOutlined: createIconMock('ClockCircleOutlined'),
+    StarFilled: createIconMock('StarFilled'),
+    HeartFilled: createIconMock('HeartFilled'),
+    TagOutlined: createIconMock('TagOutlined'),
+    DownOutlined: createIconMock('DownOutlined'),
+    UpOutlined: createIconMock('UpOutlined'),
+    LeftOutlined: createIconMock('LeftOutlined'),
+    RightOutlined: createIconMock('RightOutlined'),
+    MenuOutlined: createIconMock('MenuOutlined'),
+    BarsOutlined: createIconMock('BarsOutlined'),
+    BellOutlined: createIconMock('BellOutlined'),
+    FolderOutlined: createIconMock('FolderOutlined'),
+    ImageOutlined: createIconMock('ImageOutlined'),
+    AudioOutlined: createIconMock('AudioOutlined'),
+    ClearOutlined: createIconMock('ClearOutlined'),
+    ArrowUpOutlined: createIconMock('ArrowUpOutlined'),
+    ArrowDownOutlined: createIconMock('ArrowDownOutlined'),
+    // Últimos iconos faltantes
+    MessageOutlined: createIconMock('MessageOutlined'),
+    InboxOutlined: createIconMock('InboxOutlined'),
+    InvalidIcon: createIconMock('InvalidIcon'),
+    // Iconos adicionales identificados en los errores
+    ShoppingCartOutlined: createIconMock('ShoppingCartOutlined'),
+    ExclamationOutlined: createIconMock('ExclamationOutlined'),
+    // Iconos del componente ActivityIcon
+    ShareAltOutlined: createIconMock('ShareAltOutlined'),
+    LoginOutlined: createIconMock('LoginOutlined'),
+    LogoutOutlined: createIconMock('LogoutOutlined'),
+    QuestionCircleOutlined: createIconMock('QuestionCircleOutlined'),
+    // Iconos adicionales identificados en los últimos errores
+    BarChartOutlined: createIconMock('BarChartOutlined'),
+    CloseCircleOutlined: createIconMock('CloseCircleOutlined'),
+    SyncOutlined: createIconMock('SyncOutlined'),
+    TruckOutlined: createIconMock('TruckOutlined'),
+    // Últimos iconos faltantes
+    ShopOutlined: createIconMock('ShopOutlined'),
+    MinusCircleOutlined: createIconMock('MinusCircleOutlined'),
+    // Iconos adicionales identificados en los errores de tests
+    CalculatorOutlined: createIconMock('CalculatorOutlined'),
+    // Iconos del componente Accordion
+    CaretRightOutlined: createIconMock('CaretRightOutlined'),
+  }
+})
+
+// Mock básico para APIs del navegador
+global.getComputedStyle = vi.fn().mockImplementation((element) => {
+  // Si el elemento tiene estilos inline, usarlos
+  if (element && element.style) {
+    return {
+      getPropertyValue: (prop: string) => element.style[prop as any] || '',
+      overflowX: element.style.overflowX || 'visible',
+      overflowY: element.style.overflowY || 'visible',
+      pointerEvents: element.style.pointerEvents || 'auto',
+      visibility: element.style.visibility || 'visible',
+      width: element.style.width || '100px',
+      height: element.style.height || '100px',
+      position: element.style.position || 'static',
+      display: element.style.display || 'block',
+      fontSize: element.style.fontSize || '16px',
+      color: element.style.color || 'black',
+      backgroundColor: element.style.backgroundColor || 'transparent',
+      borderRadius: element.style.borderRadius || '0px',
+      border: element.style.border || 'none',
+      margin: element.style.margin || '0px',
+      padding: element.style.padding || '0px',
+    }
+  }
+
+  // Valores por defecto
+  return {
+    getPropertyValue: vi.fn().mockReturnValue(''),
+    overflowX: 'visible',
+    overflowY: 'visible',
+    pointerEvents: 'auto',
+    visibility: 'visible',
+    width: '100px',
+    height: '100px',
+    position: 'static',
+    display: 'block',
+    fontSize: '16px',
+    color: 'black',
+    backgroundColor: 'transparent',
+    borderRadius: '0px',
+    border: 'none',
+    margin: '0px',
+    padding: '0px',
+  }
 })
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(() => ({
     matches: false,
-    media: query,
+    media: '',
     onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
 })
 
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+// Mock fetch
+global.fetch = vi.fn()
+
+// Mock localStorage
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+    length: 0,
+    key: vi.fn(),
+  },
+  writable: true,
+})
+
+// Mock sessionStorage
+Object.defineProperty(window, 'sessionStorage', {
+  value: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+    length: 0,
+    key: vi.fn(),
+  },
+  writable: true,
+})
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
@@ -154,12 +316,18 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }))
 
-// Mock getComputedStyle to avoid JSDOM errors
-Object.defineProperty(window, 'getComputedStyle', {
-  value: vi.fn().mockImplementation(() => ({
-    getPropertyValue: vi.fn().mockReturnValue(''),
-  })),
-})
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Mock MutationObserver
+global.MutationObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  disconnect: vi.fn(),
+}))
 
 // Mock File API
 global.File = vi.fn().mockImplementation((content, name, options) => ({
@@ -167,67 +335,78 @@ global.File = vi.fn().mockImplementation((content, name, options) => ({
   size: content ? content.length : 0,
   type: options?.type || 'text/plain',
   lastModified: Date.now(),
-}))
-
-global.FileReader = vi.fn().mockImplementation(() => ({
-  readAsText: vi.fn(),
-  readAsDataURL: vi.fn(),
-  result: '',
-  onload: null,
-  onerror: null,
-  EMPTY: 0,
-  LOADING: 1,
-  DONE: 2,
-})) as unknown as typeof FileReader
+  arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+  slice: vi.fn().mockReturnValue(new (global as any).Blob()),
+  stream: vi.fn().mockReturnValue(new (global as any).ReadableStream()),
+  text: vi.fn().mockResolvedValue(''),
+})) as unknown as typeof File
 
 // Mock URL.createObjectURL
 global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
 
-// Mock console.warn to reduce noise in tests
+// Mock document methods
+if (!document.documentElement) {
+  Object.defineProperty(document, 'documentElement', {
+    value: {
+      clientWidth: 1200,
+      clientHeight: 800,
+      scrollTop: 0,
+      scrollLeft: 0,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
+  })
+}
+
+// Suppress React warnings in tests
+const originalError = console.error
 const originalWarn = console.warn
-console.warn = vi.fn().mockImplementation((...args) => {
-  // Filter out specific warnings that are expected
-  const message = args[0]
-  if (
-    typeof message === 'string' &&
-    (message.includes('findDOMNode') ||
-      message.includes('destroyInactiveTabPane') ||
-      message.includes('strokeWidth') ||
-      message.includes('overlayStyle') ||
-      message.includes('overlayClassName'))
-  ) {
-    return
+
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    // Suppress findDOMNode warnings
+    if (typeof args[0] === 'string' && args[0].includes('findDOMNode')) {
+      return
+    }
+    // Suppress act() warnings from Ant Design internals
+    if (typeof args[0] === 'string' && args[0].includes('act(...)')) {
+      return
+    }
+    // Suppress other React warnings that are not critical
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('Warning:') ||
+        args[0].includes('findDOMNode') ||
+        args[0].includes('act(...)'))
+    ) {
+      return
+    }
+    originalError.call(console, ...args)
   }
-  originalWarn(...args)
+
+  console.warn = (...args: any[]) => {
+    // Suppress findDOMNode warnings
+    if (typeof args[0] === 'string' && args[0].includes('findDOMNode')) {
+      return
+    }
+    // Suppress act() warnings from Ant Design internals
+    if (typeof args[0] === 'string' && args[0].includes('act(...)')) {
+      return
+    }
+    // Suppress other React warnings that are not critical
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('Warning:') ||
+        args[0].includes('findDOMNode') ||
+        args[0].includes('act(...)'))
+    ) {
+      return
+    }
+    originalWarn.call(console, ...args)
+  }
 })
 
-// Mock fetch for API calls
-global.fetch = vi.fn()
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
+afterAll(() => {
+  console.error = originalError
+  console.warn = originalWarn
 })
-
-// Mock sessionStorage
-const sessionStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
-Object.defineProperty(window, 'sessionStorage', {
-  value: sessionStorageMock,
-})
-
-// afterAll(() => {
-//   // Restore original console methods
-//   console.error = originalError
-//   console.warn = originalWarn
-// })

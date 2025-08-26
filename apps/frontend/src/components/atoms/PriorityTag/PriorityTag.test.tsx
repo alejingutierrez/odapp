@@ -33,6 +33,6 @@ describe('PriorityTag', () => {
   it('renders with icon by default', () => {
     render(<PriorityTag priority='high' />)
     const tag = screen.getByText('High')
-    expect(tag.querySelector('svg')).toBeInTheDocument()
+    expect(tag.querySelector('[data-testid*="icon"]')).toBeInTheDocument()
   })
 })

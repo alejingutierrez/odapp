@@ -110,7 +110,8 @@
 }
 
 @keyframes activityPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1.1);
   }
@@ -121,59 +122,59 @@
 }
 
 /* Specific activity type styling */
-.oda-activity-icon[data-activity="call"] {
+.oda-activity-icon[data-activity='call'] {
   color: #1890ff;
 }
 
-.oda-activity-icon[data-activity="email"] {
+.oda-activity-icon[data-activity='email'] {
   color: #1890ff;
 }
 
-.oda-activity-icon[data-activity="meeting"] {
+.oda-activity-icon[data-activity='meeting'] {
   color: #1890ff;
 }
 
-.oda-activity-icon[data-activity="purchase"] {
+.oda-activity-icon[data-activity='purchase'] {
   color: #52c41a;
 }
 
-.oda-activity-icon[data-activity="order"] {
+.oda-activity-icon[data-activity='order'] {
   color: #52c41a;
 }
 
-.oda-activity-icon[data-activity="return"] {
+.oda-activity-icon[data-activity='return'] {
   color: #faad14;
 }
 
-.oda-activity-icon[data-activity="refund"] {
+.oda-activity-icon[data-activity='refund'] {
   color: #faad14;
 }
 
-.oda-activity-icon[data-activity="like"] {
+.oda-activity-icon[data-activity='like'] {
   color: #eb2f96;
 }
 
-.oda-activity-icon[data-activity="share"] {
+.oda-activity-icon[data-activity='share'] {
   color: #13c2c2;
 }
 
-.oda-activity-icon[data-activity="delete"] {
+.oda-activity-icon[data-activity='delete'] {
   color: #ff4d4f;
 }
 
-.oda-activity-icon[data-activity="create"] {
+.oda-activity-icon[data-activity='create'] {
   color: #52c41a;
 }
 
-.oda-activity-icon[data-activity="login"] {
+.oda-activity-icon[data-activity='login'] {
   color: #52c41a;
 }
 
-.oda-activity-icon[data-activity="logout"] {
+.oda-activity-icon[data-activity='logout'] {
   color: #ff4d4f;
 }
 
-.oda-activity-icon[data-activity="complaint"] {
+.oda-activity-icon[data-activity='complaint'] {
   color: #ff4d4f;
 }
 
@@ -182,11 +183,11 @@
   .oda-activity-icon--large {
     font-size: 18px;
   }
-  
+
   .oda-activity-icon--large.oda-activity-icon--with-background {
     padding: 6px;
   }
-  
+
   .oda-activity-icon--clickable:hover {
     transform: scale(1.05);
   }

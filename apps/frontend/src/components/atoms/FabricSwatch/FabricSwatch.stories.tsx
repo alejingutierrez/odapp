@@ -38,12 +38,33 @@ export const Default: Story = {
 export const FabricTypes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} />
-      <FabricSwatch name='Silk' composition={[{ material: 'Silk', percentage: 100 }]} />
-      <FabricSwatch name='Wool' composition={[{ material: 'Wool', percentage: 100 }]} />
-      <FabricSwatch name='Linen' composition={[{ material: 'Linen', percentage: 100 }]} />
-      <FabricSwatch name='Polyester' composition={[{ material: 'Polyester', percentage: 100 }]} />
-      <FabricSwatch name='Denim' composition={[{ material: 'Cotton', percentage: 98 }, { material: 'Elastane', percentage: 2 }]} />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Silk'
+        composition={[{ material: 'Silk', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Wool'
+        composition={[{ material: 'Wool', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Linen'
+        composition={[{ material: 'Linen', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Polyester'
+        composition={[{ material: 'Polyester', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Denim'
+        composition={[
+          { material: 'Cotton', percentage: 98 },
+          { material: 'Elastane', percentage: 2 },
+        ]}
+      />
     </div>
   ),
 }
@@ -51,11 +72,26 @@ export const FabricTypes: Story = {
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} />
-      <FabricSwatch name='Silk' composition={[{ material: 'Silk', percentage: 100 }]} />
-      <FabricSwatch name='Wool' composition={[{ material: 'Wool', percentage: 100 }]} />
-      <FabricSwatch name='Linen' composition={[{ material: 'Linen', percentage: 100 }]} />
-      <FabricSwatch name='Polyester' composition={[{ material: 'Polyester', percentage: 100 }]} />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Silk'
+        composition={[{ material: 'Silk', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Wool'
+        composition={[{ material: 'Wool', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Linen'
+        composition={[{ material: 'Linen', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Polyester'
+        composition={[{ material: 'Polyester', percentage: 100 }]}
+      />
     </div>
   ),
 }
@@ -63,9 +99,21 @@ export const Variants: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} size='small' />
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} size='medium' />
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} size='large' />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+        size='small'
+      />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+        size='medium'
+      />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+        size='large'
+      />
     </div>
   ),
 }
@@ -73,9 +121,20 @@ export const Sizes: Story = {
 export const States: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} />
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} selected />
-      <FabricSwatch name='Cotton' composition={[{ material: 'Cotton', percentage: 100 }]} disabled />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+      />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+        selected
+      />
+      <FabricSwatch
+        name='Cotton'
+        composition={[{ material: 'Cotton', percentage: 100 }]}
+        disabled
+      />
     </div>
   ),
 }

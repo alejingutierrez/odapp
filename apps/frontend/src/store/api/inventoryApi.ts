@@ -79,7 +79,11 @@ export const inventoryApi = baseApi.injectEndpoints({
 
     getInventoryItem: builder.query({
       query: (id: string) => `inventory/${id}`,
-      providesTags: (_result: InventoryItem | undefined, _error: unknown, id: string) => [{ type: 'Inventory', id }],
+      providesTags: (
+        _result: InventoryItem | undefined,
+        _error: unknown,
+        id: string
+      ) => [{ type: 'Inventory', id }],
     }),
 
     updateInventoryItem: builder.mutation({
@@ -88,7 +92,11 @@ export const inventoryApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: patch,
       }),
-      invalidatesTags: (_result: InventoryItem | undefined, _error: unknown, { id }: { id: string }) => [
+      invalidatesTags: (
+        _result: InventoryItem | undefined,
+        _error: unknown,
+        { id }: { id: string }
+      ) => [
         { type: 'Inventory', id },
         { type: 'Inventory', id: 'LIST' },
       ],
@@ -120,7 +128,11 @@ export const inventoryApi = baseApi.injectEndpoints({
 
     getLocation: builder.query({
       query: (id: string) => `inventory/locations/${id}`,
-      providesTags: (_result: InventoryLocation | undefined, _error: unknown, id: string) => [{ type: 'Location', id }],
+      providesTags: (
+        _result: InventoryLocation | undefined,
+        _error: unknown,
+        id: string
+      ) => [{ type: 'Location', id }],
     }),
 
     createLocation: builder.mutation({
@@ -133,12 +145,22 @@ export const inventoryApi = baseApi.injectEndpoints({
     }),
 
     updateLocation: builder.mutation({
-      query: ({ id, changes }: { id: string; changes: Partial<InventoryLocation> }) => ({
+      query: ({
+        id,
+        changes,
+      }: {
+        id: string
+        changes: Partial<InventoryLocation>
+      }) => ({
         url: `inventory/locations/${id}`,
         method: 'PATCH',
         body: changes,
       }),
-      invalidatesTags: (_result: InventoryLocation | undefined, _error: unknown, { id }: { id: string }) => [
+      invalidatesTags: (
+        _result: InventoryLocation | undefined,
+        _error: unknown,
+        { id }: { id: string }
+      ) => [
         { type: 'Location', id },
         { type: 'Location', id: 'LIST' },
       ],
@@ -149,7 +171,11 @@ export const inventoryApi = baseApi.injectEndpoints({
         url: `inventory/locations/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
+      invalidatesTags: (
+        _result: void | undefined,
+        _error: unknown,
+        id: string
+      ) => [
         { type: 'Location', id },
         { type: 'Location', id: 'LIST' },
       ],
@@ -172,7 +198,11 @@ export const inventoryApi = baseApi.injectEndpoints({
 
     getAdjustment: builder.query({
       query: (id: string) => `inventory/adjustments/${id}`,
-      providesTags: (_result: InventoryAdjustment | undefined, _error: unknown, id: string) => [{ type: 'Adjustment', id }],
+      providesTags: (
+        _result: InventoryAdjustment | undefined,
+        _error: unknown,
+        id: string
+      ) => [{ type: 'Adjustment', id }],
     }),
 
     createAdjustment: builder.mutation({
@@ -204,7 +234,11 @@ export const inventoryApi = baseApi.injectEndpoints({
 
     getTransfer: builder.query({
       query: (id: string) => `inventory/transfers/${id}`,
-      providesTags: (_result: InventoryTransfer | undefined, _error: unknown, id: string) => [{ type: 'Transfer', id }],
+      providesTags: (
+        _result: InventoryTransfer | undefined,
+        _error: unknown,
+        id: string
+      ) => [{ type: 'Transfer', id }],
     }),
 
     createTransfer: builder.mutation({
@@ -236,7 +270,11 @@ export const inventoryApi = baseApi.injectEndpoints({
 
     getAlert: builder.query({
       query: (id: string) => `inventory/alerts/${id}`,
-      providesTags: (_result: InventoryAlert | undefined, _error: unknown, id: string) => [{ type: 'Alert', id }],
+      providesTags: (
+        _result: InventoryAlert | undefined,
+        _error: unknown,
+        id: string
+      ) => [{ type: 'Alert', id }],
     }),
 
     acknowledgeAlert: builder.mutation({
@@ -244,7 +282,11 @@ export const inventoryApi = baseApi.injectEndpoints({
         url: `inventory/alerts/${id}/acknowledge`,
         method: 'POST',
       }),
-      invalidatesTags: (_result: void | undefined, _error: unknown, id: string) => [
+      invalidatesTags: (
+        _result: void | undefined,
+        _error: unknown,
+        id: string
+      ) => [
         { type: 'Alert', id },
         { type: 'Alert', id: 'LIST' },
       ],

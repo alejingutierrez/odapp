@@ -8,36 +8,40 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Use absolute path to ensure setup file resolves correctly when running from monorepo root
     setupFiles: [resolve(__dirname, './src/test/setup.ts')],
-    css: true,
-    // Timeouts más estrictos para evitar tests colgados
-    testTimeout: 60000, // 1 minuto por test
-    hookTimeout: 30000, // 30 segundos para hooks
-    teardownTimeout: 10000, // 10 segundos para cleanup
+    css: false,
+    testTimeout: 15000, // Timeout más generoso
+    hookTimeout: 10000,
+    teardownTimeout: 10000,
 
-    // Worker pool configuration
-    // Using forks caused tests to hang with React components.
-    // Switch back to the default threaded pool to ensure clean exits.
-    pool: 'threads',
+    // Configuración de pool más robusta
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true, // Usar un solo fork para evitar conflictos
+        maxForks: 1, // Máximo 1 fork
+      },
+    },
 
     // Configuración para evitar tests colgados
-    // Ejecutar todos los tests aunque alguno falle y evitar reintentos
-    bail: 0,
-    retry: 0,
+    isolate: true, // Aislar tests para evitar interferencias
 
-    // Excluir archivos del sistema
+    // Solo ejecutar tests específicos para debug
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+
+    // Excluir tests problemáticos temporalmente
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/coverage/**',
-      '**/storybook-static/**',
+      // All problematic tests have been fixed
     ],
 
-    // Configuración para reportes
-    reporters: ['verbose'],
+    // Configuración para evitar problemas de memoria
+    bail: 0, // No parar en el primer error para ver todos los problemas
+    retry: 0, // No reintentar tests fallidos
 
-    // Configuración para coverage
+    // Configuración para reportes
+    reporters: ['basic'],
+
+    // Configuración para coverage (solo cuando se solicite explícitamente)
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -58,18 +62,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@/components': resolve(__dirname, './src/components'),
-      '@/pages': resolve(__dirname, './src/pages'),
-      '@/hooks': resolve(__dirname, './src/hooks'),
-      '@/services': resolve(__dirname, './src/services'),
-      '@/store': resolve(__dirname, './src/store'),
-      '@/utils': resolve(__dirname, './src/utils'),
-      '@/types': resolve(__dirname, './src/types'),
-      '@/assets': resolve(__dirname, './src/assets'),
-      '@ant-design/icons': resolve(
-        __dirname,
-        './src/test/__mocks__/antd-icons.ts'
-      ),
     },
   },
 })

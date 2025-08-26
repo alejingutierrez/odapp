@@ -27,13 +27,13 @@ describe('MetricCard', () => {
     const { rerender } = render(
       <MetricCard title='Sales' value={100} trend='up' trendValue='+15%' />
     )
-    expect(document.querySelector('.anticon-arrow-up')).toBeInTheDocument()
+    expect(document.querySelector('[data-testid*="arrow"]')).toBeInTheDocument()
     expect(screen.getByText('+15% vs last period')).toBeInTheDocument()
 
     rerender(
       <MetricCard title='Sales' value={100} trend='down' trendValue='-5%' />
     )
-    expect(document.querySelector('.anticon-arrow-down')).toBeInTheDocument()
+    expect(document.querySelector('[data-testid*="arrow"]')).toBeInTheDocument()
   })
 
   it('renders custom trend label', () => {

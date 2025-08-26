@@ -62,15 +62,15 @@
   .breadcrumb-nav {
     font-size: 12px;
   }
-  
+
   .breadcrumb-nav__title {
     font-size: 12px;
   }
-  
+
   .breadcrumb-nav__icon {
     font-size: 10px;
   }
-  
+
   /* Hide icons on very small screens */
   @media (max-width: 480px) {
     .breadcrumb-nav__icon {

@@ -607,14 +607,10 @@ export const zodToYup = (zodSchema: z.ZodSchema): yup.Schema<unknown> => {
 export const fileValidation = {
   image: yup
     .mixed()
-    .test(
-      'fileSize',
-      'File size must be less than 5MB',
-      (value: unknown) => {
-        if (!value || !(value instanceof File)) return true
-        return value.size <= 5 * 1024 * 1024
-      }
-    )
+    .test('fileSize', 'File size must be less than 5MB', (value: unknown) => {
+      if (!value || !(value instanceof File)) return true
+      return value.size <= 5 * 1024 * 1024
+    })
     .test('fileType', 'Only image files are allowed', (value: unknown) => {
       if (!value || !(value instanceof File)) return true
       return [
@@ -628,14 +624,10 @@ export const fileValidation = {
 
   document: yup
     .mixed()
-    .test(
-      'fileSize',
-      'File size must be less than 10MB',
-      (value: unknown) => {
-        if (!value || !(value instanceof File)) return true
-        return value.size <= 10 * 1024 * 1024
-      }
-    )
+    .test('fileSize', 'File size must be less than 10MB', (value: unknown) => {
+      if (!value || !(value instanceof File)) return true
+      return value.size <= 10 * 1024 * 1024
+    })
     .test(
       'fileType',
       'Only PDF, DOC, and DOCX files are allowed',

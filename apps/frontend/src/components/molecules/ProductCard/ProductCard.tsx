@@ -5,8 +5,7 @@ import {
   HeartOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons'
-import { Card, Space, Image, Tooltip } from 'antd'
-import { Typography, Badge } from 'antd'
+import { Card, Space, Image, Tooltip, Typography, Badge } from 'antd'
 import React from 'react'
 
 import { ActionButtonGroup, type ActionButton } from '../ActionButtonGroup'

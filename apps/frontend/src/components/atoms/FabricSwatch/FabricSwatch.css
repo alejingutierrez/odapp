@@ -290,9 +290,21 @@
 }
 
 .oda-fabric-swatch__texture.pattern-plaid {
-  background-image: 
-    repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.1) 20px),
-    repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.1) 20px);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.1) 10px,
+      rgba(0, 0, 0, 0.1) 20px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.1) 10px,
+      rgba(0, 0, 0, 0.1) 20px
+    );
 }
 
 /* Responsive */
@@ -300,23 +312,23 @@
   .oda-fabric-swatch--large {
     width: 180px;
   }
-  
+
   .oda-fabric-swatch--medium {
     width: 140px;
   }
-  
+
   .oda-fabric-swatch--small {
     width: 100px;
   }
-  
+
   .oda-fabric-swatch__texture {
     height: 100px;
   }
-  
+
   .oda-fabric-swatch--small .oda-fabric-swatch__texture {
     height: 70px;
   }
-  
+
   .oda-fabric-swatch--large .oda-fabric-swatch__texture {
     height: 120px;
   }

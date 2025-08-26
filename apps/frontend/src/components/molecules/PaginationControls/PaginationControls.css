@@ -47,18 +47,18 @@
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .pagination-controls__info {
     flex-direction: column;
     gap: 8px;
     align-items: center;
   }
-  
+
   .pagination-controls__pagination {
     display: flex;
     justify-content: center;
   }
-  
+
   .pagination-controls__summary {
     text-align: center;
   }
@@ -68,22 +68,23 @@
   .pagination-controls__info {
     gap: 6px;
   }
-  
+
   .pagination-controls__size-selector {
     font-size: 12px;
   }
-  
+
   .pagination-controls__summary {
     font-size: 12px;
   }
-  
+
   /* Hide some pagination items on very small screens */
-  .pagination-controls__pagination .ant-pagination-item:not(.ant-pagination-item-active) {
+  .pagination-controls__pagination
+    .ant-pagination-item:not(.ant-pagination-item-active) {
     display: none;
   }
-  
-  .pagination-controls__pagination .ant-pagination-item:nth-child(-n+2),
-  .pagination-controls__pagination .ant-pagination-item:nth-last-child(-n+2) {
+
+  .pagination-controls__pagination .ant-pagination-item:nth-child(-n + 2),
+  .pagination-controls__pagination .ant-pagination-item:nth-last-child(-n + 2) {
     display: inline-block;
   }
 }

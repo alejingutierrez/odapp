@@ -70,21 +70,21 @@
   .tab-navigation .ant-tabs-nav {
     margin-bottom: 8px;
   }
-  
+
   .tab-navigation__text {
     font-size: 12px;
   }
-  
+
   .tab-navigation__icon {
     font-size: 12px;
   }
-  
+
   /* Hide text on very small screens, show only icons */
   @media (max-width: 480px) {
     .tab-navigation__text {
       display: none;
     }
-    
+
     .tab-navigation__label {
       gap: 0;
     }

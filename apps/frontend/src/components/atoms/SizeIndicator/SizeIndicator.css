@@ -252,14 +252,14 @@
   .oda-size-chart {
     gap: 6px;
   }
-  
+
   .oda-size-indicator--detailed {
     min-width: 50px;
     height: 40px;
     padding: 8px 12px;
     font-size: 14px;
   }
-  
+
   .oda-size-guide__table th,
   .oda-size-guide__table td {
     padding: 8px 12px;
@@ -268,7 +268,7 @@
 }
 
 /* Special handling for numeric sizes */
-.oda-size-indicator[data-numeric="true"] {
+.oda-size-indicator[data-numeric='true'] {
   font-variant-numeric: tabular-nums;
 }
 

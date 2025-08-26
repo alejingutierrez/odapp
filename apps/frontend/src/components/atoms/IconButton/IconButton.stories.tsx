@@ -51,7 +51,11 @@ export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       <IconButton icon={<EditOutlined />} variant='primary' tooltip='Primary' />
-      <IconButton icon={<EditOutlined />} variant='outlined' tooltip='Outlined' />
+      <IconButton
+        icon={<EditOutlined />}
+        variant='outlined'
+        tooltip='Outlined'
+      />
       <IconButton icon={<EditOutlined />} variant='dashed' tooltip='Dashed' />
       <IconButton icon={<EditOutlined />} variant='text' tooltip='Text' />
       <IconButton icon={<EditOutlined />} variant='link' tooltip='Link' />

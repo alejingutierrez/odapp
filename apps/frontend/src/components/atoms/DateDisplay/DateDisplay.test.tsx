@@ -19,13 +19,15 @@ describe('DateDisplay', () => {
   })
 
   it('renders with icon when showIcon is true', () => {
-    const { container } = render(<DateDisplay date={testDate} showIcon />)
-    expect(container.querySelector('svg')).toBeInTheDocument()
+    render(<DateDisplay date={testDate} showIcon />)
+    expect(screen.getByTestId('calendaroutlined-icon')).toBeInTheDocument()
   })
 
   it('renders without icon by default', () => {
-    const { container } = render(<DateDisplay date={testDate} />)
-    expect(container.querySelector('svg')).not.toBeInTheDocument()
+    render(<DateDisplay date={testDate} />)
+    expect(
+      screen.queryByTestId('calendaroutlined-icon')
+    ).not.toBeInTheDocument()
   })
 
   it('handles relative dates correctly', () => {

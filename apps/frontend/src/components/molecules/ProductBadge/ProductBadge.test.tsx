@@ -1,5 +1,7 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { ProductBadge } from './ProductBadge'
 
 describe('ProductBadge', () => {

@@ -1,4 +1,3 @@
-
 import { RouterProvider } from 'react-router-dom'
 
 import { NotificationProvider } from './components/common/NotificationProvider'

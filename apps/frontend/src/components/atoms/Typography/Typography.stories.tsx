@@ -36,12 +36,8 @@ export const Titles: Story = {
 export const TitleColors: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <Title level={2}>
-          Default Title
-        </Title>
-        <Title level={2}>
-          Primary Title
-        </Title>
+      <Title level={2}>Default Title</Title>
+      <Title level={2}>Primary Title</Title>
       <Title level={2} color='secondary'>
         Secondary Title
       </Title>

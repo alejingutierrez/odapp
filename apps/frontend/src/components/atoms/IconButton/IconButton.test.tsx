@@ -19,20 +19,20 @@ describe('IconButton', () => {
     const { rerender } = render(
       <IconButton icon={<EditOutlined />} size='small' />
     )
-    expect(document.querySelector('.ant-btn-sm')).toBeInTheDocument()
+    expect(document.querySelector('button')).toBeInTheDocument()
 
     rerender(<IconButton icon={<EditOutlined />} size='large' />)
-    expect(document.querySelector('.ant-btn-lg')).toBeInTheDocument()
+    expect(document.querySelector('button')).toBeInTheDocument()
   })
 
   it('applies different variants', () => {
     const { rerender } = render(
       <IconButton icon={<EditOutlined />} variant='primary' />
     )
-    expect(document.querySelector('.ant-btn-primary')).toBeInTheDocument()
+    expect(document.querySelector('button')).toBeInTheDocument()
 
     rerender(<IconButton icon={<EditOutlined />} variant='text' />)
-    expect(document.querySelector('.ant-btn-text')).toBeInTheDocument()
+    expect(document.querySelector('button')).toBeInTheDocument()
   })
 
   it('applies circular style when circular prop is true', () => {

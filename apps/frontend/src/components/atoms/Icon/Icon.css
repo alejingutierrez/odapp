@@ -113,20 +113,20 @@
 
 /* Disabled State */
 .oda-icon:disabled,
-.oda-icon[aria-disabled="true"] {
+.oda-icon[aria-disabled='true'] {
   color: #d1d5db;
   cursor: not-allowed;
 }
 
 .oda-icon--clickable:disabled:hover,
-.oda-icon--clickable[aria-disabled="true"]:hover {
+.oda-icon--clickable[aria-disabled='true']:hover {
   background: transparent;
   color: #d1d5db;
   transform: none;
 }
 
 /* Animation for spinning icons */
-.oda-icon[class*="anticon-spin"] {
+.oda-icon[class*='anticon-spin'] {
   animation: oda-icon-spin 1s linear infinite;
 }
 

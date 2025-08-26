@@ -1,5 +1,7 @@
-import { expect } from 'vitest'
+import React from 'react'
+import { expect, describe, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { ProgressIndicator } from './ProgressIndicator'
 
 describe('ProgressIndicator', () => {

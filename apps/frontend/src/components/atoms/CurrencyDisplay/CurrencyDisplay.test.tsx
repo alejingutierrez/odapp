@@ -82,27 +82,23 @@ describe('CurrencyDisplay', () => {
 
   describe('currency icons', () => {
     it('shows currency icon when showIcon is true', () => {
-      const { container } = render(<CurrencyDisplay amount={1000} showIcon />)
-      expect(container.querySelector('.anticon')).toBeInTheDocument()
+      render(<CurrencyDisplay amount={1000} showIcon />)
+      expect(screen.getByTestId('dollaroutlined-icon')).toBeInTheDocument()
     })
 
     it('hides currency icon when showIcon is false', () => {
-      const { container } = render(
-        <CurrencyDisplay amount={1000} showIcon={false} />
-      )
-      expect(container.querySelector('.anticon')).not.toBeInTheDocument()
+      render(<CurrencyDisplay amount={1000} showIcon={false} />)
+      expect(
+        screen.queryByTestId('dollaroutlined-icon')
+      ).not.toBeInTheDocument()
     })
 
     it('shows different icons for different currencies', () => {
-      const { container: usdContainer } = render(
-        <CurrencyDisplay amount={1000} currency='USD' showIcon />
-      )
-      const { container: eurContainer } = render(
-        <CurrencyDisplay amount={1000} currency='EUR' showIcon />
-      )
+      render(<CurrencyDisplay amount={1000} currency='USD' showIcon />)
+      expect(screen.getByTestId('dollaroutlined-icon')).toBeInTheDocument()
 
-      expect(usdContainer.querySelector('.anticon')).toBeInTheDocument()
-      expect(eurContainer.querySelector('.anticon')).toBeInTheDocument()
+      render(<CurrencyDisplay amount={1000} currency='EUR' showIcon />)
+      expect(screen.getByTestId('eurooutlined-icon')).toBeInTheDocument()
     })
   })
 

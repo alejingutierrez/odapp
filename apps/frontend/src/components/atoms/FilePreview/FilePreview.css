@@ -249,13 +249,15 @@
 }
 
 .oda-file-preview--grid.oda-file-preview--small .oda-file-preview__thumbnail,
-.oda-file-preview--grid.oda-file-preview--small .oda-file-preview__icon-container {
+.oda-file-preview--grid.oda-file-preview--small
+  .oda-file-preview__icon-container {
   width: 48px;
   height: 48px;
 }
 
 .oda-file-preview--grid.oda-file-preview--large .oda-file-preview__thumbnail,
-.oda-file-preview--grid.oda-file-preview--large .oda-file-preview__icon-container {
+.oda-file-preview--grid.oda-file-preview--large
+  .oda-file-preview__icon-container {
   width: 72px;
   height: 72px;
 }
@@ -369,15 +371,15 @@
     align-items: center;
     text-align: center;
   }
-  
+
   .oda-file-preview--grid {
     width: 100px;
   }
-  
+
   .oda-file-preview--large.oda-file-preview--grid {
     width: 120px;
   }
-  
+
   .oda-file-preview__basic-info {
     justify-content: center;
   }

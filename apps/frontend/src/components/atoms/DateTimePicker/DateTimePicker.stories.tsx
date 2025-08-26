@@ -18,7 +18,6 @@ const meta: Meta<typeof DateTimePicker> = {
     disabled: {
       control: 'boolean',
     },
-
   },
 }
 
@@ -97,7 +96,10 @@ export const States: Story = {
       </div>
       <div>
         <label>With Error</label>
-        <DateTimePicker validationError='Error message' placeholder={{ date: 'Error state' }} />
+        <DateTimePicker
+          validationError='Error message'
+          placeholder={{ date: 'Error state' }}
+        />
       </div>
     </div>
   ),
@@ -110,5 +112,3 @@ export const WithCustomFormat: Story = {
     placeholder: { date: 'DD/MM/YYYY', time: 'HH:mm' },
   },
 }
-
-

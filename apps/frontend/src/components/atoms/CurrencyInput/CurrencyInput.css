@@ -88,12 +88,17 @@
   box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
 }
 
-.oda-currency-input .ant-input-focused + .ant-input-group-addon .oda-currency-input__symbol {
+.oda-currency-input
+  .ant-input-focused
+  + .ant-input-group-addon
+  .oda-currency-input__symbol {
   border-color: #0ea5e9;
   color: #0ea5e9;
 }
 
-.oda-currency-input .ant-input-group-addon:has(.ant-select-focused) .oda-currency-input__symbol {
+.oda-currency-input
+  .ant-input-group-addon:has(.ant-select-focused)
+  .oda-currency-input__symbol {
   border-color: #0ea5e9;
 }
 
@@ -113,7 +118,10 @@
   color: #9ca3af;
 }
 
-.oda-currency-input .ant-input-disabled + .ant-input-group-addon .oda-currency-input__symbol {
+.oda-currency-input
+  .ant-input-disabled
+  + .ant-input-group-addon
+  .oda-currency-input__symbol {
   background: #f3f4f6;
   color: #9ca3af;
   border-color: #d1d5db;
@@ -124,7 +132,10 @@
   font-size: 14px;
 }
 
-.oda-currency-input .ant-input-sm + .ant-input-group-addon .oda-currency-input__symbol {
+.oda-currency-input
+  .ant-input-sm
+  + .ant-input-group-addon
+  .oda-currency-input__symbol {
   font-size: 13px;
   padding: 0 8px;
   min-width: 50px;
@@ -134,18 +145,25 @@
   font-size: 18px;
 }
 
-.oda-currency-input .ant-input-lg + .ant-input-group-addon .oda-currency-input__symbol {
+.oda-currency-input
+  .ant-input-lg
+  + .ant-input-group-addon
+  .oda-currency-input__symbol {
   font-size: 16px;
   padding: 0 16px;
   min-width: 70px;
 }
 
 /* Changeable Currency Styles */
-.oda-currency-input--changeable .oda-currency-input__selector:hover .ant-select-selector {
+.oda-currency-input--changeable
+  .oda-currency-input__selector:hover
+  .ant-select-selector {
   border-color: #0ea5e9;
 }
 
-.oda-currency-input--changeable .oda-currency-input__selector .ant-select-selector {
+.oda-currency-input--changeable
+  .oda-currency-input__selector
+  .ant-select-selector {
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -189,11 +207,11 @@
     padding: 0 8px;
     font-size: 13px;
   }
-  
+
   .oda-currency-input__selector {
     min-width: 80px;
   }
-  
+
   .oda-currency-input__field .ant-input {
     font-size: 16px; /* Prevent zoom on iOS */
   }

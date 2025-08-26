@@ -116,7 +116,7 @@
 }
 
 /* Custom Color Support */
-.oda-toggle[style*="--toggle-color"] .ant-switch-checked {
+.oda-toggle[style*='--toggle-color'] .ant-switch-checked {
   background-color: var(--toggle-color);
 }
 
@@ -157,12 +157,18 @@
 }
 
 /* Disabled State */
-.oda-toggle .ant-switch-disabled + .oda-toggle__label-container .oda-toggle__label {
+.oda-toggle
+  .ant-switch-disabled
+  + .oda-toggle__label-container
+  .oda-toggle__label {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.oda-toggle .ant-switch-disabled + .oda-toggle__label-container .oda-toggle__description {
+.oda-toggle
+  .ant-switch-disabled
+  + .oda-toggle__label-container
+  .oda-toggle__description {
   opacity: 0.4;
 }
 
@@ -181,11 +187,11 @@
   .oda-toggle {
     gap: 10px;
   }
-  
+
   .oda-toggle--large {
     gap: 12px;
   }
-  
+
   .oda-toggle--label-top,
   .oda-toggle--label-bottom {
     gap: 6px;

@@ -161,7 +161,8 @@
 
 /* Animation for selection */
 @keyframes oda-swatch-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -172,20 +173,25 @@
 }
 
 /* Special handling for white/light colors */
-.oda-color-swatch[style*="rgb(255, 255, 255)"],
-.oda-color-swatch[style*="#ffffff"],
-.oda-color-swatch[style*="#fff"] {
+.oda-color-swatch[style*='rgb(255, 255, 255)'],
+.oda-color-swatch[style*='#ffffff'],
+.oda-color-swatch[style*='#fff'] {
   border: 2px solid #e5e7eb !important;
 }
 
 /* Special handling for transparent/no color */
 .oda-color-swatch--no-color {
-  background: linear-gradient(45deg, #ff6b6b 25%, transparent 25%),
-              linear-gradient(-45deg, #ff6b6b 25%, transparent 25%),
-              linear-gradient(45deg, transparent 75%, #ff6b6b 75%),
-              linear-gradient(-45deg, transparent 75%, #ff6b6b 75%);
+  background:
+    linear-gradient(45deg, #ff6b6b 25%, transparent 25%),
+    linear-gradient(-45deg, #ff6b6b 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ff6b6b 75%),
+    linear-gradient(-45deg, transparent 75%, #ff6b6b 75%);
   background-size: 4px 4px;
-  background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+  background-position:
+    0 0,
+    0 2px,
+    2px -2px,
+    -2px 0px;
 }
 
 .oda-color-swatch--no-color::before {
@@ -202,7 +208,10 @@
 }
 
 /* Hover effects for palette */
-.oda-color-palette .oda-color-swatch:not(.oda-color-swatch--selected):not(.oda-color-swatch--disabled):hover {
+.oda-color-palette
+  .oda-color-swatch:not(.oda-color-swatch--selected):not(
+    .oda-color-swatch--disabled
+  ):hover {
   transform: scale(1.15);
   z-index: 2;
 }
@@ -212,12 +221,12 @@
   .oda-color-palette {
     gap: 6px;
   }
-  
+
   .oda-color-swatch--lg {
     width: 36px;
     height: 36px;
   }
-  
+
   .oda-color-swatch--xl {
     width: 40px;
     height: 40px;

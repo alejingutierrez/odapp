@@ -116,15 +116,15 @@
   .filter-panel__header {
     padding: 8px 12px;
   }
-  
+
   .filter-panel__collapse .ant-collapse-header {
     padding: 8px 12px !important;
   }
-  
+
   .filter-panel__collapse .ant-collapse-content-box {
     padding: 0 12px 12px 12px !important;
   }
-  
+
   .filter-panel__actions {
     padding: 0 12px 12px 12px;
   }

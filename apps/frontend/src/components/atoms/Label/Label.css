@@ -87,12 +87,12 @@
 
 /* Disabled State */
 .oda-label:disabled,
-.oda-label[aria-disabled="true"] {
+.oda-label[aria-disabled='true'] {
   color: #9ca3af;
   cursor: not-allowed;
 }
 
 .oda-label:disabled:hover,
-.oda-label[aria-disabled="true"]:hover {
+.oda-label[aria-disabled='true']:hover {
   color: #9ca3af;
 }

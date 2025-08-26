@@ -205,15 +205,15 @@
     border-radius: 8px;
     margin-top: 4px;
   }
-  
+
   .oda-dropdown__option {
     padding: 10px 12px;
   }
-  
+
   .oda-dropdown__option-main {
     font-size: 15px;
   }
-  
+
   .oda-dropdown--large .ant-select-selector {
     height: 44px;
     font-size: 16px;

@@ -148,7 +148,7 @@
   min-height: 80px;
 }
 
-.oda-input.ant-input[data-auto-size="true"] {
+.oda-input.ant-input[data-auto-size='true'] {
   resize: none;
 }
 

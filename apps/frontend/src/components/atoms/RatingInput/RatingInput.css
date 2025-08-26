@@ -296,17 +296,17 @@
   .oda-rating-input--large .oda-rating-input__emoji-current {
     font-size: 36px;
   }
-  
+
   .oda-rating-input--large .oda-rating-input__emoji-option {
     font-size: 24px;
   }
-  
+
   .oda-rating-input--large .oda-rating-input__thumb {
     width: 44px;
     height: 44px;
     font-size: 20px;
   }
-  
+
   .oda-rating-input__thumbs-container {
     gap: 8px;
   }

@@ -134,20 +134,20 @@
     gap: 8px;
     align-items: flex-start;
   }
-  
+
   .form-section__validation-summary {
     margin-left: 0;
     width: 100%;
   }
-  
+
   .form-section--collapsible .form-section__collapse .ant-collapse-header {
     padding: 12px !important;
   }
-  
+
   .form-section--collapsible .form-section__collapse .ant-collapse-content-box {
     padding: 12px !important;
   }
-  
+
   .form-section--static {
     padding: 12px;
   }

@@ -1,7 +1,112 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { ProductCard } from './ProductCard'
+
+// Mock the components that ProductCard depends on
+vi.mock('../ActionButtonGroup', () => ({
+  ActionButtonGroup: ({ actions, size: _size }: any) => {
+    if (!actions) return <div data-testid='action-button-group' />
+    return (
+      <div data-testid='action-button-group'>
+        {actions.map((action: any) => (
+          <button key={action.key} onClick={action.onClick}>
+            {action.label}
+          </button>
+        ))}
+      </div>
+    )
+  },
+}))
+
+vi.mock('../PriceDisplay', () => ({
+  PriceDisplay: ({ price }: any) => (
+    <span data-testid='price-display'>${price}</span>
+  ),
+}))
+
+vi.mock('../StatusIndicator', () => ({
+  StatusIndicator: ({ status: _status, text }: any) => (
+    <span data-testid='status-indicator'>{text}</span>
+  ),
+}))
+
+// Mock Ant Design components that might be causing issues
+vi.mock('antd', async () => {
+  const actual = await vi.importActual('antd')
+  return {
+    ...actual,
+    Card: Object.assign(
+      ({
+        children,
+        loading,
+        hoverable: _hoverable,
+        className,
+        cover,
+        actions,
+      }: any) => (
+        <div className={`ant-card ${className}`} data-testid='card'>
+          {loading && <div data-testid='card-loading'>Loading...</div>}
+          {cover && <div data-testid='card-cover'>{cover}</div>}
+          <div data-testid='card-content'>{children}</div>
+          {actions && <div data-testid='card-actions'>{actions}</div>}
+        </div>
+      ),
+      {
+        Meta: ({ title, description }: any) => (
+          <div data-testid='card-meta'>
+            <div data-testid='card-meta-title'>{title}</div>
+            <div data-testid='card-meta-description'>{description}</div>
+          </div>
+        ),
+      }
+    ),
+    Typography: {
+      Title: ({ children, level: _level, className, style }: any) => (
+        <h5 className={className} style={style} data-testid='typography-title'>
+          {children}
+        </h5>
+      ),
+      Text: ({ children, className, style }: any) => (
+        <span className={className} style={style} data-testid='typography-text'>
+          {children}
+        </span>
+      ),
+    },
+    Space: ({ children, size: _size, className }: any) => (
+      <div className={className} data-testid='space'>
+        {children}
+      </div>
+    ),
+    Image: ({
+      src,
+      alt,
+      fallback: _fallback,
+      preview: _preview,
+      className,
+    }: any) => (
+      <img src={src} alt={alt} className={className} data-testid='image' />
+    ),
+    Tooltip: ({ children, title }: any) => (
+      <div data-testid='tooltip' title={title}>
+        {children}
+      </div>
+    ),
+    Badge: ({
+      children,
+      count,
+      showZero: _showZero,
+      size: _size,
+      title,
+    }: any) => (
+      <div data-testid='badge' title={title}>
+        {children}
+        {count > 0 && <span data-testid='badge-count'>{count}</span>}
+      </div>
+    ),
+  }
+})
 
 describe('ProductCard', () => {
   const mockProduct = {
@@ -109,7 +214,7 @@ describe('ProductCard', () => {
   it('shows loading state', () => {
     render(<ProductCard product={mockProduct} loading={true} />)
 
-    expect(document.querySelector('.ant-skeleton')).toBeInTheDocument()
+    expect(screen.getByTestId('card-loading')).toBeInTheDocument()
   })
 
   it('shows out of stock state', () => {

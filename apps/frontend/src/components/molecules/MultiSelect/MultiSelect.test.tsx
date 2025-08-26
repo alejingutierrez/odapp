@@ -1,6 +1,6 @@
-
+import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MultiSelect } from './MultiSelect'
 
@@ -34,10 +34,14 @@ describe('MultiSelect', () => {
     render(<MultiSelect options={mockOptions} onChange={mockOnChange} />)
 
     const select = screen.getByRole('combobox')
-    await user.click(select)
+    await act(async () => {
+      await user.click(select)
+    })
 
     const option1 = screen.getByText('Option 1')
-    await user.click(option1)
+    await act(async () => {
+      await user.click(option1)
+    })
 
     expect(mockOnChange).toHaveBeenCalledWith(['1'])
   })
@@ -67,7 +71,9 @@ describe('MultiSelect', () => {
 
     const clearButton = document.querySelector('.ant-select-clear')
     if (clearButton) {
-      await user.click(clearButton)
+      await act(async () => {
+        await user.click(clearButton)
+      })
       expect(mockOnChange).toHaveBeenCalledWith([])
     }
   })
@@ -113,9 +119,7 @@ describe('MultiSelect', () => {
 
   it('limits maximum selections when maxCount is set', async () => {
     const user = userEvent.setup()
-    render(
-      <MultiSelect options={mockOptions} onChange={mockOnChange} />
-    )
+    render(<MultiSelect options={mockOptions} onChange={mockOnChange} />)
 
     const select = screen.getByRole('combobox')
     await user.click(select)

@@ -1,7 +1,8 @@
-
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { QuantitySelector } from './QuantitySelector'
 
 describe('QuantitySelector', () => {

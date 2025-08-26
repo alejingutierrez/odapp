@@ -34,8 +34,18 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
     sans-serif;
   background-color: #fafafa;
   color: #374151;
@@ -78,8 +88,12 @@ body {
   --oda-info: #3b82f6;
 
   /* Typography */
-  --oda-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --oda-font-family-mono: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --oda-font-family-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --oda-font-family-mono:
+    'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
 
   /* Font Sizes */
   --oda-text-xs: 12px;
@@ -117,10 +131,14 @@ body {
 
   /* Shadows */
   --oda-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --oda-shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --oda-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --oda-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --oda-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --oda-shadow-base:
+    0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --oda-shadow-md:
+    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --oda-shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --oda-shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
   /* Z-Index Scale */
   --oda-z-dropdown: 1000;
@@ -219,23 +237,53 @@ body {
   text-align: right;
 }
 
-.mb-0 { margin-bottom: 0; }
-.mb-1 { margin-bottom: var(--oda-space-2); }
-.mb-2 { margin-bottom: var(--oda-space-4); }
-.mb-3 { margin-bottom: var(--oda-space-6); }
-.mb-4 { margin-bottom: var(--oda-space-8); }
+.mb-0 {
+  margin-bottom: 0;
+}
+.mb-1 {
+  margin-bottom: var(--oda-space-2);
+}
+.mb-2 {
+  margin-bottom: var(--oda-space-4);
+}
+.mb-3 {
+  margin-bottom: var(--oda-space-6);
+}
+.mb-4 {
+  margin-bottom: var(--oda-space-8);
+}
 
-.mt-0 { margin-top: 0; }
-.mt-1 { margin-top: var(--oda-space-2); }
-.mt-2 { margin-top: var(--oda-space-4); }
-.mt-3 { margin-top: var(--oda-space-6); }
-.mt-4 { margin-top: var(--oda-space-8); }
+.mt-0 {
+  margin-top: 0;
+}
+.mt-1 {
+  margin-top: var(--oda-space-2);
+}
+.mt-2 {
+  margin-top: var(--oda-space-4);
+}
+.mt-3 {
+  margin-top: var(--oda-space-6);
+}
+.mt-4 {
+  margin-top: var(--oda-space-8);
+}
 
-.p-0 { padding: 0; }
-.p-1 { padding: var(--oda-space-2); }
-.p-2 { padding: var(--oda-space-4); }
-.p-3 { padding: var(--oda-space-6); }
-.p-4 { padding: var(--oda-space-8); }
+.p-0 {
+  padding: 0;
+}
+.p-1 {
+  padding: var(--oda-space-2);
+}
+.p-2 {
+  padding: var(--oda-space-4);
+}
+.p-3 {
+  padding: var(--oda-space-6);
+}
+.p-4 {
+  padding: var(--oda-space-8);
+}
 
 /* Responsive Design Utilities */
 @media (max-width: 640px) {
@@ -255,7 +303,7 @@ body {
   .oda-no-print {
     display: none !important;
   }
-  
+
   .oda-print-only {
     display: block !important;
   }

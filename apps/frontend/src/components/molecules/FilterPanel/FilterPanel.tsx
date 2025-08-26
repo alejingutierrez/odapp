@@ -92,7 +92,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     children: (
       <div className='filter-panel__section-content'>{section.content}</div>
     ),
-    collapsible: section.collapsible === false ? ('disabled' as const) : undefined,
+    collapsible:
+      section.collapsible === false ? ('disabled' as const) : undefined,
   }))
 
   const panelContent = (

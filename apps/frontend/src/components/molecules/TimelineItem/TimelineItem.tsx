@@ -179,9 +179,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
       {showTags && item.tags && item.tags.length > 0 && (
         <Space size='small' className='timeline-item__tags'>
           {item.tags.map((tag) => (
-            <Tag key={tag}>
-              {tag}
-            </Tag>
+            <Tag key={tag}>{tag}</Tag>
           ))}
         </Space>
       )}

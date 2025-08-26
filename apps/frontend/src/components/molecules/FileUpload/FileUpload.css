@@ -122,26 +122,26 @@
   .file-upload__button {
     padding: 16px;
   }
-  
+
   .file-upload__button-icon {
     font-size: 24px;
     margin-bottom: 8px;
   }
-  
+
   .file-upload__item {
     padding: 8px;
   }
-  
+
   .file-upload__item-preview {
     margin-right: 8px;
   }
-  
+
   .file-upload__thumbnail,
   .file-upload__icon {
     width: 32px;
     height: 32px;
   }
-  
+
   .file-upload__icon {
     font-size: 14px;
   }

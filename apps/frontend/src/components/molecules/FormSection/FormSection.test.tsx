@@ -1,5 +1,7 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom'
 import { describe, it, expect } from 'vitest'
 import { FormSection } from './FormSection'
 
@@ -102,7 +104,7 @@ describe('FormSection', () => {
     )
 
     // Check for validation icon in the DOM
-    const validationIcon = document.querySelector('.anticon-exclamation-circle')
+    const validationIcon = screen.getByTestId('exclamationcircleoutlined-icon')
     expect(validationIcon).toBeInTheDocument()
   })
 

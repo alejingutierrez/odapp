@@ -239,20 +239,20 @@
     padding: 14px 16px;
     font-size: 16px;
   }
-  
+
   .oda-accordion--large .ant-collapse-content-box {
     padding: 14px 16px;
   }
-  
+
   .oda-accordion--medium .ant-collapse-header {
     padding: 10px 14px;
     font-size: 15px;
   }
-  
+
   .oda-accordion--medium .ant-collapse-content-box {
     padding: 10px 14px;
   }
-  
+
   .oda-accordion__header {
     gap: 6px;
   }

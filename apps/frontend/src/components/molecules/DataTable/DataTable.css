@@ -67,25 +67,25 @@
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .data-table__toolbar-left,
   .data-table__toolbar-right {
     width: 100%;
   }
-  
+
   .data-table__toolbar-right {
     display: flex;
     justify-content: flex-end;
   }
-  
+
   .data-table__filters {
     padding: 8px 12px;
   }
-  
+
   .data-table__filter-item {
     width: 100%;
   }
-  
+
   .data-table__filter-item input {
     width: 100% !important;
   }

@@ -1,5 +1,7 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { vi, expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { SeasonalTag } from './SeasonalTag'
 
 // Mock Ant Design icons
@@ -10,6 +12,9 @@ vi.mock('@ant-design/icons', () => ({
   LeafOutlined: () => <span data-testid='leaf-icon' />,
   FireOutlined: () => <span data-testid='fire-icon' />,
   TrendingUpOutlined: () => <span data-testid='trending-icon' />,
+  EnvironmentOutlined: () => <span data-testid='environment-icon' />,
+  StarOutlined: () => <span data-testid='star-icon' />,
+  RiseOutlined: () => <span data-testid='rise-icon' />,
 }))
 
 describe('SeasonalTag', () => {

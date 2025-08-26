@@ -15,7 +15,9 @@ describe('TrendIndicator', () => {
     expect(
       container.querySelector('.oda-trend-indicator--up')
     ).toBeInTheDocument()
-    expect(container.querySelector('.anticon-arrow-up')).toBeInTheDocument()
+    expect(
+      container.querySelector('[data-testid*="arrow"]')
+    ).toBeInTheDocument()
   })
 
   it('shows negative trend correctly', () => {
@@ -25,7 +27,9 @@ describe('TrendIndicator', () => {
     expect(
       container.querySelector('.oda-trend-indicator--down')
     ).toBeInTheDocument()
-    expect(container.querySelector('.anticon-arrow-down')).toBeInTheDocument()
+    expect(
+      container.querySelector('[data-testid*="arrow"]')
+    ).toBeInTheDocument()
   })
 
   it('shows stable trend correctly', () => {

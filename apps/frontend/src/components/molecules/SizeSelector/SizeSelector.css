@@ -140,19 +140,19 @@
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .size-selector__group {
     justify-content: center;
   }
-  
+
   .size-selector--grid .size-selector__group {
     grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
   }
-  
+
   .size-selector__legend {
     text-align: center;
   }
-  
+
   .size-selector__legend .ant-space {
     flex-wrap: wrap;
     justify-content: center;

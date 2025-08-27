@@ -53,7 +53,7 @@ const mockPrisma = {
   $transaction: vi.fn(),
 }
 
-vi.mock('../lib/prisma.js', () => ({
+vi.mock('../lib/prisma', () => ({
   prisma: mockPrisma,
 }))
 

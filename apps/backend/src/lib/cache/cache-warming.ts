@@ -1,5 +1,5 @@
 import logger from '../logger.js'
-import { prisma } from '../prisma.js'
+import { prisma } from '../prisma'
 
 import { cacheManager, CacheOptions } from './cache-manager.js'
 

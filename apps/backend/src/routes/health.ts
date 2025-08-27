@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { sendSuccess, sendError } from '../lib/api-response.js'
 import { databaseHealthChecker } from '../lib/database-health.js'
 import { databasePool } from '../lib/database-pool.js'
-import { getDatabaseMetrics } from '../lib/prisma.js'
+import { getDatabaseMetrics } from '../lib/prisma'
 import { asyncHandler } from '../middleware/error-handler'
 
 const router: Router = Router()

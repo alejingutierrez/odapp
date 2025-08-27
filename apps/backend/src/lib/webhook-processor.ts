@@ -97,10 +97,15 @@ export class WebhookProcessor {
       .update(body, 'utf8')
       .digest('base64')
 
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(hmacHeader),
-      Buffer.from(calculatedHmac)
-    )
+    const providedHmac = Buffer.from(hmacHeader, 'base64')
+    const expectedHmac = Buffer.from(calculatedHmac, 'base64')
+
+    if (providedHmac.length !== expectedHmac.length) {
+      logger.error('Webhook HMAC verification failed: length mismatch')
+      return false
+    }
+
+    const isValid = crypto.timingSafeEqual(providedHmac, expectedHmac)
 
     if (!isValid) {
       logger.error('Webhook HMAC verification failed')

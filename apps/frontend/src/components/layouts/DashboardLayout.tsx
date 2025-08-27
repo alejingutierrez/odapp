@@ -2,14 +2,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   DashboardOutlined,
-  ShoppingOutlined,
-  InboxOutlined,
-  ShoppingCartOutlined,
   UserOutlined,
-  BarChartOutlined,
-  FileTextOutlined,
-  TruckOutlined,
-  ShopOutlined,
   SettingOutlined,
   BellOutlined,
   LogoutOutlined,
@@ -55,115 +48,12 @@ import { ThemeProvider } from '../common/ThemeProvider'
 const { Header, Sider, Content } = Layout
 const { useBreakpoint } = Grid
 
-// Menu items configuration
+// Simplified menu items configuration - only essential navigation
 const menuItems = [
   {
     key: '/',
     icon: <DashboardOutlined />,
     label: 'Dashboard',
-  },
-  {
-    key: '/products',
-    icon: <ShoppingOutlined />,
-    label: 'Products',
-    children: [
-      { key: '/products', label: 'All Products' },
-      { key: '/products/create', label: 'Add Product' },
-      { key: '/products/collections', label: 'Collections' },
-      { key: '/products/categories', label: 'Categories' },
-    ],
-  },
-  {
-    key: '/inventory',
-    icon: <InboxOutlined />,
-    label: 'Inventory',
-    children: [
-      { key: '/inventory', label: 'Stock Levels' },
-      { key: '/inventory/adjustments', label: 'Adjustments' },
-      { key: '/inventory/transfers', label: 'Transfers' },
-      { key: '/inventory/reports', label: 'Reports' },
-    ],
-  },
-  {
-    key: '/orders',
-    icon: <ShoppingCartOutlined />,
-    label: 'Orders',
-    children: [
-      { key: '/orders', label: 'All Orders' },
-      { key: '/orders/create', label: 'Create Order' },
-      { key: '/orders/returns', label: 'Returns' },
-      { key: '/orders/fulfillment', label: 'Fulfillment' },
-    ],
-  },
-  {
-    key: '/customers',
-    icon: <UserOutlined />,
-    label: 'Customers',
-    children: [
-      { key: '/customers', label: 'All Customers' },
-      { key: '/customers/segments', label: 'Segments' },
-      { key: '/customers/loyalty', label: 'Loyalty Program' },
-      { key: '/customers/communications', label: 'Communications' },
-    ],
-  },
-  {
-    key: '/analytics',
-    icon: <BarChartOutlined />,
-    label: 'Analytics',
-    children: [
-      { key: '/analytics/sales', label: 'Sales Analytics' },
-      { key: '/analytics/products', label: 'Product Analytics' },
-      { key: '/analytics/customers', label: 'Customer Analytics' },
-      { key: '/analytics/inventory', label: 'Inventory Analytics' },
-      { key: '/analytics/shopify', label: 'Shopify Analytics' },
-    ],
-  },
-  {
-    key: '/billing',
-    icon: <FileTextOutlined />,
-    label: 'Billing',
-    children: [
-      { key: '/billing', label: 'Invoices' },
-      { key: '/billing/payments', label: 'Payments' },
-      { key: '/billing/tax-settings', label: 'Tax Settings' },
-      { key: '/billing/reports', label: 'Reports' },
-    ],
-  },
-  {
-    key: '/logistics',
-    icon: <TruckOutlined />,
-    label: 'Logistics',
-    children: [
-      { key: '/logistics', label: 'Shipping' },
-      { key: '/logistics/carriers', label: 'Carriers' },
-      { key: '/logistics/tracking', label: 'Tracking' },
-      { key: '/logistics/returns', label: 'Returns' },
-    ],
-  },
-  {
-    key: '/shopify',
-    icon: <ShopOutlined />,
-    label: 'Shopify',
-    children: [
-      { key: '/shopify', label: 'Sync Status' },
-      { key: '/shopify/products', label: 'Products' },
-      { key: '/shopify/orders', label: 'Orders' },
-      { key: '/shopify/customers', label: 'Customers' },
-      { key: '/shopify/settings', label: 'Settings' },
-    ],
-  },
-  {
-    key: '/settings',
-    icon: <SettingOutlined />,
-    label: 'Settings',
-    children: [
-      { key: '/settings', label: 'General' },
-      { key: '/settings/users', label: 'Users' },
-      { key: '/settings/permissions', label: 'Permissions' },
-      { key: '/settings/integrations', label: 'Integrations' },
-      { key: '/settings/notifications', label: 'Notifications' },
-      { key: '/settings/backup', label: 'Backup' },
-    ],
   },
 ]
 
@@ -259,13 +149,17 @@ export const DashboardLayout: React.FC = () => {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Profile',
-      onClick: () => navigate('/settings/profile'),
+      onClick: () => {
+        // TODO: Implement profile page
+      },
     },
     {
       key: 'preferences',
       icon: <SettingOutlined />,
       label: 'Preferences',
-      onClick: () => navigate('/settings/preferences'),
+      onClick: () => {
+        // TODO: Implement preferences page
+      },
     },
     {
       type: 'divider' as const,

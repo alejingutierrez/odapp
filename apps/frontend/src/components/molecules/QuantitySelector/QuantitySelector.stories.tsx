@@ -25,7 +25,6 @@ const meta: Meta<typeof QuantitySelector> = {
     showLabel: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '400px' }}>
@@ -160,23 +159,25 @@ export const CustomFormatter: Story = {
   },
   }
 
-export const Interactive: Story = {
-  render: (args) => {
-    const [value, setValue] = useState(args.value || 1)
+const InteractiveComponent = (args: any) => {
+  const [value, setValue] = useState(args.value || 1)
 
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <QuantitySelector
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
-        <div style={{ fontSize: '14px', color: '#666' }}>
-          Current value: {value}
-        </div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <QuantitySelector
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+      <div style={{ fontSize: '14px', color: '#666' }}>
+        Current value: {value}
       </div>
-    )
-  },
+    </div>
+  )
+}
+
+export const Interactive: Story = {
+  render: InteractiveComponent,
   tags: ['autodocs'],
   args: {
     min: 1,
@@ -184,9 +185,8 @@ export const Interactive: Story = {
   },
   }
 
-export const ComplexExample: Story = {
-  render: (args) => {
-    const [value, setValue] = useState(args.value || 1)
+const ComplexExampleComponent = (args: any) => {
+  const [value, setValue] = useState(args.value || 1)
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -205,7 +205,10 @@ export const ComplexExample: Story = {
         </div>
       </div>
     )
-  },
+}
+
+export const ComplexExample: Story = {
+  render: ComplexExampleComponent,
   tags: ['autodocs'],
   args: {
     min: 1,

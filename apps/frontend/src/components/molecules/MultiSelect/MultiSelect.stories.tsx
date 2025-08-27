@@ -28,7 +28,6 @@ const meta: Meta<typeof MultiSelect> = {
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '500px' }}>
@@ -205,42 +204,46 @@ export const MinimalConfiguration: Story = {
   },
   }
 
-export const Interactive: Story = {
-  render: (args) => {
-    const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
+const InteractiveComponent = (args: any) => {
+  const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
 
-    return (
-      <MultiSelect
-        {...args}
-        value={selectedValues}
-        onChange={setSelectedValues}
-      />
-    )
-  },
+  return (
+    <MultiSelect
+      {...args}
+      value={selectedValues}
+      onChange={setSelectedValues}
+    />
+  )
+}
+
+export const Interactive: Story = {
+  render: InteractiveComponent,
   tags: ['autodocs'],
   args: {
     options: basicOptions,
     placeholder: 'Select fruits...',
   },
-  }
+}
+
+const ComplexExampleComponent = (args: any) => {
+  const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <MultiSelect
+        {...args}
+        value={selectedValues}
+        onChange={setSelectedValues}
+      />
+      <div style={{ fontSize: '14px', color: '#666' }}>
+        Selected: {selectedValues.length > 0 ? selectedValues.join(', ') : 'None'}
+      </div>
+    </div>
+  )
+}
 
 export const ComplexExample: Story = {
-  render: (args) => {
-    const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
-
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <MultiSelect
-          {...args}
-          value={selectedValues}
-          onChange={setSelectedValues}
-        />
-        <div style={{ fontSize: '14px', color: '#666' }}>
-          Selected: {selectedValues.length > 0 ? selectedValues.join(', ') : 'None'}
-        </div>
-      </div>
-    )
-  },
+  render: ComplexExampleComponent,
   tags: ['autodocs'],
   args: {
     options: categoryOptions,

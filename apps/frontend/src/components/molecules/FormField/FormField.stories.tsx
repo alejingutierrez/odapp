@@ -27,7 +27,6 @@ const meta: Meta<typeof FormField> = {
       options: ['vertical', 'horizontal'],
     },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '600px' }}>

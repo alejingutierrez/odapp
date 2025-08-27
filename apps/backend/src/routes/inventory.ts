@@ -1,4 +1,4 @@
-import { PrismaClient, AdjustmentType } from '@prisma/client'
+import { AdjustmentType } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 
@@ -13,7 +13,7 @@ import { WebSocketService } from '../services/websocket.service'
 export function createInventoryRouter(inventoryService?: InventoryService, webSocketService?: WebSocketService) {
   const router: Router = Router()
   const service = inventoryService || new InventoryService()
-  const wsService = webSocketService || new WebSocketService()
+  const _wsService = webSocketService || new WebSocketService()
 
   // Validation schemas
   const inventoryQuerySchema = z.object({

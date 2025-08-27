@@ -47,24 +47,25 @@ vi.mock('@prisma/client', () => {
   globalThis.mockPrisma = mockPrismaInstance
   
   return {
-  PrismaClient: vi.fn().mockImplementation(() => mockPrismaInstance),
-  SyncStatus: {
-    PENDING: 'pending',
-    RUNNING: 'running',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-  },
-  SyncDirection: {
-    PUSH: 'push',
-    PULL: 'pull',
-  },
-  EntityType: {
-    PRODUCTS: 'products',
-    INVENTORY: 'inventory',
-    CUSTOMERS: 'customers',
-    ORDERS: 'orders',
-  },
-}))
+    PrismaClient: vi.fn().mockImplementation(() => mockPrismaInstance),
+    SyncStatus: {
+      PENDING: 'pending',
+      RUNNING: 'running',
+      COMPLETED: 'completed',
+      FAILED: 'failed',
+    },
+    SyncDirection: {
+      PUSH: 'push',
+      PULL: 'pull',
+    },
+    EntityType: {
+      PRODUCTS: 'products',
+      INVENTORY: 'inventory',
+      CUSTOMERS: 'customers',
+      ORDERS: 'orders',
+    },
+  }
+}));
 vi.mock('../lib/logger')
 
 const mockedAxios = axios as any

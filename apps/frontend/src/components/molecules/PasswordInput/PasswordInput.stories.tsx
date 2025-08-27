@@ -25,7 +25,6 @@ const meta: Meta<typeof PasswordInput> = {
     showRequirements: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '400px' }}>
@@ -160,32 +159,33 @@ export const CustomPlaceholder: Story = {
   },
   }
 
-export const Interactive: Story = {
-  render: (args) => {
-    const [value, setValue] = useState(args.value || '')
+const InteractiveComponent = (args: any) => {
+  const [value, setValue] = useState(args.value || '')
 
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <PasswordInput
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
-        <div style={{ fontSize: '14px', color: '#666' }}>
-          Current value: {value || '(empty)'}
-        </div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <PasswordInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+      <div style={{ fontSize: '14px', color: '#666' }}>
+        Current value: {value || '(empty)'}
       </div>
-    )
-  },
+    </div>
+  )
+}
+
+export const Interactive: Story = {
+  render: InteractiveComponent,
   tags: ['autodocs'],
   args: {
     placeholder: 'Enter your password',
   },
   }
 
-export const ComplexExample: Story = {
-  render: (args) => {
-    const [value, setValue] = useState(args.value || '')
+const ComplexExampleComponent = (args: any) => {
+  const [value, setValue] = useState(args.value || '')
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -203,7 +203,10 @@ export const ComplexExample: Story = {
         </div>
       </div>
     )
-  },
+}
+
+export const ComplexExample: Story = {
+  render: ComplexExampleComponent,
   tags: ['autodocs'],
   args: {
     placeholder: 'Enter your password',

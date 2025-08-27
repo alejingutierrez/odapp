@@ -15,7 +15,6 @@ import {
 import {
   NotFoundError,
   BusinessLogicError,
-  InternalServerError,
   ValidationError,
 } from '../lib/errors'
 import { logger } from '../lib/logger'
@@ -191,7 +190,7 @@ export class OrderService {
       let subtotal = 0
 
       for (const item of data.items) {
-        let product, variant, price, name, sku, inventoryItem
+        let product, variant, price, name, sku
 
         if (item.variantId) {
           variant = await tx.productVariant.findUnique({
@@ -991,7 +990,7 @@ export class OrderService {
   async shipFulfillment(
     fulfillmentId: string,
     data: { trackingNumber?: string; trackingUrl?: string },
-    userId?: string
+    _userId?: string
   ): Promise<unknown> {
     const fulfillment = await prisma.fulfillment.findFirst({
       where: { id: fulfillmentId },
@@ -1082,7 +1081,7 @@ export class OrderService {
     returnId: string,
     approve: boolean,
     data: { refundAmount?: number },
-    userId?: string
+    _userId?: string
   ): Promise<unknown> {
     const returnRecord = await prisma.return.findFirst({
       where: { id: returnId },

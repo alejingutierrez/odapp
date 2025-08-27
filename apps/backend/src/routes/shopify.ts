@@ -12,7 +12,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
     try {
       const statuses = await service.getSyncStatuses()
       res.json({ success: true, data: statuses })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get sync status' })
     }
   })
@@ -53,7 +53,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         }
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to trigger full sync' })
     }
   })
@@ -71,7 +71,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, message: 'Products sync failed' })
     }
   })
@@ -89,7 +89,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to sync products' })
     }
   })
@@ -107,7 +107,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to sync inventory' })
     }
   })
@@ -125,7 +125,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to sync orders' })
     }
   })
@@ -143,7 +143,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to sync customers' })
     }
   })
@@ -161,7 +161,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         errors: []
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to sync customers' })
     }
   })
@@ -178,7 +178,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         nextAttemptTime: null
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get circuit breaker status' })
     }
   })
@@ -194,9 +194,9 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         })
       }
 
-      const result = await service.processWebhook(req.body, req.headers)
+      await service.processWebhook(req.body, req.headers)
       res.json({ success: true, message: 'Webhook processed successfully' })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Webhook processing failed' })
     }
   })
@@ -216,7 +216,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         }
       ]
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get webhook logs' })
     }
   })
@@ -241,7 +241,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         }
       ]
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get sync history' })
     }
   })
@@ -258,7 +258,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         averageDuration: 1500
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get sync metrics' })
     }
   })
@@ -275,7 +275,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         webhookSecret: true
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to get configuration' })
     }
   })
@@ -294,7 +294,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         }
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Connection test failed' })
     }
   })
@@ -309,7 +309,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         resolution: 'merge'
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to resolve conflicts' })
     }
   })
@@ -325,7 +325,7 @@ export function createShopifyRouter(shopifyService?: ShopifyService) {
         schedule: '0 */6 * * *'
       }
       res.json({ success: true, data })
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ success: false, error: 'Failed to schedule sync' })
     }
   })

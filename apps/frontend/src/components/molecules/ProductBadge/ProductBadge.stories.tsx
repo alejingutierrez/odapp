@@ -42,7 +42,6 @@ const meta: Meta<typeof ProductBadge> = {
     },
     animated: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '600px' }}>

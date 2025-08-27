@@ -21,7 +21,6 @@ const meta: Meta<typeof BreadcrumbNav> = {
     maxItems: { control: { type: 'number', min: 3, max: 10 } },
     showHome: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '800px' }}>
@@ -63,9 +62,9 @@ const settingsItems: BreadcrumbItem[] = [
 ]
 
 const itemsWithActions: BreadcrumbItem[] = [
-  { key: 'products', title: 'Products', onClick: () => console.log('Products clicked') },
-  { key: 'clothing', title: 'Clothing', onClick: () => console.log('Clothing clicked') },
-  { key: 'tshirts', title: 'T-Shirts', onClick: () => console.log('T-Shirts clicked') },
+  { key: 'products', title: 'Products', onClick: () => {} },
+  { key: 'clothing', title: 'Clothing', onClick: () => {} },
+  { key: 'tshirts', title: 'T-Shirts', onClick: () => {} },
 ]
 
 const itemsWithDisabled: BreadcrumbItem[] = [
@@ -155,7 +154,7 @@ export const SingleItem: Story = {
 export const WithCustomHomeClick: Story = {
   args: {
     items: basicItems,
-    onHomeClick: () => console.log('Home clicked'),
+    onHomeClick: () => {},
   },
   }
 

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import axios from 'axios'
+
 import { logger } from '../lib/logger.js'
 import { CircuitBreaker } from '../lib/circuit-breaker.js'
 import { RateLimiter } from '../lib/rate-limiter.js'
@@ -341,35 +341,7 @@ export class ShopifyService {
     }
   }
 
-  async getSyncHistory(entityType?: string): Promise<any[]> {
-    const where = entityType ? { entityType } : {}
-    return await this.prisma.syncStatus.findMany({
-      where,
-      orderBy: { startedAt: 'desc' },
-      take: 50
-    })
-  }
 
-  async processWebhook(body: any, headers: any): Promise<any> {
-    try {
-      // Simulate webhook processing
-      logger.info('Processing webhook:', body)
-      return { success: true, message: 'Webhook processed successfully' }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      logger.error('Error processing webhook:', error)
-      throw new Error(`Webhook processing failed: ${errorMessage}`)
-    }
-  }
-
-  async getWebhookLogs(topic?: string): Promise<any[]> {
-    const where = topic ? { topic } : {}
-    return await this.prisma.webhookLog.findMany({
-      where,
-      orderBy: { processedAt: 'desc' },
-      take: 50
-    })
-  }
 
   getConfiguration(): any {
     return {
@@ -382,7 +354,7 @@ export class ShopifyService {
 
   async testConnection(): Promise<{ connected: boolean; shop: any }> {
     try {
-      const shopInfo = await this.makeShopifyApiCall('/shop', 'GET')
+      await this.makeShopifyApiCall('/shop', 'GET')
       return { 
         connected: true, 
         shop: {
@@ -391,7 +363,7 @@ export class ShopifyService {
           domain: 'test-shop.myshopify.com'
         }
       }
-    } catch (error) {
+    } catch (_error) {
       return { 
         connected: false, 
         shop: null
@@ -401,9 +373,9 @@ export class ShopifyService {
 
   async resolveConflicts(data: any): Promise<{ success: boolean; message: string }> {
     try {
-      const result = await this.conflictResolver.resolve(data)
+      await this.conflictResolver.resolve(data)
       return { success: true, message: 'Conflicts resolved successfully' }
-    } catch (error) {
+    } catch (_error) {
       return { success: false, message: 'Failed to resolve conflicts' }
     }
   }
@@ -413,7 +385,7 @@ export class ShopifyService {
       // Simulate scheduling a sync
       logger.info('Scheduling sync:', data)
       return { success: true, message: 'Sync scheduled successfully' }
-    } catch (error) {
+    } catch (_error) {
       return { success: false, message: 'Failed to schedule sync' }
     }
   }
@@ -428,7 +400,7 @@ export class ShopifyService {
     logger.info('Processing order webhook:', body.id)
   }
 
-  private async makeShopifyApiCall(endpoint: string, method: string, data?: any): Promise<any> {
+  private async makeShopifyApiCall(endpoint: string, method: string, _data?: any): Promise<any> {
     // Simulate API call with potential failure
     if (Math.random() < 0.1) { // 10% failure rate
       throw new Error('Shopify API error')

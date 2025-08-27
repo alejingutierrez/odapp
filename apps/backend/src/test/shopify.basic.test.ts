@@ -11,7 +11,7 @@ describe('Shopify Integration - Basic Tests', () => {
       const types = require('../types/shopify.js')
       expect(types).toBeDefined()
       expect(typeof types).toBe('object')
-    } catch (error) {
+    } catch (_error) {
       // If types file doesn't exist, that's okay for basic tests
       expect(true).toBe(true)
     }
@@ -20,11 +20,14 @@ describe('Shopify Integration - Basic Tests', () => {
   it('should have validation schemas', () => {
     try {
       // Import from the main package since exports are configured that way
-      const { shopifyConfigSchema, shopifyWebhookSchema } = require('@oda/shared')
+      const {
+        shopifyConfigSchema,
+        shopifyWebhookSchema,
+      } = require('@oda/shared')
 
       expect(shopifyConfigSchema).toBeDefined()
       expect(shopifyWebhookSchema).toBeDefined()
-    } catch (error) {
+    } catch (_error) {
       // If schemas don't exist, that's okay for basic tests
       expect(true).toBe(true)
     }
@@ -36,7 +39,7 @@ describe('Shopify Integration - Basic Tests', () => {
 
       expect(routes).toBeDefined()
       expect(typeof routes.default).toBe('function') // Express router
-    } catch (error) {
+    } catch (_error) {
       // If routes don't exist, that's okay for basic tests
       expect(true).toBe(true)
     }
@@ -46,7 +49,7 @@ describe('Shopify Integration - Basic Tests', () => {
     try {
       const service = require('../services/shopify.service.js')
       expect(service).toBeDefined()
-    } catch (error) {
+    } catch (_error) {
       // If service doesn't exist, that's okay for basic tests
       expect(true).toBe(true)
     }

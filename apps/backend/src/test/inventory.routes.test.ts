@@ -3,7 +3,6 @@ import request from 'supertest'
 import express from 'express'
 import { AdjustmentType } from '@prisma/client'
 import { authenticate } from '../middleware/auth'
-import { errorHandler } from '../middleware/error-handler'
 
 // Mock dependencies first
 vi.mock('../middleware/auth', () => ({
@@ -39,7 +38,6 @@ describe('Inventory Routes', () => {
   let app: express.Application
   let mockInventoryService: Record<string, ReturnType<typeof vi.fn>>
   let mockWebSocketService: Record<string, unknown>
-  let mockPrisma: Record<string, unknown>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -73,7 +71,6 @@ describe('Inventory Routes', () => {
     }
 
     mockWebSocketService = {}
-    mockPrisma = {}
 
     // Create router with mocked services
     const inventoryRouter = createInventoryRouter(

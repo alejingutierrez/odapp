@@ -32,20 +32,115 @@ vi.mock('../services/payment-gateway.service.js')
 vi.mock('../services/shipping.service.js')
 vi.mock('../services/websocket.service.js')
 
-// Mock auth middleware
+// Mock auth middleware with basic token/permission handling
 vi.mock('../middleware/auth.js', async (importOriginal) => {
   const actual = await importOriginal()
+
+  const users: Record<string, { permissions: string[]; roles: string[] }> = {
+    'read-token': {
+      permissions: ['products:read'],
+      roles: ['user'],
+    },
+    'write-token': {
+      permissions: [
+        'products:read',
+        'products:write',
+        'products:delete',
+        'admin',
+      ],
+      roles: ['admin'],
+    },
+  }
+
+  const authenticate = (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization as string | undefined
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ success: false, error: 'Authentication required' })
+      return
+    }
+    const token = authHeader.substring(7)
+    const user = users[token]
+    if (!user) {
+      res.status(401).json({ success: false, error: 'Invalid token' })
+      return
+    }
+    req.user = {
+      id: 'test-user',
+      permissions: user.permissions,
+      roles: user.roles,
+    }
+    next()
+  }
+
+  const authorize = (permissions: string[]) => {
+    return (req: any, res: any, next: any) => {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: 'Authentication required' })
+        return
+      }
+      const hasPermission = permissions.some((p) =>
+        req.user.permissions?.includes(p)
+      )
+      if (!hasPermission) {
+        res
+          .status(403)
+          .json({ success: false, error: 'Insufficient permissions' })
+        return
+      }
+      next()
+    }
+  }
+
+  const requirePermission = (permission: string) => authorize([permission])
+  const requireAnyPermission = (perms: string[]) => authorize(perms)
+  const requireRole = (role: string) => {
+    return (req: any, res: any, next: any) => {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: 'Authentication required' })
+        return
+      }
+      if (!req.user.roles?.includes(role)) {
+        res
+          .status(403)
+          .json({ success: false, error: 'Insufficient role privileges' })
+        return
+      }
+      next()
+    }
+  }
+  const requireAnyRole = (roles: string[]) => {
+    return (req: any, res: any, next: any) => {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: 'Authentication required' })
+        return
+      }
+      const hasRole = roles.some((role) => req.user.roles?.includes(role))
+      if (!hasRole) {
+        res
+          .status(403)
+          .json({ success: false, error: 'Insufficient role privileges' })
+        return
+      }
+      next()
+    }
+  }
+
   return {
     ...actual,
     authRateLimit: vi.fn(() => (req: any, res: any, next: any) => next()),
-    authenticate: vi.fn(() => (req: any, res: any, next: any) => next()),
-    requireAuth: vi.fn(() => (req: any, res: any, next: any) => next()),
-    requirePermission: vi.fn(() => (req: any, res: any, next: any) => next()),
-    requireAnyPermission: vi.fn(
-      () => (req: any, res: any, next: any) => next()
-    ),
-    requireRole: vi.fn(() => (req: any, res: any, next: any) => next()),
-    requireAnyRole: vi.fn(() => (req: any, res: any, next: any) => next()),
+    authenticate,
+    requireAuth: authenticate,
+    authorize,
+    requirePermission,
+    requireAnyPermission,
+    requireRole,
+    requireAnyRole,
   }
 })
 

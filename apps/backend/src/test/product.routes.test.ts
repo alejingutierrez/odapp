@@ -5,6 +5,9 @@ import { createTestApp, setupCommonMocks } from './test-app.js'
 describe('Product Routes', () => {
   let app: any
 
+  const adminAuth = { Authorization: 'Bearer write-token' }
+  const readAuth = { Authorization: 'Bearer read-token' }
+
   const mockProduct = {
     id: 'product-1',
     name: 'Test Product',
@@ -66,6 +69,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .get('/api/products')
+        .set(adminAuth)
         .query({ page: 1, limit: 20 })
         .expect(200)
 
@@ -81,6 +85,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .get('/api/products')
+        .set(adminAuth)
         .query({
           search: 'test',
           status: 'active',
@@ -94,9 +99,7 @@ describe('Product Routes', () => {
     })
 
     it('should require authentication', async () => {
-      // This test will pass because authentication is mocked in test-app
-      const response = await request(app).get('/api/products').expect(200)
-      expect(response.body.success).toBe(true)
+      await request(app).get('/api/products').expect(401)
     })
   })
 
@@ -107,6 +110,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .get('/api/products/product-1')
+        .set(adminAuth)
         .expect(200)
 
       expect(response.body.success).toBe(true)
@@ -117,7 +121,10 @@ describe('Product Routes', () => {
       const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
-      await request(app).get('/api/products/non-existent').expect(404)
+      await request(app)
+        .get('/api/products/non-existent')
+        .set(adminAuth)
+        .expect(404)
     })
   })
 
@@ -133,6 +140,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .post('/api/products')
+        .set(adminAuth)
         .send({
           name: 'New Product',
           description: 'A new product',
@@ -156,6 +164,7 @@ describe('Product Routes', () => {
     it('should validate required fields', async () => {
       const response = await request(app)
         .post('/api/products')
+        .set(adminAuth)
         .send({ name: '' })
         .expect(400)
 
@@ -174,6 +183,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .put('/api/products/product-1')
+        .set(adminAuth)
         .send({
           name: 'Updated Product',
           description: 'Updated description',
@@ -190,6 +200,7 @@ describe('Product Routes', () => {
 
       await request(app)
         .put('/api/products/non-existent')
+        .set(adminAuth)
         .send({ name: 'Updated Product' })
         .expect(404)
     })
@@ -207,6 +218,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .delete('/api/products/product-1')
+        .set(adminAuth)
         .expect(200)
 
       expect(response.body.success).toBe(true)
@@ -216,7 +228,10 @@ describe('Product Routes', () => {
       const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
-      await request(app).delete('/api/products/non-existent').expect(404)
+      await request(app)
+        .delete('/api/products/non-existent')
+        .set(adminAuth)
+        .expect(404)
     })
   })
 
@@ -228,6 +243,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .post('/api/products/bulk-update')
+        .set(adminAuth)
         .send({
           productIds: ['product-1'],
           updates: { status: 'ACTIVE' },
@@ -240,6 +256,7 @@ describe('Product Routes', () => {
     it('should validate product IDs', async () => {
       const response = await request(app)
         .post('/api/products/bulk-update')
+        .set(adminAuth)
         .send({
           productIds: [],
           updates: { status: 'ACTIVE' },
@@ -259,6 +276,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .delete('/api/products/bulk-delete')
+        .set(adminAuth)
         .send({
           productIds: ['product-1'],
         })
@@ -275,6 +293,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .post('/api/products/product-1/images')
+        .set(adminAuth)
         .attach('images', Buffer.from('fake image data'), 'test.jpg')
         .expect(200)
 
@@ -282,7 +301,10 @@ describe('Product Routes', () => {
     })
 
     it('should return 400 when no images provided', async () => {
-      await request(app).post('/api/products/product-1/images').expect(400)
+      await request(app)
+        .post('/api/products/product-1/images')
+        .set(adminAuth)
+        .expect(400)
     })
 
     it('should return 404 for non-existent product', async () => {
@@ -291,6 +313,7 @@ describe('Product Routes', () => {
 
       await request(app)
         .post('/api/products/non-existent/images')
+        .set(adminAuth)
         .attach('images', Buffer.from('fake image data'), 'test.jpg')
         .expect(404)
     })
@@ -300,6 +323,7 @@ describe('Product Routes', () => {
     it('should return product analytics overview', async () => {
       const response = await request(app)
         .get('/api/products/analytics/overview')
+        .set(adminAuth)
         .expect(200)
 
       expect(response.body.success).toBe(true)
@@ -311,6 +335,7 @@ describe('Product Routes', () => {
     it('should import products from CSV successfully', async () => {
       const response = await request(app)
         .post('/api/products/import/csv')
+        .set(adminAuth)
         .attach(
           'file',
           Buffer.from('name,description,price\nTest,Description,29.99'),
@@ -324,7 +349,10 @@ describe('Product Routes', () => {
     })
 
     it('should return 400 when no file provided', async () => {
-      await request(app).post('/api/products/import/csv').expect(400)
+      await request(app)
+        .post('/api/products/import/csv')
+        .set(adminAuth)
+        .expect(400)
     })
   })
 
@@ -335,6 +363,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .post('/api/products/export')
+        .set(adminAuth)
         .send({
           format: 'csv',
           filters: { status: 'ACTIVE' },
@@ -347,6 +376,7 @@ describe('Product Routes', () => {
     it('should validate export format', async () => {
       const response = await request(app)
         .post('/api/products/export')
+        .set(adminAuth)
         .send({
           format: 'invalid',
           filters: { status: 'ACTIVE' },
@@ -364,6 +394,7 @@ describe('Product Routes', () => {
 
       const response = await request(app)
         .get('/api/products/search/suggestions')
+        .set(adminAuth)
         .query({ q: 'test', limit: 5 })
         .expect(200)
 
@@ -372,7 +403,10 @@ describe('Product Routes', () => {
     })
 
     it('should require query parameter', async () => {
-      await request(app).get('/api/products/search/suggestions').expect(400)
+      await request(app)
+        .get('/api/products/search/suggestions')
+        .set(adminAuth)
+        .expect(400)
     })
   })
 
@@ -380,6 +414,7 @@ describe('Product Routes', () => {
     it('should handle validation errors', async () => {
       const response = await request(app)
         .post('/api/products')
+        .set(adminAuth)
         .send({ name: '' }) // Invalid data
         .expect(400)
 
@@ -388,31 +423,88 @@ describe('Product Routes', () => {
   })
 
   describe('Authorization', () => {
-    it('should check read permissions for GET endpoints', async () => {
-      const response = await request(app).get('/api/products')
-      expect(response.status).toBe(200)
+    it('should require authentication for protected routes', async () => {
+      await request(app).get('/api/products').expect(401)
     })
 
-    it('should check write permissions for POST endpoints', async () => {
-      const response = await request(app).post('/api/products').send({
-        name: 'Test Product',
-        description: 'Test description',
+    it('should allow access with read permission', async () => {
+      const { prisma } = require('../lib/prisma')
+      prisma.product.findMany.mockResolvedValue([mockProduct])
+      prisma.product.count.mockResolvedValue(1)
+
+      const response = await request(app)
+        .get('/api/products')
+        .set(readAuth)
+        .expect(200)
+      expect(response.body.success).toBe(true)
+    })
+
+    it('should forbid writes without proper permission', async () => {
+      const response = await request(app)
+        .post('/api/products')
+        .set(readAuth)
+        .send({
+          name: 'Test Product',
+          description: 'Test description',
+          price: 29.99,
+          variants: [
+            {
+              sku: 'NEW-001',
+              size: 'M',
+              color: 'Red',
+              price: 29.99,
+              inventoryQuantity: 10,
+            },
+          ],
+        })
+      expect(response.status).toBe(403)
+    })
+
+    it('should allow writes with proper permission', async () => {
+      const { prisma } = require('../lib/prisma')
+      prisma.product.create.mockResolvedValue(mockProduct)
+      prisma.location.findFirst.mockResolvedValue({
+        id: 'location-1',
+        name: 'Default Location',
+        isDefault: true,
       })
-      expect(response.status).toBe(201)
+
+      const response = await request(app)
+        .post('/api/products')
+        .set(adminAuth)
+        .send({
+          name: 'Test Product',
+          description: 'Test description',
+          price: 29.99,
+          variants: [
+            {
+              sku: 'NEW-001',
+              size: 'M',
+              color: 'Red',
+              price: 29.99,
+              inventoryQuantity: 10,
+            },
+          ],
+        })
+        .expect(201)
+      expect(response.body.success).toBe(true)
     })
 
-    it('should check delete permissions for DELETE endpoints', async () => {
+    it('should enforce delete permissions', async () => {
       const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
       prisma.orderItem.count.mockResolvedValue(0)
 
-      const response = await request(app).delete('/api/products/product-1')
-      expect(response.status).toBe(200)
-    })
+      await request(app)
+        .delete('/api/products/product-1')
+        .set(readAuth)
+        .expect(403)
 
-    it('should check admin permissions for reindex endpoint', async () => {
-      const response = await request(app).post('/api/products/reindex')
-      expect(response.status).toBe(200)
+      const response = await request(app)
+        .delete('/api/products/product-1')
+        .set(adminAuth)
+        .expect(200)
+      expect(response.body.success).toBe(true)
     })
   })
 })

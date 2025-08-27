@@ -18,18 +18,33 @@ process.env.CORS_ORIGINS ||= '*'
 process.env.SMTP_HOST ||= 'smtp.example.com'
 process.env.SMTP_PORT ||= '587'
 process.env.SMTP_FROM ||= 'test@example.com'
-process.env.SESSION_SECRET ||= 'sessionsecretstringwith32chars'
+process.env.SESSION_SECRET ||= '12345678901234567890123456789012'
 process.env.ALLOWED_FILE_TYPES ||= 'image/jpeg,image/png'
 
-// Mock the customer service
-vi.mock('../services/customer.service.js')
+// Mock the customer service with explicit method stubs
+vi.mock('../services/customer.service.js', () => ({
+  customerService: {
+    searchCustomers: vi.fn(),
+    getCustomerById: vi.fn(),
+    getCustomerTimeline: vi.fn(),
+    createCustomer: vi.fn(),
+    updateCustomer: vi.fn(),
+    deleteCustomer: vi.fn(),
+    addInteraction: vi.fn(),
+    addLoyaltyPoints: vi.fn(),
+    redeemLoyaltyPoints: vi.fn(),
+    calculateLifetimeValue: vi.fn(),
+    exportCustomerData: vi.fn(),
+    createSegment: vi.fn(),
+    getAnalytics: vi.fn(),
+    bulkUpdateCustomers: vi.fn(),
+    importCustomers: vi.fn(),
+  },
+}))
 
 // Dynamically import mocked service and routes after env vars are set
 const { customerService } = await import('../services/customer.service.js')
 const customerRoutes = (await import('../routes/customers.js')).default
-
-// Mock the customer service
-vi.mock('../services/customer.service.js')
 
 // Mock auth middleware
 vi.mock('../middleware/auth.js', () => ({

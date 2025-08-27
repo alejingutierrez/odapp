@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { SizeIndicator, SizeChart, SizeGuide } from './SizeIndicator'

@@ -353,17 +353,6 @@ export default [
     },
   },
 
-  // Configuration for Storybook files
-  {
-    files: ['**/*.stories.{ts,tsx,js,jsx}'],
-    rules: {
-      'no-console': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'import/order': 'off',
-      'react/jsx-props-no-spreading': 'off',
-    },
-  },
-
   // Configuration for utility and hook files
   {
     files: [
@@ -387,6 +376,19 @@ export default [
       'react/jsx-props-no-spreading': 'warn', // Allow but warn about prop spreading
       'no-console': 'warn', // Allow but warn about console statements
       'import/order': 'off', // Disable import order for component files
+    },
+  },
+
+  // Configuration for Storybook files
+  {
+    files: ['**/*.stories.{ts,tsx,js,jsx}'],
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'import/order': 'off',
+      'react/jsx-props-no-spreading': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
 

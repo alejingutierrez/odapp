@@ -25,7 +25,6 @@ const meta: Meta<typeof QuantitySelector> = {
     showLabel: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '400px' }}>
@@ -44,7 +43,7 @@ export const Default: Story = {
     min: 1,
     max: 100,
   },
-  }
+}
 
 export const WithLabel: Story = {
   args: {
@@ -54,7 +53,7 @@ export const WithLabel: Story = {
     showLabel: true,
     label: 'Quantity',
   },
-  }
+}
 
 export const SmallSize: Story = {
   args: {
@@ -63,7 +62,7 @@ export const SmallSize: Story = {
     max: 100,
     size: 'small',
   },
-  }
+}
 
 export const LargeSize: Story = {
   args: {
@@ -72,7 +71,7 @@ export const LargeSize: Story = {
     max: 100,
     size: 'large',
   },
-  }
+}
 
 export const WithoutControls: Story = {
   args: {
@@ -81,7 +80,7 @@ export const WithoutControls: Story = {
     max: 100,
     showControls: false,
   },
-  }
+}
 
 export const Disabled: Story = {
   args: {
@@ -90,7 +89,7 @@ export const Disabled: Story = {
     max: 100,
     disabled: true,
   },
-  }
+}
 
 export const WithStep: Story = {
   args: {
@@ -99,7 +98,7 @@ export const WithStep: Story = {
     max: 100,
     step: 2,
   },
-  }
+}
 
 export const DecimalStep: Story = {
   args: {
@@ -109,7 +108,7 @@ export const DecimalStep: Story = {
     step: 0.5,
     precision: 1,
   },
-  }
+}
 
 export const HighValue: Story = {
   args: {
@@ -117,7 +116,7 @@ export const HighValue: Story = {
     min: 1,
     max: 1000,
   },
-  }
+}
 
 export const ZeroMinimum: Story = {
   args: {
@@ -125,7 +124,7 @@ export const ZeroMinimum: Story = {
     min: 0,
     max: 100,
   },
-  }
+}
 
 export const CustomRange: Story = {
   args: {
@@ -133,7 +132,7 @@ export const CustomRange: Story = {
     min: 5,
     max: 20,
   },
-  }
+}
 
 export const WithAddons: Story = {
   args: {
@@ -144,7 +143,7 @@ export const WithAddons: Story = {
     addonBefore: 'Qty:',
     addonAfter: 'items',
   },
-  }
+}
 
 export const CustomFormatter: Story = {
   args: {
@@ -158,7 +157,7 @@ export const CustomFormatter: Story = {
       return parsed ? parseInt(parsed, 10) : 1
     },
   },
-  }
+}
 
 export const Interactive: Story = {
   render: (args) => {
@@ -166,11 +165,7 @@ export const Interactive: Story = {
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <QuantitySelector
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
+        <QuantitySelector {...args} value={value} onChange={setValue} />
         <div style={{ fontSize: '14px', color: '#666' }}>
           Current value: {value}
         </div>
@@ -182,7 +177,7 @@ export const Interactive: Story = {
     min: 1,
     max: 100,
   },
-  }
+}
 
 export const ComplexExample: Story = {
   render: (args) => {
@@ -190,17 +185,15 @@ export const ComplexExample: Story = {
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <QuantitySelector
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
+        <QuantitySelector {...args} value={value} onChange={setValue} />
         <div style={{ fontSize: '14px', color: '#666' }}>
           <div>Value: {value}</div>
           <div>Min: {args.min}</div>
           <div>Max: {args.max}</div>
           <div>Step: {args.step}</div>
-          <div>Can increment: {value < (args.max || 999999) ? 'Yes' : 'No'}</div>
+          <div>
+            Can increment: {value < (args.max || 999999) ? 'Yes' : 'No'}
+          </div>
           <div>Can decrement: {value > (args.min || 1) ? 'Yes' : 'No'}</div>
         </div>
       </div>
@@ -212,14 +205,14 @@ export const ComplexExample: Story = {
     max: 50,
     step: 5,
   },
-  }
+}
 
 export const AllSizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <QuantitySelector value={1} size="small" />
-      <QuantitySelector value={1} size="middle" />
-      <QuantitySelector value={1} size="large" />
+      <QuantitySelector value={1} size='small' />
+      <QuantitySelector value={1} size='middle' />
+      <QuantitySelector value={1} size='large' />
     </div>
   ),
 }

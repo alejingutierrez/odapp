@@ -25,7 +25,6 @@ const meta: Meta<typeof PasswordInput> = {
     showRequirements: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '400px' }}>
@@ -42,42 +41,42 @@ export const Default: Story = {
   args: {
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const WithValue: Story = {
   args: {
     value: 'MyPassword123!',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const SmallSize: Story = {
   args: {
     size: 'small',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const LargeSize: Story = {
   args: {
     size: 'large',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const WithoutStrengthIndicator: Story = {
   args: {
     showStrengthIndicator: false,
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const WithoutRequirements: Story = {
   args: {
     showRequirements: false,
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const Disabled: Story = {
   args: {
@@ -85,7 +84,7 @@ export const Disabled: Story = {
     value: 'MyPassword123!',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const CustomStrengthConfig: Story = {
   args: {
@@ -98,35 +97,35 @@ export const CustomStrengthConfig: Story = {
     },
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const WeakPassword: Story = {
   args: {
     value: 'weak',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const FairPassword: Story = {
   args: {
     value: 'FairPass1',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const GoodPassword: Story = {
   args: {
     value: 'GoodPass123',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const StrongPassword: Story = {
   args: {
     value: 'StrongPass123!@#',
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const MinimalRequirements: Story = {
   args: {
@@ -139,7 +138,7 @@ export const MinimalRequirements: Story = {
     },
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const StrictRequirements: Story = {
   args: {
@@ -152,13 +151,13 @@ export const StrictRequirements: Story = {
     },
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const CustomPlaceholder: Story = {
   args: {
     placeholder: 'Create a secure password',
   },
-  }
+}
 
 export const Interactive: Story = {
   render: (args) => {
@@ -166,11 +165,7 @@ export const Interactive: Story = {
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <PasswordInput
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
+        <PasswordInput {...args} value={value} onChange={setValue} />
         <div style={{ fontSize: '14px', color: '#666' }}>
           Current value: {value || '(empty)'}
         </div>
@@ -181,7 +176,7 @@ export const Interactive: Story = {
   args: {
     placeholder: 'Enter your password',
   },
-  }
+}
 
 export const ComplexExample: Story = {
   render: (args) => {
@@ -189,17 +184,16 @@ export const ComplexExample: Story = {
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <PasswordInput
-          {...args}
-          value={value}
-          onChange={setValue}
-        />
+        <PasswordInput {...args} value={value} onChange={setValue} />
         <div style={{ fontSize: '14px', color: '#666' }}>
           <div>Length: {value.length} characters</div>
           <div>Has uppercase: {/[A-Z]/.test(value) ? 'Yes' : 'No'}</div>
           <div>Has lowercase: {/[a-z]/.test(value) ? 'Yes' : 'No'}</div>
           <div>Has numbers: {/\d/.test(value) ? 'Yes' : 'No'}</div>
-          <div>Has special chars: {/[!@#$%^&*(),.?":{}|<>]/.test(value) ? 'Yes' : 'No'}</div>
+          <div>
+            Has special chars:{' '}
+            {/[!@#$%^&*(),.?":{}|<>]/.test(value) ? 'Yes' : 'No'}
+          </div>
         </div>
       </div>
     )
@@ -215,11 +209,11 @@ export const ComplexExample: Story = {
       requireSpecialChars: true,
     },
   },
-  }
+}
 
 export const EmptyState: Story = {
   args: {
     value: '',
     placeholder: 'Enter your password',
   },
-  }
+}

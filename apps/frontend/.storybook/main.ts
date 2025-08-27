@@ -1,5 +1,6 @@
-import type { StorybookConfig } from '@storybook/react-webpack5'
 import path from 'path'
+
+import type { StorybookConfig } from '@storybook/react-webpack5'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -24,7 +25,8 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+      propFilter: (prop) =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
   },
   webpackFinal: async (config) => {
@@ -32,7 +34,11 @@ const config: StorybookConfig = {
 
     // Add TypeScript resolution
     if (config.resolve) {
-      config.resolve.extensions = [...(config.resolve.extensions || []), '.ts', '.tsx']
+      config.resolve.extensions = [
+        ...(config.resolve.extensions || []),
+        '.ts',
+        '.tsx',
+      ]
       config.resolve.alias = {
         ...config.resolve.alias,
         '@': path.resolve(__dirname, '../src'),

@@ -42,7 +42,6 @@ const meta: Meta<typeof ProductBadge> = {
     },
     animated: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '600px' }}>
@@ -60,16 +59,16 @@ export const Default: Story = {
     type: 'sale',
     discount: 25,
   },
-  }
+}
 
 export const New: Story = {
   args: {
     type: 'new',
   },
-  }
+}
 
 export const Featured: Story = {
   args: {
     type: 'featured',
   },
-  }
+}

@@ -28,7 +28,6 @@ const meta: Meta<typeof MultiSelect> = {
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
   },
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ padding: '20px', maxWidth: '500px' }}>
@@ -91,7 +90,7 @@ export const Default: Story = {
     options: basicOptions,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const WithPreselectedValues: Story = {
   args: {
@@ -99,14 +98,14 @@ export const WithPreselectedValues: Story = {
     value: ['apple', 'banana'],
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const GroupedOptions: Story = {
   args: {
     options: categoryOptions,
     placeholder: 'Select categories...',
   },
-  }
+}
 
 export const WithSearch: Story = {
   args: {
@@ -114,7 +113,7 @@ export const WithSearch: Story = {
     searchable: true,
     placeholder: 'Search and select fruits...',
   },
-  }
+}
 
 export const WithoutSearch: Story = {
   args: {
@@ -122,7 +121,7 @@ export const WithoutSearch: Story = {
     searchable: false,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const WithoutSelectAll: Story = {
   args: {
@@ -130,7 +129,7 @@ export const WithoutSelectAll: Story = {
     showSelectAll: false,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const WithoutClearAll: Story = {
   args: {
@@ -138,7 +137,7 @@ export const WithoutClearAll: Story = {
     showClearAll: false,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const SmallSize: Story = {
   args: {
@@ -146,7 +145,7 @@ export const SmallSize: Story = {
     size: 'small',
     placeholder: 'Select sizes...',
   },
-  }
+}
 
 export const LargeSize: Story = {
   args: {
@@ -154,7 +153,7 @@ export const LargeSize: Story = {
     size: 'large',
     placeholder: 'Select sizes...',
   },
-  }
+}
 
 export const Disabled: Story = {
   args: {
@@ -162,7 +161,7 @@ export const Disabled: Story = {
     disabled: true,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const Loading: Story = {
   args: {
@@ -170,14 +169,14 @@ export const Loading: Story = {
     loading: true,
     placeholder: 'Loading options...',
   },
-  }
+}
 
 export const WithDisabledOptions: Story = {
   args: {
     options: disabledOptions,
     placeholder: 'Select options...',
   },
-  }
+}
 
 export const LimitedTagCount: Story = {
   args: {
@@ -186,14 +185,14 @@ export const LimitedTagCount: Story = {
     value: ['apple', 'banana', 'orange', 'grape'],
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const CustomPlaceholder: Story = {
   args: {
     options: categoryOptions,
     placeholder: 'Choose your favorite categories...',
   },
-  }
+}
 
 export const MinimalConfiguration: Story = {
   args: {
@@ -203,11 +202,13 @@ export const MinimalConfiguration: Story = {
     showClearAll: false,
     placeholder: 'Select...',
   },
-  }
+}
 
 export const Interactive: Story = {
   render: (args) => {
-    const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
+    const [selectedValues, setSelectedValues] = useState<(string | number)[]>(
+      []
+    )
 
     return (
       <MultiSelect
@@ -222,11 +223,13 @@ export const Interactive: Story = {
     options: basicOptions,
     placeholder: 'Select fruits...',
   },
-  }
+}
 
 export const ComplexExample: Story = {
   render: (args) => {
-    const [selectedValues, setSelectedValues] = useState<(string | number)[]>([])
+    const [selectedValues, setSelectedValues] = useState<(string | number)[]>(
+      []
+    )
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -236,7 +239,8 @@ export const ComplexExample: Story = {
           onChange={setSelectedValues}
         />
         <div style={{ fontSize: '14px', color: '#666' }}>
-          Selected: {selectedValues.length > 0 ? selectedValues.join(', ') : 'None'}
+          Selected:{' '}
+          {selectedValues.length > 0 ? selectedValues.join(', ') : 'None'}
         </div>
       </div>
     )
@@ -247,4 +251,4 @@ export const ComplexExample: Story = {
     placeholder: 'Select categories...',
     maxTagCount: 3,
   },
-  }
+}

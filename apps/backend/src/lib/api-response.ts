@@ -87,7 +87,9 @@ export const sendSuccess = <T>(
       timestamp: new Date().toISOString(),
     },
   }
-
+  if (res.headersSent) {
+    return res
+  }
   return res.status(statusCode).json(response)
 }
 
@@ -145,7 +147,9 @@ export const sendError = (
       requestId,
     },
   }
-
+  if (res.headersSent) {
+    return res
+  }
   return res.status(statusCode).json(response)
 }
 

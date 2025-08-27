@@ -239,6 +239,10 @@ export class ShopifyService {
     }
   }
 
+  async getProducts(): Promise<any[]> {
+    return this.makeShopifyApiCall('/products', 'GET')
+  }
+
   async getSyncStatuses(): Promise<any[]> {
     return await (this.prisma as any).syncStatus.findMany({
       orderBy: { startedAt: 'desc' },
@@ -504,55 +508,57 @@ export class ShopifyService {
     method: string,
     _data?: any
   ): Promise<any> {
-    // Simulate API call with potential failure
-    if (Math.random() < 0.1) {
-      // 10% failure rate
-      throw new Error('Shopify API error')
-    }
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    // Return mock data based on endpoint
-    if (endpoint === '/products' && method === 'GET') {
-      return [
-        {
-          id: 123456,
-          title: 'Test Product',
-          body_html: 'Test Description',
-          variants: [{ price: '29.99' }],
-        },
-      ]
-    } else if (endpoint === '/orders' && method === 'GET') {
-      return [
-        {
-          id: 789012,
-          order_number: '1001',
-          total_price: '29.99',
-          currency: 'USD',
-        },
-      ]
-    } else if (endpoint === '/customers' && method === 'GET') {
-      return [
-        {
-          id: 345678,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'john@example.com',
-        },
-      ]
-    } else if (endpoint === '/shop' && method === 'GET') {
-      return {
-        id: 1,
-        name: 'Test Shop',
-        domain: 'test-shop.myshopify.com',
+    return this.circuitBreaker.execute(async () => {
+      // Simulate API call with potential failure
+      if (Math.random() < 0.1) {
+        // 10% failure rate
+        throw new Error('Shopify API error')
       }
-    } else if (endpoint === '/products' && method === 'POST') {
-      return { success: true, id: 123456 }
-    } else if (endpoint.includes('/inventory_levels/') && method === 'PUT') {
-      return { success: true }
-    }
 
-    return { success: true }
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Return mock data based on endpoint
+      if (endpoint === '/products' && method === 'GET') {
+        return [
+          {
+            id: 123456,
+            title: 'Test Product',
+            body_html: 'Test Description',
+            variants: [{ price: '29.99' }],
+          },
+        ]
+      } else if (endpoint === '/orders' && method === 'GET') {
+        return [
+          {
+            id: 789012,
+            order_number: '1001',
+            total_price: '29.99',
+            currency: 'USD',
+          },
+        ]
+      } else if (endpoint === '/customers' && method === 'GET') {
+        return [
+          {
+            id: 345678,
+            first_name: 'John',
+            last_name: 'Doe',
+            email: 'john@example.com',
+          },
+        ]
+      } else if (endpoint === '/shop' && method === 'GET') {
+        return {
+          id: 1,
+          name: 'Test Shop',
+          domain: 'test-shop.myshopify.com',
+        }
+      } else if (endpoint === '/products' && method === 'POST') {
+        return { success: true, id: 123456 }
+      } else if (endpoint.includes('/inventory_levels/') && method === 'PUT') {
+        return { success: true }
+      }
+
+      return { success: true }
+    })
   }
 }

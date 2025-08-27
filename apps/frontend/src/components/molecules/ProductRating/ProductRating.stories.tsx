@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ProductRating } from './ProductRating'
@@ -23,7 +22,7 @@ const meta: Meta<typeof ProductRating> = {
       options: ['small', 'default', 'large'],
     },
   },
-  }
+}
 
 export default meta
 type Story = StoryObj<typeof ProductRating>
@@ -35,7 +34,7 @@ export const Default: Story = {
     showCount: true,
     showValue: false,
   },
-  }
+}
 
 export const WithValue: Story = {
   args: {
@@ -44,7 +43,7 @@ export const WithValue: Story = {
     showCount: true,
     showValue: true,
   },
-  }
+}
 
 export const Interactive: Story = {
   args: {
@@ -57,7 +56,7 @@ export const Interactive: Story = {
       }
     },
   },
-  }
+}
 
 export const Small: Story = {
   args: {
@@ -65,7 +64,7 @@ export const Small: Story = {
     reviewCount: 23,
     size: 'small',
   },
-  }
+}
 
 export const Large: Story = {
   args: {
@@ -74,7 +73,7 @@ export const Large: Story = {
     size: 'large',
     showValue: true,
   },
-  }
+}
 
 export const NoReviews: Story = {
   args: {
@@ -82,7 +81,7 @@ export const NoReviews: Story = {
     reviewCount: 0,
     showCount: true,
   },
-  }
+}
 
 export const SingleReview: Story = {
   args: {
@@ -91,4 +90,4 @@ export const SingleReview: Story = {
     showCount: true,
     showValue: true,
   },
-  }
+}

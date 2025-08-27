@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ProductCard } from './ProductCard'
@@ -23,7 +22,7 @@ const meta: Meta<typeof ProductCard> = {
     onAddToCart: { action: 'add to cart clicked' },
     onToggleFavorite: { action: 'favorite toggled' },
   },
-  }
+}
 
 export default meta
 type Story = StoryObj<typeof ProductCard>
@@ -98,7 +97,7 @@ export const Default: Story = {
       }
     },
   },
-  }
+}
 
 export const WithAllActions: Story = {
   args: {
@@ -129,7 +128,7 @@ export const WithAllActions: Story = {
       }
     },
   },
-  }
+}
 
 export const Compact: Story = {
   args: {
@@ -146,7 +145,7 @@ export const Compact: Story = {
       }
     },
   },
-  }
+}
 
 export const WithInventory: Story = {
   args: {
@@ -163,7 +162,7 @@ export const WithInventory: Story = {
       }
     },
   },
-  }
+}
 
 export const OutOfStock: Story = {
   args: {
@@ -178,14 +177,14 @@ export const OutOfStock: Story = {
       }
     },
   },
-  }
+}
 
 export const Loading: Story = {
   args: {
     product: sampleProduct,
     loading: true,
   },
-  }
+}
 
 export const DraftStatus: Story = {
   args: {
@@ -204,4 +203,4 @@ export const DraftStatus: Story = {
       }
     },
   },
-  }
+}

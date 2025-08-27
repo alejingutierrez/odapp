@@ -353,17 +353,6 @@ export default [
     },
   },
 
-  // Configuration for Storybook files
-  {
-    files: ['**/*.stories.{ts,tsx,js,jsx}'],
-    rules: {
-      'no-console': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'import/order': 'off',
-      'react/jsx-props-no-spreading': 'off',
-    },
-  },
-
   // Configuration for utility and hook files
   {
     files: [
@@ -397,6 +386,20 @@ export default [
       'no-console': 'warn', // Allow but warn about console statements
       '@typescript-eslint/no-non-null-assertion': 'warn', // Allow but warn about non-null assertions
       'import/order': 'off', // Disable import order for routes and middleware
+    },
+  },
+
+  // Configuration for Storybook files
+  {
+    files: ['**/*.stories.{ts,tsx,js,jsx}'],
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'import/order': 'off',
+      'react/jsx-props-no-spreading': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 

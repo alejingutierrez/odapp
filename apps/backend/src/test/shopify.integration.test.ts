@@ -15,18 +15,74 @@ import {
 
 // Mock external dependencies
 vi.mock('axios')
-vi.mock('@prisma/client')
+
+
+
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn().mockImplementation(() => ({
+    product: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+    },
+    inventoryItem: {
+      findMany: vi.fn(),
+      update: vi.fn(),
+    },
+    customer: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    order: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    syncStatus: {
+      create: vi.fn(),
+      update: vi.fn(),
+      findMany: vi.fn(),
+    },
+    webhookLog: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+    },
+    $transaction: vi.fn(),
+  })),
+  SyncStatus: {
+    PENDING: 'pending',
+    RUNNING: 'running',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+  },
+  SyncDirection: {
+    PUSH: 'push',
+    PULL: 'pull',
+  },
+  EntityType: {
+    PRODUCTS: 'products',
+    INVENTORY: 'inventory',
+    CUSTOMERS: 'customers',
+    ORDERS: 'orders',
+  },
+}))
 vi.mock('../lib/logger')
 
 describe('Shopify Integration Tests', () => {
   let prisma: PrismaClient
+  let mockPrisma: any
   let shopifyService: ShopifyService
   let webhookProcessor: WebhookProcessor
 
   beforeEach(() => {
     vi.clearAllMocks()
 
-    prisma = new PrismaClient() as any
+    prisma = new PrismaClient()
+    mockPrisma = prisma as any
     shopifyService = new ShopifyService(prisma, 'test-shop', 'test-token')
     webhookProcessor = new WebhookProcessor(prisma)
   })
@@ -51,10 +107,10 @@ describe('Shopify Integration Tests', () => {
       ]
 
       // Mock database operations
-      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
-      ;(prisma.product.findMany as any).mockResolvedValue(mockProducts)
-      ;(prisma.product.update as any).mockResolvedValue({})
-      ;(prisma.syncStatus.update as any).mockResolvedValue({})
+      mockPrisma.syncStatus.create.mockResolvedValue({ id: 'sync-1' })
+      mockPrisma.product.findMany.mockResolvedValue(mockProducts)
+      mockPrisma.product.update.mockResolvedValue({})
+      mockPrisma.syncStatus.update.mockResolvedValue({})
 
       // Mock Shopify API responses
       const mockAxiosInstance = {
@@ -78,7 +134,7 @@ describe('Shopify Integration Tests', () => {
       expect(result.total).toBe(1)
 
       // Verify sync status was tracked
-      expect(prisma.syncStatus.create).toHaveBeenCalledWith({
+      expect(mockPrisma.syncStatus.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           entityType: 'products',
           direction: 'push',
@@ -86,7 +142,7 @@ describe('Shopify Integration Tests', () => {
         }),
       })
 
-      expect(prisma.syncStatus.update).toHaveBeenCalledWith({
+      expect(mockPrisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: 'sync-1' },
         data: expect.objectContaining({
           status: 'completed',
@@ -114,10 +170,10 @@ describe('Shopify Integration Tests', () => {
         updated_at: '2023-01-02T00:00:00Z',
       }
 
-      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
-      ;(prisma.product.findMany as any).mockResolvedValue([localProduct])
-      ;(prisma.product.update as any).mockResolvedValue({})
-      ;(prisma.syncStatus.update as any).mockResolvedValue({})
+      mockPrisma.syncStatus.create.mockResolvedValue({ id: 'sync-1' })
+      mockPrisma.product.findMany.mockResolvedValue([localProduct])
+      mockPrisma.product.update.mockResolvedValue({})
+      mockPrisma.syncStatus.update.mockResolvedValue({})
 
       const mockAxiosInstance = {
         get: vi.fn().mockResolvedValue({
@@ -163,9 +219,9 @@ describe('Shopify Integration Tests', () => {
         payload: mockShopifyProduct,
       }
 
-      ;(prisma.product.findFirst as any).mockResolvedValue(null)
-      ;(prisma.product.create as any).mockResolvedValue({})
-      ;(prisma.webhookLog.create as any).mockResolvedValue({})
+      mockPrisma.product.findFirst.mockResolvedValue(null)
+      mockPrisma.product.create.mockResolvedValue({})
+      mockPrisma.webhookLog.create.mockResolvedValue({})
 
       // Mock webhook verification
       process.env.SHOPIFY_WEBHOOK_SECRET = 'test-secret'
@@ -174,7 +230,7 @@ describe('Shopify Integration Tests', () => {
       await webhookProcessor.process(productWebhook)
 
       // Assert
-      expect(prisma.product.create).toHaveBeenCalledWith({
+      expect(mockPrisma.product.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           title: mockShopifyProduct.title,
           shopifyId: mockShopifyProduct.id.toString(),
@@ -182,7 +238,7 @@ describe('Shopify Integration Tests', () => {
         }),
       })
 
-      expect(prisma.webhookLog.create).toHaveBeenCalledWith({
+      expect(mockPrisma.webhookLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           topic: 'products/create',
           status: 'processed',
@@ -198,17 +254,17 @@ describe('Shopify Integration Tests', () => {
         payload: mockShopifyOrder,
       }
 
-      ;(prisma.order.findFirst as any).mockResolvedValue(null)
-      ;(prisma.customer.findFirst as any).mockResolvedValue(null)
-      ;(prisma.customer.create as any).mockResolvedValue({ id: 'customer-1' })
-      ;(prisma.order.create as any).mockResolvedValue({})
-      ;(prisma.webhookLog.create as any).mockResolvedValue({})
+      mockPrisma.order.findFirst.mockResolvedValue(null)
+      mockPrisma.customer.findFirst.mockResolvedValue(null)
+      mockPrisma.customer.create.mockResolvedValue({ id: 'customer-1' })
+      mockPrisma.order.create.mockResolvedValue({})
+      mockPrisma.webhookLog.create.mockResolvedValue({})
 
       // Act
       await webhookProcessor.process(orderWebhook)
 
       // Assert
-      expect(prisma.customer.create).toHaveBeenCalledWith({
+      expect(mockPrisma.customer.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           email: mockShopifyOrder.customer.email,
           shopifyId: mockShopifyOrder.customer.id.toString(),
@@ -216,7 +272,7 @@ describe('Shopify Integration Tests', () => {
         }),
       })
 
-      expect(prisma.order.create).toHaveBeenCalledWith({
+      expect(mockPrisma.order.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           orderNumber: mockShopifyOrder.order_number.toString(),
           customerId: 'customer-1',
@@ -408,10 +464,10 @@ describe('Shopify Integration Tests', () => {
   describe('Sync Status Management Integration', () => {
     it('should track sync lifecycle correctly', async () => {
       // Arrange
-      const syncStatusManager = new SyncStatusManager(prisma)
+      const syncStatusManager = new SyncStatusManager(mockPrisma)
 
-      ;(prisma.syncStatus.create as any).mockResolvedValue({ id: 'sync-1' })
-      ;(prisma.syncStatus.update as any).mockResolvedValue({})
+      mockPrisma.syncStatus.create.mockResolvedValue({ id: 'sync-1' })
+      mockPrisma.syncStatus.update.mockResolvedValue({})
 
       // Act
       const syncId = await syncStatusManager.startSync('products', 'pull')
@@ -427,7 +483,7 @@ describe('Shopify Integration Tests', () => {
       })
 
       // Assert
-      expect(prisma.syncStatus.create).toHaveBeenCalledWith({
+      expect(mockPrisma.syncStatus.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           entityType: 'products',
           direction: 'pull',
@@ -435,7 +491,7 @@ describe('Shopify Integration Tests', () => {
         }),
       })
 
-      expect(prisma.syncStatus.update).toHaveBeenCalledWith({
+      expect(mockPrisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: syncId },
         data: expect.objectContaining({
           successful: 5,
@@ -444,7 +500,7 @@ describe('Shopify Integration Tests', () => {
         }),
       })
 
-      expect(prisma.syncStatus.update).toHaveBeenCalledWith({
+      expect(mockPrisma.syncStatus.update).toHaveBeenCalledWith({
         where: { id: syncId },
         data: expect.objectContaining({
           status: 'completed',
@@ -457,7 +513,7 @@ describe('Shopify Integration Tests', () => {
 
     it('should calculate sync metrics correctly', async () => {
       // Arrange
-      const syncStatusManager = new SyncStatusManager(prisma)
+      const syncStatusManager = new SyncStatusManager(mockPrisma)
 
       const mockSyncs = [
         {
@@ -477,7 +533,7 @@ describe('Shopify Integration Tests', () => {
         },
       ]
 
-      const mockFindMany = prisma.syncStatus.findMany as any
+      const mockFindMany = mockPrisma.syncStatus.findMany
       mockFindMany.mockResolvedValue(mockSyncs)
 
       // Act
@@ -495,11 +551,11 @@ describe('Shopify Integration Tests', () => {
   describe('Full Integration Scenario', () => {
     it('should handle complete sync workflow with all components', async () => {
       // Arrange - Set up all mocks for a complete workflow
-      const mockCreate = prisma.syncStatus.create as any
-      const mockUpdate = prisma.syncStatus.update as any
-      const mockProductFindMany = prisma.product.findMany as any
-      const mockInventoryFindMany = prisma.inventory.findMany as any
-      const mockFindFirst = prisma.syncStatus.findFirst as any
+      const mockCreate = mockPrisma.syncStatus.create
+      const mockUpdate = mockPrisma.syncStatus.update
+      const mockProductFindMany = mockPrisma.product.findMany
+      const mockInventoryFindMany = mockPrisma.inventoryItem.findMany
+      const mockFindFirst = mockPrisma.syncStatus.findFirst
       mockCreate.mockResolvedValue({ id: 'sync-1' })
       mockUpdate.mockResolvedValue({})
       mockProductFindMany.mockResolvedValue([])
@@ -530,8 +586,8 @@ describe('Shopify Integration Tests', () => {
       expect(results).toHaveProperty('customers')
 
       // Verify all sync types were initiated
-      expect(prisma.syncStatus.create).toHaveBeenCalledTimes(4)
-      expect(prisma.syncStatus.update).toHaveBeenCalledTimes(4)
+      expect(mockPrisma.syncStatus.create).toHaveBeenCalledTimes(4)
+      expect(mockPrisma.syncStatus.update).toHaveBeenCalledTimes(4)
     })
   })
 })

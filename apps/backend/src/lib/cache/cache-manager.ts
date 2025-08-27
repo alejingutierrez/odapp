@@ -230,10 +230,18 @@ export class CacheManager {
       }
 
       // Remove keys from both caches
-      const deletePromises = Array.from(keysToInvalidate).map((key) =>
-        this.del(key)
-      )
+      const deletePromises = Array.from(keysToInvalidate).map((key) => {
+        // Extract the original key without namespace
+        const parts = key.split(':')
+        const originalKey = parts.slice(1).join(':') // Remove namespace only
+        return this.del(originalKey, 'default')
+      })
       await Promise.all(deletePromises)
+      
+      // Also clear the tag mapping for the invalidated keys
+      for (const key of keysToInvalidate) {
+        this.removeFromTagMapping(key)
+      }
 
       logger.info('Cache invalidated by tags', {
         tags,

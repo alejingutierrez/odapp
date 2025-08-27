@@ -115,7 +115,7 @@ describe('SearchBox', () => {
     render(<SearchBox onSearch={mockOnSearch} loading={true} />)
 
     // Check for spinner component
-    expect(document.querySelector('.oda-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('loadingoutlined-icon')).toBeInTheDocument()
   })
 
   it('disables input when disabled is true', () => {

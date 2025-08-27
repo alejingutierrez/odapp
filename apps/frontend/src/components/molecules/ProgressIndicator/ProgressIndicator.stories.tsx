@@ -14,6 +14,7 @@ const meta: Meta<typeof ProgressIndicator> = {
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
     type: {
       control: { type: 'select' },
@@ -28,7 +29,7 @@ const meta: Meta<typeof ProgressIndicator> = {
       options: ['small', 'default', 'large'],
     },
   },
-}
+  }
 
 export default meta
 type Story = StoryObj<typeof ProgressIndicator>
@@ -39,7 +40,7 @@ export const Default: Story = {
     title: 'Order Processing',
     subtitle: 'Your order is being prepared',
   },
-}
+  }
 
 export const WithSteps: Story = {
   args: {
@@ -61,7 +62,7 @@ export const WithSteps: Story = {
       { title: 'Delivered', description: 'Package delivered', status: 'wait' },
     ],
   },
-}
+  }
 
 export const Circle: Story = {
   args: {
@@ -70,7 +71,7 @@ export const Circle: Story = {
     title: 'Upload Progress',
     status: 'active',
   },
-}
+  }
 
 export const Dashboard: Story = {
   args: {
@@ -79,7 +80,7 @@ export const Dashboard: Story = {
     title: 'Completion Rate',
     status: 'success',
   },
-}
+  }
 
 export const Success: Story = {
   args: {
@@ -88,7 +89,7 @@ export const Success: Story = {
     title: 'Order Complete',
     subtitle: 'Your order has been successfully processed',
   },
-}
+  }
 
 export const Error: Story = {
   args: {
@@ -97,7 +98,7 @@ export const Error: Story = {
     title: 'Processing Failed',
     subtitle: 'There was an error processing your order',
   },
-}
+  }
 
 export const Small: Story = {
   args: {
@@ -105,7 +106,7 @@ export const Small: Story = {
     size: 'small',
     title: 'Small Progress',
   },
-}
+  }
 
 export const Large: Story = {
   args: {
@@ -114,4 +115,4 @@ export const Large: Story = {
     type: 'circle',
     title: 'Large Progress',
   },
-}
+  }

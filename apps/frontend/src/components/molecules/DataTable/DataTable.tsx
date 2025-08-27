@@ -18,26 +18,63 @@ export interface DataTableColumn<T = Record<string, unknown>>
   sortable?: boolean
 }
 
+/**
+ * Props for the DataTable component
+ */
 export interface DataTableProps<T = Record<string, unknown>>
   extends Omit<TableProps<T>, 'columns'> {
+  /** Array of column definitions */
   columns: DataTableColumn<T>[]
+  /** Array of data objects to display */
   data: T[]
+  /** Whether the table is in loading state */
   loading?: boolean
+  /** Whether to show search functionality */
   searchable?: boolean
+  /** Whether to show filter functionality */
   filterable?: boolean
+  /** Whether to show export functionality */
   exportable?: boolean
+  /** Whether to show refresh button */
   refreshable?: boolean
+  /** Whether to allow row selection */
   selectable?: boolean
+  /** Callback when search is performed */
   onSearch?: (searchTerm: string) => void
+  /** Callback when filters are changed */
   onFilter?: (filters: Record<string, unknown>) => void
+  /** Callback when refresh is clicked */
   onRefresh?: () => void
+  /** Callback when export is requested */
   onExport?: (format: 'csv' | 'excel' | 'pdf') => void
+  /** Callback when row selection changes */
   onSelectionChange?: (selectedRowKeys: React.Key[], selectedRows: T[]) => void
+  /** Placeholder text for search input */
   searchPlaceholder?: string
+  /** Text to show when no data is available */
   emptyText?: string
+  /** Additional CSS class name */
   className?: string
 }
 
+/**
+ * DataTable - A comprehensive data table component
+ * 
+ * Built on top of Ant Design Table with enhanced features including search, 
+ * filtering, sorting, and export capabilities for data management.
+ * 
+ * @example
+ * ```tsx
+ * <DataTable
+ *   columns={columns}
+ *   data={data}
+ *   searchable={true}
+ *   filterable={true}
+ *   exportable={true}
+ *   onSearch={handleSearch}
+ * />
+ * ```
+ */
 export const DataTable = <T extends Record<string, unknown>>({
   columns,
   data,

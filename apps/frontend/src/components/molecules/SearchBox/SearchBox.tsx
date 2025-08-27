@@ -2,12 +2,12 @@ import {
   SearchOutlined,
   FilterOutlined,
   ClearOutlined,
+  LoadingOutlined,
 } from '@ant-design/icons'
-import { Input, Button, Badge, Space } from 'antd'
+import { Input, Button, Badge, Space, Spin } from 'antd'
 import React, { useState, useEffect, useCallback } from 'react'
 
 import { useDebounce } from '../../../hooks/useDebounce'
-import { Spinner } from '../../atoms'
 import './SearchBox.css'
 
 export interface SearchBoxProps {
@@ -73,7 +73,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
 
   const suffix = (
     <Space size='small'>
-      {loading && <Spinner size='sm' />}
+      {loading && <Spin size='small' indicator={<LoadingOutlined spin />} />}
       {allowClear && searchValue && (
         <Button
           type='text'

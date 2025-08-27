@@ -2,33 +2,36 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { AdjustmentType } from '@prisma/client'
-import { authMiddleware } from '../middleware/auth'
+import { authenticate } from '../middleware/auth'
 import { errorHandler } from '../middleware/error-handler'
 
 // Mock dependencies first
 vi.mock('../middleware/auth', () => ({
-  authMiddleware: vi.fn((req: unknown, res: unknown, next: unknown) => {
+  authenticate: vi.fn((req: unknown, res: unknown, next: unknown) => {
     const reqTyped = req as { user: unknown }
     const nextTyped = next as () => void
     reqTyped.user = { id: 'user1', roles: ['admin'] }
     nextTyped()
   }),
-}))
-vi.mock('../middleware/validation', () => ({
-  validate: vi.fn(() => (_req: unknown, _res: unknown, next: unknown) => {
+  authRateLimit: () => (req: unknown, res: unknown, next: unknown) => {
     const nextTyped = next as () => void
     nextTyped()
-  }),
+  },
+  requireTwoFactor: (req: unknown, res: unknown, next: unknown) => {
+    const nextTyped = next as () => void
+    nextTyped()
+  },
 }))
+
 vi.mock('../services/inventory.service')
 vi.mock('../services/websocket.service')
 
 // Import after mocking
-import inventoryRoutes, { initializeInventoryRoutes } from '../routes/inventory'
+import { createInventoryRouter } from '../routes/inventory'
 import { InventoryService } from '../services/inventory.service'
 import { WebSocketService } from '../services/websocket.service'
 
-const _mockAuthMiddleware = vi.mocked(authMiddleware)
+const _mockAuthMiddleware = vi.mocked(authenticate)
 const _MockInventoryService = vi.mocked(InventoryService)
 const _MockWebSocketService = vi.mocked(WebSocketService)
 
@@ -72,14 +75,12 @@ describe('Inventory Routes', () => {
     mockWebSocketService = {}
     mockPrisma = {}
 
-    // Initialize routes with mocked services
-    initializeInventoryRoutes(
-      mockPrisma,
-      mockInventoryService,
-      mockWebSocketService
+    // Create router with mocked services
+    const inventoryRouter = createInventoryRouter(
+      mockInventoryService as any,
+      mockWebSocketService as any
     )
-    app.use('/api/v1/inventory', inventoryRoutes)
-    app.use(errorHandler)
+    app.use('/api/v1/inventory', inventoryRouter)
   })
 
   describe('GET /api/v1/inventory', () => {
@@ -108,8 +109,8 @@ describe('Inventory Routes', () => {
         'loc1',
         {
           productIds: undefined,
-          lowStockOnly: undefined,
-          includeZeroStock: undefined,
+          lowStockOnly: false,
+          includeZeroStock: false,
         }
       )
     })
@@ -489,7 +490,7 @@ describe('Inventory Routes', () => {
           id: 'adj1',
           type: AdjustmentType.INCREASE,
           quantityChange: 25,
-          createdAt: new Date('2023-01-01'),
+          createdAt: '2023-01-01T00:00:00.000Z',
         },
       ]
 
@@ -767,7 +768,7 @@ describe('Inventory Routes', () => {
       expect(mockInventoryService.getInventoryReport).toHaveBeenCalledWith({
         locationIds: undefined,
         productIds: undefined,
-        lowStockOnly: undefined,
+        lowStockOnly: false,
         dateFrom: undefined,
         dateTo: undefined,
       })
@@ -869,6 +870,7 @@ describe('Inventory Routes', () => {
         .put('/api/v1/inventory/inv1/stock')
         .send({
           quantity: 100,
+          reason: 'Test error handling',
         })
         .expect(500)
 

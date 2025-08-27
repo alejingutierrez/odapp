@@ -95,24 +95,37 @@ describe('Authentication Unit Tests', () => {
           },
         })
 
-        // Assign role
-        const userRole = await prisma.role.findUnique({
+        // Create or find employee role
+        let userRole = await prisma.role.findUnique({
           where: { name: 'employee' },
         })
-        if (userRole) {
-          await prisma.userRole.create({
+        
+        if (!userRole) {
+          userRole = await prisma.role.create({
             data: {
-              userId: testUser.id,
-              roleId: userRole.id,
+              name: 'employee',
+              description: 'Employee role for testing',
+              permissions: ['products:read', 'orders:read'],
             },
           })
         }
+
+        // Assign role to user
+        await prisma.userRole.create({
+          data: {
+            userId: testUser.id,
+            roleId: userRole.id,
+          },
+        })
       })
 
       afterAll(async () => {
         if (testUser) {
           await prisma.userRole.deleteMany({ where: { userId: testUser.id } })
           await prisma.user.delete({ where: { id: testUser.id } })
+          
+          // Clean up the employee role if it was created for testing
+          await prisma.role.deleteMany({ where: { name: 'employee' } })
         }
       })
 

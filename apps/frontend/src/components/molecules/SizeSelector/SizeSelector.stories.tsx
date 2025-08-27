@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/react'
+import React from 'react'
 
 import { SizeSelector } from './SizeSelector'
 
@@ -11,17 +12,27 @@ const meta: Meta<typeof SizeSelector> = {
     docs: {
       description: {
         component:
-          'A size selector with size charts, availability, and fit recommendations for fashion products.',
+          'A size selector component that allows users to choose product sizes with availability indicators, fit recommendations, and size charts. Perfect for e-commerce product pages.',
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
-    onChange: { action: 'size changed' },
     layout: {
       control: { type: 'select' },
-      options: ['horizontal', 'grid'],
+      options: ['list', 'grid'],
     },
+    showAvailability: { control: 'boolean' },
+    showSizeChart: { control: 'boolean' },
+    showFitRecommendations: { control: 'boolean' },
   },
+  decorators: [
+    (Story) => (
+      <div style={{ padding: '20px', maxWidth: '500px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 }
 
 export default meta
@@ -123,6 +134,52 @@ export const LimitedAvailability: Story = {
       ...size,
       available: ['XS', 'S'].includes(size.value),
     })),
+    showAvailability: true,
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
+  },
+}
+
+export const AllAvailable: Story = {
+  args: {
+    sizes: sampleSizes.map((size) => ({
+      ...size,
+      available: true,
+    })),
+    showAvailability: true,
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
+  },
+}
+
+export const Interactive: Story = {
+  args: {
+    sizes: sampleSizes,
+    selectedSize: 'M',
+    showSizeChart: true,
+    showFitRecommendations: true,
+    showAvailability: true,
+    onChange: (size) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Selected size:', size)
+      }
+    },
+  },
+}
+
+export const ComplexExample: Story = {
+  args: {
+    sizes: sampleSizes,
+    selectedSize: 'L',
+    layout: 'grid',
+    showSizeChart: true,
+    showFitRecommendations: true,
     showAvailability: true,
     onChange: (size) => {
       if (process.env.NODE_ENV === 'development') {

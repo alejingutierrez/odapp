@@ -15,6 +15,7 @@ const meta: Meta<typeof SearchBox> = {
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
     onSearch: { action: 'searched' },
     onFilter: { action: 'filter clicked' },
@@ -27,7 +28,7 @@ const meta: Meta<typeof SearchBox> = {
       options: ['small', 'middle', 'large'],
     },
   },
-}
+  }
 
 export default meta
 type Story = StoryObj<typeof SearchBox>
@@ -42,7 +43,7 @@ export const Default: Story = {
     },
     showFilterButton: false,
   },
-}
+  }
 
 export const WithFilter: Story = {
   args: {
@@ -60,7 +61,7 @@ export const WithFilter: Story = {
     showFilterButton: true,
     filterCount: 3,
   },
-}
+  }
 
 export const Loading: Story = {
   args: {
@@ -72,7 +73,7 @@ export const Loading: Story = {
     },
     loading: true,
   },
-}
+  }
 
 export const Disabled: Story = {
   args: {
@@ -84,7 +85,7 @@ export const Disabled: Story = {
     },
     disabled: true,
   },
-}
+  }
 
 export const Small: Story = {
   args: {
@@ -97,7 +98,7 @@ export const Small: Story = {
     size: 'small',
     showFilterButton: true,
   },
-}
+  }
 
 export const Large: Story = {
   args: {
@@ -111,4 +112,4 @@ export const Large: Story = {
     showFilterButton: true,
     filterCount: 5,
   },
-}
+  }

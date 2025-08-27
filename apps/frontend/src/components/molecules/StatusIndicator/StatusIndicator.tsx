@@ -22,14 +22,25 @@ export type StatusType =
   | 'cancelled'
   | 'draft'
 
+/**
+ * Props for the StatusIndicator component
+ */
 export interface StatusIndicatorProps {
+  /** The status type to display */
   status: StatusType
+  /** Custom text to display (overrides default text) */
   text?: string
+  /** Tooltip text to show on hover */
   tooltip?: string
+  /** Whether to show the status icon */
   showIcon?: boolean
+  /** Whether to show as a dot instead of icon + text */
   showDot?: boolean
+  /** Whether to animate the indicator (only works for 'processing' status) */
   animated?: boolean
+  /** Size of the status indicator */
   size?: 'small' | 'default' | 'large'
+  /** Additional CSS class name */
   className?: string
 }
 
@@ -76,6 +87,22 @@ const statusConfig = {
   },
 } as const
 
+/**
+ * StatusIndicator - A status indicator component
+ * 
+ * Displays various status types with icons, dots, and animations. 
+ * Perfect for showing process states, order statuses, and system notifications.
+ * 
+ * @example
+ * ```tsx
+ * <StatusIndicator
+ *   status="success"
+ *   text="Order Completed"
+ *   showIcon={true}
+ *   animated={false}
+ * />
+ * ```
+ */
 export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   status,
   text,

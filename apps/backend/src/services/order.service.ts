@@ -9,12 +9,14 @@ import {
   AdjustmentType,
   PaymentMethod,
   OrderItem,
+  ReturnStatus,
 } from '@prisma/client'
 
 import {
   NotFoundError,
   BusinessLogicError,
   InternalServerError,
+  ValidationError,
 } from '../lib/errors'
 import { logger } from '../lib/logger'
 import { prisma } from '../lib/prisma'
@@ -147,10 +149,16 @@ export class OrderService {
     return this._webSocketService
   }
 
-  constructor() {
-    this.inventoryService = new InventoryService(prisma)
-    this.customerService = customerService // Already instantiated with prisma
-    this.auditService = new AuditService(prisma)
+  constructor(
+    inventoryService?: InventoryService,
+    customerServiceParam?: CustomerService,
+    auditService?: AuditService,
+    webSocketService?: WebSocketService
+  ) {
+    this.inventoryService = inventoryService || new InventoryService(prisma)
+    this.customerService = customerServiceParam || customerService // Use the imported customerService instance
+    this.auditService = auditService || new AuditService(prisma)
+    this._webSocketService = webSocketService || null
   }
 
   /**
@@ -224,18 +232,12 @@ export class OrderService {
 
         // Check inventory availability
         if (product.trackQuantity) {
-          inventoryItem = await tx.inventoryItem.findFirst({
-            where: {
-              productId: item.productId,
-              variantId: item.variantId,
-            },
-            select: { id: true, availableQuantity: true },
-          })
+          const inventory = await this.inventoryService.getTotalInventory(
+            item.productId!,
+            item.variantId
+          )
 
-          if (
-            !inventoryItem ||
-            inventoryItem.availableQuantity < item.quantity
-          ) {
+          if (inventory.totalAvailable < item.quantity) {
             throw new BusinessLogicError(
               `Insufficient stock for product ${item.productId}`
             )
@@ -816,7 +818,7 @@ export class OrderService {
     })
 
     let sequence = 1
-    if (lastReturn) {
+    if (lastReturn && lastReturn.returnNumber) {
       const lastSequence = parseInt(
         lastReturn.returnNumber.split('-')[1].slice(8)
       )
@@ -841,43 +843,265 @@ export class OrderService {
 
   // TODO: Implement the following methods
   async processPayment(
-    _orderId: string,
-    _data: ProcessPaymentRequest,
-    _userId?: string
+    orderId: string,
+    data: ProcessPaymentRequest,
+    userId?: string
   ): Promise<Payment> {
-    // TODO: Implement
-    throw new InternalServerError('Not implemented')
+    // Find the order
+    const order = await prisma.order.findFirst({
+      where: { id: orderId },
+      include: { items: true },
+    })
+
+    if (!order) {
+      throw new NotFoundError(`Order not found with id: ${orderId}`)
+    }
+
+    // Simulate payment processing
+    const success = await this.simulatePaymentProcessing(data as any)
+
+    if (!success) {
+      throw new ValidationError('Payment processing failed')
+    }
+
+    // Create payment record
+    const payment = await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        amount: data.amount,
+        currency: data.currency,
+        method: data.method,
+        status: PaymentStatus.COMPLETED,
+        gateway: data.gateway || 'unknown',
+        processedAt: new Date(),
+      },
+    })
+
+    // Update order financial status
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { financialStatus: FinancialStatus.PAID },
+    })
+
+    // Log audit trail
+    await this.auditService.log({
+      action: 'PROCESS_PAYMENT',
+      entity: 'PAYMENT',
+      entityId: payment.id,
+      userId,
+      metadata: { amount: data.amount, method: data.method },
+    })
+
+    // Send notification
+    this.webSocketService.broadcast('payment.processed', {
+      orderId,
+      paymentId: payment.id,
+      amount: data.amount,
+      method: data.method,
+    })
+
+    return payment
   }
 
   async createFulfillment(
-    _orderId: string,
-    _data: CreateFulfillmentRequest,
-    _userId?: string
+    orderId: string,
+    data: CreateFulfillmentRequest,
+    userId?: string
   ): Promise<unknown> {
-    // TODO: Implement
-    throw new InternalServerError('Not implemented')
+    // Find the order
+    const order = await prisma.order.findFirst({
+      where: { id: orderId },
+      include: { items: true },
+    })
+
+    if (!order) {
+      throw new NotFoundError(`Order not found with id: ${orderId}`)
+    }
+
+    // Validate items exist
+    for (const item of data.items) {
+      const orderItem = order.items.find((oi) => oi.id === item.orderItemId)
+      if (!orderItem) {
+        throw new ValidationError(`Order item not found: ${item.orderItemId}`)
+      }
+
+      if (item.quantity > orderItem.quantity - orderItem.quantityFulfilled) {
+        throw new ValidationError(`Cannot fulfill ${item.quantity} items, only ${orderItem.quantity - orderItem.quantityFulfilled} remaining`)
+      }
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // Create fulfillment
+      const fulfillment = await tx.fulfillment.create({
+        data: {
+          orderId: order.id,
+          status: FulfillmentStatus.PENDING,
+          items: {
+            create: data.items.map(item => ({
+              orderItemId: item.orderItemId,
+              quantity: item.quantity,
+            }))
+          },
+        },
+      })
+
+      // Update order item quantities
+      for (const item of data.items) {
+        const orderItem = order.items.find((oi) => oi.id === item.orderItemId)
+        if (orderItem) {
+          await tx.orderItem.update({
+            where: { id: item.orderItemId },
+            data: {
+              quantityFulfilled: orderItem.quantityFulfilled + item.quantity,
+            },
+          })
+
+          // Adjust inventory
+          await this.inventoryService.adjustInventory(
+            orderItem.productId,
+            orderItem.variantId,
+            -item.quantity,
+            'FULFILLMENT',
+            `Fulfillment for order ${order.orderNumber}`,
+            userId,
+            order.id
+          )
+        }
+      }
+
+      // Log audit trail
+      await this.auditService.log({
+        action: 'CREATE_FULFILLMENT',
+        entity: 'FULFILLMENT',
+        entityId: fulfillment.id,
+        userId,
+        metadata: { items: data.items },
+      })
+
+      // Send notification
+      this.webSocketService.broadcast('fulfillment.created', {
+        orderId,
+        fulfillmentId: fulfillment.id,
+      })
+
+      return fulfillment
+    })
   }
 
   async shipFulfillment(
-    _fulfillmentId: string,
-    _data: { trackingNumber?: string; trackingUrl?: string },
-    _userId?: string
+    fulfillmentId: string,
+    data: { trackingNumber?: string; trackingUrl?: string },
+    userId?: string
   ): Promise<unknown> {
-    // TODO: Implement
-    throw new InternalServerError('Not implemented')
+    const fulfillment = await prisma.fulfillment.findFirst({
+      where: { id: fulfillmentId },
+    })
+
+    if (!fulfillment) {
+      throw new NotFoundError(`Fulfillment not found: ${fulfillmentId}`)
+    }
+
+    const updatedFulfillment = await prisma.fulfillment.update({
+      where: { id: fulfillmentId },
+      data: {
+        status: FulfillmentStatus.SHIPPED,
+        trackingNumber: data.trackingNumber,
+        trackingUrl: data.trackingUrl,
+        shippedAt: new Date(),
+      },
+    })
+
+    return updatedFulfillment
   }
 
   async createReturn(
-    _orderId: string,
-    _data: CreateReturnRequest,
-    _userId?: string
+    orderId: string,
+    data: CreateReturnRequest,
+    userId?: string
   ): Promise<unknown> {
-    // TODO: Implement
-    throw new InternalServerError('Not implemented')
+    // Find the order
+    const order = await prisma.order.findFirst({
+      where: { id: orderId },
+      include: { items: true },
+    })
+
+    if (!order) {
+      throw new NotFoundError(`Order not found with id: ${orderId}`)
+    }
+
+    // Validate return quantities
+    for (const item of data.items) {
+      const orderItem = order.items.find((oi) => oi.id === item.orderItemId)
+      if (!orderItem) {
+        throw new ValidationError(`Order item not found: ${item.orderItemId}`)
+      }
+
+      const returnableQuantity = orderItem.quantityFulfilled - (orderItem.quantityReturned || 0)
+      if (item.quantity > returnableQuantity) {
+        throw new ValidationError(`Cannot return ${item.quantity} items, only ${returnableQuantity} returnable`)
+      }
+    }
+
+    // Create return
+    const returnRecord = await prisma.return.create({
+      data: {
+        orderId: order.id,
+        returnNumber: await this.generateReturnNumber(prisma),
+        status: ReturnStatus.REQUESTED,
+        reason: data.reason,
+        items: {
+          create: data.items.map(item => ({
+            orderItemId: item.orderItemId,
+            quantity: item.quantity,
+          }))
+        },
+      },
+    })
+
+    // Log audit trail
+    await this.auditService.log({
+      action: 'CREATE_RETURN',
+      entity: 'RETURN',
+      entityId: returnRecord.id,
+      userId,
+      metadata: { items: data.items, reason: data.reason },
+    })
+
+    // Send notification
+    this.webSocketService.broadcast('return.created', {
+      orderId,
+      returnId: returnRecord.id,
+      returnNumber: returnRecord.returnNumber,
+    })
+
+    return returnRecord
   }
 
-  async processReturn(_returnId: string, _userId?: string): Promise<unknown> {
-    // TODO: Implement
-    throw new InternalServerError('Not implemented')
+  async processReturn(
+    orderId: string,
+    returnId: string,
+    approve: boolean,
+    data: { refundAmount?: number },
+    userId?: string
+  ): Promise<unknown> {
+    const returnRecord = await prisma.return.findFirst({
+      where: { id: returnId },
+    })
+
+    if (!returnRecord) {
+      throw new NotFoundError(`Return not found: ${returnId}`)
+    }
+
+    const status = approve ? ReturnStatus.APPROVED : ReturnStatus.REJECTED
+    const updatedReturn = await prisma.return.update({
+      where: { id: returnId },
+      data: {
+        status,
+        processedAt: new Date(),
+        refundAmount: data.refundAmount,
+      },
+    })
+
+    return updatedReturn
   }
 }

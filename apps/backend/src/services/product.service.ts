@@ -567,8 +567,7 @@ export class ProductService extends EventEmitter {
       // Use Elasticsearch for advanced search if available
       if (
         this._searchService.isAvailable() &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((query as any).search || query.tags?.length)
+        (query.q || query.tags?.length)
       ) {
         return await this._searchService.searchProducts(query)
       }

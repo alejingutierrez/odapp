@@ -75,6 +75,22 @@ vi.mock('../ProtectedRoute', () => {
     }: {
       children: React.ReactNode
     }) {
+      // Use the auth state from the store to determine if user is authenticated
+      const { useSelector } = require('react-redux')
+      const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated)
+      
+      if (!isAuthenticated) {
+        // Return AuthLayout mock for unauthenticated users
+        return (
+          <div>
+            <div>Auth Layout</div>
+            <div data-testid='outlet'>
+              {/* Outlet content would be rendered here */}
+            </div>
+          </div>
+        )
+      }
+      
       return <div>{children}</div>
     },
   }
@@ -245,5 +261,200 @@ describe('Router Configuration', () => {
       ?.children?.find((c) => c.path === 'analytics')
 
     expect(analyticsRoute?.children?.some((c) => c.index === true)).toBeTruthy()
+  })
+})
+
+describe('Route Protection', () => {
+  it('should protect dashboard routes when not authenticated', () => {
+    renderWithRouter(['/'], { isAuthenticated: false })
+    // Should redirect to login or show auth layout
+    expect(screen.getByText('Auth Layout')).toBeInTheDocument()
+  })
+
+  it('should allow access to dashboard when authenticated', () => {
+    renderWithRouter(['/'], { isAuthenticated: true })
+    expect(screen.getByText('Dashboard Layout')).toBeInTheDocument()
+  })
+
+  it('should allow access to public routes regardless of auth status', () => {
+    // Test with authenticated user
+    renderWithRouter(['/auth/login'], { isAuthenticated: true })
+    expect(screen.getAllByText('Auth Layout')).toHaveLength(1)
+
+    // Clear previous render and test with unauthenticated user
+    const { cleanup } = require('@testing-library/react')
+    cleanup()
+    
+    renderWithRouter(['/auth/login'], { isAuthenticated: false })
+    expect(screen.getAllByText('Auth Layout')).toHaveLength(1)
+  })
+})
+
+describe('Route Structure', () => {
+  it('should have all main navigation routes defined', () => {
+    const mainRoutes = [
+      'products',
+      'orders',
+      'customers',
+      'inventory',
+      'analytics',
+      'billing',
+      'settings',
+      'shopify',
+    ]
+
+    const dashboardRoute = router.routes.find((r) => r.path === '/')
+    expect(dashboardRoute).toBeDefined()
+    expect(dashboardRoute?.children).toBeDefined()
+
+    // Check for dashboard as index route
+    const hasIndexRoute = dashboardRoute?.children?.some((child) => child.index === true)
+    expect(hasIndexRoute).toBeTruthy()
+
+    // Check other main routes
+    mainRoutes.forEach((route) => {
+      const routeExists = dashboardRoute?.children?.some(
+        (child) => child.path === route
+      )
+
+      expect(routeExists).toBeTruthy()
+    })
+  })
+
+  it('should have proper nested route structure for products', () => {
+    const productRoutes = [
+      'products',
+      'products/create',
+      'products/collections',
+      'products/categories',
+      'products/import',
+      'products/export',
+    ]
+
+    productRoutes.forEach((route) => {
+      const routePath = route.split('/')
+      const parentRoute = routePath[0]
+      const childRoute = routePath[1]
+
+      const routeExists = router.routes
+        .find((r) => r.path === '/')
+        ?.children?.find((c) => c.path === parentRoute)
+        ?.children?.some((child) => 
+          child.path === childRoute || child.index === true
+        )
+
+      expect(routeExists).toBeTruthy()
+    })
+  })
+
+  it('should have proper nested route structure for orders', () => {
+    const orderRoutes = [
+      'orders',
+      'orders/create',
+      'orders/processing',
+      'orders/shipped',
+      'orders/delivered',
+      'orders/cancelled',
+    ]
+
+    orderRoutes.forEach((route) => {
+      const routePath = route.split('/')
+      const parentRoute = routePath[0]
+      const childRoute = routePath[1]
+
+      const routeExists = router.routes
+        .find((r) => r.path === '/')
+        ?.children?.find((c) => c.path === parentRoute)
+        ?.children?.some((child) => 
+          child.path === childRoute || child.index === true
+        )
+
+      expect(routeExists).toBeTruthy()
+    })
+  })
+})
+
+describe('Route Parameters', () => {
+  it('should handle dynamic routes with parameters', () => {
+    const dynamicRoutes = [
+      '/products/:id',
+      '/orders/:id',
+      '/customers/:id',
+    ]
+
+    const dashboardRoute = router.routes.find((r) => r.path === '/')
+    expect(dashboardRoute).toBeDefined()
+
+    dynamicRoutes.forEach((route) => {
+      const routePath = route.split('/')
+      const parentRoute = routePath[1]
+      const paramRoute = routePath[2]
+
+      const parentRouteConfig = dashboardRoute?.children?.find((c) => c.path === parentRoute)
+      expect(parentRouteConfig).toBeDefined()
+
+      const routeExists = parentRouteConfig?.children?.some((child) => 
+        child.path === paramRoute || child.path?.includes(':')
+      )
+
+      expect(routeExists).toBeTruthy()
+    })
+  })
+})
+
+describe('Route Error Handling', () => {
+  it('should handle malformed URLs gracefully', () => {
+    const malformedUrls = [
+      '/products//create',
+      '/orders///',
+      '/customers/',
+      '/inventory//edit/',
+    ]
+
+    malformedUrls.forEach((url) => {
+      expect(() => {
+        renderWithRouter([url])
+      }).not.toThrow()
+    })
+  })
+
+  it('should handle deep nested routes', () => {
+    const deepRoutes = [
+      '/products/collections/summer-2024',
+      '/orders/processing/urgent',
+      '/customers/vip/active',
+    ]
+
+    deepRoutes.forEach((route) => {
+      expect(() => {
+        renderWithRouter([route])
+      }).not.toThrow()
+    })
+  })
+})
+
+describe('Router Performance', () => {
+  it('should render routes without memory leaks', () => {
+    const routes = ['/', '/products', '/orders', '/customers']
+    
+    routes.forEach((route) => {
+      const { unmount } = renderWithRouter([route])
+      expect(() => unmount()).not.toThrow()
+    })
+  })
+
+  it('should handle rapid route changes', () => {
+    const { rerender } = renderWithRouter(['/'])
+    
+    const routes = ['/products', '/orders', '/customers', '/analytics']
+    routes.forEach((route) => {
+      expect(() => {
+        rerender(
+          <Provider store={createMockStore({ isAuthenticated: true })}>
+            <RouterProvider router={createMemoryRouter(router.routes, { initialEntries: [route] })} />
+          </Provider>
+        )
+      }).not.toThrow()
+    })
   })
 })

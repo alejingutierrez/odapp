@@ -21,6 +21,7 @@ const meta: Meta<typeof MetricCard> = {
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
     onClick: { action: 'card clicked' },
     size: {
@@ -32,7 +33,7 @@ const meta: Meta<typeof MetricCard> = {
       options: ['primary', 'success', 'warning', 'error', 'default'],
     },
   },
-}
+  }
 
 export default meta
 type Story = StoryObj<typeof MetricCard>
@@ -50,7 +51,7 @@ export const Revenue: Story = {
     },
     color: 'success',
   },
-}
+  }
 
 export const Orders: Story = {
   args: {
@@ -65,7 +66,7 @@ export const Orders: Story = {
     },
     color: 'primary',
   },
-}
+  }
 
 export const Customers: Story = {
   args: {
@@ -80,7 +81,7 @@ export const Customers: Story = {
     },
     color: 'default',
   },
-}
+  }
 
 export const WithProgress: Story = {
   args: {
@@ -94,7 +95,7 @@ export const WithProgress: Story = {
     },
     color: 'warning',
   },
-}
+  }
 
 export const Small: Story = {
   args: {
@@ -108,7 +109,7 @@ export const Small: Story = {
     size: 'small',
     color: 'success',
   },
-}
+  }
 
 export const Large: Story = {
   args: {
@@ -128,7 +129,7 @@ export const Large: Story = {
     size: 'large',
     color: 'primary',
   },
-}
+  }
 
 export const Loading: Story = {
   args: {
@@ -137,7 +138,7 @@ export const Loading: Story = {
     icon: <DollarOutlined />,
     loading: true,
   },
-}
+  }
 
 export const Clickable: Story = {
   args: {
@@ -153,7 +154,7 @@ export const Clickable: Story = {
     },
     color: 'primary',
   },
-}
+  }
 
 export const Error: Story = {
   args: {
@@ -168,4 +169,4 @@ export const Error: Story = {
     },
     color: 'error',
   },
-}
+  }

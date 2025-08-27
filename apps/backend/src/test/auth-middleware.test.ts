@@ -366,49 +366,15 @@ describe('Authentication Middleware', () => {
     })
 
     it('should reject access for user without any required permissions', async () => {
-      // Create a user with no product permissions
-      const limitedUser = await prisma.user.create({
-        data: {
-          email: 'limited-middleware-test@example.com',
-          firstName: 'Limited',
-          lastName: 'User',
-          passwordHash: await AuthService.hashPassword('LimitedPassword123!'),
-          emailVerified: true,
-        },
-      })
+      // Use testUser which has no product permissions
+      const response = await request(app)
+        .get('/products-any')
+        .set('Authorization', `Bearer ${testUserToken}`)
+        .expect(403) // testUser has no products permissions
 
-      const viewerRole = await prisma.role.findUnique({
-        where: { name: 'viewer' },
-      })
-      if (viewerRole) {
-        await prisma.userRole.create({
-          data: { userId: limitedUser.id, roleId: viewerRole.id },
-        })
-      }
-
-      const limitedSession = await AuthService.createSession(limitedUser.id)
-      const limitedUserWithRoles = await AuthService.getUserWithRoles(
-        limitedUser.id
-      )
-
-      if (limitedUserWithRoles) {
-        const limitedTokens = await AuthService.generateTokens(
-          limitedUserWithRoles,
-          limitedSession.id
-        )
-
-        const response = await request(app)
-          .get('/products-any')
-          .set('Authorization', `Bearer ${limitedTokens.accessToken}`)
-          .expect(200) // Viewer role has products:read permission
-
-        expect(response.body.success).toBe(true)
-      }
-
-      // Clean up
-      await prisma.userRole.deleteMany({ where: { userId: limitedUser.id } })
-      await prisma.userSession.deleteMany({ where: { userId: limitedUser.id } })
-      await prisma.user.delete({ where: { id: limitedUser.id } })
+      expect(response.body.success).toBe(false)
+      expect(response.body.error).toBe('Insufficient permissions')
+      expect(response.body.code).toBe('PERMISSION_DENIED')
     })
   })
 

@@ -175,6 +175,12 @@ export class WebSocketService {
   }
 
   private setupInventoryEventListeners() {
+    // Only setup listeners if inventory service is available
+    if (!this._inventoryService || typeof this._inventoryService.on !== 'function') {
+      logger.warn('Inventory service not available for WebSocket event listeners')
+      return
+    }
+
     // Listen to inventory service events
     this._inventoryService.on(
       'inventory:updated',
@@ -402,10 +408,7 @@ export class WebSocketService {
       timestamp: new Date().toISOString(),
     }
 
-    // Broadcast to all inventory subscribers
-    this.io.to('inventory:all').emit('inventory:updated', payload)
-
-    // Broadcast to location-specific subscribers
+    // Broadcast to location-specific subscribers only
     this.io
       .to(`inventory:location:${data.locationId}`)
       .emit('inventory:updated', payload)
@@ -634,12 +637,23 @@ export class WebSocketService {
       timestamp: new Date().toISOString(),
     }
 
-    const room = roomFilter || 'inventory:all'
-    this.io.to(room).emit('notification', payload)
+    // For user activity and system events, broadcast to all notification subscribers
+    if (type.startsWith('user:') || type.startsWith('system:')) {
+      // Broadcast to all connected sockets that have subscribed to notifications
+      this.io.sockets.sockets.forEach((socket: any) => {
+        if (socket.rooms.has(`notifications:${socket.userId}`)) {
+          socket.emit('notification', payload)
+        }
+      })
+    } else {
+      // For other types, use the specified room or default to inventory:all
+      const room = roomFilter || 'inventory:all'
+      this.io.to(room).emit('notification', payload)
+    }
 
     logger.debug('Broadcasted notification', {
       type,
-      room,
+      room: roomFilter || 'all-notification-subscribers',
       connectedClients: this.io.sockets.sockets.size,
     })
   }

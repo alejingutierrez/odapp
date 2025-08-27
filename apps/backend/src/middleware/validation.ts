@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { z, ZodError, ZodSchema } from 'zod'
 
-import { ApiError } from '../lib/errors.js'
+import { ValidationError } from '../lib/errors.js'
 
 // Create a simple logger fallback for tests
 const createLogger = () => {
@@ -69,7 +69,7 @@ export const validate = (schema: {
           params: req.params,
         })
 
-        return next(new ApiError(400, 'Validation failed', validationErrors))
+        return next(new ValidationError('Validation failed', validationErrors))
       }
 
       next(error)
@@ -141,7 +141,7 @@ export const validateFileUpload = (options: {
 
       // Check if files are required
       if (options.required && !files && !file) {
-        return next(new ApiError(400, 'File upload is required'))
+        return next(new ValidationError('File upload is required'))
       }
 
       // Validate single file
@@ -153,7 +153,7 @@ export const validateFileUpload = (options: {
       if (files) {
         if (options.maxFiles && files.length > options.maxFiles) {
           return next(
-            new ApiError(400, `Maximum ${options.maxFiles} files allowed`)
+            new ValidationError(`Maximum ${options.maxFiles} files allowed`)
           )
         }
 
@@ -179,8 +179,7 @@ const validateSingleFile = (
 ) => {
   // Check file size
   if (options.maxFileSize && file.size > options.maxFileSize) {
-    throw new ApiError(
-      400,
+    throw new ValidationError(
       `File size must be less than ${options.maxFileSize} bytes`
     )
   }
@@ -190,7 +189,7 @@ const validateSingleFile = (
     options.allowedMimeTypes &&
     !options.allowedMimeTypes.includes(file.mimetype)
   ) {
-    throw new ApiError(400, `File type ${file.mimetype} is not allowed`)
+    throw new ValidationError(`File type ${file.mimetype} is not allowed`)
   }
 
   // Check for malicious file extensions
@@ -200,7 +199,7 @@ const validateSingleFile = (
     .substring(file.originalname.lastIndexOf('.'))
 
   if (dangerousExtensions.includes(fileExtension)) {
-    throw new ApiError(400, 'File type is not allowed for security reasons')
+    throw new ValidationError('File type is not allowed for security reasons')
   }
 }
 
@@ -208,8 +207,7 @@ const validateSingleFile = (
 const sanitizeInput = (input: string): string => {
   return input
     .trim()
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
-    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/<script\b[^<]*>(.*?)<\/script>/gi, '$1') // Extract content from script tags
     .replace(/javascript:/gi, '') // Remove javascript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers
     .replace(/data:/gi, '') // Remove data: protocol
@@ -275,7 +273,7 @@ export const validateRateLimit = (options: {
       })
 
       return next(
-        new ApiError(429, `Too many requests. Try again in ${resetIn} seconds`)
+        new ValidationError(`Too many requests. Try again in ${resetIn} seconds`)
       )
     }
 
@@ -311,15 +309,12 @@ export const validateIf = (
 
 // Validation error formatter
 export const formatValidationError = (_error: ZodError) => {
-  return {
-    message: 'Validation failed',
-    errors: _error.errors.map((err) => ({
-      field: err.path.join('.'),
-      message: err.message,
-      code: err.code,
-      received: (err as { received?: unknown }).received || undefined,
-    })),
-  }
+  return _error.errors.map((err) => ({
+    field: err.path.join('.'),
+    message: err.message,
+    code: err.code,
+    received: (err as { received?: unknown }).received || undefined,
+  }))
 }
 
 // Custom validation helpers
@@ -353,9 +348,14 @@ export const commonValidationSchemas = {
   }),
 
   search: z.object({
+    search: z.string().min(1).optional(),
     q: z.string().min(1).optional(),
     filters: z.record(z.unknown()).optional(),
   }),
+
+  uuid: z.string().uuid('Invalid UUID format'),
+
+  email: z.string().email('Invalid email format'),
 
   dateRange: z
     .object({

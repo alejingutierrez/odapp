@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import { createTestApp } from './test-app'
@@ -11,28 +11,12 @@ const app = createTestApp()
 
 describe('Comprehensive Authentication System Tests', () => {
   beforeAll(async () => {
-    // Clean up test data
-    await prisma.userBackupCode.deleteMany()
-    await prisma.smsVerificationCode.deleteMany()
-    await prisma.auditLog.deleteMany()
-    await prisma.userSession.deleteMany()
-    await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({
-      where: { email: { contains: 'comprehensive-test' } },
-    })
+    // All mocks are already set up in test-app.ts via vi.mock()
+    // No additional setup needed
   })
 
   afterAll(async () => {
-    // Clean up test data
-    await prisma.userBackupCode.deleteMany()
-    await prisma.smsVerificationCode.deleteMany()
-    await prisma.auditLog.deleteMany()
-    await prisma.userSession.deleteMany()
-    await prisma.userRole.deleteMany()
-    await prisma.user.deleteMany({
-      where: { email: { contains: 'comprehensive-test' } },
-    })
-    await prisma.$disconnect()
+    // All mocks are already configured, no cleanup needed
   })
 
   describe('Password Security', () => {

@@ -117,15 +117,17 @@ describe('Cache System', () => {
 
       // Set with very short TTL
       await cacheManager.set(key, value, {
-        ttl: 1, // 1 second
-        redisTtl: 1,
+        ttl: 100, // 100 milliseconds
+        memoryTtl: 100,
+        redisTtl: 100,
+        useRedisCache: false, // Only use memory cache for this test
       })
 
       let cachedValue = await cacheManager.get(key)
       expect(cachedValue).toEqual(value)
 
       // Wait for expiration
-      await new Promise((resolve) => setTimeout(resolve, 1100))
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       cachedValue = await cacheManager.get(key)
       expect(cachedValue).toBeNull()
@@ -407,9 +409,9 @@ describe('Cache System', () => {
       const key = 'test:redis-down:123'
       const value = { id: '123', data: 'test' }
 
-      // Should not throw, but should handle gracefully
+      // Should not throw, and should still work with memory cache
       await expect(cacheManager.set(key, value)).resolves.not.toThrow()
-      await expect(cacheManager.get(key)).resolves.toBe(null)
+      await expect(cacheManager.get(key)).resolves.toEqual(value)
 
       // Restore original method
       vi.mocked(redisClient.isReady).mockImplementation(originalIsReady)

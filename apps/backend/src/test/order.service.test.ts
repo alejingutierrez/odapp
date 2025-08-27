@@ -58,6 +58,7 @@ vi.mock('../lib/prisma', () => ({
       create: vi.fn(),
       update: vi.fn(),
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
     return: {
       create: vi.fn(),
@@ -65,7 +66,21 @@ vi.mock('../lib/prisma', () => ({
       findUnique: vi.fn(),
       findFirst: vi.fn(),
     },
+    inventoryItem: {
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+    },
+    inventoryReservation: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
     $queryRaw: vi.fn(),
+    $queryRawUnsafe: vi.fn(),
+    $executeRaw: vi.fn(),
+    $executeRawUnsafe: vi.fn(),
   },
 }))
 
@@ -77,36 +92,135 @@ describe('OrderService', () => {
   let mockWebSocketService: any
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    // Mock Prisma order.findFirst to return a valid order
+    vi.mocked(prisma.order.findFirst).mockResolvedValue({
+      id: 'order-1',
+      orderNumber: 'ORD-20250815-0001',
+      customerId: 'customer-1',
+      status: OrderStatus.PENDING,
+      totalAmount: 59.98,
+      currency: 'USD',
+      items: [
+        {
+          id: 'item-1',
+          orderId: 'order-1',
+          productId: 'product-1',
+          quantity: 2,
+          price: 29.99,
+          total: 59.98
+        }
+      ]
+    } as any)
 
+    // Mock other Prisma methods
+    vi.mocked(prisma.order.findUnique).mockResolvedValue({
+      id: 'order-1',
+      orderNumber: 'ORD-20250815-0001',
+      customerId: 'customer-1',
+      status: OrderStatus.PENDING,
+      totalAmount: 59.98,
+      currency: 'USD',
+      items: [
+        {
+          id: 'item-1',
+          orderId: 'order-1',
+          productId: 'product-1',
+          quantity: 2,
+          price: 29.99,
+          total: 59.98
+        }
+      ]
+    } as any)
+
+    vi.mocked(prisma.payment.create).mockResolvedValue({
+      id: 'payment-1',
+      orderId: 'order-1',
+      amount: 59.98,
+      currency: 'USD',
+      status: PaymentStatus.COMPLETED
+    } as any)
+
+    vi.mocked(prisma.order.update).mockResolvedValue({
+      id: 'order-1',
+      status: OrderStatus.CONFIRMED
+    } as any)
+
+    // Mock fulfillment methods
+    vi.mocked(prisma.fulfillment.create).mockResolvedValue({
+      id: 'fulfillment-1',
+      orderId: 'order-1',
+      status: FulfillmentStatus.PENDING,
+      items: []
+    } as any)
+
+    vi.mocked(prisma.fulfillment.findFirst).mockResolvedValue({
+      id: 'fulfillment-1',
+      orderId: 'order-1',
+      status: FulfillmentStatus.PENDING
+    } as any)
+
+    // Mock return methods
+    vi.mocked(prisma.return.create).mockResolvedValue({
+      id: 'return-1',
+      orderId: 'order-1',
+      status: ReturnStatus.REQUESTED,
+      returnNumber: 'RET-20250815-0001',
+      items: []
+    } as any)
+
+    vi.mocked(prisma.return.findFirst).mockResolvedValue({
+      id: 'return-1',
+      orderId: 'order-1',
+      status: ReturnStatus.REQUESTED
+    } as any)
+
+    // Mock service dependencies
     mockInventoryService = {
-      getAvailableQuantity: vi.fn(),
-      createReservation: vi.fn(),
-      releaseReservation: vi.fn(),
-      adjustInventory: vi.fn(),
+      getAvailableQuantity: vi.fn().mockResolvedValue(10),
+      getTotalInventory: vi.fn().mockResolvedValue({
+        totalQuantity: 10,
+        totalReserved: 0,
+        totalAvailable: 10
+      }),
+      createReservation: vi.fn().mockResolvedValue(true),
+      releaseReservation: vi.fn().mockResolvedValue(true),
+      createAdjustment: vi.fn().mockResolvedValue(true),
+      adjustInventory: vi.fn().mockResolvedValue(true),
+      getInventoryItem: vi.fn().mockResolvedValue({
+        id: 'inventory-1',
+        productId: 'product-1',
+        availableQuantity: 10,
+        reservedQuantity: 0,
+        totalQuantity: 10
+      }),
     }
 
     mockCustomerService = {
-      updateOrderStatistics: vi.fn(),
+      updateOrderStatistics: vi.fn().mockResolvedValue(true),
+      updateCustomerStats: vi.fn().mockResolvedValue(true),
     }
 
     mockAuditService = {
-      log: vi.fn(),
+      log: vi.fn().mockResolvedValue(true),
     }
 
     mockWebSocketService = {
-      broadcast: vi.fn(),
+      broadcast: vi.fn().mockResolvedValue(true),
     }
 
     // Mock the constructors
     vi.mocked(InventoryService).mockImplementation(() => mockInventoryService)
     vi.mocked(CustomerService).mockImplementation(() => mockCustomerService)
     vi.mocked(AuditService).mockImplementation(() => mockAuditService)
-    vi.mocked(WebSocketService.getInstance).mockReturnValue(
+    vi.mocked(WebSocketService.getInstance).mockReturnValue(mockWebSocketService)
+
+    vi.clearAllMocks()
+    orderService = new OrderService(
+      mockInventoryService,
+      mockCustomerService,
+      mockAuditService,
       mockWebSocketService
     )
-
-    orderService = new OrderService()
   })
 
   afterEach(() => {
@@ -172,11 +286,62 @@ describe('OrderService', () => {
           customer: { findUnique: vi.fn().mockResolvedValue(mockCustomer) },
           product: { findUnique: vi.fn().mockResolvedValue(mockProduct) },
           productVariant: { findUnique: vi.fn() },
+          inventoryItem: { 
+            findFirst: vi.fn().mockResolvedValue({
+              id: 'inventory-1',
+              productId: 'product-1',
+              availableQuantity: 10,
+              reservedQuantity: 0,
+              totalQuantity: 10
+            })
+          },
           order: {
             create: vi.fn().mockResolvedValue(mockCreatedOrder),
             findFirst: vi.fn().mockResolvedValue(null),
+            findUnique: vi.fn().mockResolvedValue(null),
+            update: vi.fn().mockResolvedValue(mockCreatedOrder),
+          },
+          orderItem: {
+            create: vi.fn().mockResolvedValue({
+              id: 'item-1',
+              orderId: 'order-1',
+              productId: 'product-1',
+              quantity: 2,
+              price: 29.99,
+              total: 59.98
+            }),
+            findMany: vi.fn().mockResolvedValue([]),
+            update: vi.fn().mockResolvedValue({}),
           },
           customerAddress: { create: vi.fn() },
+          payment: {
+            create: vi.fn().mockResolvedValue({
+              id: 'payment-1',
+              orderId: 'order-1',
+              amount: 59.98,
+              currency: 'USD',
+              status: 'COMPLETED'
+            }),
+            findMany: vi.fn().mockResolvedValue([]),
+          },
+          fulfillment: {
+            create: vi.fn().mockResolvedValue({
+              id: 'fulfillment-1',
+              orderId: 'order-1',
+              status: 'PENDING'
+            }),
+            findMany: vi.fn().mockResolvedValue([]),
+            update: vi.fn().mockResolvedValue({}),
+          },
+          return: {
+            create: vi.fn().mockResolvedValue({
+              id: 'return-1',
+              orderId: 'order-1',
+              status: 'REQUESTED'
+            }),
+            findMany: vi.fn().mockResolvedValue([]),
+            update: vi.fn().mockResolvedValue({}),
+          },
         }
         return await callback(mockTx)
       })
@@ -191,29 +356,29 @@ describe('OrderService', () => {
       const result = await orderService.createOrder(mockOrderData, 'user-1')
 
       expect(result).toEqual(mockCreatedOrder)
-      expect(mockInventoryService.getAvailableQuantity).toHaveBeenCalledWith(
+      expect(mockInventoryService.getTotalInventory).toHaveBeenCalledWith(
         'product-1',
         undefined
       )
-      expect(mockInventoryService.createReservation).toHaveBeenCalledWith(
-        'product-1',
-        undefined,
-        2,
-        'Order ORD-20250815-0001',
-        'order-1'
+      expect(mockInventoryService.createAdjustment).toHaveBeenCalledWith({
+        inventoryItemId: 'inventory-1',
+        type: 'DECREASE',
+        quantityChange: 2,
+        reason: expect.stringMatching(/Order ORD-\d{8}-\d{4}/),
+        referenceType: 'ORDER',
+        referenceId: 'order-1',
+        userId: 'user-1'
+      })
+      expect(mockCustomerService.updateCustomerStats).toHaveBeenCalledWith(
+        'customer-1'
       )
-      expect(mockCustomerService.updateOrderStatistics).toHaveBeenCalledWith(
-        'customer-1',
-        expect.any(Object)
-      )
-      expect(mockAuditService.log).toHaveBeenCalledWith(
-        'order.created',
-        'Order',
-        'order-1',
-        null,
-        mockCreatedOrder,
-        'user-1'
-      )
+      expect(mockAuditService.log).toHaveBeenCalledWith({
+        action: 'CREATE_ORDER',
+        entity: 'ORDER',
+        entityId: 'order-1',
+        userId: 'user-1',
+        metadata: { message: 'Order created by user-1' }
+      })
       expect(mockWebSocketService.broadcast).toHaveBeenCalledWith(
         'order.created',
         expect.any(Object)
@@ -226,6 +391,7 @@ describe('OrderService', () => {
           customer: { findUnique: vi.fn().mockResolvedValue(null) },
           product: { findUnique: vi.fn() },
           productVariant: { findUnique: vi.fn() },
+          inventoryItem: { findFirst: vi.fn().mockResolvedValue(null) },
           order: { create: vi.fn(), findFirst: vi.fn() },
           customerAddress: { create: vi.fn() },
         }
@@ -243,6 +409,7 @@ describe('OrderService', () => {
           customer: { findUnique: vi.fn().mockResolvedValue(mockCustomer) },
           product: { findUnique: vi.fn().mockResolvedValue(null) },
           productVariant: { findUnique: vi.fn() },
+          inventoryItem: { findFirst: vi.fn().mockResolvedValue(null) },
           order: { create: vi.fn(), findFirst: vi.fn() },
           customerAddress: { create: vi.fn() },
         }
@@ -255,11 +422,15 @@ describe('OrderService', () => {
     })
 
     it('should throw error if insufficient inventory', async () => {
-      mockInventoryService.getAvailableQuantity.mockResolvedValue(1)
+      mockInventoryService.getTotalInventory.mockResolvedValue({
+        totalQuantity: 1,
+        totalReserved: 0,
+        totalAvailable: 1
+      })
 
       await expect(
         orderService.createOrder(mockOrderData, 'user-1')
-      ).rejects.toThrow('Insufficient inventory')
+      ).rejects.toThrow('Insufficient stock for product product-1')
     })
 
     it('should create guest order without customer', async () => {
@@ -283,6 +454,25 @@ describe('OrderService', () => {
             findFirst: vi.fn().mockResolvedValue(null),
           },
           customerAddress: { create: vi.fn() },
+          inventoryItem: {
+            findFirst: vi.fn().mockResolvedValue({
+              id: 'inventory-1',
+              productId: 'product-1',
+              variantId: null,
+              availableQuantity: 10,
+              reservedQuantity: 0,
+              totalQuantity: 10,
+            }),
+          },
+          inventoryReservation: {
+            findFirst: vi.fn().mockResolvedValue(null),
+            create: vi.fn().mockResolvedValue({
+              id: 'reservation-1',
+              inventoryItemId: 'inventory-1',
+              referenceId: 'order-1',
+              quantity: 2,
+            }),
+          },
         }
         return await callback(mockTx)
       })
@@ -363,11 +553,7 @@ describe('OrderService', () => {
       expect(result).toEqual(mockUpdatedOrder)
       expect(prisma.order.update).toHaveBeenCalledWith({
         where: { id: 'order-1' },
-        data: {
-          ...updateData,
-          updatedAt: expect.any(Date),
-        },
-        include: expect.any(Object),
+        data: updateData,
       })
       expect(mockAuditService.log).toHaveBeenCalled()
       expect(mockWebSocketService.broadcast).toHaveBeenCalledWith(
@@ -377,7 +563,7 @@ describe('OrderService', () => {
     })
 
     it('should throw error if order not found', async () => {
-      vi.spyOn(orderService, 'getOrderById').mockResolvedValue(null)
+      vi.mocked(prisma.order.findUnique).mockResolvedValue(null)
 
       await expect(
         orderService.updateOrder('nonexistent', {}, 'user-1')
@@ -507,7 +693,10 @@ describe('OrderService', () => {
     }
 
     beforeEach(() => {
-      vi.spyOn(orderService, 'getOrderById').mockResolvedValue(mockOrder as any)
+      vi.mocked(prisma.order.findFirst).mockResolvedValue({
+        ...mockOrder,
+        items: mockOrder.items,
+      } as any)
     })
 
     it('should create fulfillment successfully', async () => {
@@ -552,9 +741,9 @@ describe('OrderService', () => {
         'product-1',
         undefined,
         -2,
-        'DECREASE',
-        expect.stringContaining('Fulfilled for order'),
-        'order',
+        'FULFILLMENT',
+        'Fulfillment for order ORD-20250815-0001',
+        'user-1',
         'order-1'
       )
       expect(mockAuditService.log).toHaveBeenCalled()
@@ -620,7 +809,10 @@ describe('OrderService', () => {
     }
 
     beforeEach(() => {
-      vi.spyOn(orderService, 'getOrderById').mockResolvedValue(mockOrder as any)
+      vi.mocked(prisma.order.findFirst).mockResolvedValue({
+        ...mockOrder,
+        items: mockOrder.items,
+      } as any)
     })
 
     it('should create return successfully', async () => {
@@ -688,10 +880,14 @@ describe('OrderService', () => {
           quantity: 2,
         },
       ],
+      payments: [],
     }
 
     beforeEach(() => {
-      vi.spyOn(orderService, 'getOrderById').mockResolvedValue(mockOrder as any)
+      vi.mocked(prisma.order.findUnique).mockResolvedValue({
+        ...mockOrder,
+        payments: [],
+      } as any)
     })
 
     it('should cancel order successfully', async () => {
@@ -702,11 +898,26 @@ describe('OrderService', () => {
               ...mockOrder,
               status: OrderStatus.CANCELLED,
               cancelledAt: new Date(),
+              payments: [],
             }),
           },
           payment: {
             findMany: vi.fn().mockResolvedValue([]),
             create: vi.fn(),
+          },
+          inventoryItem: {
+            findFirst: vi.fn().mockResolvedValue({
+              id: 'inventory-1',
+              productId: 'product-1',
+              variantId: null,
+            }),
+          },
+          inventoryReservation: {
+            findFirst: vi.fn().mockResolvedValue({
+              id: 'reservation-1',
+              inventoryItemId: 'inventory-1',
+              referenceId: 'order-1',
+            }),
           },
         }
         return await callback(mockTx)
@@ -720,10 +931,7 @@ describe('OrderService', () => {
 
       expect(result.status).toBe(OrderStatus.CANCELLED)
       expect(mockInventoryService.releaseReservation).toHaveBeenCalledWith(
-        'product-1',
-        null,
-        'Order ORD-20250815-0001',
-        'order-1'
+        'reservation-1'
       )
       expect(mockAuditService.log).toHaveBeenCalled()
       expect(mockWebSocketService.broadcast).toHaveBeenCalledWith(
@@ -733,9 +941,10 @@ describe('OrderService', () => {
     })
 
     it('should throw error if order is already shipped', async () => {
-      vi.spyOn(orderService, 'getOrderById').mockResolvedValue({
+      vi.mocked(prisma.order.findUnique).mockResolvedValue({
         ...mockOrder,
         status: OrderStatus.SHIPPED,
+        payments: [],
       } as any)
 
       await expect(

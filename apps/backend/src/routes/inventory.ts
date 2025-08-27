@@ -5,36 +5,70 @@ import { z } from 'zod'
 import { sendSuccess, sendCreated } from '../lib/api-response'
 import { authenticate } from '../middleware/auth'
 import { validate } from '../middleware/validation'
+import { errorHandler } from '../middleware/error-handler'
 import { InventoryService } from '../services/inventory.service'
 import { WebSocketService } from '../services/websocket.service'
 
-const router: Router = Router()
+// Factory function for creating router with injected dependencies
+export function createInventoryRouter(inventoryService?: InventoryService, webSocketService?: WebSocketService) {
+  const router: Router = Router()
+  const service = inventoryService || new InventoryService()
+  const wsService = webSocketService || new WebSocketService()
 
-// Validation schemas
+  // Validation schemas
+  const inventoryQuerySchema = z.object({
+    locationId: z.string().optional(),
+    productIds: z
+      .string()
+      .optional()
+      .transform((val) => (val ? val.split(',') : undefined)),
+    lowStockOnly: z
+      .string()
+      .optional()
+      .transform((val) => (val === 'true')),
+    includeZeroStock: z
+      .string()
+      .optional()
+      .transform((val) => (val === 'true')),
+  })
 
-const bulkUpdateSchema = z.object({
-  body: z.object({
+  const updateStockSchema = z.object({
+    quantity: z.number().int().positive('Quantity must be positive'),
+    reason: z.string().min(1, 'Reason is required'),
+  })
+
+  const bulkUpdateSchema = z.object({
     updates: z.array(
       z.object({
         inventoryItemId: z.string(),
         quantity: z.number().int().min(0),
         reason: z.string().optional(),
       })
-    ),
-  }),
-})
+    ).min(1, 'At least one update is required'),
+  })
 
-const adjustmentSchema = z.object({
-  body: z.object({
-    type: z.enum(['INCREASE', 'DECREASE', 'SET']),
-    quantityChange: z.number().int().min(0),
-    reason: z.string().optional(),
+  const createReservationSchema = z.object({
+    quantity: z.number().int().positive('Quantity must be positive'),
+    reason: z.string().min(1, 'Reason is required'),
+    referenceId: z.string().optional(),
+    expiresAt: z.string().datetime().optional(),
+  })
+
+  const fulfillReservationSchema = z.object({
+    quantityFulfilled: z.number().int().positive('Quantity fulfilled must be positive'),
+  })
+
+  const adjustmentSchema = z.object({
+    type: z.enum(['INCREASE', 'DECREASE', 'SET'], {
+      errorMap: () => ({ message: 'Type must be INCREASE, DECREASE, or SET' })
+    }),
+    quantityChange: z.number().int().nonnegative('Quantity change cannot be negative'),
+    reason: z.string().min(1, 'Reason is required'),
     notes: z.string().optional(),
     unitCost: z.number().optional(),
     referenceType: z.string().optional(),
     referenceId: z.string().optional(),
-  }),
-})
+  })
 
 const createTransferSchema = z.object({
   body: z.object({
@@ -103,16 +137,7 @@ const reportFiltersSchema = z.object({
   }),
 })
 
-// Initialize services (these would typically be injected)
-let inventoryService: InventoryService
 
-export const initializeInventoryRoutes = (
-  _prisma: PrismaClient,
-  invService: InventoryService,
-  _wsService: WebSocketService
-) => {
-  inventoryService = invService
-}
 
 // ============================================================================
 // INVENTORY TRACKING ROUTES
@@ -161,14 +186,14 @@ export const initializeInventoryRoutes = (
  *       200:
  *         description: Inventory items retrieved successfully
  */
-router.get('/', authenticate, async (req, res, next) => {
+router.get('/', authenticate, validate({ query: inventoryQuerySchema }), async (req, res, next) => {
   try {
     const { locationId, productIds, lowStockOnly, includeZeroStock } =
       req.query as Record<string, unknown>
 
     let inventory
     if (locationId) {
-      inventory = await inventoryService.getInventoryByLocation(locationId as string, {
+      inventory = await service.getInventoryByLocation(locationId as string, {
         productIds: productIds as string[] | undefined,
         lowStockOnly: lowStockOnly as boolean | undefined,
         includeZeroStock: includeZeroStock as boolean | undefined,
@@ -176,7 +201,7 @@ router.get('/', authenticate, async (req, res, next) => {
     } else {
       // Get all inventory with pagination
       // This would need to be implemented in the service
-      inventory = await inventoryService.getInventoryReport({
+      inventory = await service.getInventoryReport({
         productIds: productIds as string[] | undefined,
         lowStockOnly: lowStockOnly as boolean | undefined,
       })
@@ -215,11 +240,11 @@ router.get('/product/:productId', authenticate, async (req, res, next) => {
     const { productId } = req.params
     const { variantId } = req.query as Record<string, unknown>
 
-    const inventory = await inventoryService.getInventoryByProduct(
+    const inventory = await service.getInventoryByProduct(
       productId,
       variantId as string | undefined
     )
-    const totals = await inventoryService.getTotalInventory(
+    const totals = await service.getTotalInventory(
       productId,
       variantId as string | undefined
     )
@@ -265,13 +290,13 @@ router.get('/product/:productId', authenticate, async (req, res, next) => {
  *       200:
  *         description: Stock level updated successfully
  */
-router.put('/:inventoryItemId/stock', authenticate, async (req, res, next) => {
+router.put('/:inventoryItemId/stock', authenticate, validate({ body: updateStockSchema }), async (req, res, next) => {
   try {
     const { inventoryItemId } = req.params
     const { quantity, reason } = req.body
     const userId = (req as { user: { id: string } }).user.id
 
-    const updatedItem = await inventoryService.updateStockLevel(
+    const updatedItem = await service.updateStockLevel(
       inventoryItemId,
       quantity,
       reason,
@@ -323,13 +348,13 @@ router.put('/:inventoryItemId/stock', authenticate, async (req, res, next) => {
 router.put(
   '/bulk-update',
   authenticate,
-  validate({ body: bulkUpdateSchema.shape.body }),
+  validate({ body: bulkUpdateSchema }),
   async (req, res, next) => {
     try {
       const { updates } = req.body
       const userId = (req as { user: { id: string } }).user.id
 
-      const results = await inventoryService.bulkUpdateStockLevels(
+      const results = await service.bulkUpdateStockLevels(
         updates,
         userId
       )
@@ -396,12 +421,13 @@ router.put(
 router.post(
   '/:inventoryItemId/reservations',
   authenticate,
+  validate({ body: createReservationSchema }),
   async (req, res, next) => {
     try {
       const { inventoryItemId } = req.params
       const { quantity, reason, referenceId, expiresAt } = req.body
 
-      const reservation = await inventoryService.createReservation({
+      const reservation = await service.createReservation({
         inventoryItemId,
         quantity,
         reason,
@@ -441,7 +467,7 @@ router.delete(
     try {
       const { reservationId } = req.params
 
-      await inventoryService.releaseReservation(reservationId)
+      await service.releaseReservation(reservationId)
 
       sendSuccess(res, null)
     } catch (error) {
@@ -483,12 +509,13 @@ router.delete(
 router.post(
   '/reservations/:reservationId/fulfill',
   authenticate,
+  validate({ body: fulfillReservationSchema }),
   async (req, res, next) => {
     try {
       const { reservationId } = req.params
       const { quantityFulfilled } = req.body
 
-      await inventoryService.fulfillReservation(
+      await service.fulfillReservation(
         reservationId,
         quantityFulfilled
       )
@@ -551,7 +578,7 @@ router.post(
 router.post(
   '/:inventoryItemId/adjustments',
   authenticate,
-  validate({ body: adjustmentSchema.shape.body }),
+  validate({ body: adjustmentSchema }),
   async (req, res, next) => {
     try {
       const { inventoryItemId } = req.params
@@ -566,7 +593,7 @@ router.post(
       } = req.body
       const userId = (req as { user: { id: string } }).user.id
 
-      const adjustment = await inventoryService.createAdjustment({
+      const adjustment = await service.createAdjustment({
         inventoryItemId,
         type: type as AdjustmentType,
         quantityChange,
@@ -621,7 +648,7 @@ router.get(
       const { inventoryItemId } = req.params
       const { dateFrom, dateTo } = req.query as Record<string, unknown>
 
-      const history = await inventoryService.getInventoryMovementHistory(
+      const history = await service.getInventoryMovementHistory(
         inventoryItemId,
         dateFrom && typeof dateFrom === 'string' ? new Date(dateFrom) : undefined,
         dateTo && typeof dateTo === 'string' ? new Date(dateTo) : undefined
@@ -688,7 +715,7 @@ router.post(
       const { fromLocationId, toLocationId, items, notes } = req.body
       const userId = (req as { user: { id: string } }).user.id
 
-      const transfer = await inventoryService.createTransfer({
+      const transfer = await service.createTransfer({
         fromLocationId,
         toLocationId,
         items,
@@ -739,7 +766,7 @@ router.post(
       const { trackingNumber } = req.body
       const userId = (req as { user: { id: string } }).user.id
 
-      await inventoryService.shipTransfer(transferId, trackingNumber, userId)
+      await service.shipTransfer(transferId, trackingNumber, userId)
 
       sendSuccess(res, null)
     } catch (error) {
@@ -798,7 +825,7 @@ router.post(
       const { receivedItems } = req.body
       const userId = (req as { user: { id: string } }).user.id
 
-      await inventoryService.receiveTransfer(transferId, receivedItems, userId)
+      await service.receiveTransfer(transferId, receivedItems, userId)
 
       sendSuccess(res, null)
     } catch (error) {
@@ -832,7 +859,7 @@ router.get('/low-stock', authenticate, async (req, res, next) => {
   try {
     const { locationId } = req.query as Record<string, unknown>
 
-    const lowStockItems = await inventoryService.getLowStockItems(locationId as string | undefined)
+    const lowStockItems = await service.getLowStockItems(locationId as string | undefined)
 
     sendSuccess(res, lowStockItems)
   } catch (error) {
@@ -879,7 +906,7 @@ router.put(
       const { inventoryItemId } = req.params
       const { threshold } = req.body
 
-      const updatedItem = await inventoryService.updateLowStockThreshold(
+      const updatedItem = await service.updateLowStockThreshold(
         inventoryItemId,
         threshold
       )
@@ -941,7 +968,7 @@ router.get(
       const { locationIds, productIds, lowStockOnly, dateFrom, dateTo } =
         req.query as Record<string, unknown>
 
-      const report = await inventoryService.getInventoryReport({
+      const report = await service.getInventoryReport({
         locationIds: locationIds as string[] | undefined,
         productIds: productIds as string[] | undefined,
         lowStockOnly: lowStockOnly as boolean | undefined,
@@ -990,7 +1017,7 @@ router.get('/trends', authenticate, async (req, res, next) => {
       unknown
     >
 
-    const trends = await inventoryService.getInventoryTrends(
+    const trends = await service.getInventoryTrends(
       locationId as string | undefined,
       productIds && typeof productIds === 'string' ? productIds.split(',') : undefined,
       days && typeof days === 'string' ? parseInt(days) : 30
@@ -1020,12 +1047,24 @@ router.get('/trends', authenticate, async (req, res, next) => {
  */
 router.post('/cleanup-reservations', authenticate, async (req, res, next) => {
   try {
-    const cleanedCount = await inventoryService.cleanupExpiredReservations()
+    const cleanedCount = await service.cleanupExpiredReservations()
 
-    sendSuccess(res, { cleanedCount })
+    res.json({
+      success: true,
+      data: { cleanedCount },
+      message: `Cleaned up ${cleanedCount} expired reservations`
+    })
   } catch (error) {
     next(error)
   }
 })
 
-export default router
+  // Add error handler middleware
+  router.use((error: unknown, req: any, res: any, next: any) => {
+    return errorHandler(error, req, res, next)
+  })
+
+  return router
+}
+
+export default createInventoryRouter()

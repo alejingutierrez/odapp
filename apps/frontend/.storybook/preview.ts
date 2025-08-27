@@ -10,6 +10,12 @@ const preview: Preview = {
       },
     },
     layout: 'centered',
+    docs: {
+      // Show the full source code in docs
+      source: {
+        state: 'open',
+      },
+    },
   },
 }
 

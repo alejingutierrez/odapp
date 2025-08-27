@@ -11,6 +11,7 @@ import { sendSuccess, sendError } from '../lib/api-response.js';
 import { logger } from '../lib/logger'
 import { authenticate } from '../middleware/auth.js'
 import { validate } from '../middleware/validation.js'
+import { errorHandler } from '../middleware/error-handler.js'
 import {
   OrderService,
   CreateOrderRequest,
@@ -22,19 +23,53 @@ import {
 } from '../services/order.service'
 
 
-const router = Router()
-const orderService = new OrderService()
+// Factory function for creating router with injected dependencies
+export function createOrderRouter(orderService?: OrderService) {
+  const router = Router()
+  const service = orderService || new OrderService()
 
-// Validation schemas
+    // Validation schemas
+  const createOrderSchema = z.object({
+    customerId: z.string().optional(),
+    guestEmail: z.string().email().optional(),
+    guestPhone: z.string().optional(),
+    items: z.array(z.object({
+      productId: z.string(),
+      variantId: z.string().optional(),
+      quantity: z.number().int().positive(),
+      price: z.number().positive().optional(),
+    })).min(1),
+    currency: z.string().optional(),
+    shippingAddress: z.any().optional(),
+    billingAddress: z.any().optional(),
+    notes: z.string().optional(),
+  }).refine(
+    (data) => data.customerId || data.guestEmail,
+    {
+      message: "Either customerId or guestEmail must be provided",
+    }
+  )
 
-const processPaymentSchema = z.object({
-  amount: z.number().positive(),
-  currency: z.string(),
-  method: z.nativeEnum(PaymentMethod),
-  gateway: z.string(),
-  gatewayTransactionId: z.string().optional(),
-  metadata: z.any().optional(),
-})
+  const updateOrderSchema = z.object({
+    status: z.nativeEnum(OrderStatus).optional(),
+    notes: z.string().optional(),
+    priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']).optional(),
+    tags: z.array(z.string()).optional(),
+  }).refine(
+    (data) => Object.keys(data).length > 0,
+    {
+      message: "At least one field must be provided for update",
+    }
+  )
+
+  const processPaymentSchema = z.object({
+    amount: z.number().positive(),
+    currency: z.string(),
+    method: z.nativeEnum(PaymentMethod),
+    gateway: z.string(),
+    gatewayTransactionId: z.string().optional(),
+    metadata: z.any().optional(),
+  })
 
 const createFulfillmentSchema = z.object({
   items: z
@@ -187,18 +222,16 @@ const orderFiltersSchema = z.object({
  *             schema:
  *               $ref: '#/components/schemas/Order'
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticate, validate({ body: createOrderSchema }), async (req, res) => {
   try {
     const orderData: CreateOrderRequest = req.body
     const userId = req.user?.id
 
-    const order = await orderService.createOrder(orderData, userId)
+    const order = await service.createOrder(orderData, userId)
 
     logger.info('Order created via API', { orderId: order.id, userId })
 
-    res
-      .status(201)
-      .json(sendSuccess(res, order, 'Order created successfully'))
+    res.status(201).json({ success: true, data: order })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -207,7 +240,7 @@ router.post('/', async (req, res) => {
       error: errorMessage,
       body: req.body,
     })
-    res.status(statusCode).json(sendError(res, 'ORDER_CREATION_ERROR', errorMessage, statusCode))
+    res.status(statusCode).json({ success: false, message: errorMessage })
   }
 })
 
@@ -263,7 +296,7 @@ router.get('/', authenticate, async (req, res) => {
     const sortBy = validatedQuery.sortBy || 'createdAt'
     const sortOrder = validatedQuery.sortOrder || 'desc'
 
-    const result = await orderService.getOrders(
+    const result = await service.getOrders(
       filters,
       page,
       limit,
@@ -271,7 +304,7 @@ router.get('/', authenticate, async (req, res) => {
       sortOrder
     )
 
-    res.json(sendSuccess(res, result, 'Orders retrieved successfully'))
+    res.json({ success: true, data: result })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -280,7 +313,7 @@ router.get('/', authenticate, async (req, res) => {
       error: errorMessage,
       query: req.query,
     })
-    res.status(statusCode).json(sendError(res, 'ORDERS_RETRIEVAL_ERROR', errorMessage, statusCode))
+    res.status(statusCode).json({ success: false, message: errorMessage })
   }
 })
 
@@ -315,15 +348,13 @@ router.get('/analytics', authenticate, async (req, res) => {
   try {
     const { dateFrom, dateTo, customerId } = req.query
 
-    const analytics = await orderService.getOrderAnalytics(
+    const analytics = await service.getOrderAnalytics(
       dateFrom ? new Date(dateFrom as string) : undefined,
       dateTo ? new Date(dateTo as string) : undefined,
       customerId as string
     )
 
-    res.json(
-      sendSuccess(res, analytics, 'Order analytics retrieved successfully')
-    )
+    res.json({ success: true, data: analytics })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -332,7 +363,7 @@ router.get('/analytics', authenticate, async (req, res) => {
       error: errorMessage,
       query: req.query,
     })
-    res.status(statusCode).json(sendError(res, 'ANALYTICS_RETRIEVAL_ERROR', errorMessage, statusCode))
+    res.status(statusCode).json({ success: false, message: errorMessage })
   }
 })
 
@@ -361,13 +392,13 @@ router.get('/analytics', authenticate, async (req, res) => {
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params
-    const order = await orderService.getOrderById(id)
+    const order = await service.getOrderById(id)
 
     if (!order) {
-      return res.status(404).json(sendError(res, 'NOT_FOUND', 'Order not found', 404))
+      return res.status(404).json({ success: false, message: 'Order not found' })
     }
 
-    res.json(sendSuccess(res, order, 'Order retrieved successfully'))
+    res.json({ success: true, data: order })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -409,13 +440,13 @@ router.get('/:id', authenticate, async (req, res) => {
  *       200:
  *         description: Order updated successfully
  */
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, validate({ body: updateOrderSchema }), async (req, res) => {
   try {
     const { id } = req.params
     const updateData: UpdateOrderRequest = req.body
     const userId = req.user?.id
 
-    const order = await orderService.updateOrder(id, updateData, userId)
+    const order = await service.updateOrder(id, updateData, userId)
 
     logger.info('Order updated via API', {
       orderId: id,
@@ -423,7 +454,7 @@ router.put('/:id', authenticate, async (req, res) => {
       changes: Object.keys(updateData),
     })
 
-    res.json(sendSuccess(res, order, 'Order updated successfully'))
+    res.json({ success: true, data: order })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -432,7 +463,7 @@ router.put('/:id', authenticate, async (req, res) => {
       error: errorMessage,
       orderId: req.params.id,
     })
-    res.status(statusCode).json(sendError(res, 'ORDER_UPDATE_ERROR', errorMessage, statusCode))
+    res.status(statusCode).json({ success: false, message: errorMessage })
   }
 })
 
@@ -484,7 +515,7 @@ router.post(
       const paymentData: ProcessPaymentRequest = req.body
       const userId = req.user?.id
 
-      const payment = await orderService.processPayment(id, paymentData, userId)
+      const payment = await service.processPayment(id, paymentData, userId)
 
       logger.info('Payment processed via API', {
         orderId: id,
@@ -492,7 +523,7 @@ router.post(
         userId,
       })
 
-      res.json(sendSuccess(res, payment, 'Payment processed successfully'))
+      res.json({ success: true, data: payment })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -501,7 +532,7 @@ router.post(
         error: errorMessage,
         orderId: req.params.id,
       })
-      res.status(statusCode).json(sendError(res, 'PAYMENT_PROCESSING_ERROR', errorMessage, statusCode))
+      res.status(statusCode).json({ success: false, message: errorMessage })
     }
   }
 )
@@ -552,7 +583,7 @@ router.post(
       const fulfillmentData: CreateFulfillmentRequest = req.body
       const userId = req.user?.id
 
-      const fulfillment = await orderService.createFulfillment(
+      const fulfillment = await service.createFulfillment(
         id,
         fulfillmentData,
         userId
@@ -565,11 +596,7 @@ router.post(
         userId,
       })
 
-      res
-        .status(201)
-        .json(
-          sendSuccess(res, fulfillment, 'Fulfillment created successfully')
-        )
+      res.status(201).json({ success: true, data: fulfillment })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -578,7 +605,7 @@ router.post(
         error: errorMessage,
         orderId: req.params.id,
       })
-      res.status(statusCode).json(sendError(res, 'FULFILLMENT_CREATION_ERROR', errorMessage, statusCode))
+      res.status(statusCode).json({ success: false, message: errorMessage })
     }
   }
 )
@@ -614,7 +641,7 @@ router.post(
       const { fulfillmentId } = req.params
       const userId = req.user?.id
 
-      const fulfillment = await orderService.shipFulfillment(
+      const fulfillment = await service.shipFulfillment(
         fulfillmentId,
         {},
         userId
@@ -633,7 +660,7 @@ router.post(
         error: errorMessage,
         fulfillmentId: req.params.fulfillmentId,
       })
-      res.status(statusCode).json(sendError(res, 'FULFILLMENT_SHIPPING_ERROR', errorMessage, statusCode))
+      sendError(res, 'FULFILLMENT_SHIPPING_ERROR', errorMessage, statusCode)
     }
   }
 )
@@ -686,7 +713,7 @@ router.post(
       const returnData: CreateReturnRequest = req.body
       const userId = req.user?.id
 
-      const returnRecord = await orderService.createReturn(
+      const returnRecord = await service.createReturn(
         id,
         returnData,
         userId
@@ -699,9 +726,7 @@ router.post(
         userId,
       })
 
-      res
-        .status(201)
-        .json(sendSuccess(res, returnRecord, 'Return created successfully'))
+      res.status(201).json({ success: true, data: returnRecord })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -710,7 +735,7 @@ router.post(
         error: errorMessage,
         orderId: req.params.id,
       })
-      res.status(statusCode).json(sendError(res, 'RETURN_CREATION_ERROR', errorMessage, statusCode))
+      res.status(statusCode).json({ success: false, message: errorMessage })
     }
   }
 )
@@ -763,13 +788,14 @@ router.post(
       if (typeof approve !== 'boolean') {
         return res
           .status(400)
-          .json(
-            sendError(res, 'INVALID_APPROVE_FIELD', 'approve field is required and must be boolean', 400)
-          )
+          .json({ success: false, message: 'approve field is required and must be boolean' })
       }
 
-      const returnRecord = await orderService.processReturn(
+      const returnRecord = await service.processReturn(
+        req.params.id,
         returnId,
+        approve,
+        { refundAmount },
         userId
       )
 
@@ -780,9 +806,7 @@ router.post(
         userId,
       })
 
-      res.json(
-        sendSuccess(res, returnRecord, 'Return processed successfully')
-      )
+      res.json({ success: true, data: returnRecord })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -791,7 +815,7 @@ router.post(
         error: errorMessage,
         returnId: req.params.returnId,
       })
-      res.status(statusCode).json(sendError(res, 'RETURN_PROCESSING_ERROR', errorMessage, statusCode))
+      res.status(statusCode).json({ success: false, message: errorMessage })
     }
   }
 )
@@ -828,11 +852,11 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
     const { reason } = req.body
     const userId = req.user?.id
 
-    const order = await orderService.cancelOrder(id, reason, userId)
+    const order = await service.cancelOrder(id, reason, userId)
 
     logger.info('Order cancelled via API', { orderId: id, reason, userId })
 
-    res.json(sendSuccess(res, order, 'Order cancelled successfully'))
+    res.json({ success: true, data: order })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -841,8 +865,16 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
       error: errorMessage,
       orderId: req.params.id,
     })
-    res.status(statusCode).json(sendError(res, 'ORDER_CANCELLATION_ERROR', errorMessage, statusCode))
+    res.status(statusCode).json({ success: false, message: errorMessage })
   }
 })
 
-export default router
+  // Add error handler middleware
+  router.use((error: unknown, req: any, res: any, next: any) => {
+    return errorHandler(error, req, res, next)
+  })
+
+  return router
+}
+
+export default createOrderRouter()

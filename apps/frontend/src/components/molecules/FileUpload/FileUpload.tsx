@@ -20,19 +20,49 @@ import type { UploadProps, UploadFile } from 'antd'
 import React, { useState } from 'react'
 import './FileUpload.css'
 
+/**
+ * Props for the FileUpload component
+ */
 export interface FileUploadProps {
+  /** Array of uploaded files */
   value?: UploadFile[]
+  /** Callback when files change */
   onChange?: (files: UploadFile[]) => void
+  /** Maximum number of files allowed */
   maxFiles?: number
-  maxSize?: number // in MB
+  /** Maximum file size in MB */
+  maxSize?: number
+  /** Array of accepted file types */
   acceptedTypes?: string[]
+  /** Whether to show file preview */
   showPreview?: boolean
+  /** Whether to show upload progress */
   showProgress?: boolean
+  /** Whether to enable drag and drop */
   dragAndDrop?: boolean
+  /** Whether the component is disabled */
   disabled?: boolean
+  /** Additional CSS class name */
   className?: string
 }
 
+/**
+ * FileUpload - A comprehensive file upload component
+ * 
+ * Provides drag and drop functionality, file preview, progress tracking, 
+ * and validation. Supports multiple file types and custom configurations.
+ * 
+ * @example
+ * ```tsx
+ * <FileUpload
+ *   value={files}
+ *   onChange={setFiles}
+ *   maxFiles={5}
+ *   maxSize={10}
+ *   acceptedTypes={['image/*', '.pdf']}
+ * />
+ * ```
+ */
 export const FileUpload: React.FC<FileUploadProps> = ({
   value = [],
   onChange,

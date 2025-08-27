@@ -22,16 +22,42 @@ export interface MaterialInfo {
   }
 }
 
+/**
+ * Props for the MaterialTagMolecule component
+ */
 export interface MaterialTagMoleculeProps {
+  /** Material information object containing all material details */
   material: MaterialInfo
+  /** Whether to show the texture preview pattern */
   showTexture?: boolean
+  /** Whether to show sustainability indicators */
   showSustainability?: boolean
+  /** Whether to show care information in the modal */
   showCareInfo?: boolean
+  /** Whether the tag is interactive (clickable to show modal) */
   interactive?: boolean
+  /** Size of the material tag */
   size?: 'small' | 'default' | 'large'
+  /** Additional CSS class name */
   className?: string
 }
 
+/**
+ * MaterialTagMolecule - A comprehensive material tag component
+ * 
+ * Displays material information with texture preview, sustainability indicators, 
+ * and detailed modal information. Perfect for e-commerce product pages and material catalogs.
+ * 
+ * @example
+ * ```tsx
+ * <MaterialTagMolecule
+ *   material={cottonMaterial}
+ *   showTexture={true}
+ *   showSustainability={true}
+ *   interactive={true}
+ * />
+ * ```
+ */
 export const MaterialTagMolecule: React.FC<MaterialTagMoleculeProps> = ({
   material,
   showTexture = true,

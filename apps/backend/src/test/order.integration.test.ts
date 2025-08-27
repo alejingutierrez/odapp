@@ -10,13 +10,25 @@ import {
 
 // Mock authentication middleware
 vi.mock('../middleware/auth', () => ({
-  authMiddleware: (req: unknown, res: unknown, next: unknown) => {
+  authenticate: (req: unknown, res: unknown, next: unknown) => {
     const reqTyped = req as { user: unknown }
     const nextTyped = next as () => void
     reqTyped.user = {
       id: 'test-user',
       email: 'test@example.com',
     }
+    nextTyped()
+  },
+  authRateLimit: () => (req: unknown, res: unknown, next: unknown) => {
+    const nextTyped = next as () => void
+    nextTyped()
+  },
+  requireTwoFactor: (req: unknown, res: unknown, next: unknown) => {
+    const nextTyped = next as () => void
+    nextTyped()
+  },
+  requirePermission: (permission: string) => (req: unknown, res: unknown, next: unknown) => {
+    const nextTyped = next as () => void
     nextTyped()
   },
 }))

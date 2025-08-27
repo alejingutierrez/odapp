@@ -15,6 +15,7 @@ const meta: Meta<typeof SeasonalTag> = {
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
     season: {
       control: { type: 'select' },
@@ -29,7 +30,7 @@ const meta: Meta<typeof SeasonalTag> = {
       options: ['small', 'default', 'large'],
     },
   },
-}
+  }
 
 export default meta
 type Story = StoryObj<typeof SeasonalTag>
@@ -40,7 +41,7 @@ export const Spring: Story = {
     year: 2024,
     collection: 'Fresh Blooms',
   },
-}
+  }
 
 export const Summer: Story = {
   args: {
@@ -49,7 +50,7 @@ export const Summer: Story = {
     collection: 'Beach Vibes',
     trendLevel: 'trending',
   },
-}
+  }
 
 export const Autumn: Story = {
   args: {
@@ -58,7 +59,7 @@ export const Autumn: Story = {
     collection: 'Cozy Layers',
     trendLevel: 'high',
   },
-}
+  }
 
 export const Winter: Story = {
   args: {
@@ -67,14 +68,14 @@ export const Winter: Story = {
     collection: 'Winter Warmth',
     animated: true,
   },
-}
+  }
 
 export const WithoutYear: Story = {
   args: {
     season: 'spring',
     collection: 'Timeless Collection',
   },
-}
+  }
 
 export const WithoutCollection: Story = {
   args: {
@@ -82,7 +83,7 @@ export const WithoutCollection: Story = {
     year: 2024,
     trendLevel: 'trending',
   },
-}
+  }
 
 export const Trending: Story = {
   args: {
@@ -92,7 +93,7 @@ export const Trending: Story = {
     trendLevel: 'trending',
     animated: true,
   },
-}
+  }
 
 export const Small: Story = {
   args: {
@@ -100,7 +101,7 @@ export const Small: Story = {
     year: 2024,
     size: 'small',
   },
-}
+  }
 
 export const Large: Story = {
   args: {
@@ -110,7 +111,7 @@ export const Large: Story = {
     size: 'large',
     trendLevel: 'high',
   },
-}
+  }
 
 export const AllSeasons: Story = {
   render: () => (

@@ -3,7 +3,7 @@ import request from 'supertest'
 import express from 'express'
 import customerRoutes from '../routes/customers.js'
 import { customerService } from '../services/customer.service.js'
-import { authMiddleware } from '../middleware/auth.js'
+import { authenticate } from '../middleware/auth.js'
 import { errorHandler } from '../middleware/error-handler.js'
 
 // Mock the customer service
@@ -11,14 +11,24 @@ vi.mock('../services/customer.service.js')
 
 // Mock auth middleware
 vi.mock('../middleware/auth.js', () => ({
-  authMiddleware: vi.fn((req, res, next) => {
+  authenticate: vi.fn((req, res, next) => {
     req.user = { id: 'user-1', email: 'test@example.com' }
     next()
   }),
+  authRateLimit: () => (req, res, next) => {
+    next()
+  },
+  requireTwoFactor: (req, res, next) => {
+    next()
+  },
 }))
 
 // Mock validation middleware
 vi.mock('../middleware/validation.js', () => ({
+  validate: vi.fn(() => (req, res, next) => next()),
+  xssProtection: vi.fn(() => (req, res, next) => next()),
+  validateFileUpload: vi.fn(() => (req, res, next) => next()),
+  validateRateLimit: vi.fn(() => (req, res, next) => next()),
   validateRequest: vi.fn(() => (req, res, next) => next()),
 }))
 
@@ -737,7 +747,7 @@ describe('Customer Routes', () => {
   describe('Authentication', () => {
     it('should require authentication for all routes', async () => {
       // Mock auth middleware to reject
-      vi.mocked(authMiddleware).mockImplementation((_req, res, _next) => {
+      vi.mocked(authenticate).mockImplementation((_req, res, _next) => {
         res.status(401).json({ error: 'Unauthorized' })
       })
 

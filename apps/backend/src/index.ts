@@ -42,7 +42,9 @@ import authRoutes from './routes/auth'
 import cacheRoutes from './routes/cache'
 import customerRoutes from './routes/customers'
 import healthRoutes from './routes/health'
-import inventoryRoutes, { initializeInventoryRoutes } from './routes/inventory'
+import { createInventoryRouter } from './routes/inventory'
+import { createOrderRouter } from './routes/orders'
+import shopifyRoutes from './routes/shopify'
 import simpleRoutes from './routes/simple.js'
 import twoFactorRoutes from './routes/two-factor'
 import { InventorySchedulerService } from './services/inventory-scheduler.service'
@@ -64,7 +66,7 @@ const inventoryScheduler = new InventorySchedulerService(
 )
 
 // Initialize inventory routes with services
-initializeInventoryRoutes(prisma, inventoryService, webSocketService)
+// (Now handled via factory pattern in routes)
 
 // Configure trusted proxies
 configureTrustedProxies(app)
@@ -111,7 +113,7 @@ app.use('/api', contentNegotiation)
 
 // Rate limiting
 app.use('/api/', generalRateLimit)
-app.use('/api/*/auth', authRateLimit)
+app.use('/api/:version/auth', authRateLimit)
 
 // Initialize services
 EmailService.initialize().catch((error) => {
@@ -155,10 +157,16 @@ app.use('/api/v1/two-factor', twoFactorRoutes)
 app.use('/api/v1/cache', cacheRoutes)
 
 // Inventory management routes
-app.use('/api/v1/inventory', inventoryRoutes)
+app.use('/api/v1/inventory', createInventoryRouter(inventoryService, webSocketService))
 
 // Customer management routes
 app.use('/api/v1/customers', customerRoutes)
+
+// Order management routes
+app.use('/api/v1/orders', createOrderRouter())
+
+// Shopify integration routes
+app.use('/api/v1/shopify', shopifyRoutes)
 
 // Simple routes for development
 app.use('/api/v1', simpleRoutes)

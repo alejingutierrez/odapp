@@ -54,8 +54,8 @@ describe('Customer Routes', () => {
     emailOptIn: true,
     smsOptIn: false,
     tags: ['vip'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     deletedAt: null,
     addresses: [],
     segmentMembers: [],
@@ -185,7 +185,7 @@ describe('Customer Routes', () => {
         type: 'order',
         title: 'Order ORD-001',
         description: 'Order for $100 with 1 items',
-        date: new Date('2023-01-01'),
+        date: new Date('2023-01-01').toISOString(),
         metadata: { orderId: 'order-1' },
       },
     ]
@@ -374,7 +374,7 @@ describe('Customer Routes', () => {
       subject: 'Support request',
       content: 'Customer needs help with order',
       outcome: 'sent',
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     }
 
     it('should add interaction successfully', async () => {
@@ -565,8 +565,8 @@ describe('Customer Routes', () => {
       description: 'High value customers',
       rules: segmentData.conditions,
       isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
 
     it('should create segment successfully', async () => {

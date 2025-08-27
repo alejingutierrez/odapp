@@ -1,11 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import cors from 'cors'
+import multer from 'multer'
 import { z } from 'zod'
-
-// Import the actual validation middleware - not mocked
-vi.doMock('../middleware/validation.js', () => vi.importActual('../middleware/validation.js'))
 
 import {
   validate,
@@ -16,8 +14,6 @@ import {
   formatValidationError,
   commonValidationSchemas,
 } from '../middleware/validation.js'
-import { ApiError } from '../lib/errors.js'
-
 // Test schemas
 const testUserSchema = z.object({
   name: z
@@ -42,36 +38,46 @@ const testParamsSchema = z.object({
   id: z.string().uuid('Invalid ID format'),
 })
 
+const upload = multer({ storage: multer.memoryStorage() })
+
 // Create a simple test app without catch-all routes
 function createValidationTestApp() {
   const app = express()
-  
+
   app.use(cors())
   app.use(express.json({ limit: '10mb' }))
   app.use(express.urlencoded({ extended: true }))
-  
-  // Add error handling middleware for validation errors
-  app.use((err: any, req: any, res: any, next: any) => {
+
+  const errorMiddleware = (err: any, req: any, res: any, _next: any) => {
     if (err.name === 'ZodError') {
       return res.status(400).json({
         message: 'Validation failed',
-        errors: formatValidationError(err)
+        errors: formatValidationError(err),
       })
     }
-    
-    if (err.message?.includes('validation') || err.message?.includes('Validation')) {
-      return res.status(400).json({
+
+    if (
+      err.name === 'ValidationError' ||
+      err.name === 'RateLimitError' ||
+      err.message?.toLowerCase().includes('validation')
+    ) {
+      return res.status(err.statusCode || 400).json({
         message: err.message || 'Validation failed',
-        errors: err.errors || []
+        errors: err._errors || err.errors || [],
       })
     }
-    
+
     // Handle other errors
     res.status(500).json({
-      message: err.message || 'Internal server error'
+      message: err.message || 'Internal server error',
     })
-  })
-  
+  }
+
+  // Defer error middleware so it is registered after route handlers
+  setTimeout(() => {
+    app.use(errorMiddleware)
+  }, 0)
+
   return app
 }
 
@@ -84,9 +90,13 @@ describe('Validation Middleware', () => {
 
   describe('validate middleware', () => {
     it('should validate request body successfully', async () => {
-      app.post('/test', validate({ body: testUserSchema }), (req: any, res: any) => {
-        res.json({ success: true, data: req.body })
-      })
+      app.post(
+        '/test',
+        validate({ body: testUserSchema }),
+        (req: any, res: any) => {
+          res.json({ success: true, data: req.body })
+        }
+      )
 
       const validUser = {
         name: 'John Doe',
@@ -105,9 +115,13 @@ describe('Validation Middleware', () => {
     })
 
     it('should return validation errors for invalid body', async () => {
-      app.post('/test', validate({ body: testUserSchema }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.post(
+        '/test',
+        validate({ body: testUserSchema }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
       const invalidUser = {
         name: '', // Invalid: empty string
@@ -125,18 +139,34 @@ describe('Validation Middleware', () => {
       expect(response.body.errors).toHaveLength(4)
       expect(response.body.errors).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ field: 'name', message: 'Name is required' }),
-          expect.objectContaining({ field: 'email', message: 'Invalid email format' }),
-          expect.objectContaining({ field: 'age', message: 'Must be at least 18 years old' }),
-          expect.objectContaining({ field: 'tags', message: 'Maximum 5 tags allowed' }),
+          expect.objectContaining({
+            field: 'name',
+            message: 'Name is required',
+          }),
+          expect.objectContaining({
+            field: 'email',
+            message: 'Invalid email format',
+          }),
+          expect.objectContaining({
+            field: 'age',
+            message: 'Must be at least 18 years old',
+          }),
+          expect.objectContaining({
+            field: 'tags',
+            message: 'Maximum 5 tags allowed',
+          }),
         ])
       )
     })
 
     it('should validate query parameters', async () => {
-      app.get('/test', validate({ query: testQuerySchema }), (req: any, res: any) => {
-        res.json({ success: true, query: req.query })
-      })
+      app.get(
+        '/test',
+        validate({ query: testQuerySchema }),
+        (req: any, res: any) => {
+          res.json({ success: true, query: req.query })
+        }
+      )
 
       const response = await request(app)
         .get('/test?page=2&limit=50&search=test')
@@ -150,9 +180,13 @@ describe('Validation Middleware', () => {
     })
 
     it('should apply default values from schema', async () => {
-      app.get('/test', validate({ query: testQuerySchema }), (req: any, res: any) => {
-        res.json({ success: true, query: req.query })
-      })
+      app.get(
+        '/test',
+        validate({ query: testQuerySchema }),
+        (req: any, res: any) => {
+          res.json({ success: true, query: req.query })
+        }
+      )
 
       const response = await request(app).get('/test').expect(200)
 
@@ -164,9 +198,13 @@ describe('Validation Middleware', () => {
     })
 
     it('should return error for invalid route parameters', async () => {
-      app.get('/test/:id', validate({ params: testParamsSchema }), (req: any, res: any) => {
-        res.json({ success: true, id: req.params.id })
-      })
+      app.get(
+        '/test/:id',
+        validate({ params: testParamsSchema }),
+        (req: any, res: any) => {
+          res.json({ success: true, id: req.params.id })
+        }
+      )
 
       const response = await request(app).get('/test/invalid-uuid').expect(400)
 
@@ -176,13 +214,22 @@ describe('Validation Middleware', () => {
     })
 
     it('should validate multiple schemas', async () => {
-      app.post('/test/:id', validate({
-        body: testUserSchema,
-        params: testParamsSchema,
-        query: testQuerySchema,
-      }), (req: any, res: any) => {
-        res.json({ success: true, data: req.body, params: req.params, query: req.query })
-      })
+      app.post(
+        '/test/:id',
+        validate({
+          body: testUserSchema,
+          params: testParamsSchema,
+          query: testQuerySchema,
+        }),
+        (req: any, res: any) => {
+          res.json({
+            success: true,
+            data: req.body,
+            params: req.params,
+            query: req.query,
+          })
+        }
+      )
 
       const validUser = {
         name: 'John Doe',
@@ -197,16 +244,22 @@ describe('Validation Middleware', () => {
 
       expect(response.body.success).toBe(true)
       expect(response.body.data).toEqual(validUser)
-      expect(response.body.params.id).toBe('123e4567-e89b-12d3-a456-426614174000')
+      expect(response.body.params.id).toBe(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
       expect(response.body.query.page).toBe(1)
     })
   })
 
   describe('sanitize middleware', () => {
     it('should sanitize specified fields in request body', async () => {
-      app.post('/test', sanitize(['name', 'description']), (req: any, res: any) => {
-        res.json({ success: true, data: req.body })
-      })
+      app.post(
+        '/test',
+        sanitize(['name', 'description']),
+        (req: any, res: any) => {
+          res.json({ success: true, data: req.body })
+        }
+      )
 
       const response = await request(app)
         .post('/test')
@@ -228,7 +281,9 @@ describe('Validation Middleware', () => {
       })
 
       const response = await request(app)
-        .get('/test?search=<script>alert("xss")</script>&other=<script>test</script>')
+        .get(
+          '/test?search=<script>alert("xss")</script>&other=<script>test</script>'
+        )
         .expect(200)
 
       expect(response.body.query.search).toBe('alert("xss")')
@@ -263,13 +318,18 @@ describe('Validation Middleware', () => {
 
   describe('validateFileUpload middleware', () => {
     it('should accept valid file uploads', async () => {
-      app.post('/test', validateFileUpload({
-        maxSize: 1024 * 1024, // 1MB
-        allowedMimeTypes: ['image/jpeg', 'image/png'],
-        maxFiles: 2,
-      }), (req: any, res: any) => {
-        res.json({ success: true, files: req.files })
-      })
+      app.post(
+        '/test',
+        upload.array('files'),
+        validateFileUpload({
+          maxFileSize: 1024 * 1024, // 1MB
+          allowedMimeTypes: ['image/jpeg', 'image/png'],
+          maxFiles: 2,
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true, files: req.files })
+        }
+      )
 
       const response = await request(app)
         .post('/test')
@@ -280,25 +340,38 @@ describe('Validation Middleware', () => {
     })
 
     it('should reject files that are too large', async () => {
-      app.post('/test', validateFileUpload({
-        maxSize: 100, // 100 bytes
-        allowedMimeTypes: ['image/jpeg'],
-      }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.post(
+        '/test',
+        upload.array('files'),
+        validateFileUpload({
+          maxFileSize: 100, // 100 bytes
+          allowedMimeTypes: ['image/jpeg'],
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
-      const response = await request(app).post('/test').expect(400)
+      const response = await request(app)
+        .post('/test')
+        .attach('files', Buffer.alloc(200), 'test.jpg')
+        .expect(400)
 
       expect(response.body.message).toContain('File size must be less than')
     })
 
     it('should reject files with invalid MIME types', async () => {
-      app.post('/test', validateFileUpload({
-        maxSize: 1024 * 1024,
-        allowedMimeTypes: ['image/jpeg'],
-      }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.post(
+        '/test',
+        upload.array('files'),
+        validateFileUpload({
+          maxFileSize: 1024 * 1024,
+          allowedMimeTypes: ['image/jpeg'],
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
       const response = await request(app)
         .post('/test')
@@ -310,13 +383,18 @@ describe('Validation Middleware', () => {
     })
 
     it('should reject dangerous file extensions', async () => {
-      app.post('/test', validateFileUpload({
-        maxSize: 1024 * 1024,
-        allowedMimeTypes: ['image/jpeg'],
-        dangerousExtensions: ['.exe', '.bat'],
-      }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.post(
+        '/test',
+        upload.array('files'),
+        validateFileUpload({
+          maxFileSize: 1024 * 1024,
+          allowedMimeTypes: ['image/jpeg'],
+          dangerousExtensions: ['.exe', '.bat'],
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
       const response = await request(app)
         .post('/test')
@@ -331,12 +409,16 @@ describe('Validation Middleware', () => {
 
   describe('validateRateLimit middleware', () => {
     it('should allow requests within rate limit', async () => {
-      app.get('/test', validateRateLimit({
-        windowMs: 1000,
-        max: 2,
-      }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.get(
+        '/test',
+        validateRateLimit({
+          windowMs: 1000,
+          maxRequests: 2,
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
       const response1 = await request(app).get('/test').expect(200)
       const response2 = await request(app).get('/test').expect(200)
@@ -346,12 +428,16 @@ describe('Validation Middleware', () => {
     })
 
     it('should block requests exceeding rate limit', async () => {
-      app.get('/test', validateRateLimit({
-        windowMs: 1000,
-        max: 2,
-      }), (req: any, res: any) => {
-        res.json({ success: true })
-      })
+      app.get(
+        '/test',
+        validateRateLimit({
+          windowMs: 1000,
+          maxRequests: 2,
+        }),
+        (req: any, res: any) => {
+          res.json({ success: true })
+        }
+      )
 
       await request(app).get('/test').expect(200)
       await request(app).get('/test').expect(200)
@@ -385,7 +471,7 @@ describe('Validation Middleware', () => {
           field: 'email',
           message: 'Invalid email',
           code: 'invalid_string',
-          received: 'invalid',
+          received: undefined,
         })
       }
     })

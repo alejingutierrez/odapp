@@ -66,9 +66,9 @@ describe('Order Payment Integration Tests', () => {
           productId: 'product-1',
           quantity: 2,
           price: 29.99,
-          total: 59.98
-        }
-      ]
+          total: 59.98,
+        },
+      ],
     } as any)
 
     // Mock other Prisma methods
@@ -77,12 +77,12 @@ describe('Order Payment Integration Tests', () => {
       orderId: 'order-1',
       amount: 59.98,
       currency: 'USD',
-      status: PaymentStatus.COMPLETED
+      status: PaymentStatus.COMPLETED,
     } as any)
 
     vi.mocked(prisma.order.update).mockResolvedValue({
       id: 'order-1',
-      status: OrderStatus.CONFIRMED
+      status: OrderStatus.CONFIRMED,
     } as any)
 
     // Setup WebSocket service mock
@@ -92,7 +92,12 @@ describe('Order Payment Integration Tests', () => {
     }
 
     vi.clearAllMocks()
-    orderService = new OrderService(undefined, undefined, undefined, mockWebSocketService)
+    orderService = new OrderService(
+      undefined,
+      undefined,
+      undefined,
+      mockWebSocketService
+    )
     _paymentGatewayService = new PaymentGatewayService()
   })
 
@@ -423,7 +428,9 @@ describe('Order Payment Integration Tests', () => {
       const result = await stripeGateway.processPayment(paymentRequest)
 
       expect(result.success).toBeDefined()
-      expect([PaymentStatus.COMPLETED, PaymentStatus.FAILED]).toContain(result.status)
+      expect([PaymentStatus.COMPLETED, PaymentStatus.FAILED]).toContain(
+        result.status
+      )
       if (result.success) {
         expect(result.transactionId).toMatch(/^pi_/)
         expect(result.metadata?.gateway).toBe('stripe')
@@ -445,7 +452,9 @@ describe('Order Payment Integration Tests', () => {
       const result = await paypalGateway.processPayment(paymentRequest)
 
       expect(result.success).toBeDefined()
-      expect([PaymentStatus.COMPLETED, PaymentStatus.FAILED]).toContain(result.status)
+      expect([PaymentStatus.COMPLETED, PaymentStatus.FAILED]).toContain(
+        result.status
+      )
       if (result.success) {
         expect(result.transactionId).toMatch(/^PAY-/)
         expect(result.metadata?.gateway).toBe('paypal')
@@ -541,7 +550,7 @@ describe('Order Payment Integration Tests', () => {
             update: vi.fn().mockResolvedValue({
               ...paidOrder,
               status: OrderStatus.CANCELLED,
-              cancelledAt: new Date(),
+              cancelledAt: new Date().toISOString(),
               financialStatus: FinancialStatus.REFUNDED,
             }),
           },

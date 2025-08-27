@@ -672,9 +672,7 @@ export function createOrderRouter(orderService?: OrderService) {
 
         logger.info('Fulfillment shipped via API', { fulfillmentId, userId })
 
-        res.json(
-          sendSuccess(res, fulfillment, 'Fulfillment shipped successfully')
-        )
+        return sendSuccess(res, fulfillment, 'Fulfillment shipped successfully')
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error'

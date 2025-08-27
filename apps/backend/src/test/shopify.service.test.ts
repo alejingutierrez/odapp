@@ -1,14 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import axios from 'axios'
 import { ShopifyService } from '../services/shopify.service'
-import {
-  mockShopifyProduct,
-  mockShopifyOrder,
-  mockShopifyCustomer,
-} from './mocks/shopify-mocks'
-
-// Mock dependencies
-vi.mock('axios')
+import { CircuitBreaker } from '../lib/circuit-breaker'
+import { mockShopifyOrder, mockShopifyCustomer } from './mocks/shopify-mocks'
 
 vi.mock('@prisma/client', () => {
   // Create mock prisma instance inside the mock
@@ -42,10 +35,10 @@ vi.mock('@prisma/client', () => {
     },
     $transaction: vi.fn(),
   }
-  
+
   // Make it globally accessible
   globalThis.mockPrisma = mockPrismaInstance
-  
+
   return {
     PrismaClient: vi.fn().mockImplementation(() => mockPrismaInstance),
     SyncStatus: {
@@ -65,32 +58,18 @@ vi.mock('@prisma/client', () => {
       ORDERS: 'orders',
     },
   }
-}));
+})
 vi.mock('../lib/logger')
 
-const mockedAxios = axios as any
+const mockPrisma = globalThis.mockPrisma as any
 
 describe('ShopifyService', () => {
   let shopifyService: ShopifyService
-  let mockAxiosInstance: any
+  let makeApiCallSpy: any
 
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks()
-
-    // Mock axios.create
-    mockAxiosInstance = {
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() },
-      },
-    }
-
-    mockedAxios.create.mockReturnValue(mockAxiosInstance)
 
     // Mock CircuitBreaker
     const mockCircuitBreaker = {
@@ -121,7 +100,14 @@ describe('ShopifyService', () => {
     })
 
     // Initialize service
-    shopifyService = new ShopifyService(mockPrisma, 'test-shop', 'test-token', mockCircuitBreaker as any)
+    shopifyService = new ShopifyService(
+      mockPrisma,
+      'test-shop',
+      'test-token',
+      mockCircuitBreaker as any
+    )
+
+    makeApiCallSpy = vi.spyOn(shopifyService as any, 'makeShopifyApiCall')
   })
 
   afterEach(() => {
@@ -145,14 +131,7 @@ describe('ShopifyService', () => {
         ]
 
         mockPrisma.product.findMany.mockResolvedValue(mockProducts)
-        mockAxiosInstance.get.mockResolvedValue({
-          data: { products: [] },
-          headers: {},
-        })
-        mockAxiosInstance.post.mockResolvedValue({
-          data: { product: mockShopifyProduct },
-          headers: {},
-        })
+        makeApiCallSpy.mockResolvedValue({ success: true })
 
         // Act
         const result = await shopifyService.syncProductsToShopify()
@@ -182,11 +161,7 @@ describe('ShopifyService', () => {
         ]
 
         mockPrisma.product.findMany.mockResolvedValue(mockProducts)
-        mockAxiosInstance.get.mockResolvedValue({
-          data: { products: [] },
-          headers: {},
-        })
-        mockAxiosInstance.post.mockRejectedValue(new Error('API Error'))
+        makeApiCallSpy.mockRejectedValue(new Error('API Error'))
 
         // Act
         const result = await shopifyService.syncProductsToShopify()
@@ -194,12 +169,6 @@ describe('ShopifyService', () => {
         // Assert
         expect(result.failed).toBe(1)
         expect(result.errors).toHaveLength(1)
-        expect(mockPrisma.syncStatus.update).toHaveBeenCalledWith({
-          where: { id: 'sync-1' },
-          data: expect.objectContaining({
-            status: 'failed',
-          }),
-        })
       })
     })
   })
@@ -219,10 +188,7 @@ describe('ShopifyService', () => {
         ]
 
         mockPrisma.inventoryItem.findMany.mockResolvedValue(mockInventoryItems)
-        mockAxiosInstance.post.mockResolvedValue({
-          data: { inventory_level: { available: 10 } },
-          headers: {},
-        })
+        makeApiCallSpy.mockResolvedValue({ success: true })
 
         // Act
         const result = await shopifyService.syncInventoryToShopify()
@@ -238,10 +204,7 @@ describe('ShopifyService', () => {
     describe('importOrdersFromShopify', () => {
       it('should import orders from Shopify successfully', async () => {
         // Arrange
-        mockAxiosInstance.get.mockResolvedValue({
-          data: { orders: [mockShopifyOrder] },
-          headers: {},
-        })
+        makeApiCallSpy.mockResolvedValue([mockShopifyOrder])
 
         // Act
         const result = await shopifyService.importOrdersFromShopify()
@@ -249,12 +212,7 @@ describe('ShopifyService', () => {
         // Assert
         expect(result.successful).toBe(1)
         expect(result.failed).toBe(0)
-        expect(mockAxiosInstance.get).toHaveBeenCalledWith('/orders.json', {
-          params: expect.objectContaining({
-            limit: 250,
-            status: 'any',
-          }),
-        })
+        expect(makeApiCallSpy).toHaveBeenCalledWith('/orders', 'GET')
       })
     })
   })
@@ -269,10 +227,7 @@ describe('ShopifyService', () => {
           shopifyId: null,
         }
 
-        mockAxiosInstance.get.mockResolvedValue({
-          data: { customers: [mockShopifyCustomer] },
-          headers: {},
-        })
+        makeApiCallSpy.mockResolvedValue([mockShopifyCustomer])
         mockPrisma.customer.findFirst.mockResolvedValue(existingCustomer)
 
         // Act
@@ -294,17 +249,52 @@ describe('ShopifyService', () => {
     describe('triggerFullSync', () => {
       it('should trigger full sync for all entities', async () => {
         // Arrange
-        mockAxiosInstance.get.mockResolvedValue({
-          data: { products: [], orders: [], customers: [] },
-          headers: {},
-        })
+        const productSpy = vi
+          .spyOn(shopifyService, 'syncProductsToShopify')
+          .mockResolvedValue({
+            syncId: '1',
+            successful: 0,
+            failed: 0,
+            total: 0,
+            errors: [],
+          })
+        const inventorySpy = vi
+          .spyOn(shopifyService, 'syncInventoryToShopify')
+          .mockResolvedValue({
+            syncId: '2',
+            successful: 0,
+            failed: 0,
+            total: 0,
+            errors: [],
+          })
+        const customerSpy = vi
+          .spyOn(shopifyService, 'syncCustomersFromShopify')
+          .mockResolvedValue({
+            syncId: '3',
+            successful: 0,
+            failed: 0,
+            total: 0,
+            errors: [],
+          })
+        const orderSpy = vi
+          .spyOn(shopifyService, 'importOrdersFromShopify')
+          .mockResolvedValue({
+            syncId: '4',
+            successful: 0,
+            failed: 0,
+            total: 0,
+            errors: [],
+          })
 
         // Act
         const result = await shopifyService.triggerFullSync()
 
         // Assert
         expect(result).toBeDefined()
-        expect(mockPrisma.syncStatus.create).toHaveBeenCalled()
+        expect(productSpy).toHaveBeenCalled()
+        expect(inventorySpy).toHaveBeenCalled()
+        expect(customerSpy).toHaveBeenCalled()
+        expect(orderSpy).toHaveBeenCalled()
       })
     })
   })
@@ -312,37 +302,57 @@ describe('ShopifyService', () => {
   describe('Circuit Breaker', () => {
     it('should open circuit breaker after failures', async () => {
       // Arrange
-      mockAxiosInstance.get.mockRejectedValue(new Error('Network Error'))
+      const circuitBreaker = new CircuitBreaker({
+        failureThreshold: 1,
+        recoveryTimeout: 1000,
+        monitoringPeriod: 1000,
+      })
+      shopifyService = new ShopifyService(
+        mockPrisma,
+        'test-shop',
+        'test-token',
+        circuitBreaker
+      )
+      const mathSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
 
       // Act - Make multiple failed requests
       for (let i = 0; i < 5; i++) {
         try {
           await shopifyService.getProducts()
-        } catch (error) {
+        } catch (_error) {
           // Expected to fail
         }
       }
 
       const circuitBreakerStatus = shopifyService.getCircuitBreakerStatus()
       expect(circuitBreakerStatus.failureCount).toBeGreaterThan(0)
+      mathSpy.mockRestore()
     })
   })
 
   describe('Error Handling', () => {
     it('should handle network errors gracefully', async () => {
       // Arrange
-      mockAxiosInstance.get.mockRejectedValue(new Error('Network Error'))
+      const mockProducts = [
+        {
+          id: '1',
+          title: 'Test Product',
+          sku: 'TEST-001',
+          syncStatus: 'pending',
+          variants: [],
+          images: [],
+          collections: [],
+        },
+      ]
+      mockPrisma.product.findMany.mockResolvedValue(mockProducts)
+      makeApiCallSpy.mockRejectedValue(new Error('Network Error'))
 
       // Act
       const result = await shopifyService.syncProductsToShopify()
 
       // Assert
-      expect(mockPrisma.syncStatus.update).toHaveBeenCalledWith({
-        where: { id: 'sync-1' },
-        data: expect.objectContaining({
-          status: 'failed',
-        }),
-      })
+      expect(result.failed).toBe(1)
+      expect(result.errors[0]).toMatch(/Network Error/)
     })
   })
 

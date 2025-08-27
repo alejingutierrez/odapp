@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { z, ZodError, ZodSchema } from 'zod'
 
-import { ValidationError } from '../lib/errors.js'
+import { ValidationError, RateLimitError } from '../lib/errors.js'
 
 // Create a simple logger fallback for tests
 const createLogger = () => {
@@ -37,17 +37,25 @@ export const validate = (schema: {
 
       // Validate query parameters
       if (schema.query) {
-        req.query = await schema.query.parseAsync(req.query)
+        const parsedQuery = await schema.query.parseAsync(req.query)
+        Object.defineProperty(req, 'query', {
+          value: parsedQuery,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        })
       }
 
       // Validate route parameters
       if (schema.params) {
-        req.params = await schema.params.parseAsync(req.params)
+        const parsedParams = await schema.params.parseAsync(req.params)
+        Object.assign(req.params as any, parsedParams)
       }
 
       // Validate headers
       if (schema.headers) {
-        req.headers = await schema.headers.parseAsync(req.headers)
+        const parsedHeaders = await schema.headers.parseAsync(req.headers)
+        Object.assign(req.headers as any, parsedHeaders)
       }
 
       next()
@@ -92,11 +100,21 @@ export const sanitize = (fields: string[] = []) => {
 
       // Sanitize query parameters
       if (req.query && typeof req.query === 'object') {
-        for (const [key, value] of Object.entries(req.query)) {
-          if (typeof value === 'string' && fields.includes(key)) {
-            req.query[key] = sanitizeInput(value)
+        const sanitizedQuery: Record<string, unknown> = {
+          ...(req.query as Record<string, unknown>),
+        }
+        for (const field of fields) {
+          const value = (req.query as any)[field]
+          if (typeof value === 'string') {
+            sanitizedQuery[field] = sanitizeInput(value)
           }
         }
+        Object.defineProperty(req, 'query', {
+          value: sanitizedQuery,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        })
       }
 
       next()
@@ -112,12 +130,18 @@ export const xssProtection = () => {
     try {
       // Recursively sanitize all string values in request body
       if (req.body) {
-        req.body = sanitizeObject(req.body)
+        req.body = sanitizeObject(req.body, stripScripts)
       }
 
       // Sanitize query parameters
       if (req.query) {
-        req.query = sanitizeObject(req.query) as typeof req.query
+        const sanitizedQuery = sanitizeObject(req.query, stripScripts)
+        Object.defineProperty(req, 'query', {
+          value: sanitizedQuery,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        })
       }
 
       next()
@@ -133,7 +157,13 @@ export const validateFileUpload = (options: {
   maxFileSize?: number
   maxFiles?: number
   required?: boolean
+  // Backwards compatibility alias
+  maxSize?: number
 }) => {
+  const opts = {
+    ...options,
+    maxFileSize: options.maxFileSize ?? (options as any).maxSize,
+  }
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const files = req.files as Express.Multer.File[] | undefined
@@ -146,19 +176,19 @@ export const validateFileUpload = (options: {
 
       // Validate single file
       if (file) {
-        validateSingleFile(file, options)
+        validateSingleFile(file, opts)
       }
 
       // Validate multiple files
       if (files) {
-        if (options.maxFiles && files.length > options.maxFiles) {
+        if (opts.maxFiles && files.length > opts.maxFiles) {
           return next(
-            new ValidationError(`Maximum ${options.maxFiles} files allowed`)
+            new ValidationError(`Maximum ${opts.maxFiles} files allowed`)
           )
         }
 
         for (const uploadedFile of files) {
-          validateSingleFile(uploadedFile, options)
+          validateSingleFile(uploadedFile, opts)
         }
       }
 
@@ -184,14 +214,6 @@ const validateSingleFile = (
     )
   }
 
-  // Check MIME type
-  if (
-    options.allowedMimeTypes &&
-    !options.allowedMimeTypes.includes(file.mimetype)
-  ) {
-    throw new ValidationError(`File type ${file.mimetype} is not allowed`)
-  }
-
   // Check for malicious file extensions
   const dangerousExtensions = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com']
   const fileExtension = file.originalname
@@ -201,9 +223,17 @@ const validateSingleFile = (
   if (dangerousExtensions.includes(fileExtension)) {
     throw new ValidationError('File type is not allowed for security reasons')
   }
+
+  // Check MIME type
+  if (
+    options.allowedMimeTypes &&
+    !options.allowedMimeTypes.includes(file.mimetype)
+  ) {
+    throw new ValidationError(`File type ${file.mimetype} is not allowed`)
+  }
 }
 
-// Sanitize input string
+// Sanitize input string preserving script content
 const sanitizeInput = (input: string): string => {
   return input
     .trim()
@@ -213,20 +243,33 @@ const sanitizeInput = (input: string): string => {
     .replace(/data:/gi, '') // Remove data: protocol
 }
 
+// Remove scripts entirely
+const stripScripts = (input: string): string => {
+  return input
+    .replace(/<script.*?>.*?<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .replace(/data:/gi, '')
+    .trim()
+}
+
 // Recursively sanitize object
-const sanitizeObject = (obj: unknown): unknown => {
+const sanitizeObject = (
+  obj: unknown,
+  transform: (s: string) => string = sanitizeInput
+): unknown => {
   if (typeof obj === 'string') {
-    return sanitizeInput(obj)
+    return transform(obj)
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeObject(item))
+    return obj.map((item) => sanitizeObject(item, transform))
   }
 
   if (obj && typeof obj === 'object') {
     const sanitized: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(obj)) {
-      sanitized[key] = sanitizeObject(value)
+      sanitized[key] = sanitizeObject(value, transform)
     }
     return sanitized
   }
@@ -237,9 +280,12 @@ const sanitizeObject = (obj: unknown): unknown => {
 // Rate limiting validation
 export const validateRateLimit = (options: {
   windowMs: number
-  maxRequests: number
+  maxRequests?: number
   keyGenerator?: (_req: Request) => string
+  // Backwards compatibility alias
+  max?: number
 }) => {
+  const limit = options.maxRequests ?? options.max
   const requests = new Map<string, { count: number; resetTime: number }>()
 
   return (_req: Request, res: Response, next: NextFunction) => {
@@ -263,17 +309,19 @@ export const validateRateLimit = (options: {
     }
 
     // Check if limit exceeded
-    if (requestData.count >= options.maxRequests) {
+    if (limit !== undefined && requestData.count >= limit) {
       const resetIn = Math.ceil((requestData.resetTime - now) / 1000)
 
-      res.set({
-        'X-RateLimit-Limit': options.maxRequests.toString(),
-        'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': requestData.resetTime.toString(),
-      })
+      if (limit !== undefined) {
+        res.set({
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': requestData.resetTime.toString(),
+        })
+      }
 
       return next(
-        new ValidationError(`Too many requests. Try again in ${resetIn} seconds`)
+        new RateLimitError(`Too many requests. Try again in ${resetIn} seconds`)
       )
     }
 
@@ -282,13 +330,13 @@ export const validateRateLimit = (options: {
     requests.set(key || 'unknown', requestData)
 
     // Set rate limit headers
-    res.set({
-      'X-RateLimit-Limit': options.maxRequests.toString(),
-      'X-RateLimit-Remaining': (
-        options.maxRequests - requestData.count
-      ).toString(),
-      'X-RateLimit-Reset': requestData.resetTime.toString(),
-    })
+    if (limit !== undefined) {
+      res.set({
+        'X-RateLimit-Limit': limit.toString(),
+        'X-RateLimit-Remaining': (limit - requestData.count).toString(),
+        'X-RateLimit-Reset': requestData.resetTime.toString(),
+      })
+    }
 
     next()
   }

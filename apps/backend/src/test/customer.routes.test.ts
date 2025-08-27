@@ -1,10 +1,32 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import customerRoutes from '../routes/customers.js'
-import { customerService } from '../services/customer.service.js'
 import { authenticate } from '../middleware/auth.js'
 import { errorHandler } from '../middleware/error-handler.js'
+
+// Set required environment variables for route imports
+process.env.DATABASE_URL ||= 'postgres://localhost:5432/test'
+process.env.REDIS_URL ||= 'redis://localhost:6379'
+process.env.ELASTICSEARCH_URL ||= 'http://localhost:9200'
+process.env.RABBITMQ_URL ||= 'amqp://localhost'
+process.env.S3_ENDPOINT ||= 'http://localhost:9000'
+process.env.S3_ACCESS_KEY ||= 'key'
+process.env.S3_SECRET_KEY ||= 'secret'
+process.env.S3_BUCKET_NAME ||= 'bucket'
+process.env.JWT_SECRET ||= 'secretsecretsecretsecretsecretsecret'
+process.env.CORS_ORIGINS ||= '*'
+process.env.SMTP_HOST ||= 'smtp.example.com'
+process.env.SMTP_PORT ||= '587'
+process.env.SMTP_FROM ||= 'test@example.com'
+process.env.SESSION_SECRET ||= 'sessionsecretstringwith32chars'
+process.env.ALLOWED_FILE_TYPES ||= 'image/jpeg,image/png'
+
+// Mock the customer service
+vi.mock('../services/customer.service.js')
+
+// Dynamically import mocked service and routes after env vars are set
+const { customerService } = await import('../services/customer.service.js')
+const customerRoutes = (await import('../routes/customers.js')).default
 
 // Mock the customer service
 vi.mock('../services/customer.service.js')
@@ -23,14 +45,17 @@ vi.mock('../middleware/auth.js', () => ({
   },
 }))
 
-// Mock validation middleware
-vi.mock('../middleware/validation.js', () => ({
-  validate: vi.fn(() => (req, res, next) => next()),
-  xssProtection: vi.fn(() => (req, res, next) => next()),
-  validateFileUpload: vi.fn(() => (req, res, next) => next()),
-  validateRateLimit: vi.fn(() => (req, res, next) => next()),
-  validateRequest: vi.fn(() => (req, res, next) => next()),
-}))
+// Mock validation middleware but keep actual validate implementation
+vi.mock('../middleware/validation.js', async () => {
+  const actual = await vi.importActual<any>('../middleware/validation.js')
+  return {
+    ...actual,
+    xssProtection: vi.fn(() => (req, res, next) => next()),
+    validateFileUpload: vi.fn(() => (req, res, next) => next()),
+    validateRateLimit: vi.fn(() => (req, res, next) => next()),
+    validateRequest: vi.fn(() => (req, res, next) => next()),
+  }
+})
 
 const app = express()
 app.use(express.json())

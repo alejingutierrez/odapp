@@ -60,7 +60,6 @@ export const createErrorResponse = (
   error: {
     code: error.errorCode,
     message: error.message,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     details:
       env.NODE_ENV === 'development' ? (error as any).context : undefined,
     timestamp: new Date().toISOString(),

@@ -27,10 +27,11 @@ vi.mock('../middleware/auth', () => ({
     const nextTyped = next as () => void
     nextTyped()
   },
-  requirePermission: (permission: string) => (req: unknown, res: unknown, next: unknown) => {
-    const nextTyped = next as () => void
-    nextTyped()
-  },
+  requirePermission:
+    (_permission: string) => (req: unknown, res: unknown, next: unknown) => {
+      const nextTyped = next as () => void
+      nextTyped()
+    },
 }))
 
 // Mock Prisma

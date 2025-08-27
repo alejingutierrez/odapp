@@ -10,11 +10,6 @@ import {
 } from 'vitest'
 import { PrismaClient } from '@prisma/client'
 import { ProductService } from '../services/product.service.js'
-import { SearchService } from '../services/search.service.js'
-import { ImageService } from '../services/image.service.js'
-import { AnalyticsService } from '../services/analytics.service.js'
-import { AuditService } from '../services/audit.service.js'
-import { CacheManager } from '../lib/cache/cache-manager.js'
 import { CreateProduct, ProductStatus } from '@oda/shared'
 
 // Mock dependencies
@@ -188,7 +183,9 @@ describe('ProductService', () => {
       uploadImage: vi.fn().mockResolvedValue('https://example.com/image.jpg'),
       deleteImage: vi.fn().mockResolvedValue(undefined),
       resizeImage: vi.fn().mockResolvedValue('https://example.com/resized.jpg'),
-      optimizeImage: vi.fn().mockResolvedValue('https://example.com/optimized.jpg'),
+      optimizeImage: vi
+        .fn()
+        .mockResolvedValue('https://example.com/optimized.jpg'),
     }
 
     mockAnalyticsService = {
@@ -222,7 +219,7 @@ describe('ProductService', () => {
     vi.spyOn(prisma.product, 'count').mockResolvedValue(1)
     vi.spyOn(prisma.product, 'aggregate').mockResolvedValue({
       _avg: { price: 35.5 },
-      _count: { id: 1 }
+      _count: { id: 1 },
     } as any)
     vi.spyOn(prisma.productVariant, 'findMany').mockResolvedValue([])
     vi.spyOn(prisma.category, 'findFirst').mockResolvedValue(null)
@@ -238,7 +235,7 @@ describe('ProductService', () => {
     vi.spyOn(prisma.collectionProduct, 'createMany').mockResolvedValue({
       count: 0,
     })
-    
+
     // Mock $transaction properly
     vi.spyOn(prisma, '$transaction').mockImplementation(async (callback) => {
       return await callback(prisma)
@@ -495,23 +492,23 @@ describe('ProductService', () => {
 
   describe('searchProducts', () => {
     it('should return cached results when available', async () => {
-          const mockSearchResult = {
-      products: [mockProduct],
-      total: 1,
-      facets: {
-        brands: [],
-        categories: [],
-        priceRanges: [],
-        status: [],
-      },
-    }
+      const mockSearchResult = {
+        products: [mockProduct],
+        total: 1,
+        facets: {
+          brands: [],
+          categories: [],
+          priceRanges: [],
+          status: [],
+        },
+      }
       mockCache.get.mockResolvedValue(mockSearchResult)
 
-      const result = await productService.searchProducts({ 
+      const result = await productService.searchProducts({
         q: 'test',
         page: 1,
         limit: 20,
-        sortOrder: 'asc'
+        sortOrder: 'asc',
       })
 
       expect(result).toEqual(mockSearchResult)
@@ -532,11 +529,11 @@ describe('ProductService', () => {
       mockSearchService.isAvailable.mockReturnValue(true)
       mockSearchService.searchProducts.mockResolvedValue(mockSearchResult)
 
-      const result = await productService.searchProducts({ 
+      const result = await productService.searchProducts({
         q: 'test',
         page: 1,
         limit: 20,
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       })
 
       expect(result.products).toEqual(mockSearchResult.products)
@@ -545,7 +542,7 @@ describe('ProductService', () => {
         q: 'test',
         page: 1,
         limit: 20,
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       })
     })
 
@@ -553,11 +550,11 @@ describe('ProductService', () => {
       mockSearchService.isAvailable.mockReturnValue(false)
       mockCache.get.mockResolvedValue(null)
 
-      const result = await productService.searchProducts({ 
+      const result = await productService.searchProducts({
         q: 'test',
         page: 1,
         limit: 20,
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       })
 
       expect(result.products).toEqual([mockProduct])
@@ -611,7 +608,7 @@ describe('ProductService', () => {
       // Mock findMany to return the products being updated
       vi.spyOn(prisma.product, 'findMany').mockResolvedValue([
         mockProduct,
-        { ...mockProduct, id: 'product-2' }
+        { ...mockProduct, id: 'product-2' },
       ] as any)
 
       const result = await productService.bulkUpdateProducts(
@@ -739,11 +736,9 @@ describe('ProductService', () => {
       expect(result.draftProducts).toBe(0)
       expect(result.totalVariants).toBe(20)
       expect(result.averagePrice).toBe(35.5)
-      expect(mockCache.set).toHaveBeenCalledWith(
-        'products:analytics',
-        result,
-        { ttl: 600 }
-      )
+      expect(mockCache.set).toHaveBeenCalledWith('products:analytics', result, {
+        ttl: 600,
+      })
     })
   })
 
@@ -829,11 +824,11 @@ describe('ProductService', () => {
       mockCache.get.mockResolvedValue(null)
 
       // Should fallback to database search
-      const result = await productService.searchProducts({ 
+      const result = await productService.searchProducts({
         q: 'test',
         page: 1,
         limit: 20,
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       })
 
       expect(result.products).toEqual([mockProduct])

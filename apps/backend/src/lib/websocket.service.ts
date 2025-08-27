@@ -17,15 +17,15 @@ export class WebSocketService {
     this.io = new SocketIOServer(server, {
       cors: {
         origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST']
-      }
+        methods: ['GET', 'POST'],
+      },
     })
 
     this.io.on('connection', (socket) => {
       logger.info(`Client connected: ${socket.id}`)
       this.connectedClients.set(socket.id, socket)
 
-      socket.on('authenticate', (data: { token: string }) => {
+      socket.on('authenticate', (_data: { token: string }) => {
         // TODO: Implement token validation
         logger.info(`Client authenticated: ${socket.id}`)
       })

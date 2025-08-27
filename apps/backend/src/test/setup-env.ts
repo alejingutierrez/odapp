@@ -1,4 +1,6 @@
-process.env.DATABASE_URL ||= 'postgres://localhost:5432/test'
+// Provide default credentials for the test database to avoid
+// Prisma initialization errors during tests.
+process.env.DATABASE_URL ||= 'postgresql://test:test@localhost:5432/test'
 process.env.REDIS_URL ||= 'redis://localhost:6379'
 process.env.ELASTICSEARCH_URL ||= 'http://localhost:9200'
 process.env.RABBITMQ_URL ||= 'amqp://localhost'

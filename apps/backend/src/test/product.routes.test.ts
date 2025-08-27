@@ -49,18 +49,6 @@ describe('Product Routes', () => {
       collections: 0,
     },
   }
-
-  const mockSearchResult = {
-    products: [mockProduct],
-    total: 1,
-    facets: {
-      categories: [],
-      brands: [],
-      priceRanges: [],
-      status: [],
-    },
-  }
-
   beforeAll(() => {
     app = createTestApp()
   })
@@ -72,7 +60,7 @@ describe('Product Routes', () => {
 
   describe('GET /api/products', () => {
     it('should return products with pagination', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
       prisma.product.count.mockResolvedValue(1)
 
@@ -87,7 +75,7 @@ describe('Product Routes', () => {
     })
 
     it('should apply search filters', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
       prisma.product.count.mockResolvedValue(1)
 
@@ -114,7 +102,7 @@ describe('Product Routes', () => {
 
   describe('GET /api/products/:id', () => {
     it('should return a single product', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
 
       const response = await request(app)
@@ -126,7 +114,7 @@ describe('Product Routes', () => {
     })
 
     it('should return 404 for non-existent product', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
       await request(app).get('/api/products/non-existent').expect(404)
@@ -135,7 +123,7 @@ describe('Product Routes', () => {
 
   describe('POST /api/products', () => {
     it('should create a product successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.create.mockResolvedValue(mockProduct)
       prisma.location.findFirst.mockResolvedValue({
         id: 'location-1',
@@ -177,9 +165,12 @@ describe('Product Routes', () => {
 
   describe('PUT /api/products/:id', () => {
     it('should update a product successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
-      prisma.product.update.mockResolvedValue({ ...mockProduct, name: 'Updated Product' })
+      prisma.product.update.mockResolvedValue({
+        ...mockProduct,
+        name: 'Updated Product',
+      })
 
       const response = await request(app)
         .put('/api/products/product-1')
@@ -194,7 +185,7 @@ describe('Product Routes', () => {
     })
 
     it('should return 404 for non-existent product', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
       await request(app)
@@ -206,9 +197,12 @@ describe('Product Routes', () => {
 
   describe('DELETE /api/products/:id', () => {
     it('should delete a product successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
-      prisma.product.update.mockResolvedValue({ ...mockProduct, deletedAt: new Date() })
+      prisma.product.update.mockResolvedValue({
+        ...mockProduct,
+        deletedAt: new Date(),
+      })
       prisma.orderItem.count.mockResolvedValue(0)
 
       const response = await request(app)
@@ -219,7 +213,7 @@ describe('Product Routes', () => {
     })
 
     it('should return 404 for non-existent product', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
       await request(app).delete('/api/products/non-existent').expect(404)
@@ -228,7 +222,7 @@ describe('Product Routes', () => {
 
   describe('POST /api/products/bulk-update', () => {
     it('should bulk update products successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
       prisma.product.updateMany.mockResolvedValue({ count: 1 })
 
@@ -258,7 +252,7 @@ describe('Product Routes', () => {
 
   describe('DELETE /api/products/bulk-delete', () => {
     it('should bulk delete products successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
       prisma.orderItem.count.mockResolvedValue(0)
       prisma.product.updateMany.mockResolvedValue({ count: 1 })
@@ -276,7 +270,7 @@ describe('Product Routes', () => {
 
   describe('POST /api/products/:id/images', () => {
     it('should upload product images successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
 
       const response = await request(app)
@@ -292,7 +286,7 @@ describe('Product Routes', () => {
     })
 
     it('should return 404 for non-existent product', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(null)
 
       await request(app)
@@ -317,7 +311,11 @@ describe('Product Routes', () => {
     it('should import products from CSV successfully', async () => {
       const response = await request(app)
         .post('/api/products/import/csv')
-        .attach('file', Buffer.from('name,description,price\nTest,Description,29.99'), 'products.csv')
+        .attach(
+          'file',
+          Buffer.from('name,description,price\nTest,Description,29.99'),
+          'products.csv'
+        )
         .field('updateExisting', 'false')
         .field('skipInvalid', 'true')
         .expect(200)
@@ -332,7 +330,7 @@ describe('Product Routes', () => {
 
   describe('POST /api/products/export', () => {
     it('should export products successfully', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
 
       const response = await request(app)
@@ -361,7 +359,7 @@ describe('Product Routes', () => {
 
   describe('GET /api/products/search/suggestions', () => {
     it('should return search suggestions', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findMany.mockResolvedValue([mockProduct])
 
       const response = await request(app)
@@ -396,17 +394,15 @@ describe('Product Routes', () => {
     })
 
     it('should check write permissions for POST endpoints', async () => {
-      const response = await request(app)
-        .post('/api/products')
-        .send({
-          name: 'Test Product',
-          description: 'Test description',
-        })
+      const response = await request(app).post('/api/products').send({
+        name: 'Test Product',
+        description: 'Test description',
+      })
       expect(response.status).toBe(201)
     })
 
     it('should check delete permissions for DELETE endpoints', async () => {
-      const { prisma } = require('../lib/prisma.js')
+      const { prisma } = require('../lib/prisma')
       prisma.product.findFirst.mockResolvedValue(mockProduct)
       prisma.orderItem.count.mockResolvedValue(0)
 

@@ -13,10 +13,15 @@ import { Router } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
 
-import { sendSuccess, sendCreated, sendError, sendPaginated } from '../lib/api-response.js'
+import {
+  sendSuccess,
+  sendCreated,
+  sendError,
+  sendPaginated,
+} from '../lib/api-response.js'
 import { CacheManager } from '../lib/cache/cache-manager.js'
 import { logger } from '../lib/logger.js'
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../lib/prisma'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { validate, xssProtection } from '../middleware/validation.js'
 import { AnalyticsService } from '../services/analytics.service.js'
@@ -70,16 +75,22 @@ router.get(
 
       const result = await productService.searchProducts(query)
 
-      sendPaginated(res, result.products, {
-        page: query.page || 1,
-        limit: query.limit || 20,
-        total: result.total,
-        totalPages: Math.ceil(result.total / (query.limit || 20)),
-        hasNext: (query.page || 1) < Math.ceil(result.total / (query.limit || 20)),
-        hasPrev: (query.page || 1) > 1,
-      }, {
-        facets: result.facets,
-      })
+      sendPaginated(
+        res,
+        result.products,
+        {
+          page: query.page || 1,
+          limit: query.limit || 20,
+          total: result.total,
+          totalPages: Math.ceil(result.total / (query.limit || 20)),
+          hasNext:
+            (query.page || 1) < Math.ceil(result.total / (query.limit || 20)),
+          hasPrev: (query.page || 1) > 1,
+        },
+        {
+          facets: result.facets,
+        }
+      )
     } catch (error) {
       next(error)
     }
@@ -227,7 +238,8 @@ router.post(
         req.user?.id
       )
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         result,
         `${result.updatedCount} products updated successfully`
       )
@@ -257,7 +269,8 @@ router.delete(
         req.user?.id
       )
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         result,
         `${result.deletedCount} products deleted successfully`
       )
@@ -292,7 +305,9 @@ router.post(
       // Check if product exists
       const product = await productService.getProduct(id)
       if (!product) {
-        return res.status(404).json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
       }
 
       // Process images
@@ -319,7 +334,8 @@ router.post(
         req.user?.id
       )
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         {
           images: uploadResults,
           product: updatedProduct,
@@ -350,7 +366,9 @@ router.get(
       const product = await productService.getProduct(id)
 
       if (!product) {
-        return res.status(404).json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
       }
 
       const response = sendSuccess(res, { variants: product.variants })
@@ -455,7 +473,9 @@ router.post(
       if (!file) {
         return res
           .status(400)
-          .json(sendError(res, 'CSV_FILE_REQUIRED', 'CSV file is required', 400))
+          .json(
+            sendError(res, 'CSV_FILE_REQUIRED', 'CSV file is required', 400)
+          )
       }
 
       logger.info('Starting CSV product import', {
@@ -501,7 +521,9 @@ router.post(
       if (!file) {
         return res
           .status(400)
-          .json(sendError(res, 'JSON_FILE_REQUIRED', 'JSON file is required', 400))
+          .json(
+            sendError(res, 'JSON_FILE_REQUIRED', 'JSON file is required', 400)
+          )
       }
 
       logger.info('Starting JSON product import', {
@@ -560,10 +582,7 @@ router.post(
         }
       )
 
-      const response = sendSuccess(res, 
-        result,
-        'Export completed successfully'
-      )
+      const response = sendSuccess(res, result, 'Export completed successfully')
       res.json(response)
     } catch (error) {
       next(error)
@@ -582,7 +601,14 @@ router.get(
       if (!q || typeof q !== 'string') {
         return res
           .status(400)
-          .json(sendError(res, 'QUERY_PARAMETER_REQUIRED', 'Query parameter "q" is required', 400))
+          .json(
+            sendError(
+              res,
+              'QUERY_PARAMETER_REQUIRED',
+              'Query parameter "q" is required',
+              400
+            )
+          )
       }
 
       logger.info('Fetching search suggestions', {
@@ -633,7 +659,8 @@ router.post(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await searchService.reindexAllProducts(products as any)
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { reindexedCount: products.length },
         `${products.length} products reindexed successfully`
       )
@@ -667,13 +694,17 @@ router.delete(
       // Get product
       const product = await productService.getProduct(id)
       if (!product) {
-        return res.status(404).json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Product not found', 404))
       }
 
       // Find and remove image
       const imageIndex = product.images.findIndex((img) => img.id === imageId)
       if (imageIndex === -1) {
-        return res.status(404).json(sendError(res, 'NOT_FOUND', 'Image not found', 404))
+        return res
+          .status(404)
+          .json(sendError(res, 'NOT_FOUND', 'Image not found', 404))
       }
 
       // Delete image file
@@ -718,7 +749,8 @@ const validateProductAvailability = async (
       return res
         .status(400)
         .json(
-          sendError(res, 
+          sendError(
+            res,
             'INVENTORY_REQUIRED',
             'At least one variant must have inventory available',
             400
@@ -747,7 +779,8 @@ router.post(
         req.user?.id
       )
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { product: newProduct },
         'Product created with inventory validation'
       )

@@ -2,10 +2,15 @@ import { productCategorySchema, commonValidationSchemas } from '@oda/shared'
 import { Router } from 'express'
 import { z } from 'zod'
 
-import { sendSuccess, sendCreated, sendError, sendNotFound } from '../lib/api-response.js'
+import {
+  sendSuccess,
+  sendCreated,
+  sendError,
+  sendNotFound,
+} from '../lib/api-response.js'
 import { CacheManager } from '../lib/cache/cache-manager.js'
 import { logger } from '../lib/logger.js'
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../lib/prisma'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { validate, xssProtection } from '../middleware/validation.js'
 
@@ -186,7 +191,7 @@ router.get(
         return sendNotFound(res, 'Category')
       }
 
-        sendSuccess(res, { category })
+      sendSuccess(res, { category })
     } catch (error) {
       next(error)
     }
@@ -214,7 +219,7 @@ router.post(
           where: { id: categoryData.parentId, isActive: true },
         })
         if (!parentCategory) {
-                  return sendNotFound(res, 'Parent category')
+          return sendNotFound(res, 'Parent category')
         }
       }
 
@@ -223,7 +228,12 @@ router.post(
         where: { slug: categoryData.slug },
       })
       if (existingCategory) {
-        return sendError(res, 'DUPLICATE_SLUG', 'Category with this slug already exists', 400)
+        return sendError(
+          res,
+          'DUPLICATE_SLUG',
+          'Category with this slug already exists',
+          400
+        )
       }
 
       const newCategory = await prisma.category.create({
@@ -297,13 +307,18 @@ router.put(
           where: { id: updateData.parentId, isActive: true },
         })
         if (!parentCategory) {
-                  return sendNotFound(res, 'Parent category')
+          return sendNotFound(res, 'Parent category')
         }
 
         // Prevent circular references
         const isCircular = await checkCircularReference(id, updateData.parentId)
         if (isCircular) {
-          return sendError(res, 'CIRCULAR_REFERENCE', 'Cannot create circular category reference', 400)
+          return sendError(
+            res,
+            'CIRCULAR_REFERENCE',
+            'Cannot create circular category reference',
+            400
+          )
         }
       }
 
@@ -316,7 +331,12 @@ router.put(
           },
         })
         if (duplicateSlug) {
-          return sendError(res, 'DUPLICATE_SLUG', 'Category with this slug already exists', 400)
+          return sendError(
+            res,
+            'DUPLICATE_SLUG',
+            'Category with this slug already exists',
+            400
+          )
         }
       }
 
@@ -365,7 +385,8 @@ router.put(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { category: updatedCategory },
         'Category updated successfully'
       )
@@ -411,12 +432,22 @@ router.delete(
 
       // Check if category has products
       if (category._count.products > 0) {
-        return sendError(res, 'CATEGORY_HAS_PRODUCTS', 'Cannot delete category with products. Move products to another category first.', 400)
+        return sendError(
+          res,
+          'CATEGORY_HAS_PRODUCTS',
+          'Cannot delete category with products. Move products to another category first.',
+          400
+        )
       }
 
       // Check if category has children
       if (category.children.length > 0) {
-        return sendError(res, 'CATEGORY_HAS_CHILDREN', 'Cannot delete category with subcategories. Delete or move subcategories first.', 400)
+        return sendError(
+          res,
+          'CATEGORY_HAS_CHILDREN',
+          'Cannot delete category with subcategories. Delete or move subcategories first.',
+          400
+        )
       }
 
       await prisma.category.delete({
@@ -431,10 +462,7 @@ router.delete(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
-        null,
-        'Category deleted successfully'
-      )
+      const response = sendSuccess(res, null, 'Category deleted successfully')
       res.json(response)
     } catch (error) {
       next(error)
@@ -471,7 +499,8 @@ router.post(
       // Clear category caches
       await cache.clear('categories')
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { category: updatedCategory },
         'Category reordered successfully'
       )

@@ -1,6 +1,6 @@
 import { env } from '../config/env.js'
 
-import { prisma } from './prisma.js'
+import { prisma } from './prisma'
 import logger from './logger'
 
 export interface HealthCheckResult {

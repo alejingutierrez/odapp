@@ -4,7 +4,7 @@ import {
   connectDatabase,
   disconnectDatabase,
   getDatabaseMetrics,
-} from '../lib/prisma.js'
+} from '../lib/prisma'
 import { databaseHealthChecker } from '../lib/database-health.js'
 import { databasePool } from '../lib/database-pool.js'
 

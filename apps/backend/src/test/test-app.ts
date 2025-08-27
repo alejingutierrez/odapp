@@ -41,7 +41,9 @@ vi.mock('../middleware/auth.js', async (importOriginal) => {
     authenticate: vi.fn(() => (req: any, res: any, next: any) => next()),
     requireAuth: vi.fn(() => (req: any, res: any, next: any) => next()),
     requirePermission: vi.fn(() => (req: any, res: any, next: any) => next()),
-    requireAnyPermission: vi.fn(() => (req: any, res: any, next: any) => next()),
+    requireAnyPermission: vi.fn(
+      () => (req: any, res: any, next: any) => next()
+    ),
     requireRole: vi.fn(() => (req: any, res: any, next: any) => next()),
     requireAnyRole: vi.fn(() => (req: any, res: any, next: any) => next()),
   }
@@ -57,7 +59,7 @@ vi.mock('../middleware/validation.js', async (importOriginal) => {
 })
 
 // Mock Prisma
-vi.mock('../lib/prisma.js', () => ({
+vi.mock('../lib/prisma', () => ({
   prisma: {
     product: {
       findMany: vi.fn(),
@@ -248,34 +250,53 @@ export function createTestApp(): Express {
 
 // Helper function to setup common mocks
 export function setupCommonMocks() {
-  const { prisma } = require('../lib/prisma.js')
-  
+  const { prisma } = require('../lib/prisma')
+
   // Setup default mock implementations
   prisma.product.findMany.mockResolvedValue([])
   prisma.product.findFirst.mockResolvedValue(null)
-  prisma.product.create.mockResolvedValue({ id: 'product-1', name: 'Test Product' })
-  prisma.product.update.mockResolvedValue({ id: 'product-1', name: 'Updated Product' })
+  prisma.product.create.mockResolvedValue({
+    id: 'product-1',
+    name: 'Test Product',
+  })
+  prisma.product.update.mockResolvedValue({
+    id: 'product-1',
+    name: 'Updated Product',
+  })
   prisma.product.updateMany.mockResolvedValue({ count: 1 })
   prisma.product.count.mockResolvedValue(0)
   prisma.product.delete.mockResolvedValue({ id: 'product-1' })
-  
+
   prisma.customer.findMany.mockResolvedValue([])
   prisma.customer.findFirst.mockResolvedValue(null)
-  prisma.customer.create.mockResolvedValue({ id: 'customer-1', email: 'test@example.com' })
-  prisma.customer.update.mockResolvedValue({ id: 'customer-1', email: 'updated@example.com' })
+  prisma.customer.create.mockResolvedValue({
+    id: 'customer-1',
+    email: 'test@example.com',
+  })
+  prisma.customer.update.mockResolvedValue({
+    id: 'customer-1',
+    email: 'updated@example.com',
+  })
   prisma.customer.count.mockResolvedValue(0)
-  
+
   prisma.order.findMany.mockResolvedValue([])
   prisma.order.findFirst.mockResolvedValue(null)
   prisma.order.create.mockResolvedValue({ id: 'order-1', status: 'pending' })
   prisma.order.update.mockResolvedValue({ id: 'order-1', status: 'completed' })
   prisma.order.count.mockResolvedValue(0)
-  
-  prisma.user.findFirst.mockResolvedValue({ id: 'user-1', email: 'test@example.com' })
+
+  prisma.user.findFirst.mockResolvedValue({
+    id: 'user-1',
+    email: 'test@example.com',
+  })
   prisma.user.findMany.mockResolvedValue([])
-  
-  prisma.location.findFirst.mockResolvedValue({ id: 'location-1', name: 'Default Location', isDefault: true })
-  
+
+  prisma.location.findFirst.mockResolvedValue({
+    id: 'location-1',
+    name: 'Default Location',
+    isDefault: true,
+  })
+
   prisma.$transaction.mockImplementation(async (callback) => {
     return await callback(prisma)
   })

@@ -8,7 +8,7 @@ import {
   BusinessLogicError,
 } from '../lib/errors.js'
 import logger from '../lib/logger.js'
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../lib/prisma'
 
 export interface CustomerWithRelations
   extends Prisma.CustomerGetPayload<{

@@ -2,10 +2,15 @@ import { productCollectionSchema, commonValidationSchemas } from '@oda/shared'
 import { Router } from 'express'
 import { z } from 'zod'
 
-import { sendSuccess, sendCreated, sendError, sendPaginated } from '../lib/api-response.js'
+import {
+  sendSuccess,
+  sendCreated,
+  sendError,
+  sendPaginated,
+} from '../lib/api-response.js'
 import { CacheManager } from '../lib/cache/cache-manager.js'
 import { logger } from '../lib/logger.js'
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../lib/prisma'
 import { authenticate, authorize } from '../middleware/auth.js'
 import { validate, xssProtection } from '../middleware/validation.js'
 
@@ -192,7 +197,12 @@ router.post(
         where: { slug: collectionData.slug },
       })
       if (existingCollection) {
-        return sendError(res, 'DUPLICATE_SLUG', 'Collection with this slug already exists', 400)
+        return sendError(
+          res,
+          'DUPLICATE_SLUG',
+          'Collection with this slug already exists',
+          400
+        )
       }
 
       const newCollection = await prisma.collection.create({
@@ -269,7 +279,12 @@ router.put(
           },
         })
         if (duplicateSlug) {
-          return sendError(res, 'DUPLICATE_SLUG', 'Collection with this slug already exists', 400)
+          return sendError(
+            res,
+            'DUPLICATE_SLUG',
+            'Collection with this slug already exists',
+            400
+          )
         }
       }
 
@@ -317,7 +332,8 @@ router.put(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { collection: updatedCollection },
         'Collection updated successfully'
       )
@@ -373,10 +389,7 @@ router.delete(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
-        null,
-        'Collection deleted successfully'
-      )
+      const response = sendSuccess(res, null, 'Collection deleted successfully')
       res.json(response)
     } catch (error) {
       next(error)
@@ -424,11 +437,14 @@ router.post(
 
       if (existingProducts.length !== productIds.length) {
         const foundIds = existingProducts.map((p) => p.id)
-        const missingIds = productIds.filter((id: string) => !foundIds.includes(id))
+        const missingIds = productIds.filter(
+          (id: string) => !foundIds.includes(id)
+        )
         return res
           .status(404)
           .json(
-            sendError(res, 
+            sendError(
+              res,
               'PRODUCTS_NOT_FOUND',
               `Products not found: ${missingIds.join(', ')}`,
               404
@@ -445,11 +461,13 @@ router.post(
       const startSortOrder = (maxSortOrder._max.sortOrder || 0) + 1
 
       // Add products to collection (ignore duplicates)
-      const collectionProducts = productIds.map((productId: string, index: number) => ({
-        collectionId: id,
-        productId,
-        sortOrder: startSortOrder + index,
-      }))
+      const collectionProducts = productIds.map(
+        (productId: string, index: number) => ({
+          collectionId: id,
+          productId,
+          sortOrder: startSortOrder + index,
+        })
+      )
 
       await prisma.collectionProduct.createMany({
         data: collectionProducts,
@@ -477,7 +495,8 @@ router.post(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         {
           collection: updatedCollection,
           addedCount: productIds.length,
@@ -549,7 +568,8 @@ router.delete(
         userId: req.user?.id,
       })
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         {
           collection: updatedCollection,
           removedCount: result.count,
@@ -592,7 +612,8 @@ router.post(
       // Clear collection caches
       await cache.clear('collections:*')
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { collection: updatedCollection },
         'Collection reordered successfully'
       )
@@ -647,7 +668,8 @@ router.post(
       // Clear collection caches
       await cache.clear('collections:*')
 
-      const response = sendSuccess(res, 
+      const response = sendSuccess(
+        res,
         { reorderedCount: productOrders.length },
         'Products reordered successfully'
       )

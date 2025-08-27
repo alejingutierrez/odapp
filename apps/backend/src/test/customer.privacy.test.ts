@@ -4,7 +4,7 @@ import { auditService } from '../services/audit.service.js'
 import { AppError } from '../lib/errors.js'
 
 // Mock dependencies
-vi.mock('../lib/prisma.js')
+vi.mock('../lib/prisma')
 vi.mock('../services/audit.service.js')
 vi.mock('../lib/cache/index.js')
 
@@ -32,7 +32,7 @@ const mockPrisma = {
   $transaction: vi.fn(),
 }
 
-vi.mock('../lib/prisma.js', () => ({
+vi.mock('../lib/prisma', () => ({
   prisma: mockPrisma,
 }))
 

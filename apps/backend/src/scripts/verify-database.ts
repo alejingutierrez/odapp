@@ -7,7 +7,7 @@ import {
   connectDatabase,
   disconnectDatabase,
   getDatabaseMetrics,
-} from '../lib/prisma.js'
+} from '../lib/prisma'
 
 async function verifyDatabase() {
   console.log('🔍 Starting database verification...\n')

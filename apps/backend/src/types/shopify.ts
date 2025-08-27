@@ -1,3 +1,62 @@
+// Shopify API Types and shared interfaces
+
+export interface CircuitBreakerConfig {
+  failureThreshold: number
+  recoveryTimeout: number
+  monitoringPeriod?: number
+}
+
+export interface CircuitBreakerStatus {
+  state: 'closed' | 'open' | 'half-open'
+  failureCount: number
+  lastFailureTime?: Date
+  nextAttemptTime?: Date
+}
+
+export interface RateLimitConfig {
+  maxRequests: number
+  windowMs: number
+}
+
+export interface RateLimitStatus {
+  remaining: number
+  resetTime: Date
+  isLimited: boolean
+}
+
+export interface RetryConfig {
+  maxRetries: number
+  baseDelay: number
+  backoffFactor: number
+  maxDelay: number
+}
+
+export interface RetryAttempt {
+  attempt: number
+  delay: number
+  error?: Error
+}
+
+export interface ProductConflict {
+  localProduct: Record<string, unknown>
+  shopifyProduct: ShopifyProduct
+  conflictFields: string[]
+  conflictType: 'data' | 'timestamp' | 'version'
+}
+
+export interface CustomerConflict {
+  localCustomer: Record<string, unknown>
+  shopifyCustomer: ShopifyCustomer
+  conflictFields: string[]
+  conflictType: 'data' | 'timestamp' | 'duplicate'
+}
+
+export interface ConflictResolution {
+  action: 'overwrite' | 'skip' | 'merge'
+  mergedData?: Record<string, unknown>
+  reason?: string
+}
+
 // Shopify API Types
 export interface ShopifyProduct {
   id: number
@@ -200,4 +259,8 @@ export interface WebhookEvent {
   shop_domain: string
   created_at: string
   data: any
+  topic?: string
+  timestamp?: string
+  payload?: any
+  headers?: Record<string, string>
 }

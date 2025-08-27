@@ -2,11 +2,7 @@ import { EventEmitter } from 'events'
 
 import { PrismaClient, AdjustmentType, TransferStatus } from '@prisma/client'
 
-import { 
-  NotFoundError, 
-  BusinessLogicError, 
-  ConflictError 
-} from '../lib/errors'
+import { NotFoundError, BusinessLogicError, ConflictError } from '../lib/errors'
 import { logger } from '../lib/logger'
 
 export interface InventoryUpdateData {
@@ -76,6 +72,18 @@ export interface InventoryReportFilters {
 export class InventoryService extends EventEmitter {
   constructor(private _prisma: PrismaClient) {
     super()
+  }
+
+  async adjustInventory(
+    _productId: string | null,
+    _variantId: string | null,
+    _quantityChange: number,
+    _reason?: string,
+    _notes?: string,
+    _userId?: string,
+    _referenceId?: string
+  ): Promise<void> {
+    // Placeholder implementation
   }
 
   // ============================================================================
@@ -436,7 +444,9 @@ export class InventoryService extends EventEmitter {
       }
 
       if (quantityFulfilled > reservation.quantity) {
-        throw new BusinessLogicError('Cannot fulfill more than reserved quantity')
+        throw new BusinessLogicError(
+          'Cannot fulfill more than reserved quantity'
+        )
       }
 
       // Get inventory item
@@ -799,7 +809,9 @@ export class InventoryService extends EventEmitter {
         }
 
         if (receivedItem.quantityReceived > transferItem.quantityShipped) {
-          throw new BusinessLogicError('Cannot receive more than shipped quantity')
+          throw new BusinessLogicError(
+            'Cannot receive more than shipped quantity'
+          )
         }
 
         // Update transfer item

@@ -408,4 +408,8 @@ export class ConflictResolver {
         })) || [],
     }
   }
+
+  async resolve(_data: unknown): Promise<void> {
+    logger.info('Conflict resolution placeholder', { data: _data })
+  }
 }

@@ -8,7 +8,6 @@ export class CircuitBreaker {
   private lastFailureTime?: Date
   private nextAttemptTime?: Date
 
-   
   constructor(private config: CircuitBreakerConfig) {}
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
@@ -69,6 +68,14 @@ export class CircuitBreaker {
       lastFailureTime: this.lastFailureTime,
       nextAttemptTime: this.nextAttemptTime,
     }
+  }
+
+  isOpen(): boolean {
+    return this.state === 'open'
+  }
+
+  getFailureCount(): number {
+    return this.failureCount
   }
 
   reset(): void {

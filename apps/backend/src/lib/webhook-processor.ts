@@ -11,7 +11,6 @@ import {
 
 import { logger } from './logger'
 
-
 export class WebhookProcessor {
   constructor(private _prisma: PrismaClient) {}
 
@@ -86,7 +85,7 @@ export class WebhookProcessor {
       return true // Allow in development
     }
 
-    const hmacHeader = event.headers['x-shopify-hmac-sha256']
+    const hmacHeader = event.headers?.['x-shopify-hmac-sha256']
     if (!hmacHeader) {
       logger.error('Missing HMAC header in webhook')
       return false
@@ -371,7 +370,9 @@ export class WebhookProcessor {
       data: {
         name: shopifyProduct.title || 'Untitled Product', // Added required field
         slug: `product-${shopifyProduct.id}`, // Added required field
-        price: shopifyProduct.variants[0]?.price ? parseFloat(shopifyProduct.variants[0].price) : 0, // Added required field
+        price: shopifyProduct.variants[0]?.price
+          ? parseFloat(shopifyProduct.variants[0].price)
+          : 0, // Added required field
         description: shopifyProduct.body_html,
         // vendor: shopifyProduct.vendor, // Removed - not a valid field
         // productType: shopifyProduct.product_type, // Removed - not a valid field
@@ -458,12 +459,15 @@ export class WebhookProcessor {
         currency: shopifyOrder.currency,
         subtotal: parseFloat(shopifyOrder.subtotal_price || '0'),
         taxAmount: parseFloat(shopifyOrder.total_tax || '0'),
-        shippingAmount: parseFloat(shopifyOrder.total_shipping_price_set?.shop_money?.amount || '0'),
+        shippingAmount: parseFloat(
+          shopifyOrder.total_shipping_price_set?.shop_money?.amount || '0'
+        ),
         totalAmount: parseFloat(shopifyOrder.total_price || '0'),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         financialStatus: shopifyOrder.financial_status as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        fulfillmentStatus: shopifyOrder.fulfillment_status || 'unfulfilled' as any,
+
+        fulfillmentStatus:
+          shopifyOrder.fulfillment_status || ('unfulfilled' as any),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         customerId: (customer as any)?.id,
         shopifyId: shopifyOrder.id.toString(),
@@ -492,8 +496,9 @@ export class WebhookProcessor {
       data: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         financialStatus: shopifyOrder.financial_status as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        fulfillmentStatus: shopifyOrder.fulfillment_status || 'unfulfilled' as any,
+
+        fulfillmentStatus:
+          shopifyOrder.fulfillment_status || ('unfulfilled' as any),
         // syncStatus: 'synced', // Removed - not a valid field
         lastSyncedAt: new Date(),
       },

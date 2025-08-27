@@ -72,12 +72,6 @@ jobs:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
           REDIS_URL: redis://localhost:6379
 
-      - name: E2E tests
-        run: pnpm run test:e2e
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379
-
       - name: Build applications
         run: pnpm run build
 

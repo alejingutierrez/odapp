@@ -28,7 +28,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "antd": "^5.27.1",
     "dayjs": "^1.11.10",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.18.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.48.2",
@@ -63,9 +63,9 @@
     "jest-axe": "^10.0.0",
     "jsdom": "^23.0.1",
     "msw": "^2.0.11",
-    "storybook": "^7.6.20",
+    "storybook": "^7.6.21",
     "typescript": "^5.9.2",
-    "vite": "^5.0.8",
+    "vite": "^6.4.2",
     "vitest": "^1.1.0"
   }
 }
